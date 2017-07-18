@@ -17,7 +17,6 @@
 
 package org.apache.marmotta.ldcache.backend.kiwi;
 
-import info.aduna.iteration.CloseableIteration;
 import java.sql.SQLException;
 import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
@@ -26,6 +25,7 @@ import org.apache.marmotta.ldcache.backend.kiwi.model.KiWiCacheEntry;
 import org.apache.marmotta.ldcache.backend.kiwi.persistence.LDCachingKiWiPersistence;
 import org.apache.marmotta.ldcache.backend.kiwi.persistence.LDCachingKiWiPersistenceConnection;
 import org.apache.marmotta.ldcache.model.CacheEntry;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;

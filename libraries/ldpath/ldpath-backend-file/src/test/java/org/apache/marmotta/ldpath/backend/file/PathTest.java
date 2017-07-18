@@ -17,22 +17,19 @@
  */
 package org.apache.marmotta.ldpath.backend.file;
 
-import static org.hamcrest.Matchers.hasItem;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.marmotta.ldpath.LDPath;
-import org.apache.marmotta.ldpath.backend.file.FileBackend;
 import org.apache.marmotta.ldpath.backend.sesame.SesameRepositoryBackend;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.hamcrest.CoreMatchers;
+import static org.hamcrest.Matchers.hasItem;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openrdf.model.Value;
-import org.openrdf.repository.RepositoryException;
 
 
 /**

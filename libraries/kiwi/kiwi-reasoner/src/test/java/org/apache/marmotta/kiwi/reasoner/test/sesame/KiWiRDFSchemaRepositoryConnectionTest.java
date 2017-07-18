@@ -67,7 +67,7 @@ public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryCo
     }
 
     /* (non-Javadoc)
-     * @see org.openrdf.repository.RepositoryConnectionTest#createRepository()
+     * @see org.eclipse.rdf4j.repository.RepositoryConnectionTest#createRepository()
      */
     @Override
     protected Repository createRepository() throws Exception {

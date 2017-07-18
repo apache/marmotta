@@ -20,43 +20,71 @@ package org.apache.marmotta.ostrich.sail;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.protobuf.Empty;
 import com.google.protobuf.Int64Value;
-import info.aduna.iteration.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import org.apache.marmotta.ostrich.client.proto.Sail;
-import org.apache.marmotta.ostrich.client.proto.SailServiceGrpc;
-import org.apache.marmotta.ostrich.client.proto.Sparql;
-import org.apache.marmotta.ostrich.client.proto.SparqlServiceGrpc;
-import org.apache.marmotta.ostrich.model.*;
-import org.apache.marmotta.ostrich.model.proto.Model;
-import org.openrdf.model.*;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.Dataset;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryInterruptedException;
-import org.openrdf.query.algebra.QueryRoot;
-import org.openrdf.query.algebra.StatementPattern;
-import org.openrdf.query.algebra.TupleExpr;
-import org.openrdf.query.algebra.Var;
-import org.openrdf.query.algebra.evaluation.EvaluationStrategy;
-import org.openrdf.query.algebra.evaluation.TripleSource;
-import org.openrdf.query.algebra.evaluation.impl.*;
-import org.openrdf.query.impl.EmptyBindingSet;
-import org.openrdf.query.impl.MapBindingSet;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.NotifyingSailConnectionBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.nio.channels.ClosedByInterruptException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import org.apache.marmotta.ostrich.client.proto.Sail;
+import org.apache.marmotta.ostrich.client.proto.SailServiceGrpc;
+import org.apache.marmotta.ostrich.client.proto.Sparql;
+import org.apache.marmotta.ostrich.client.proto.SparqlServiceGrpc;
+import org.apache.marmotta.ostrich.model.ProtoBNode;
+import org.apache.marmotta.ostrich.model.ProtoDatatypeLiteral;
+import org.apache.marmotta.ostrich.model.ProtoIRI;
+import org.apache.marmotta.ostrich.model.ProtoNamespace;
+import org.apache.marmotta.ostrich.model.ProtoStatement;
+import org.apache.marmotta.ostrich.model.ProtoStringLiteral;
+import org.apache.marmotta.ostrich.model.proto.Model;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.common.iteration.ConvertingIteration;
+import org.eclipse.rdf4j.common.iteration.DelayedIteration;
+import org.eclipse.rdf4j.common.iteration.ExceptionConvertingIteration;
+import org.eclipse.rdf4j.common.iteration.Iteration;
+import org.eclipse.rdf4j.common.iteration.IteratorIteration;
+import org.eclipse.rdf4j.common.iteration.UnionIteration;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.Dataset;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryInterruptedException;
+import org.eclipse.rdf4j.query.algebra.QueryRoot;
+import org.eclipse.rdf4j.query.algebra.StatementPattern;
+import org.eclipse.rdf4j.query.algebra.TupleExpr;
+import org.eclipse.rdf4j.query.algebra.Var;
+import org.eclipse.rdf4j.query.algebra.evaluation.TripleSource;
+import org.eclipse.rdf4j.query.algebra.evaluation.federation.FederatedServiceResolverImpl;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.BindingAssigner;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.CompareOptimizer;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.ConjunctiveConstraintSplitter;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.ConstantOptimizer;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.DisjunctiveConstraintOptimizer;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.EvaluationStatistics;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.FilterOptimizer;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.IterativeEvaluationOptimizer;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.OrderLimitOptimizer;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.QueryJoinOptimizer;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.QueryModelNormalizer;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.SameTermFilterOptimizer;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.StrictEvaluationStrategy;
+import org.eclipse.rdf4j.query.impl.EmptyBindingSet;
+import org.eclipse.rdf4j.query.impl.MapBindingSet;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.NotifyingSailConnectionBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Add file description here!
@@ -109,7 +137,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
     }
 
     @Override
-    protected void addStatementInternal(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+    protected void addStatementInternal(Resource subj, IRI pred, Value obj, Resource... contexts) throws SailException {
         log.debug("Adding statements.");
         ensureTransaction();
 
@@ -151,7 +179,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
 
         try {
             CMarmottaTripleSource tripleSource = new CMarmottaTripleSource(this,includeInferred);
-            EvaluationStrategy strategy = new EvaluationStrategyImpl(tripleSource, dataset);
+            StrictEvaluationStrategy strategy = new StrictEvaluationStrategy(tripleSource, dataset, new FederatedServiceResolverImpl());
 
             new BindingAssigner().optimize(tupleExpr, dataset, bindings);
             new ConstantOptimizer(strategy).optimize(tupleExpr, dataset, bindings);
@@ -188,7 +216,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
         if (baseUri != null) {
             request = Sparql.SparqlRequest.newBuilder()
                     .setQuery(query)
-                    .setBaseUri(new ProtoURI(baseUri).getMessage())
+                    .setBaseUri(new ProtoIRI(baseUri).getMessage())
                     .build();
         } else {
             request = Sparql.SparqlRequest.newBuilder()
@@ -209,7 +237,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
                                 case RESOURCE:
                                     switch(b.getValue().getResource().getResourcesCase()) {
                                         case URI:
-                                            v = new ProtoURI(b.getValue().getResource().getUri());
+                                            v = new ProtoIRI(b.getValue().getResource().getUri());
                                             break;
                                         case BNODE:
                                             v = new ProtoBNode(b.getValue().getResource().getBnode());
@@ -254,7 +282,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
         if (baseUri != null) {
             request = Sparql.SparqlRequest.newBuilder()
                     .setQuery(query)
-                    .setBaseUri(new ProtoURI(baseUri).getMessage())
+                    .setBaseUri(new ProtoIRI(baseUri).getMessage())
                     .build();
         } else {
             request = Sparql.SparqlRequest.newBuilder()
@@ -292,7 +320,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
         if (baseUri != null) {
             request = Sparql.SparqlRequest.newBuilder()
                     .setQuery(query)
-                    .setBaseUri(new ProtoURI(baseUri).getMessage())
+                    .setBaseUri(new ProtoIRI(baseUri).getMessage())
                     .build();
         } else {
             request = Sparql.SparqlRequest.newBuilder()
@@ -316,7 +344,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
     }
 
     @Override
-    protected CloseableIteration<? extends Statement, SailException> getStatementsInternal(Resource subj, URI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
+    protected CloseableIteration<? extends Statement, SailException> getStatementsInternal(Resource subj, IRI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
         log.info("Committing transaction before querying ...");
         commitForQuery();
 
@@ -346,7 +374,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
 
         Sail.ContextRequest.Builder builder = Sail.ContextRequest.newBuilder();
         for (Resource ctx : contexts) {
-            if (ctx instanceof URI) {
+            if (ctx instanceof IRI) {
                 builder.addContextBuilder().getUriBuilder().setUri(ctx.stringValue());
             } else if(ctx instanceof BNode) {
                 builder.addContextBuilder().getBnodeBuilder().setId(ctx.stringValue());
@@ -399,7 +427,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
     }
 
     @Override
-    protected void removeStatementsInternal(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+    protected void removeStatementsInternal(Resource subj, IRI pred, Value obj, Resource... contexts) throws SailException {
         log.debug("Removing statements.");
         commitForQuery();
         ensureTransaction();
@@ -531,7 +559,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
             protected Resource convert(Model.Resource sourceObject) throws SailException {
                 switch (sourceObject.getResourcesCase()) {
                     case URI:
-                        return new ProtoURI(sourceObject.getUri());
+                        return new ProtoIRI(sourceObject.getUri());
                     case BNODE:
                         return new ProtoBNode(sourceObject.getBnode());
                 }
@@ -577,7 +605,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
         }
 
         @Override
-        public CloseableIteration<? extends Statement, QueryEvaluationException> getStatements(Resource subj, URI pred, Value obj, Resource... contexts) throws QueryEvaluationException {
+        public CloseableIteration<? extends Statement, QueryEvaluationException> getStatements(Resource subj, IRI pred, Value obj, Resource... contexts) throws QueryEvaluationException {
             try {
                 return new ExceptionConvertingIteration<Statement, QueryEvaluationException>(
                         connection.getStatements(subj, pred, obj, inferred, contexts)

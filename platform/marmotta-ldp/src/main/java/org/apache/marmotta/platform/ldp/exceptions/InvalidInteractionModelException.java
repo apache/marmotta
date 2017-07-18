@@ -37,7 +37,7 @@ public class InvalidInteractionModelException extends LDPException {
         this(uri.toASCIIString());
     }
 
-    public InvalidInteractionModelException(org.openrdf.model.IRI uri) {
+    public InvalidInteractionModelException(org.eclipse.rdf4j.model.IRI uri) {
         this(uri.stringValue());
     }
 

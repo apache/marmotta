@@ -110,7 +110,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
      * Signals the start of the RDF data. This method is called before any data
      * is reported.
      * 
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *             If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -122,7 +122,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
      * Signals the end of the RDF data. This method is called when all data has
      * been reported.
      * 
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *             If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -258,7 +258,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
      *            default namespace.
      * @param iri
      *            The IRI that the prefix maps to.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *             If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -272,7 +272,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
      * 
      * @param st
      *            The statement.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *             If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -302,7 +302,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
      * 
      * @param comment
      *            The comment.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *             If the RDF handler has encountered an unrecoverable error.
      */
     @Override

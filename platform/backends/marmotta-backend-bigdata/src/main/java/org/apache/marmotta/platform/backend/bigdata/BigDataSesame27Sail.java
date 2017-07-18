@@ -18,14 +18,14 @@ package org.apache.marmotta.platform.backend.bigdata;
 
 import com.bigdata.rdf.sail.BigdataSail;
 import com.bigdata.rdf.store.AbstractTripleStore;
-import info.aduna.iteration.CloseableIteration;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.URI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.query.BindingSet;
@@ -37,9 +37,9 @@ import org.eclipse.rdf4j.sail.NotifyingSailConnection;
 import org.eclipse.rdf4j.sail.SailChangedEvent;
 import org.eclipse.rdf4j.sail.SailChangedListener;
 import org.eclipse.rdf4j.sail.SailException;
-import org.eclipse.rdf4j.sail.helpers.NotifyingSailBase;
+import org.eclipse.rdf4j.sail.helpers.AbstractNotifyingSail;
+import org.eclipse.rdf4j.sail.helpers.AbstractSail;
 import org.eclipse.rdf4j.sail.helpers.NotifyingSailConnectionBase;
-import org.eclipse.rdf4j.sail.helpers.SailBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class BigDataSesame27Sail extends NotifyingSailBase implements NotifyingSail {
+public class BigDataSesame27Sail extends AbstractNotifyingSail implements NotifyingSail {
 
     private static Logger log = LoggerFactory.getLogger(BigDataSesame27Sail.class);
 
@@ -197,7 +197,7 @@ public class BigDataSesame27Sail extends NotifyingSailBase implements NotifyingS
     protected static class BigDataSesame27SailConnection extends NotifyingSailConnectionBase {
         BigdataSail.BigdataSailConnection con;
 
-        public BigDataSesame27SailConnection(SailBase sailBase, BigdataSail.BigdataSailConnection con) {
+        public BigDataSesame27SailConnection(AbstractSail sailBase, BigdataSail.BigdataSailConnection con) {
             super(sailBase);
             this.con = con;
         }
@@ -222,7 +222,7 @@ public class BigDataSesame27Sail extends NotifyingSailBase implements NotifyingS
         }
 
         @Override
-        protected CloseableIteration<? extends Statement, SailException> getStatementsInternal(Resource subj, URI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
+        protected CloseableIteration<? extends Statement, SailException> getStatementsInternal(Resource subj, IRI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
             return con.getStatements(subj,pred,obj,includeInferred,contexts);
         }
 
@@ -247,12 +247,12 @@ public class BigDataSesame27Sail extends NotifyingSailBase implements NotifyingS
         }
 
         @Override
-        protected void addStatementInternal(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+        protected void addStatementInternal(Resource subj, IRI pred, Value obj, Resource... contexts) throws SailException {
             con.addStatement(subj,pred,obj,contexts);
         }
 
         @Override
-        protected void removeStatementsInternal(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+        protected void removeStatementsInternal(Resource subj, IRI pred, Value obj, Resource... contexts) throws SailException {
             con.removeStatements(subj,pred,obj,contexts);
         }
 

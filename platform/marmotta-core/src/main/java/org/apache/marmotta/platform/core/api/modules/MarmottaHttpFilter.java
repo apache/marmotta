@@ -20,8 +20,9 @@ package org.apache.marmotta.platform.core.api.modules;
 import javax.servlet.Filter;
 
 /**
+ * <p>
  * Add file description here!
- * <p/>
+ * </p>
  * User: sschaffe
  */
 public interface MarmottaHttpFilter extends Filter {

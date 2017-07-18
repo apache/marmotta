@@ -180,9 +180,9 @@ public class ResourceUtils {
      * <br>This is a convenience method and does not really fit whith <em>Resource</em>Utils.
      *
      * @param conn the {@link org.apache.marmotta.commons.sesame.repository.ResourceConnection} to check on
-     * @param subj the subject of the {@link org.openrdf.model.Statement} or <code>null</code> for a wildcard.
-     * @param pred the predicate of the {@link org.openrdf.model.Statement} or <code>null</code> for a wildcard.
-     * @param object the object of the {@link org.openrdf.model.Statement} or <code>null</code> for a wildcard.
+     * @param subj the subject of the {@link org.eclipse.rdf4j.model.Statement} or <code>null</code> for a wildcard.
+     * @param pred the predicate of the {@link org.eclipse.rdf4j.model.Statement} or <code>null</code> for a wildcard.
+     * @param object the object of the {@link org.eclipse.rdf4j.model.Statement} or <code>null</code> for a wildcard.
      * @return true if a {@link Statement} with the provided constraints exists.
      */
     public static boolean existsStatement(RepositoryConnection conn, Resource subj, IRI pred, Value object, Resource ... context) {
@@ -1403,7 +1403,7 @@ public class ResourceUtils {
      * Get the last modification of the set of triples passed as argument.
      *
      * @return date
-     * @throws org.openrdf.repository.RepositoryException
+     * @throws org.eclipse.rdf4j.repository.RepositoryException
      */
     public static Date getLastModified(RepositoryConnection conn, Resource resource) throws RepositoryException {
         Date last_modified = new Date(0);

@@ -99,7 +99,7 @@ public class VCardParser extends AbstractRDFParser {
     }
 
     /**
-     * Creates a new AbstractRDFParser that will use a {@link org.openrdf.model.impl.ValueFactoryImpl} to
+     * Creates a new AbstractRDFParser that will use a {@link org.eclipse.rdf4j.model.impl.ValueFactoryImpl} to
      * create RDF model objects.
      */
     public VCardParser() {
@@ -133,9 +133,9 @@ public class VCardParser extends AbstractRDFParser {
      * @param in      The InputStream from which to read the data.
      * @param baseIRI The IRI associated with the data in the InputStream.
      * @throws java.io.IOException If an I/O error occurred while data was read from the InputStream.
-     * @throws org.openrdf.rio.RDFParseException
+     * @throws org.eclipse.rdf4j.rio.RDFParseException
      *                             If the parser has found an unrecoverable parse error.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *                             If the configured statement handler has encountered an
      *                             unrecoverable error.
      */
@@ -160,9 +160,9 @@ public class VCardParser extends AbstractRDFParser {
      * @param reader  The Reader from which to read the data.
      * @param baseIRI The IRI associated with the data in the InputStream.
      * @throws java.io.IOException If an I/O error occurred while data was read from the InputStream.
-     * @throws org.openrdf.rio.RDFParseException
+     * @throws org.eclipse.rdf4j.rio.RDFParseException
      *                             If the parser has found an unrecoverable parse error.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *                             If the configured statement handler has encountered an
      *                             unrecoverable error.
      */

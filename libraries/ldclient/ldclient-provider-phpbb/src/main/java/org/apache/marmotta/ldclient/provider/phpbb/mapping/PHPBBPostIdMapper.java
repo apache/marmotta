@@ -17,13 +17,12 @@
  */
 package org.apache.marmotta.ldclient.provider.phpbb.mapping;
 
-import org.apache.marmotta.ldclient.provider.html.mapping.CssSelectorMapper;
-import org.jsoup.nodes.Element;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.util.Collections;
 import java.util.List;
+import org.apache.marmotta.ldclient.provider.html.mapping.CssSelectorMapper;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.jsoup.nodes.Element;
 
 /**
  * Maps a PHPBB Post ID (starting with p...., e.g. p105946, to a PHPBB URI, e.g.

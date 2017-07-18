@@ -177,7 +177,7 @@ public class KiWiSnapshotConnection implements SailConnection {
      * same transaction.
      *
      * @since 2.8.0
-     * @throws org.openrdf.sail.SailException If the updates could not be
+     * @throws org.eclipse.rdf4j.sail.SailException If the updates could not be
      * processed, for example because no transaction is active.
      * @throws IllegalStateException If the connection has been closed.
      */
@@ -362,10 +362,10 @@ public class KiWiSnapshotConnection implements SailConnection {
 
     /**
      * Adds a statement to the store. Called when adding statements through a
-     * {@link org.openrdf.query.algebra.UpdateExpr} operation.
+     * {@link org.eclipse.rdf4j.query.algebra.UpdateExpr} operation.
      *
      * @param op operation properties of the
-     * {@link org.openrdf.query.algebra.UpdateExpr} operation producing these
+     * {@link org.eclipse.rdf4j.query.algebra.UpdateExpr} operation producing these
      * statements.
      * @param subj The subject of the statement to add.
      * @param pred The predicate of the statement to add.
@@ -373,7 +373,7 @@ public class KiWiSnapshotConnection implements SailConnection {
      * @param contexts The context(s) to add the statement to. Note that this
      * parameter is a vararg and as such is optional. If no contexts are
      * specified, a context-less statement will be added.
-     * @throws org.openrdf.sail.SailException If the statement could not be
+     * @throws org.eclipse.rdf4j.sail.SailException If the statement could not be
      * added, for example because no transaction is active.
      * @throws IllegalStateException If the connection has been closed.
      */
@@ -395,11 +395,11 @@ public class KiWiSnapshotConnection implements SailConnection {
      * this method returns with an exception the caller should treat the
      * exception as if it came from a call to {@link #commit()}.
      *
-     * @throws org.openrdf.sail.UnknownSailTransactionStateException If the
+     * @throws org.eclipse.rdf4j.sail.UnknownSailTransactionStateException If the
      * transaction state can not be determined (this can happen for instance
      * when communication between client and server fails or times-out). It does
      * not indicate a problem with the integrity of the store.
-     * @throws org.openrdf.sail.SailException If there is an active transaction
+     * @throws org.eclipse.rdf4j.sail.SailException If there is an active transaction
      * and it cannot be committed.
      * @throws IllegalStateException If the connection has been closed or
      * prepare was already called by another thread.
@@ -413,13 +413,13 @@ public class KiWiSnapshotConnection implements SailConnection {
     /**
      * Signals the start of an update operation. The given <code>op</code> maybe
      * passed to subsequent
-     * {@link #addStatement(org.openrdf.sail.UpdateContext, org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, org.openrdf.model.Resource...)}
+     * {@link #addStatement(org.eclipse.rdf4j.sail.UpdateContext, org.eclipse.rdf4j.model.Resource, org.eclipse.rdf4j.model.URI, org.eclipse.rdf4j.model.Value, org.eclipse.rdf4j.model.Resource...)}
      * or
-     * {@link #removeStatement(org.openrdf.sail.UpdateContext, org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, org.openrdf.model.Resource...)}
-     * calls before {@link #endUpdate(org.openrdf.sail.UpdateContext)} is
+     * {@link #removeStatement(org.eclipse.rdf4j.sail.UpdateContext, org.eclipse.rdf4j.model.Resource, org.eclipse.rdf4j.model.URI, org.eclipse.rdf4j.model.Value, org.eclipse.rdf4j.model.Resource...)}
+     * calls before {@link #endUpdate(org.eclipse.rdf4j.sail.UpdateContext)} is
      * called.
      *
-     * @throws org.openrdf.sail.SailException
+     * @throws org.eclipse.rdf4j.sail.SailException
      */
     @Override
     public void startUpdate(UpdateContext op) throws SailException {
@@ -430,10 +430,10 @@ public class KiWiSnapshotConnection implements SailConnection {
      * Removes all statements matching the specified subject, predicate and
      * object from the repository. All three parameters may be null to indicate
      * wildcards. Called when removing statements through a
-     * {@link org.openrdf.query.algebra.UpdateExpr} operation.
+     * {@link org.eclipse.rdf4j.query.algebra.UpdateExpr} operation.
      *
      * @param op operation properties of the
-     * {@link org.openrdf.query.algebra.UpdateExpr} operation removing these
+     * {@link org.eclipse.rdf4j.query.algebra.UpdateExpr} operation removing these
      * statements.
      * @param subj The subject of the statement that should be removed.
      * @param pred The predicate of the statement that should be removed.
@@ -442,7 +442,7 @@ public class KiWiSnapshotConnection implements SailConnection {
      * that this parameter is a vararg and as such is optional. If no contexts
      * are specified the method operates on the entire repository. A
      * <tt>null</tt> value can be used to match context-less statements.
-     * @throws org.openrdf.sail.SailException If the statement could not be
+     * @throws org.eclipse.rdf4j.sail.SailException If the statement could not be
      * removed, for example because no transaction is active.
      * @throws IllegalStateException If the connection has been closed.
      */
@@ -457,7 +457,7 @@ public class KiWiSnapshotConnection implements SailConnection {
      * operation states that may have occurred.
      *
      * @param op
-     * @throws org.openrdf.sail.SailException
+     * @throws org.eclipse.rdf4j.sail.SailException
      */
     @Override
     public void endUpdate(UpdateContext op) throws SailException {
@@ -509,7 +509,7 @@ public class KiWiSnapshotConnection implements SailConnection {
          * this parameter is a vararg and as such is optional. If no contexts
          * are supplied the method operates on the entire repository.
          * @return An iterator over the relevant statements.
-         * @throws org.openrdf.query.QueryEvaluationException If the triple
+         * @throws org.eclipse.rdf4j.query.QueryEvaluationException If the triple
          * source failed to get the statements.
          */
         @Override

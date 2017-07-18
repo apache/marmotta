@@ -17,8 +17,14 @@
  */
 package org.apache.marmotta.ldclient.provider.youtube;
 
-import org.apache.marmotta.commons.sesame.model.Namespaces;
 import com.google.common.collect.ImmutableList;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.provider.xml.AbstractXMLDataProvider;
@@ -28,14 +34,6 @@ import org.apache.marmotta.ldclient.provider.xml.mapping.XPathValueMapper;
 import org.apache.marmotta.ldclient.provider.youtube.mapping.YoutubeUriMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.openrdf.model.IRI;
 
 /**
  * Support YouTube user channels as data source; they are mapped to collections in the Media Ontology
@@ -148,7 +146,7 @@ public class YoutubeChannelProvider extends AbstractXMLDataProvider implements D
      * @param resource
      */
     @Override
-    protected List<String> getTypes(org.openrdf.model.IRI resource) {
+    protected List<String> getTypes(org.eclipse.rdf4j.model.IRI resource) {
         return ImmutableList.of(NS_MEDIA + "Collection", Namespaces.NS_LMF_TYPES + "YoutubePlaylist");
     }
 

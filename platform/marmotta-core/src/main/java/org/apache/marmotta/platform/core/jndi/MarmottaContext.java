@@ -17,13 +17,33 @@
  */
 package org.apache.marmotta.platform.core.jndi;
 
-import javax.naming.*;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Properties;
+import javax.naming.Binding;
+import javax.naming.CompoundName;
+import javax.naming.Context;
+import javax.naming.InvalidNameException;
+import javax.naming.Name;
+import javax.naming.NameAlreadyBoundException;
+import javax.naming.NameClassPair;
+import javax.naming.NameNotFoundException;
+import javax.naming.NameParser;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.NotContextException;
+import javax.naming.OperationNotSupportedException;
+import javax.naming.Reference;
+import javax.naming.Referenceable;
 import javax.naming.spi.ObjectFactory;
-import java.util.*;
 
 /**
+ * <p>
  * Add file description here!
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 public class MarmottaContext implements Context {

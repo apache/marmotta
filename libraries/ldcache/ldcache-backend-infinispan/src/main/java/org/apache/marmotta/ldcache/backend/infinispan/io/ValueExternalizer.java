@@ -17,24 +17,23 @@
 
 package org.apache.marmotta.ldcache.backend.infinispan.io;
 
-import org.apache.marmotta.ldcache.backend.infinispan.util.DataIO;
-import org.infinispan.commons.marshall.AdvancedExternalizer;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Value;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.HashSet;
 import java.util.Set;
-import org.openrdf.model.impl.SimpleBNode;
-import org.openrdf.model.impl.SimpleIRI;
-import org.openrdf.model.impl.SimpleLiteral;
-import org.openrdf.model.impl.SimpleValueFactory;
+import org.apache.marmotta.ldcache.backend.infinispan.util.DataIO;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleBNode;
+import org.eclipse.rdf4j.model.impl.SimpleIRI;
+import org.eclipse.rdf4j.model.impl.SimpleLiteral;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.infinispan.commons.marshall.AdvancedExternalizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Add file description here!

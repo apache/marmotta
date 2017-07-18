@@ -83,7 +83,7 @@ public class LDCacheBackend implements RDFBackend<Value> {
      */
     @Override
     public boolean isURI(Value n) {
-        return n instanceof org.openrdf.model.IRI;
+        return n instanceof org.eclipse.rdf4j.model.IRI;
     }
 
     /**
@@ -287,7 +287,7 @@ public class LDCacheBackend implements RDFBackend<Value> {
     }
 
     @Override
-    public org.openrdf.model.IRI createIRI(String uri) {
+    public org.eclipse.rdf4j.model.IRI createIRI(String uri) {
         return SimpleValueFactory.getInstance().createIRI(uri);
     }
 
@@ -319,9 +319,9 @@ public class LDCacheBackend implements RDFBackend<Value> {
     @Override
     public Collection<Value> listObjects(Value subject, Value property) {
         log.info("retrieving resource {}", subject);
-        if(subject instanceof org.openrdf.model.IRI && subject instanceof org.openrdf.model.IRI) {
-            org.openrdf.model.IRI s = (org.openrdf.model.IRI) subject;
-            org.openrdf.model.IRI p = (org.openrdf.model.IRI) property;
+        if(subject instanceof org.eclipse.rdf4j.model.IRI && subject instanceof org.eclipse.rdf4j.model.IRI) {
+            org.eclipse.rdf4j.model.IRI s = (org.eclipse.rdf4j.model.IRI) subject;
+            org.eclipse.rdf4j.model.IRI p = (org.eclipse.rdf4j.model.IRI) property;
             return ldcache.get(s).filter(s, p, null).objects();
         } else {
             return Collections.emptyList();

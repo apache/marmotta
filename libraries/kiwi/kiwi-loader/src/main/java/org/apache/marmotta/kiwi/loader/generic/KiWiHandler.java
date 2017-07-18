@@ -46,6 +46,11 @@ import org.apache.marmotta.kiwi.persistence.registry.DBTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.KiWiTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.LocalTripleRegistry;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.rio.RDFHandler;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
@@ -173,7 +178,7 @@ public class KiWiHandler implements RDFHandler {
      * Signals the end of the RDF data. This method is called when all data has
      * been reported.
      *
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *          If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -196,7 +201,7 @@ public class KiWiHandler implements RDFHandler {
      * Signals the start of the RDF data. This method is called before any data
      * is reported.
      *
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *          If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -231,7 +236,7 @@ public class KiWiHandler implements RDFHandler {
      * @param prefix The prefix for the namespace, or an empty string in case of a
      *               default namespace.
      * @param uri    The URI that the prefix maps to.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *          If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -257,7 +262,7 @@ public class KiWiHandler implements RDFHandler {
      * Handles a statement.
      *
      * @param st The statement.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *          If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -516,7 +521,7 @@ public class KiWiHandler implements RDFHandler {
      * Handles a comment.
      *
      * @param comment The comment.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *          If the RDF handler has encountered an unrecoverable error.
      */
     @Override

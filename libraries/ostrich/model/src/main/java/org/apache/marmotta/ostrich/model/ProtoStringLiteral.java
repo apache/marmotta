@@ -17,10 +17,11 @@
 
 package org.apache.marmotta.ostrich.model;
 
+import java.util.Optional;
 import org.apache.marmotta.ostrich.model.proto.Model;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
 
 /**
  * An implementation of a Sesame Literal backed by a StringLiteral protocol buffer.
@@ -59,11 +60,11 @@ public class ProtoStringLiteral extends ProtoLiteralBase implements Literal {
      * doesn't have one.
      */
     @Override
-    public String getLanguage() {
+    public Optional<String> getLanguage() {
         if ("".equals(message.getLanguage()) || message.getLanguage() == null) {
-            return null;
+            return Optional.empty();
         }
-        return message.getLanguage();
+        return Optional.of(message.getLanguage());
     }
 
     /**
@@ -73,7 +74,7 @@ public class ProtoStringLiteral extends ProtoLiteralBase implements Literal {
      * have one.
      */
     @Override
-    public URI getDatatype() {
+    public IRI getDatatype() {
         return null;
     }
 

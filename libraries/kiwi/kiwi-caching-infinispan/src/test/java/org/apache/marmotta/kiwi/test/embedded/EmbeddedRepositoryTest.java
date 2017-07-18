@@ -49,7 +49,7 @@ public class EmbeddedRepositoryTest extends RepositoryTest {
     }
 
     /* (non-Javadoc)
-     * @see org.openrdf.repository.RepositoryTest#createRepository()
+     * @see org.eclipse.rdf4j.repository.RepositoryTest#createRepository()
      */
     @Override
     protected Repository createRepository() throws Exception {

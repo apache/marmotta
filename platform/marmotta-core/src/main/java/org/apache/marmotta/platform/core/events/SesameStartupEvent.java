@@ -18,8 +18,9 @@
 package org.apache.marmotta.platform.core.events;
 
 /**
+ * <p>
  * Add file description here!
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert (sschaffert@apache.org)
  */
 public class SesameStartupEvent {

@@ -17,14 +17,6 @@
 
 package org.apache.marmotta.ldpath.backend.sesame;
 
-import org.apache.marmotta.ldpath.api.backend.NodeBackend;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Value;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -32,7 +24,14 @@ import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
-import org.openrdf.model.impl.SimpleValueFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SesameValueBackend implements NodeBackend<Value>{
 
@@ -61,7 +60,7 @@ public class SesameValueBackend implements NodeBackend<Value>{
      */
     @Override
     public boolean isURI(Value n) {
-        return n instanceof org.openrdf.model.IRI;
+        return n instanceof org.eclipse.rdf4j.model.IRI;
     }
 
     /**
@@ -265,7 +264,7 @@ public class SesameValueBackend implements NodeBackend<Value>{
     }
 
     @Override
-    public org.openrdf.model.IRI createIRI(String uri) {
+    public org.eclipse.rdf4j.model.IRI createIRI(String uri) {
         return SimpleValueFactory.getInstance().createIRI(uri);
     }
 

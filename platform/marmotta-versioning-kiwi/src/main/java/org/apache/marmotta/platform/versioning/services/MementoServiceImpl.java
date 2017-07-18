@@ -17,18 +17,17 @@
  */
 package org.apache.marmotta.platform.versioning.services;
 
+import java.util.Date;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.platform.versioning.api.MementoService;
 import org.apache.marmotta.platform.versioning.exception.MementoException;
 import org.apache.marmotta.platform.versioning.model.MementoVersionSet;
-import org.openrdf.model.Resource;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.sail.SailException;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.Date;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.sail.SailException;
 
 /**
  * ...

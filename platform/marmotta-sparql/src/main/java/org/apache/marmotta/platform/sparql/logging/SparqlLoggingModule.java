@@ -19,9 +19,8 @@ package org.apache.marmotta.platform.sparql.logging;
 
 import ch.qos.logback.classic.Level;
 import com.google.common.collect.ImmutableSet;
-import org.apache.marmotta.platform.core.logging.BaseLoggingModule;
-
 import java.util.Collection;
+import org.apache.marmotta.platform.core.logging.BaseLoggingModule;
 
 /**
  * Add file description here!
@@ -77,7 +76,7 @@ public class SparqlLoggingModule extends BaseLoggingModule {
         return ImmutableSet.of(
                 "org.apache.marmotta.platform.sparql",
                 "org.apache.marmotta.kiwi.sparql",
-                "org.openrdf.query"
+                "org.eclipse.rdf4j.query"
         );
     }
 }

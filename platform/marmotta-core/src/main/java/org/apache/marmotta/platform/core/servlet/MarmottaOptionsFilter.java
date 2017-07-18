@@ -17,10 +17,7 @@
  */
 package org.apache.marmotta.platform.core.servlet;
 
-import org.jboss.resteasy.core.NoMessageBodyWriterFoundFailure;
-import org.jboss.resteasy.spi.DefaultOptionsMethodException;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
-
+import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -32,14 +29,17 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.io.IOException;
+import org.jboss.resteasy.core.NoMessageBodyWriterFoundFailure;
+import org.jboss.resteasy.spi.DefaultOptionsMethodException;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 /**
+ * <p>
  * This filter checks for OPTIONS requests. If the response returned by the other filters throws an exception
  * org.jboss.resteasy.spi.DefaultOptionsMethodException, the filter writes to the response the default options
  * of the Apache Marmotta system.
  *
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 public class MarmottaOptionsFilter implements Filter {

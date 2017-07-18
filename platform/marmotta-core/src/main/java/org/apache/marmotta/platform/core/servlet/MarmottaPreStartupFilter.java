@@ -17,9 +17,7 @@
  */
 package org.apache.marmotta.platform.core.servlet;
 
-import org.apache.marmotta.platform.core.startup.MarmottaStartupService;
-import org.slf4j.Logger;
-
+import java.io.IOException;
 import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -28,9 +26,11 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
+import org.apache.marmotta.platform.core.startup.MarmottaStartupService;
+import org.slf4j.Logger;
 
 /**
+ * <p>
  * This filter is evaluated when the Apache Marmotta system is accessed for the very first time using an HTTP client (e.g. a
  * browser). Its purpose is to set configuration variables that cannot be determined when the server is starting
  * up because they need information how the server is accessed. In particular, it will set the following
@@ -39,7 +39,7 @@ import java.io.IOException;
  *  <li>kiwi.context - will be set to the base URI of this KiWi installation; used for constructing resource URIs</li>
  *  <li>kiwi.host    - will be set to the base URL of the KiWi installation; used for accessing additional web services like SOLR and H2</li>
  * </ul>
- * <p/>
+ * </p>
  * User: Sebastian Schaffert
  */
 public class MarmottaPreStartupFilter implements Filter {

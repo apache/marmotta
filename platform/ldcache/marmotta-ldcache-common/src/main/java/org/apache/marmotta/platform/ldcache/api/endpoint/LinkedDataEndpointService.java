@@ -17,10 +17,9 @@
  */
 package org.apache.marmotta.platform.ldcache.api.endpoint;
 
-import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
-import org.openrdf.model.IRI;
-
 import java.util.List;
+import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  * A service for managing Linked Data endpoints.

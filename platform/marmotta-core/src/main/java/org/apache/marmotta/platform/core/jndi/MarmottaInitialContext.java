@@ -17,23 +17,23 @@
  */
 package org.apache.marmotta.platform.core.jndi;
 
+import java.util.Hashtable;
+import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.Reference;
 import org.apache.marmotta.platform.core.util.CDIContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.Reference;
-
-import java.util.Hashtable;
-
 /**
+ * <p>
  * This is our own simplified JNDI implementation providing the required functionality for looking up the bean
  * manager and the SOLR home directory.
- * <p/>
+ * </p>
+ * <p>
  * The implementation is based on Simple-JNDI, which already offers the core functionality for memory-based JNDI
  * implementations.
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 public class MarmottaInitialContext extends MarmottaContext {

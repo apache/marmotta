@@ -19,8 +19,9 @@ package org.apache.marmotta.platform.core.exception.io;
 
 
 /**
+ * <p>
  * Thrown if the export format is not supported by the export service.
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 public class UnsupportedExporterException extends MarmottaExportException {

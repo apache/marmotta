@@ -51,7 +51,7 @@ public class EmbeddedRepositoryConnectionTest extends RepositoryConnectionTest {
     }
     
     /* (non-Javadoc)
-     * @see org.openrdf.repository.RepositoryConnectionTest#createRepository()
+     * @see org.eclipse.rdf4j.repository.RepositoryConnectionTest#createRepository()
      */
     @Override
     protected Repository createRepository() throws Exception {

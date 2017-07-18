@@ -72,7 +72,7 @@ public abstract class FeedParserBase extends AbstractRDFParser {
 
 
     /**
-     * Creates a new AbstractRDFParser that will use a {@link org.openrdf.model.impl.ValueFactoryImpl} to
+     * Creates a new AbstractRDFParser that will use a {@link org.eclipse.rdf4j.model.impl.ValueFactoryImpl} to
      * create RDF model objects.
      */
     protected FeedParserBase() {

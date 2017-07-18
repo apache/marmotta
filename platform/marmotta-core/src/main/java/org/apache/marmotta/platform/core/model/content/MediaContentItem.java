@@ -51,7 +51,7 @@ public interface MediaContentItem  extends Facade {
 
     /**
      * Set the IRI location of the content for this resource
-     * @return
+     * @param location
      */
     void setContentLocation(String location);
 }

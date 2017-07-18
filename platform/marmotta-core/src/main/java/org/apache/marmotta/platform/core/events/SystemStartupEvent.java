@@ -18,8 +18,9 @@
 package org.apache.marmotta.platform.core.events;
 
 /**
+ * <p>
  * Add file description here!
- * <p/>
+ * </p>
  * User: sschaffe
  */
 public class SystemStartupEvent {

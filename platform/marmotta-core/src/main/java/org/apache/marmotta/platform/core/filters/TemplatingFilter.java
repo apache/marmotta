@@ -37,8 +37,9 @@ import org.apache.marmotta.platform.core.exception.TemplatingException;
 import org.slf4j.Logger;
 
 /**
+ * <p>
  * Add file description here!
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 @ApplicationScoped

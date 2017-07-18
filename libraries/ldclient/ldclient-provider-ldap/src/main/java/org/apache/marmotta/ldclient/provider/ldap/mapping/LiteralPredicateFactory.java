@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.ldclient.provider.ldap.mapping;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.util.Collections;
 import java.util.Set;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
 
 public class LiteralPredicateFactory extends PredicateObjectFactory {
 

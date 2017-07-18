@@ -17,7 +17,6 @@
  */
 package org.apache.marmotta.ldcache.backend.kiwi.test;
 
-import info.aduna.iteration.CloseableIteration;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,6 +31,7 @@ import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.ldcache.backend.kiwi.model.KiWiCacheEntry;
 import org.apache.marmotta.ldcache.backend.kiwi.persistence.LDCachingKiWiPersistence;
 import org.apache.marmotta.ldcache.backend.kiwi.persistence.LDCachingKiWiPersistenceConnection;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import static org.hamcrest.Matchers.hasItems;
 import org.junit.After;
@@ -298,6 +298,8 @@ public class LDCachePersistenceTest {
     /**
      * Workaround for https://openrdf.atlassian.net/browse/SES-1702 in Sesame 2.7.0-beta1
      * @param <E>
+     * @param <X>
+     * @param result
      * @return
      */
     public static <E,X extends Exception> List<E> asList(CloseableIteration<E,X> result) throws RepositoryException {

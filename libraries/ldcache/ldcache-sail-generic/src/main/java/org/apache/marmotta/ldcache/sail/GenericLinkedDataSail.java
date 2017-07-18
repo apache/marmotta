@@ -17,6 +17,7 @@
 
 package org.apache.marmotta.ldcache.sail;
 
+import org.apache.marmotta.commons.sesame.filter.AlwaysTrueFilter;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.model.CacheConfiguration;

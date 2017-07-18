@@ -19,7 +19,6 @@ package org.apache.marmotta.platform.core.logging;
 
 import ch.qos.logback.classic.Level;
 import com.google.common.collect.ImmutableSet;
-
 import java.util.Collection;
 
 /**
@@ -80,6 +79,6 @@ public class SesameLoggingModule extends BaseLoggingModule {
                 "org.apache.marmotta.platform.core.services.exporter",
                 "org.apache.marmotta.platform.core.webservices.triplestore",
                 "org.apache.marmotta.platform.core.webservices.io",
-                "org.openrdf");
+                "org.eclipse.rdf4j");
     }
 }

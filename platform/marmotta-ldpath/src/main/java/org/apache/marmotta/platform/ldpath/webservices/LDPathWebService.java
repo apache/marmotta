@@ -30,12 +30,20 @@ import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+import static org.apache.marmotta.commons.sesame.repository.ResultUtils.iterable;
 import org.apache.marmotta.commons.util.JSONUtils;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 import org.apache.marmotta.ldpath.backend.sesame.SesameConnectionBackend;
@@ -51,10 +59,10 @@ import org.eclipse.rdf4j.repository.RepositoryException;
 import org.slf4j.Logger;
 
 /**
+ * <p>
  * Execute LDPath queries against the LMF backend. Depending on the LMF configuration, this might trigger retrieval
  * of external Linked Data resources before returning results.
- *
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 @ApplicationScoped

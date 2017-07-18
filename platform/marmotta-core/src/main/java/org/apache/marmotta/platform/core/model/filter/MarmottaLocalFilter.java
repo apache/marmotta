@@ -25,9 +25,10 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
 
 /**
+ * <p>
  * Accept only resources that are considered "local", i.e. either have the same IRI prefix as the system,
  * start with file:, start with urn:, or are blank nodes.
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 public class MarmottaLocalFilter implements ResourceFilter {

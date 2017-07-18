@@ -17,15 +17,16 @@
  */
 package org.apache.marmotta.platform.core.jndi;
 
+import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.InitialContextFactoryBuilder;
-import java.util.Hashtable;
 
 /**
+ * <p>
  * Add file description here!
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 public class MarmottaInitialContextFactoryBuilder implements InitialContextFactoryBuilder {

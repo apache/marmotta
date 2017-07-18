@@ -18,7 +18,6 @@
 package org.apache.marmotta.ostrich.sail;
 
 import com.google.common.base.Preconditions;
-import info.aduna.iteration.CloseableIteration;
 import io.grpc.ClientCall;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
@@ -27,6 +26,7 @@ import io.grpc.stub.AbstractStub;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
 import org.eclipse.rdf4j.sail.SailException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

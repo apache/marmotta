@@ -17,14 +17,13 @@
  */
 package org.apache.marmotta.platform.versioning.model;
 
-import org.apache.marmotta.kiwi.versioning.model.Version;
-import org.apache.marmotta.platform.versioning.exception.MementoException;
-import org.apache.marmotta.platform.versioning.utils.MementoUtils;
-import org.openrdf.model.Resource;
-
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.marmotta.kiwi.versioning.model.Version;
+import org.apache.marmotta.platform.versioning.exception.MementoException;
+import org.apache.marmotta.platform.versioning.utils.MementoUtils;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * This POJO represents a set of resource versions including last, first, prev, next and current versions

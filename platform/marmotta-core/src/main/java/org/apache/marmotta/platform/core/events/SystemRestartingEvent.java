@@ -18,8 +18,9 @@
 package org.apache.marmotta.platform.core.events;
 
 /**
+ * <p>
  * This event is raised when the system is restarted (e.g. database reinitialised)
- * <p/>
+ * </p>
  * User: sschaffe
  */
 public class SystemRestartingEvent {

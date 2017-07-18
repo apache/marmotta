@@ -116,7 +116,7 @@ public abstract class AbstractHTMLDataProvider extends AbstractHttpProvider impl
                 }
             }
 
-            org.openrdf.model.IRI ptype = vf.createIRI(Namespaces.NS_RDF + "type");
+            IRI ptype = vf.createIRI(Namespaces.NS_RDF + "type");
 
             for(String typeUri : getTypes(subject)) {
                 Resource type_resource = vf.createIRI(typeUri);

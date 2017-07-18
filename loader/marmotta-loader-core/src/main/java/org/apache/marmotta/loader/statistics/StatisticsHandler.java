@@ -46,7 +46,7 @@ public class StatisticsHandler extends LoaderHandlerWrapper implements LoaderHan
      * Initialise the handler, performing any initialisation steps that are necessary before bulk importing can
      * start (e.g. dropping indexes or establishing a connection).
      *
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      */
     @Override
     public void initialise() throws RDFHandlerException {
@@ -71,7 +71,7 @@ public class StatisticsHandler extends LoaderHandlerWrapper implements LoaderHan
      * Handles a statement.
      *
      * @param st The statement.
-     * @throws org.openrdf.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
      */
     @Override
     public void handleStatement(Statement st) throws RDFHandlerException {

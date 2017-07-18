@@ -100,7 +100,7 @@ public class KiWiUriResource extends KiWiResource implements IRI {
 
     /**
      * Returns the String-value of a <tt>Value</tt> object. This returns either
-     * a {@link org.openrdf.model.Literal}'s label, a {@link org.openrdf.model.IRI}'s IRI or a {@link org.openrdf.model.BNode}'s ID.
+     * a {@link org.eclipse.rdf4j.model.Literal}'s label, a {@link org.eclipse.rdf4j.model.IRI}'s IRI or a {@link org.eclipse.rdf4j.model.BNode}'s ID.
      */
     @Override
     public String stringValue() {

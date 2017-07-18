@@ -77,7 +77,7 @@ public interface AccountService {
      * 
      * @param user the {@link org.apache.marmotta.platform.core.model.user.MarmottaUser}
      * @return the corresponding {@link UserAccount}, of <code>null</code> if none present.
-     * @see #getAccount(org.openrdf.model.URI)
+     * @see #getAccount(org.eclipse.rdf4j.model.IRI)
      */
     UserAccount getAccount(MarmottaUser user);
 

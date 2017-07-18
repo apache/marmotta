@@ -17,7 +17,6 @@
  */
 package org.apache.marmotta.ldcache.backend.kiwi.persistence;
 
-import info.aduna.iteration.CloseableIteration;
 import java.io.Closeable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,6 +32,7 @@ import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.apache.marmotta.ldcache.backend.kiwi.model.KiWiCacheEntry;
 import org.apache.marmotta.ldcache.model.CacheEntry;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
 import org.eclipse.rdf4j.model.IRI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

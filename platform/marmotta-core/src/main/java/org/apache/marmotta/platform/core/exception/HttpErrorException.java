@@ -45,11 +45,11 @@ public class HttpErrorException extends Exception {
      *
      * @param status http status code
      * @param reason reason phrase
-     * @param uri resource uri
+     * @param iri resource iri
      * @param msg message
      */
-    public HttpErrorException(int status, String reason, String uri, String msg) {
-        this(status, reason, uri, msg, new HashMap<String,String>());
+    public HttpErrorException(int status, String reason, String iri, String msg) {
+        this(status, reason, iri, msg, new HashMap<String,String>());
     }
 
     /**

@@ -19,10 +19,10 @@ package org.apache.marmotta.loader.ostrich;
 
 import org.apache.marmotta.loader.api.LoaderHandler;
 import org.apache.marmotta.ostrich.sail.OstrichSail;
-import org.openrdf.model.Statement;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.sail.SailConnection;
-import org.openrdf.sail.SailException;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.sail.SailConnection;
+import org.eclipse.rdf4j.sail.SailException;
 
 /**
  * Add file description here!

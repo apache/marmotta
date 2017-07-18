@@ -73,12 +73,12 @@ public class TestValueFactory extends AbstractValueFactory {
     }
 
     /**
-     * Creates a new URI from the supplied namespace and local name. Calling this
-     * method is funtionally equivalent to calling {@link #createURI(String)
-     * createURI(namespace+localName)}, but allows the ValueFactory to reuse
+     * Creates a new IRI from the supplied namespace and local name. Calling this
+     * method is funtionally equivalent to calling {@link #createIRI(String)
+     * createIRI(namespace+localName)}, but allows the ValueFactory to reuse
      * supplied namespace and local name strings whenever possible. Note that the
-     * values returned by {@link org.openrdf.model.URI#getNamespace()} and
-     * {@link org.openrdf.model.URI#getLocalName()} are not necessarily the same as the values that
+     * values returned by {@link org.eclipse.rdf4j.model.IRI#getNamespace()} and
+     * {@link org.eclipse.rdf4j.model.IRI#getLocalName()} are not necessarily the same as the values that
      * are supplied to this method.
      *
      * @param namespace The IRI's namespace.

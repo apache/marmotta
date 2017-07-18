@@ -20,14 +20,12 @@ package org.apache.marmotta.ldpath.backend.sesame;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Locale;
-import org.openrdf.model.IRI;
-
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 
 public class SesameConnectionBackend extends AbstractSesameBackend {
 
@@ -63,14 +61,14 @@ public class SesameConnectionBackend extends AbstractSesameBackend {
     }
 
     @Override
-    public org.openrdf.model.IRI createIRI(String uri) {
+    public org.eclipse.rdf4j.model.IRI createIRI(String uri) {
         return createURIInternal(valueFactory, uri);
     }
 
     @Override
     public Collection<Value> listObjects(Value subject, Value property) {
         try {
-            return listObjectsInternal(connection, (Resource) subject, (org.openrdf.model.IRI) property, includeInferred, contexts);
+            return listObjectsInternal(connection, (Resource) subject, (org.eclipse.rdf4j.model.IRI) property, includeInferred, contexts);
         } catch (RepositoryException e) {
             throw new RuntimeException(
                     "error while querying Sesame repository!", e);
@@ -85,7 +83,7 @@ public class SesameConnectionBackend extends AbstractSesameBackend {
     @Override
     public Collection<Value> listSubjects(Value property, Value object) {
         try {
-            return listSubjectsInternal(connection, (org.openrdf.model.IRI) property, object, includeInferred, contexts);
+            return listSubjectsInternal(connection, (org.eclipse.rdf4j.model.IRI) property, object, includeInferred, contexts);
         } catch (RepositoryException e) {
             throw new RuntimeException("error while querying Sesame repository!",e);
         } catch (ClassCastException e) {

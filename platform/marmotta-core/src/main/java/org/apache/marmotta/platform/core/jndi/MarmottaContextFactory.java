@@ -17,18 +17,18 @@
  */
 package org.apache.marmotta.platform.core.jndi;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
-import java.util.Hashtable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
+ * <p>
  * A custom LMF JNDI implementation returning an LMFContext. This implementation should be considerably faster than
  * the one provided by the application server, and in addition requires no configuration on the server side.
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 public class MarmottaContextFactory implements InitialContextFactory {

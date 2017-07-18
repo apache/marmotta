@@ -22,8 +22,9 @@ import java.io.InputStream;
 import org.eclipse.rdf4j.model.Resource;
 
 /**
+ * <p>
  * API for plugins that allow writing of content to some destination.
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 public interface ContentWriter {

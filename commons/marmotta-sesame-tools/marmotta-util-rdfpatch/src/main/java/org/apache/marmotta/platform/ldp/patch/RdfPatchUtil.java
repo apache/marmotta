@@ -42,7 +42,7 @@ import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.RepositoryResult;
 
 /**
- * RdfPatchUtil - Util-Class to apply and create rdf-patches on a {@link Repository} or {@link org.openrdf.repository.RepositoryConnection}
+ * RdfPatchUtil - Util-Class to apply and create rdf-patches on a {@link Repository} or {@link org.eclipse.rdf4j.repository.RepositoryConnection}
  *
  * @author Jakob Frank
  */
@@ -50,7 +50,7 @@ public class RdfPatchUtil {
 
     /**
      * Apply the provided patch to the repository
-     * @param repository the {@link org.openrdf.repository.Repository} to patch
+     * @param repository the {@link org.eclipse.rdf4j.repository.Repository} to patch
      * @param patch the patch to apply
      * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
      * @throws ParseException if the patch could not be parsed
@@ -62,7 +62,7 @@ public class RdfPatchUtil {
 
     /**
      * Apply the provided patch to the repository
-     * @param repository the {@link org.openrdf.repository.Repository} to patch
+     * @param repository the {@link org.eclipse.rdf4j.repository.Repository} to patch
      * @param patchSource the patch to apply
      * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
      * @throws ParseException if the patch could not be parsed
@@ -74,7 +74,7 @@ public class RdfPatchUtil {
 
     /**
      * Apply the provided patch to the repository
-     * @param connection the {@link org.openrdf.repository.RepositoryConnection} to patch
+     * @param connection the {@link org.eclipse.rdf4j.repository.RepositoryConnection} to patch
      * @param patch the patch to apply
      * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
      * @throws ParseException if the patch could not be parsed
@@ -86,7 +86,7 @@ public class RdfPatchUtil {
 
     /**
      * Apply the provided patch to the repository
-     * @param connection the {@link org.openrdf.repository.RepositoryConnection} to patch
+     * @param connection the {@link org.eclipse.rdf4j.repository.RepositoryConnection} to patch
      * @param patchSource the patch to apply
      * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
      * @throws ParseException if the patch could not be parsed
@@ -98,7 +98,7 @@ public class RdfPatchUtil {
 
     /**
      * Apply the provided patch to the repository
-     * @param repository the {@link org.openrdf.repository.Repository} to patch
+     * @param repository the {@link org.eclipse.rdf4j.repository.Repository} to patch
      * @param patch the patch to apply
      * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
      * @throws InvalidPatchDocumentException if the patch is invalid
@@ -119,7 +119,7 @@ public class RdfPatchUtil {
 
     /**
      * Apply the provided patch to the repository
-     * @param connection the {@link org.openrdf.repository.RepositoryConnection} to patch
+     * @param connection the {@link org.eclipse.rdf4j.repository.RepositoryConnection} to patch
      * @param patch the patch to apply
      * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
      * @throws InvalidPatchDocumentException if the patch is invalid

@@ -376,6 +376,7 @@ public interface ConfigurationService {
     /**
      * Set a flag at runtime that is discarded on system shutdown; used e.g. to indicate that certain
      * processes have already been carried out.
+     * @param flag
      * @param value
      */
     void setRuntimeFlag(String flag, boolean value);
@@ -502,6 +503,7 @@ public interface ConfigurationService {
 
     /**
      * Try figuring out on which port the server is running ...
+     * @return 
      */
     int getServerPort();
 

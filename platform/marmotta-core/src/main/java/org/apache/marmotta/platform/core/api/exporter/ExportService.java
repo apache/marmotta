@@ -42,12 +42,14 @@ public interface ExportService {
 
 
     /**
+     * <p>
      * Export the triple data contained in the named graph passed as argument "context" and return
      * it as a Java string using the serialisation format specified by "mimeType".
-     * <p/>
+     * </p>
+     * <p>
      * The context parameter limits the exported triples to the named graph represented by this
      * resource. If it is set to null, all named graphs will be exported.
-     * <p/>
+     * </p>
      * The mime type must be supported by at least one of the registered exporters, otherwise an
      * UnsupportedExporterException. Available mime types can be retrieved using the getProducedTypes()
      * method.
@@ -55,6 +57,7 @@ public interface ExportService {
      *
      * @param context  the named graph to export; if null, all named graphs will be exported
      * @param mimeType a mime type registered by an exporter
+     * @return 
      *
      * @throws UnsupportedExporterException in case there is no matching exporter for the given mime type
      */
@@ -118,8 +121,10 @@ public interface ExportService {
      * method.
      *
      *
+     * @param resource
      * @param context  the named graph to export; if null, all named graphs will be exported
      * @param mimeType a mime type registered by an exporter
+     * @return 
      *
      * @throws UnsupportedExporterException in case there is no matching exporter for the given mime type
      */
@@ -138,6 +143,7 @@ public interface ExportService {
      *
      *
      * @param writer   the writer to write the triples to; will be closed when the triples are written
+     * @param resource
      * @param context  the named graph to export; if null, all named graphs will be exported
      * @param mimeType a mime type registered by an exporter
      *
@@ -161,6 +167,7 @@ public interface ExportService {
      *
      * @param outputStream   the OutputStream to write the triples to; data will be written using UTF-8 encoding;
      *                       will be closed when the triples are written
+     * @param resource
      * @param context  the named graph to export; if null, all named graphs will be exported
      * @param mimeType a mime type registered by an exporter
      *

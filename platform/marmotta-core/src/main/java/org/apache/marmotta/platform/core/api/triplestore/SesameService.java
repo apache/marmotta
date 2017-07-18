@@ -89,7 +89,7 @@ public interface SesameService {
 
     /**
      * Run the triple store garbage collector manually and clean up unreferenced nodes and triples.
-     * @throws org.openrdf.sail.SailException
+     * @throws org.eclipse.rdf4j.sail.SailException
      */
     void garbageCollect() throws SailException;
 }

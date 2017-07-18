@@ -18,10 +18,9 @@
 package org.apache.marmotta.ldpath.backend.sesame;
 
 
-import org.openrdf.repository.Repository;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import org.eclipse.rdf4j.repository.Repository;
 
 /**
  * A threading version of the sesame backend.

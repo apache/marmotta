@@ -41,7 +41,7 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
 
     private static final Logger log = LoggerFactory.getLogger(AbstractSesameBackend.class);
 
-    protected org.openrdf.model.IRI createURIInternal(final ValueFactory valueFactory, String uri) {
+    protected org.eclipse.rdf4j.model.IRI createURIInternal(final ValueFactory valueFactory, String uri) {
         return valueFactory.createIRI(uri);
     }
 
@@ -62,7 +62,7 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
         }
     }
 
-    protected Collection<Value> listObjectsInternal(RepositoryConnection connection, Resource subject, org.openrdf.model.IRI property, boolean includeInferred, Resource... contexts)
+    protected Collection<Value> listObjectsInternal(RepositoryConnection connection, Resource subject, org.eclipse.rdf4j.model.IRI property, boolean includeInferred, Resource... contexts)
             throws RepositoryException {
         final ValueFactory valueFactory = connection.getValueFactory();
 
@@ -78,7 +78,7 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
         return  result;
     }
 
-    protected Collection<Value> listSubjectsInternal(final RepositoryConnection connection, org.openrdf.model.IRI property, Value object, boolean includeInferred, Resource... contexts)
+    protected Collection<Value> listSubjectsInternal(final RepositoryConnection connection, org.eclipse.rdf4j.model.IRI property, Value object, boolean includeInferred, Resource... contexts)
             throws RepositoryException {
         final ValueFactory valueFactory = connection.getValueFactory();
 
@@ -103,7 +103,7 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
      */
     @SuppressWarnings("unchecked")
     protected <T extends Value> T merge(T value, ValueFactory vf) {
-        if(value instanceof org.openrdf.model.IRI) {
+        if(value instanceof org.eclipse.rdf4j.model.IRI) {
             return (T)vf.createIRI(value.stringValue());
         } else if(value instanceof BNode) {
             return (T)vf.createBNode(((BNode) value).getID());
@@ -119,7 +119,7 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
     public abstract Literal createLiteral(String content, Locale language, URI type);
 
     @Override
-    public abstract org.openrdf.model.IRI createIRI(String uri);
+    public abstract org.eclipse.rdf4j.model.IRI createIRI(String uri);
 
     @Override
     public abstract Collection<Value> listObjects(Value subject, Value property);

@@ -64,7 +64,7 @@ import org.eclipse.rdf4j.rio.RDFParser;
 import org.eclipse.rdf4j.rio.helpers.AbstractRDFParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+ 
 /**
  * A parser for parsing iCalendar (http://de.wikipedia.org/wiki/ICalendar) files into RDF format. Represents
  * data using the iCal vocabulary (http://www.w3.org/2002/12/cal/icaltzd,
@@ -87,7 +87,7 @@ public class ICalParser extends AbstractRDFParser {
     private ValueFactory valueFactory;
 
     /**
-     * Creates a new AbstractRDFParser that will use a {@link org.openrdf.model.impl.ValueFactoryImpl} to
+     * Creates a new AbstractRDFParser that will use a {@link org.eclipse.rdf4j.model.impl.ValueFactoryImpl} to
      * create RDF model objects.
      */
     public ICalParser() {
@@ -128,9 +128,9 @@ public class ICalParser extends AbstractRDFParser {
      * @param in      The InputStream from which to read the data.
      * @param baseIRI The IRI associated with the data in the InputStream.
      * @throws java.io.IOException If an I/O error occurred while data was read from the InputStream.
-     * @throws org.openrdf.rio.RDFParseException
+     * @throws org.eclipse.rdf4j.rio.RDFParseException
      *                             If the parser has found an unrecoverable parse error.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *                             If the configured statement handler has encountered an
      *                             unrecoverable error.
      */
@@ -153,9 +153,9 @@ public class ICalParser extends AbstractRDFParser {
      * @param reader  The Reader from which to read the data.
      * @param baseIRI The IRI associated with the data in the InputStream.
      * @throws java.io.IOException If an I/O error occurred while data was read from the InputStream.
-     * @throws org.openrdf.rio.RDFParseException
+     * @throws org.eclipse.rdf4j.rio.RDFParseException
      *                             If the parser has found an unrecoverable parse error.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *                             If the configured statement handler has encountered an
      *                             unrecoverable error.
      */

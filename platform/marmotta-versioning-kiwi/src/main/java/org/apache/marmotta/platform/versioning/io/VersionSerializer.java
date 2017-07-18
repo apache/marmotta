@@ -17,14 +17,13 @@
  */
 package org.apache.marmotta.platform.versioning.io;
 
-import org.apache.marmotta.commons.http.ContentType;
-import org.apache.marmotta.kiwi.versioning.model.Version;
-import org.openrdf.model.Resource;
-import org.openrdf.repository.RepositoryResult;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import org.apache.marmotta.commons.http.ContentType;
+import org.apache.marmotta.kiwi.versioning.model.Version;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.repository.RepositoryResult;
 
 /**
  * Serializes an ordered list of versions into an output stream

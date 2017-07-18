@@ -42,7 +42,7 @@ public interface UserService {
      * Child-Threads will inherit the current user from it's parent thread unless the current user
      * was explicitly set.
      * 
-     * @see #setCurrentUser(org.openrdf.model.IRI)
+     * @see #setCurrentUser(org.eclipse.rdf4j.model.IRI)
      * 
      * @return the resource for the current user.
      */

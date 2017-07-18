@@ -17,15 +17,11 @@
  */
 package org.apache.marmotta.platform.reasoner.services;
 
-import info.aduna.iteration.CloseableIteration;
-
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
 import org.apache.marmotta.commons.sesame.transactions.wrapper.TransactionalSailWrapper;
 import org.apache.marmotta.kiwi.reasoner.engine.ReasoningConfiguration;
@@ -37,7 +33,8 @@ import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.api.triplestore.TransactionalSailProvider;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
-import org.openrdf.sail.SailException;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.sail.SailException;
 import org.slf4j.Logger;
 
 /**
@@ -126,7 +123,7 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
      * @param name a unique name for the program
      * @param data the program data in KWRL syntax
      * @throws java.io.IOException    in case the stream cannot be read
-     * @throws org.openrdf.sail.SailException  in case the program already exists
+     * @throws org.eclipse.rdf4j.sail.SailException  in case the program already exists
      * @throws org.apache.marmotta.kiwi.reasoner.parser.ParseException in case the program cannot be parsed
      */
     public void addProgram(String name, InputStream data) throws IOException, SailException, ParseException {
@@ -147,7 +144,7 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
      * please use updateProgram().
      *
      * @param program the program data in KWRL syntax
-     * @throws org.openrdf.sail.SailException  in case the program already exists
+     * @throws org.eclipse.rdf4j.sail.SailException  in case the program already exists
      */
     public void addProgram(Program program) throws SailException {
         if(isEnabled()) {
@@ -164,7 +161,7 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
      * If a program with this name does not exist, does nothing
      *
      * @param name the unique name of the program to remove
-     * @throws org.openrdf.sail.SailException
+     * @throws org.eclipse.rdf4j.sail.SailException
      */
     public void deleteProgram(String name) throws SailException {
         if(isEnabled()) {
@@ -180,7 +177,7 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
      *
      * @param name the unique name of the program to retrieve
      * @return the parsed program, or null in case a program with the given name does not exist
-     * @throws org.openrdf.sail.SailException  in case an error occurs
+     * @throws org.eclipse.rdf4j.sail.SailException  in case an error occurs
      */
     public Program getProgram(String name) throws SailException {
         if(isEnabled()) {
@@ -219,7 +216,7 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
      * the database and notifies the engine of all removed and added rules.
      *
      * @throws java.io.IOException    in case the stream cannot be read
-     * @throws org.openrdf.sail.SailException  in case the program already exists
+     * @throws org.eclipse.rdf4j.sail.SailException  in case the program already exists
      * @throws org.apache.marmotta.kiwi.reasoner.parser.ParseException in case the program cannot be parsed
      */
     public void updateProgram(String name, InputStream data) throws IOException, SailException, ParseException {
@@ -236,7 +233,7 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
      * the database and notifies the engine of all removed and added rules.
      *
      * @param program  the updated version of the program
-     * @throws org.openrdf.sail.SailException in case a database error occurs
+     * @throws org.eclipse.rdf4j.sail.SailException in case a database error occurs
      */
     public void updateProgram(Program program) throws SailException {
         if(isEnabled()) {
@@ -251,7 +248,7 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
      *
      * @param tripleId
      * @return
-     * @throws org.openrdf.sail.SailException
+     * @throws org.eclipse.rdf4j.sail.SailException
      */
     public CloseableIteration<Justification, SailException> justify(long tripleId) throws SailException {
         if(isEnabled()) {

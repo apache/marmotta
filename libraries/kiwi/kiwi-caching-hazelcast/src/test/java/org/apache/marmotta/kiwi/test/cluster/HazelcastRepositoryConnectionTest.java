@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Run the {@link org.openrdf.repository.RepositoryConnectionTest}s.
+ * Run the {@link org.eclipse.rdf4j.repository.RepositoryConnectionTest}s.
  * @author Jakob Frank <jakob@apache.org>
  *
  */
@@ -50,7 +50,7 @@ public class HazelcastRepositoryConnectionTest extends RepositoryConnectionTest 
     }
     
     /* (non-Javadoc)
-     * @see org.openrdf.repository.RepositoryConnectionTest#createRepository()
+     * @see org.eclipse.rdf4j.repository.RepositoryConnectionTest#createRepository()
      */
     @Override
     protected Repository createRepository() throws Exception {

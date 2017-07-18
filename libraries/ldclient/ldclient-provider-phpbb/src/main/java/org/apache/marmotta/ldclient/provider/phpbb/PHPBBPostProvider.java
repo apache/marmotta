@@ -17,28 +17,27 @@
  */
 package org.apache.marmotta.ldclient.provider.phpbb;
 
-import org.apache.marmotta.commons.sesame.model.Namespaces;
 import com.google.common.collect.ImmutableList;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
-import org.apache.marmotta.ldclient.api.provider.DataProvider;
-import org.apache.marmotta.ldclient.provider.html.AbstractHTMLDataProvider;
-import org.apache.marmotta.ldclient.provider.html.mapping.CssTextLiteralMapper;
-import org.apache.marmotta.ldclient.provider.html.mapping.JSoupMapper;
-import org.apache.marmotta.ldclient.provider.phpbb.mapping.PHPBBDateMapper;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.openrdf.model.IRI;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
+import org.apache.marmotta.ldclient.api.provider.DataProvider;
+import org.apache.marmotta.ldclient.provider.html.AbstractHTMLDataProvider;
+import org.apache.marmotta.ldclient.provider.html.mapping.CssTextLiteralMapper;
+import org.apache.marmotta.ldclient.provider.html.mapping.JSoupMapper;
+import org.apache.marmotta.ldclient.provider.phpbb.mapping.PHPBBDateMapper;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  * Wrap a PHPBB Forum Post and try to extract the content from the HTML page using typical patterns.
@@ -56,7 +55,7 @@ public class PHPBBPostProvider extends AbstractHTMLDataProvider implements DataP
      * @param resource
      */
     @Override
-    protected List<String> getTypes(org.openrdf.model.IRI resource) {
+    protected List<String> getTypes(IRI resource) {
         return ImmutableList.of(
                 Namespaces.NS_SIOC_TYPES + "BoardPost",
                 Namespaces.NS_SIOC + "Post",

@@ -45,6 +45,7 @@ import org.eclipse.rdf4j.query.QueryResultHandler;
 import org.eclipse.rdf4j.query.QueryResultHandlerException;
 import org.eclipse.rdf4j.query.TupleQueryResultHandlerException;
 import org.eclipse.rdf4j.query.resultio.BooleanQueryResultFormat;
+import static org.eclipse.rdf4j.query.resultio.BooleanQueryResultFormat.JSON;
 import org.eclipse.rdf4j.query.resultio.QueryResultIO;
 import org.eclipse.rdf4j.query.resultio.QueryResultParseException;
 import org.eclipse.rdf4j.query.resultio.QueryResultParser;
@@ -116,12 +117,12 @@ public class SPARQLClient {
                                     //Map<String,String> nodeDef = (Map<String,String>) entry.getValue();
                                     Value nodeDef = nextBinding.getValue();
                                     RDFNode node = null;
-                                    if(nodeDef instanceof org.openrdf.model.IRI) {
+                                    if(nodeDef instanceof org.eclipse.rdf4j.model.IRI) {
                                         node = new URI(nodeDef.stringValue());
-                                    } else if(nodeDef instanceof org.openrdf.model.BNode) {
-                                        node = new BNode(((org.openrdf.model.BNode)nodeDef).getID());
-                                    } else if(nodeDef instanceof org.openrdf.model.Literal) {
-                                        org.openrdf.model.Literal nodeLiteral = (org.openrdf.model.Literal)nodeDef;
+                                    } else if(nodeDef instanceof org.eclipse.rdf4j.model.BNode) {
+                                        node = new BNode(((org.eclipse.rdf4j.model.BNode)nodeDef).getID());
+                                    } else if(nodeDef instanceof org.eclipse.rdf4j.model.Literal) {
+                                        org.eclipse.rdf4j.model.Literal nodeLiteral = (org.eclipse.rdf4j.model.Literal)nodeDef;
                                         if(nodeLiteral.getLanguage().orElse(null) != null) {
                                             node = new Literal(nodeLiteral.getLabel(), nodeLiteral.getLanguage().orElse(null));
                                         } else if(nodeLiteral.getDatatype() != null) {

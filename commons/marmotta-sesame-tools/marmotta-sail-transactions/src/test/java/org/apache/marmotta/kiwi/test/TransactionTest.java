@@ -83,7 +83,7 @@ public class TransactionTest {
      * present.
      *
      * @throws RepositoryException
-     * @throws org.openrdf.rio.RDFParseException
+     * @throws org.eclipse.rdf4j.rio.RDFParseException
      * @throws java.io.IOException
      */
     @Test

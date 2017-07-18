@@ -168,8 +168,8 @@ public class KiWiValueFactory extends AbstractValueFactory {
      * {@link #createIRI(String) createIRI(namespace+localName)}, but allows the
      * ValueFactory to reuse supplied namespace and local name strings whenever
      * possible. Note that the values returned by
-     * {@link org.openrdf.model.IRI#getNamespace()} and
-     * {@link org.openrdf.model.IRI#getLocalName()} are not necessarily the same
+     * {@link org.eclipse.rdf4j.model.IRI#getNamespace()} and
+     * {@link org.eclipse.rdf4j.model.IRI#getLocalName()} are not necessarily the same
      * as the values that are supplied to this method.
      *
      * @param namespace The IRI's namespace.
@@ -226,11 +226,11 @@ public class KiWiValueFactory extends AbstractValueFactory {
     }
 
     /**
-     * Creates a typed {@link org.openrdf.model.Literal} out of the supplied
+     * Creates a typed {@link org.eclipse.rdf4j.model.Literal} out of the supplied
      * object, mapping the runtime type of the object to the appropriate XML
      * Schema type. If no mapping is available, the method returns a literal
      * with the string representation of the supplied object as the value, and
-     * {@link org.openrdf.model.vocabulary.XMLSchema#STRING} as the datatype.
+     * {@link org.eclipse.rdf4j.model.vocabulary.XMLSchema#STRING} as the datatype.
      * Recognized types are      {@link Boolean}, {@link Byte}, {@link Double}, {@link Float},
      * {@link Integer}, {@link Long}, {@link Short}, {@link javax.xml.datatype.XMLGregorianCalendar
      * }

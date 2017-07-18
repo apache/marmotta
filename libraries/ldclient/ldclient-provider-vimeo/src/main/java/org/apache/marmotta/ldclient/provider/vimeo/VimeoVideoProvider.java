@@ -17,8 +17,12 @@
  */
 package org.apache.marmotta.ldclient.provider.vimeo;
 
-import org.apache.marmotta.commons.sesame.model.Namespaces;
 import com.google.common.collect.ImmutableList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.provider.vimeo.mapping.VimeoDateMapper;
@@ -27,14 +31,9 @@ import org.apache.marmotta.ldclient.provider.xml.mapping.CommaSeparatedMapper;
 import org.apache.marmotta.ldclient.provider.xml.mapping.XPathLiteralMapper;
 import org.apache.marmotta.ldclient.provider.xml.mapping.XPathURIMapper;
 import org.apache.marmotta.ldclient.provider.xml.mapping.XPathValueMapper;
-import org.openrdf.model.IRI;
+import org.eclipse.rdf4j.model.IRI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A data provider that allows to wrap Vimeo Videos.

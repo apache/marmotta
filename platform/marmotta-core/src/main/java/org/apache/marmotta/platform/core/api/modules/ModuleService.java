@@ -17,17 +17,17 @@
  */
 package org.apache.marmotta.platform.core.api.modules;
 
-import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
-
-import javax.enterprise.inject.spi.InjectionPoint;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import javax.enterprise.inject.spi.InjectionPoint;
+import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
 
 /**
+ * <p>
  * A service for managing the LMF modules that are active in the installation.
- * <p/>
+ * <p>
  * User: sschaffe
  */
 public interface ModuleService {

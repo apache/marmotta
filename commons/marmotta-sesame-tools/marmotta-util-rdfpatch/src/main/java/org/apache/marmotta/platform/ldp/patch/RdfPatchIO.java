@@ -119,7 +119,7 @@ public class RdfPatchIO {
 
     /**
      * "Stringify" a Sesame-Value for rdf-patch.
-     * Heavily inspired by {@link org.openrdf.rio.turtle.TurtleWriter} and {@link org.openrdf.rio.turtle.TurtleUtil}
+     * Heavily inspired by {@link org.eclipse.rdf4j.rio.turtle.TurtleWriter} and {@link org.eclipse.rdf4j.rio.turtle.TurtleUtil}
      *
      * @param v the Value to write
      * @param inverseNamespaceMap an inverse Map of known namespaces (e.g. http://example.com/foo# -> foo)

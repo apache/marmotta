@@ -25,7 +25,7 @@ import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.RDFWriterFactory;
 
 /**
- * OpenRDF RIO RDFWriterFactory Implementation
+ * RDF4J RIO RDFWriterFactory Implementation
  * (injected by the ServiceLoader)
  * 
  * @author Sebastian Schaffert

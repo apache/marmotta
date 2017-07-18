@@ -30,8 +30,9 @@ import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
 import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
 
 /**
+ * <p>
  * Adds the LMF Server Version header to each response
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 public class MarmottaServerNameFilter implements MarmottaHttpFilter {

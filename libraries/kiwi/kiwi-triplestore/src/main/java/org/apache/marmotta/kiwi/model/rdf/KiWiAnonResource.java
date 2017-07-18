@@ -68,7 +68,7 @@ public class KiWiAnonResource extends KiWiResource implements BNode {
 
     /**
      * Returns the String-value of a <tt>Value</tt> object. This returns either
-     * a {@link org.openrdf.model.Literal}'s label, a {@link org.openrdf.model.URI}'s URI or a {@link org.openrdf.model.BNode}'s ID.
+     * a {@link org.eclipse.rdf4j.model.Literal}'s label, a {@link org.eclipse.rdf4j.model.URI}'s URI or a {@link org.eclipse.rdf4j.model.BNode}'s ID.
      */
     @Override
     public String stringValue() {

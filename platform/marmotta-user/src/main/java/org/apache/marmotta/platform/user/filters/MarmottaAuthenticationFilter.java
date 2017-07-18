@@ -17,17 +17,7 @@
  */
 package org.apache.marmotta.platform.user.filters;
 
-import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
-import org.apache.marmotta.platform.user.api.AuthenticationService;
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.user.UserService;
-import org.apache.marmotta.platform.core.exception.UserExistsException;
-import org.apache.marmotta.platform.core.exception.security.AccessDeniedException;
-import org.jboss.resteasy.spi.UnhandledException;
-import org.openrdf.model.IRI;
-import org.slf4j.Logger;
-
+import java.io.IOException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.FilterChain;
@@ -37,9 +27,17 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
+import org.apache.marmotta.platform.core.api.user.UserService;
+import org.apache.marmotta.platform.core.exception.UserExistsException;
+import org.apache.marmotta.platform.core.exception.security.AccessDeniedException;
+import org.apache.marmotta.platform.user.api.AuthenticationService;
+import org.eclipse.rdf4j.model.IRI;
+import org.jboss.resteasy.spi.UnhandledException;
+import org.slf4j.Logger;
 
 /**
  * This filter implements HTTB Basic Authentication support for the Marmotta. It serves two purposes:

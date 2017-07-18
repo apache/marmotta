@@ -17,7 +17,6 @@
 package org.apache.marmotta.ldcache.sail.test;
 
 import com.google.common.io.Files;
-import info.aduna.iteration.Iterations;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -28,6 +27,7 @@ import org.apache.marmotta.ldcache.backend.file.LDCachingFileBackend;
 import org.apache.marmotta.ldcache.sail.GenericLinkedDataSail;
 import org.apache.marmotta.ldcache.services.test.dummy.DummyEndpoint;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
+import org.eclipse.rdf4j.common.iteration.Iterations;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;

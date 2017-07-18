@@ -18,20 +18,20 @@
 package org.apache.marmotta.ostrich.sail.test;
 
 import org.apache.marmotta.ostrich.sail.OstrichSail;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.Rio;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.rio.Rio;
 
 /**
  * Add file description here!
@@ -56,7 +56,7 @@ public class TestSailConnection {
     @Test
     public void testQuery() throws RepositoryException, RDFHandlerException {
         RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, System.out);
-        URI s = repository.getValueFactory().createURI("http://umbel.org/umbel/rc/Zyban");
+        IRI s = repository.getValueFactory().createIRI("http://umbel.org/umbel/rc/Zyban");
 
         RepositoryConnection con = repository.getConnection();
         try {

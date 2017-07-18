@@ -52,7 +52,7 @@ public class GeonamesParser extends AbstractRDFParser implements ParseErrorListe
     private int lineNumber = 0;
 
     /**
-     * Creates a new RDFParserBase that will use a {@link org.openrdf.model.impl.ValueFactoryImpl} to
+     * Creates a new RDFParserBase that will use a {@link org.eclipse.rdf4j.model.impl.ValueFactoryImpl} to
      * create RDF model objects.
      */
     public GeonamesParser() {
@@ -127,8 +127,8 @@ public class GeonamesParser extends AbstractRDFParser implements ParseErrorListe
      * @param in      The InputStream from which to read the data.
      * @param baseURI The URI associated with the data in the InputStream.
      * @throws java.io.IOException                 If an I/O error occurred while data was read from the InputStream.
-     * @throws org.openrdf.rio.RDFParseException   If the parser has found an unrecoverable parse error.
-     * @throws org.openrdf.rio.RDFHandlerException If the configured statement handler has encountered an
+     * @throws org.eclipse.rdf4j.rio.RDFParseException   If the parser has found an unrecoverable parse error.
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException If the configured statement handler has encountered an
      *                                             unrecoverable error.
      */
     @Override
@@ -157,8 +157,8 @@ public class GeonamesParser extends AbstractRDFParser implements ParseErrorListe
      * @param reader  The Reader from which to read the data.
      * @param baseURI The URI associated with the data in the InputStream.
      * @throws java.io.IOException                 If an I/O error occurred while data was read from the InputStream.
-     * @throws org.openrdf.rio.RDFParseException   If the parser has found an unrecoverable parse error.
-     * @throws org.openrdf.rio.RDFHandlerException If the configured statement handler has encountered an
+     * @throws org.eclipse.rdf4j.rio.RDFParseException   If the parser has found an unrecoverable parse error.
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException If the configured statement handler has encountered an
      *                                             unrecoverable error.
      */
     @Override
@@ -214,7 +214,7 @@ public class GeonamesParser extends AbstractRDFParser implements ParseErrorListe
      *               available or applicable.
      * @param colNo  A column number related to the error, or -1 if not
      *               available or applicable.
-     * @see org.openrdf.rio.RDFParser#setStopAtFirstError
+     * @see org.eclipse.rdf4j.rio.RDFParser#setStopAtFirstError
      */
     @Override
     public void error(String msg, long lineNo, long colNo) {

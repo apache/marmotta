@@ -72,7 +72,7 @@ import org.eclipse.rdf4j.query.algebra.evaluation.impl.OrderLimitOptimizer;
 import org.eclipse.rdf4j.query.algebra.evaluation.impl.QueryJoinOptimizer;
 import org.eclipse.rdf4j.query.algebra.evaluation.impl.QueryModelNormalizer;
 import org.eclipse.rdf4j.query.algebra.evaluation.impl.SameTermFilterOptimizer;
-import org.eclipse.rdf4j.query.algebra.evaluation.impl.SimpleEvaluationStrategy;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.StrictEvaluationStrategy;
 import org.eclipse.rdf4j.query.impl.EmptyBindingSet;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.RepositoryResult;
@@ -237,7 +237,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         try {
             KiWiTripleSource tripleSource = new KiWiTripleSource(this,includeInferred);
             FederatedServiceResolver service = new FederatedServiceResolverImpl();
-            EvaluationStrategy strategy = new SimpleEvaluationStrategy(tripleSource, dataset,service);
+            EvaluationStrategy strategy = new StrictEvaluationStrategy(tripleSource, dataset,service);
 
             new BindingAssigner().optimize(tupleExpr, dataset, bindings);
             new ConstantOptimizer(strategy).optimize(tupleExpr, dataset, bindings);
@@ -434,7 +434,8 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
      * @param contexts The context(s) from which to remove the statements. Note that this
      *                 parameter is a vararg and as such is optional. If no contexts are
      *                 supplied the method operates on the entire repository.
-     * @throws org.openrdf.sail.SailException If the statement could not be removed.
+     * @return 
+     * @throws org.eclipse.rdf4j.sail.SailException If the statement could not be removed.
      * @throws IllegalStateException          If the connection has been closed.
      */
     @Override
@@ -460,7 +461,9 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
     /**
      * Removes an inferred statement from a specific context.
      *
-     * @throws org.openrdf.sail.SailException If the statement could not be removed.
+     * @param triple
+     * @return 
+     * @throws org.eclipse.rdf4j.sail.SailException If the statement could not be removed.
      * @throws IllegalStateException          If the connection has been closed.
      */
     public boolean removeInferredStatement(KiWiTriple triple) throws SailException {
@@ -502,7 +505,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
      * @param contexts The context(s) from which to remove the statements. Note that this
      *                 parameter is a vararg and as such is optional. If no contexts are
      *                 supplied the method operates on the entire repository.
-     * @throws org.openrdf.sail.SailException If the statements could not be removed.
+     * @throws org.eclipse.rdf4j.sail.SailException If the statements could not be removed.
      * @throws IllegalStateException          If the connection has been closed.
      */
     @Override
@@ -510,6 +513,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         removeInferredStatement(null, null, null, valueFactory.createIRI(inferredContext));
     }
 
+    @Override
     public void flushUpdates() {
         // no-op; changes are reported as soon as they come in
     }
@@ -625,7 +629,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
          *                 is a vararg and as such is optional. If no contexts are supplied
          *                 the method operates on the entire repository.
          * @return An iterator over the relevant statements.
-         * @throws org.openrdf.query.QueryEvaluationException
+         * @throws org.eclipse.rdf4j.query.QueryEvaluationException
          *          If the triple source failed to get the statements.
          */
         @Override
@@ -696,6 +700,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
     /**
      * Return an iterator over the resources contained in this repository matching the given prefix.
      *
+     * @param prefix
      * @return
      */
     @Override

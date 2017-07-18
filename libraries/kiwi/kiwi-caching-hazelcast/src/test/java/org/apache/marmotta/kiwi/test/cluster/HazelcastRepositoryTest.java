@@ -28,7 +28,7 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.junit.runner.RunWith;
 
 /**
- * Run the {@link org.openrdf.repository.RepositoryTest}s.
+ * Run the {@link org.eclipse.rdf4j.repository.RepositoryTest}s.
  * @author Jakob Frank <jakob@apache.org>
  *
  */
@@ -48,7 +48,7 @@ public class HazelcastRepositoryTest extends RepositoryTest {
     }
 
     /* (non-Javadoc)
-     * @see org.openrdf.repository.RepositoryTest#createRepository()
+     * @see org.eclipse.rdf4j.repository.RepositoryTest#createRepository()
      */
     @Override
     protected Repository createRepository() throws Exception {

@@ -121,7 +121,7 @@ public abstract class AbstractXMLDataProvider extends AbstractHttpProvider {
             for(Map.Entry<String,XPathValueMapper> mapping : getXPathMappings(requestUrl).entrySet()) {
                 XPathExpression<Object> xpath = mapping.getValue().getCompiled();
 
-                org.openrdf.model.IRI predicate = triples.getValueFactory().createIRI(mapping.getKey());
+                IRI predicate = vf.createIRI(mapping.getKey());
                 for(Object value : xpath.evaluate(doc)) {
                     String str_value;
                     if(value instanceof Element) {
@@ -137,15 +137,15 @@ public abstract class AbstractXMLDataProvider extends AbstractHttpProvider {
                     } else {
                         str_value = value.toString();
                     }
-                    List<Value> objects = mapping.getValue().map(resource, str_value,triples.getValueFactory());
+                    List<Value> objects = mapping.getValue().map(resource, str_value,vf);
                     for(Value object : objects) {
-                        Statement stmt = triples.getValueFactory().createStatement(subject,predicate,object);
+                        Statement stmt = vf.createStatement(subject,predicate,object);
                         triples.add(stmt);
                     }
                 }
             }
 
-            org.openrdf.model.IRI ptype = triples.getValueFactory().createIRI(Namespaces.NS_RDF + "type");
+            IRI ptype = vf.createIRI(Namespaces.NS_RDF + "type");
 
             for(String typeUri : getTypes(vf.createIRI(resource))) {
                 Resource type_resource = vf.createIRI(typeUri);

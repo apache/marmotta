@@ -35,8 +35,9 @@ import org.apache.marmotta.platform.core.api.modules.ResourceEntry;
 import org.slf4j.Logger;
 
 /**
+ * <p>
  * Resolve the resources of LMF modules and deliver them. Proceeds with the chain if not found.
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 @ApplicationScoped
@@ -83,6 +84,8 @@ public class ModuleResourceFilter implements MarmottaHttpFilter {
      * The web container cannot place the filter into service if the init method either<br>
      * 1.Throws a ServletException <br>
      * 2.Does not return within a time period defined by the web container
+     * @param filterConfig
+     * @throws javax.servlet.ServletException
      */
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {

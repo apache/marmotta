@@ -19,7 +19,7 @@ package org.apache.marmotta.kiwi.vocabulary;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.NamespaceImpl;
+import org.eclipse.rdf4j.model.impl.SimpleNamespace;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.FN;
 
@@ -38,10 +38,10 @@ public class FN_MARMOTTA {
     public static final String PREFIX = "mm";
 
     /**
-     * An immutable {@link org.openrdf.model.Namespace} constant that represents the XPath
+     * An immutable {@link org.eclipse.rdf4j.model.Namespace} constant that represents the XPath
      * Functions namespace.
      */
-    public static final Namespace NS = new NamespaceImpl(PREFIX, NAMESPACE);
+    public static final Namespace NS = new SimpleNamespace(PREFIX, NAMESPACE);
 
 
 

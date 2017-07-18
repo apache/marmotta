@@ -62,7 +62,7 @@ public class KiWiTripleSource implements TripleSource {
      *                 is a vararg and as such is optional. If no contexts are supplied
      *                 the method operates on the entire repository.
      * @return An iterator over the relevant statements.
-     * @throws org.openrdf.query.QueryEvaluationException
+     * @throws org.eclipse.rdf4j.query.QueryEvaluationException
      *          If the triple source failed to get the statements.
      */
     @Override

@@ -38,7 +38,7 @@ public class SesameLoaderHandler extends RDFHandlerWrapper implements LoaderHand
      * Initialise the handler, performing any initialisation steps that are necessary before bulk importing can
      * start (e.g. dropping indexes or establishing a connection).
      *
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      */
     @Override
     public void initialise() throws RDFHandlerException {

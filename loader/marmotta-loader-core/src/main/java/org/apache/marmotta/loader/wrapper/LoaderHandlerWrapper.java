@@ -38,7 +38,7 @@ public class LoaderHandlerWrapper implements LoaderHandler {
      * Initialise the handler, performing any initialisation steps that are necessary before bulk importing can
      * start (e.g. dropping indexes or establishing a connection).
      *
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      */
     @Override
     public void initialise() throws RDFHandlerException {
@@ -62,7 +62,7 @@ public class LoaderHandlerWrapper implements LoaderHandler {
      * Signals the start of the RDF data. This method is called before any data
      * is reported.
      *
-     * @throws org.openrdf.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
      */
     @Override
     public void startRDF() throws RDFHandlerException {
@@ -75,7 +75,7 @@ public class LoaderHandlerWrapper implements LoaderHandler {
      * Signals the end of the RDF data. This method is called when all data has
      * been reported.
      *
-     * @throws org.openrdf.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
      */
     @Override
     public void endRDF() throws RDFHandlerException {
@@ -86,19 +86,19 @@ public class LoaderHandlerWrapper implements LoaderHandler {
 
     /**
      * Handles a namespace declaration/definition. A namespace declaration
-     * associates a (short) prefix string with the namespace's URI. The prefix
+     * associates a (short) prefix string with the namespace's IRI. The prefix
      * for default namespaces, which do not have an associated prefix, are
      * represented as empty strings.
      *
      * @param prefix The prefix for the namespace, or an empty string in case of a
      *               default namespace.
-     * @param uri    The URI that the prefix maps to.
-     * @throws org.openrdf.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
+     * @param iri    The IRI that the prefix maps to.
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
      */
     @Override
-    public void handleNamespace(String prefix, String uri) throws RDFHandlerException {
+    public void handleNamespace(String prefix, String iri) throws RDFHandlerException {
         for(LoaderHandler h : handlers) {
-            h.handleNamespace(prefix,uri);
+            h.handleNamespace(prefix,iri);
         }
 
     }
@@ -107,7 +107,7 @@ public class LoaderHandlerWrapper implements LoaderHandler {
      * Handles a statement.
      *
      * @param st The statement.
-     * @throws org.openrdf.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
      */
     @Override
     public void handleStatement(Statement st) throws RDFHandlerException {
@@ -120,7 +120,7 @@ public class LoaderHandlerWrapper implements LoaderHandler {
      * Handles a comment.
      *
      * @param comment The comment.
-     * @throws org.openrdf.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
      */
     @Override
     public void handleComment(String comment) throws RDFHandlerException {

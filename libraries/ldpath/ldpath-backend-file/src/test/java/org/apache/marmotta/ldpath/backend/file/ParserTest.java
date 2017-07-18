@@ -17,9 +17,9 @@
  */
 package org.apache.marmotta.ldpath.backend.file;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.StringReader;
 import java.util.Map;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 import org.apache.marmotta.ldpath.backend.sesame.SesameValueBackend;
@@ -29,16 +29,14 @@ import org.apache.marmotta.ldpath.model.selectors.PropertySelector;
 import org.apache.marmotta.ldpath.model.selectors.TestingSelector;
 import org.apache.marmotta.ldpath.model.selectors.UnionSelector;
 import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
-import org.apache.marmotta.ldpath.parser.ParseException;
 import org.apache.marmotta.ldpath.parser.LdPathParser;
+import org.apache.marmotta.ldpath.parser.ParseException;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openrdf.model.Value;
-import org.openrdf.repository.RepositoryException;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Add file description here!

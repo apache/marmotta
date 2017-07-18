@@ -18,19 +18,25 @@
 package org.apache.marmotta.platform.reasoner.webservices;
 
 import com.google.common.base.Joiner;
-import info.aduna.iteration.Iterations;
-import org.apache.marmotta.kiwi.reasoner.model.program.Program;
-import org.apache.marmotta.platform.reasoner.services.ReasoningSailProvider;
-import org.slf4j.Logger;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.marmotta.kiwi.reasoner.model.program.Program;
+import org.apache.marmotta.platform.reasoner.services.ReasoningSailProvider;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.slf4j.Logger;
 
 /**
  * Add file description here!
