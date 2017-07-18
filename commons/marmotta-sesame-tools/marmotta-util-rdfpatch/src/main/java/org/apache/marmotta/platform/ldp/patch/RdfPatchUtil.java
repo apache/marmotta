@@ -19,6 +19,7 @@ package org.apache.marmotta.platform.ldp.patch;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -167,7 +168,7 @@ public class RdfPatchUtil {
     }
 
     private static List<PatchLine> getPatch(ValueFactory valueFactory, String patch) throws ParseException {
-        try (InputStream is = IOUtils.toInputStream(patch)) {
+        try (InputStream is = IOUtils.toInputStream(patch, Charset.defaultCharset())) {
             return getPatch(valueFactory, is);
         } catch (IOException e) {
             // You can always close an InputStream on a String

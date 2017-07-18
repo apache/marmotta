@@ -23,7 +23,7 @@ import org.apache.marmotta.platform.ldp.api.LdpService;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.impl.StatementImpl;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.event.base.RepositoryConnectionInterceptorAdapter;
@@ -70,13 +70,13 @@ public class ServerManagedPropertiesInterceptor extends RepositoryConnectionInte
             if (conn.hasStatement(subject, predicate, object, true, managedContext)) {
                 // Ignore/Strip any triple that is already present in the mgmt-context (i.e. "unchanged" props).
                 if (log.isTraceEnabled()) {
-                    log.trace("[{}] filtering out statement that is already present in the managed context: {}", operation, new StatementImpl(subject, predicate, object));
+                    log.trace("[{}] filtering out statement that is already present in the managed context: {}", operation, SimpleValueFactory.getInstance().createStatement(subject, predicate, object));
                 }
                 return true;
             } else if (this.subject.equals(subject) && managedProperties.contains(predicate)) {
                 // We do NOT allow changing server-managed properties.
                 if (log.isTraceEnabled()) {
-                    log.trace("[{}] filtering out statement with managed propterty {}: {}", operation, predicate, new StatementImpl(subject, predicate, object));
+                    log.trace("[{}] filtering out statement with managed propterty {}: {}", operation, predicate, SimpleValueFactory.getInstance().createStatement(subject, predicate, object));
                 }
                 deniedProperties.add(predicate);
                 return true;

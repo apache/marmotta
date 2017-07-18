@@ -18,6 +18,7 @@ package org.apache.marmotta.kiwi.loader.pgsql;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.sql.SQLException;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
@@ -71,7 +72,7 @@ public class KiWiPostgresHandler extends KiWiBatchHandler implements RDFHandler 
             ScriptRunner runner = new ScriptRunner(connection.getJDBCConnection(), false, false);
 
             StringBuilder script = new StringBuilder();
-            for(String line : IOUtils.readLines(KiWiPostgresHandler.class.getResourceAsStream("drop_indexes.sql"))) {
+            for(String line : IOUtils.readLines(KiWiPostgresHandler.class.getResourceAsStream("drop_indexes.sql"), Charset.defaultCharset())) {
                 if(!line.startsWith("--")) {
                     script.append(line);
                     script.append(" ");
@@ -90,7 +91,7 @@ public class KiWiPostgresHandler extends KiWiBatchHandler implements RDFHandler 
             ScriptRunner runner = new ScriptRunner(connection.getJDBCConnection(), false, false);
 
             StringBuilder script = new StringBuilder();
-            for(String line : IOUtils.readLines(KiWiPostgresHandler.class.getResourceAsStream("create_indexes.sql"))) {
+            for(String line : IOUtils.readLines(KiWiPostgresHandler.class.getResourceAsStream("create_indexes.sql"), Charset.defaultCharset())) {
                 if(!line.startsWith("--")) {
                     script.append(line);
                     script.append(" ");

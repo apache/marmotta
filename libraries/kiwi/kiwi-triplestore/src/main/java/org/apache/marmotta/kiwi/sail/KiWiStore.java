@@ -23,7 +23,7 @@ import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.sail.SailException;
-import org.eclipse.rdf4j.sail.helpers.NotifyingSailBase;
+import org.eclipse.rdf4j.sail.helpers.AbstractNotifyingSail;
 
 /**
  * An implementation of a KiWi triple store without extended transaction support. The KiWiStore holds a reference to
@@ -35,7 +35,7 @@ import org.eclipse.rdf4j.sail.helpers.NotifyingSailBase;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class KiWiStore extends NotifyingSailBase {
+public class KiWiStore extends AbstractNotifyingSail {
 
 
     /**

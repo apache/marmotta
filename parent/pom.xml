@@ -37,7 +37,7 @@
 
     <properties>
         <rdf4j.version>2.2.2</rdf4j.version>
-        <junit.version>4.11</junit.version>
+        <junit.version>4.12</junit.version>
         <weld.version>2.1.Final</weld.version>
         <weld.core.version>2.1.2.Final</weld.core.version>
         <rest.assured.version>2.3.2</rest.assured.version>

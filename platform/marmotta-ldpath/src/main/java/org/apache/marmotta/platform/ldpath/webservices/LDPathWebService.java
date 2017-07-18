@@ -19,6 +19,7 @@ package org.apache.marmotta.platform.ldpath.webservices;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -226,7 +227,7 @@ public class LDPathWebService {
     @Produces("application/json")
     public Response evaluateProgramQuery(InputStream body, @QueryParam("uri") String resourceUri) {
         try {
-            String program = IOUtils.toString(body);
+            String program = IOUtils.toString(body,Charset.defaultCharset());
             return evaluateProgramQuery(program, resourceUri);
         } catch (IOException e) {
             return Response.serverError().entity("could not read ldpath program: "+e.getMessage()).build();

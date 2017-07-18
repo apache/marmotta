@@ -19,6 +19,7 @@ package org.apache.marmotta.kiwi.sparql.sail;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -103,7 +104,7 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
                         if (connection.getMetadata("ft.lookup") == null) {
                             log.info("PostgreSQL: creating language configuration lookup function");
                             StringBuilder script = new StringBuilder();
-                            for (String line : IOUtils.readLines(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_langlookup.sql"))) {
+                            for (String line : IOUtils.readLines(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_langlookup.sql"), Charset.defaultCharset())) {
                                 if (!line.startsWith("--")) {
                                     script.append(line);
                                     script.append(" ");
@@ -116,7 +117,7 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
                         // language specific indexes
                         if (configuration.getFulltextLanguages() != null) {
                             StringBuilder script = new StringBuilder();
-                            for (String line : IOUtils.readLines(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_index.sql"))) {
+                            for (String line : IOUtils.readLines(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_index.sql"), Charset.defaultCharset())) {
                                 if (!line.startsWith("--")) {
                                     script.append(line);
                                     script.append(" ");
@@ -139,7 +140,7 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
                         if (configuration.getFulltextLanguages() != null) {
                             if (connection.getMetadata("ft.idx.generic") == null) {
                                 StringBuilder script = new StringBuilder();
-                                for (String line : IOUtils.readLines(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_index_generic.sql"))) {
+                                for (String line : IOUtils.readLines(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_index_generic.sql"), Charset.defaultCharset())) {
                                     if (!line.startsWith("--")) {
                                         script.append(line);
                                         script.append(" ");

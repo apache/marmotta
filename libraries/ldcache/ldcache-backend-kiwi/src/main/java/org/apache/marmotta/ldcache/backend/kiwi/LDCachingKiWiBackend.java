@@ -287,7 +287,7 @@ public class LDCachingKiWiBackend implements LDCachingBackend {
         }
 
         // register cache context in database
-        store.getValueFactory().createURI(cacheContext);
+        store.getValueFactory().createIRI(cacheContext);
 
     }
 

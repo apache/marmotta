@@ -66,7 +66,7 @@ import org.eclipse.rdf4j.query.algebra.TupleExpr;
 import org.eclipse.rdf4j.query.algebra.Union;
 import org.eclipse.rdf4j.query.algebra.evaluation.TripleSource;
 import org.eclipse.rdf4j.query.algebra.evaluation.federation.FederatedServiceResolverImpl;
-import org.eclipse.rdf4j.query.algebra.evaluation.impl.SimpleEvaluationStrategy;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.StrictEvaluationStrategy;
 import org.eclipse.rdf4j.query.impl.MapBindingSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +85,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class KiWiEvaluationStrategy extends SimpleEvaluationStrategy{
+public class KiWiEvaluationStrategy extends StrictEvaluationStrategy{
 
     private static Logger log = LoggerFactory.getLogger(KiWiEvaluationStrategy.class);
 

@@ -195,7 +195,7 @@ public class RDFJSONParser {
         if (resource.startsWith("_:")) {
             return vf.createBNode(resource.substring(2));
         } else {
-            return vf.createURI(resource);
+            return vf.createIRI(resource);
         }
     }
 }

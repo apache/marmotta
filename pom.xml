@@ -188,7 +188,7 @@
 
     <!-- release management -->
     <build>
-        <plugins>
+        <plugins>           
             <!-- do not install / deploy reactor -->
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>

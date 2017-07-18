@@ -20,6 +20,7 @@ package org.apache.marmotta.kiwi.loader.mysql;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -132,7 +133,7 @@ public class MySQLLoadUtil {
         }
         writer.close();
 
-        return IOUtils.toInputStream(out.toString());
+        return IOUtils.toInputStream(out.toString(), Charset.defaultCharset());
     }
 
 
@@ -186,7 +187,7 @@ public class MySQLLoadUtil {
         }
         writer.close();
 
-        return IOUtils.toInputStream(out.toString());
+        return IOUtils.toInputStream(out.toString(), Charset.defaultCharset());
     }
 
     private static void createNodeList(Object[] a, Long id, Class type, String content, Double dbl, Long lng, DateTime date, Integer tzoffset, Boolean bool, IRI dtype, Locale lang, Date created) {

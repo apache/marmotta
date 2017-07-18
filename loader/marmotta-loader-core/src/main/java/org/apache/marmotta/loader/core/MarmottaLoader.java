@@ -212,8 +212,7 @@ public class MarmottaLoader {
     public void loadFile(File file, LoaderHandler handler, RDFFormat format, String compression) throws RDFParseException, IOException {
         log.info("loading file {} ...", file);
 
-        CompressorStreamFactory cf = new CompressorStreamFactory();
-        cf.setDecompressConcatenated(true);
+        CompressorStreamFactory cf = new CompressorStreamFactory(true);
 
         // detect the file compression
         String detectedCompression = detectCompression(file);

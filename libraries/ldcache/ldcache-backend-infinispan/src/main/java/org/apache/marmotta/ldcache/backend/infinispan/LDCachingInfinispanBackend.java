@@ -18,6 +18,7 @@
 package org.apache.marmotta.ldcache.backend.infinispan;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
@@ -100,7 +101,7 @@ public class LDCachingInfinispanBackend implements LDCachingBackend {
      */
     public LDCachingInfinispanBackend(String clusterName, String machineName, int clusterPort) {
         try {
-            String jgroupsXml = IOUtils.toString(LDCachingInfinispanBackend.class.getResourceAsStream("/jgroups-ldcache.xml"));
+            String jgroupsXml = IOUtils.toString(LDCachingInfinispanBackend.class.getResourceAsStream("/jgroups-ldcache.xml"),Charset.defaultCharset());
 
             jgroupsXml = jgroupsXml.replaceAll("mcast_port=\"[0-9]+\"", String.format("mcast_port=\"%d\"", clusterPort));
 

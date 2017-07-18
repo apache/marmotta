@@ -19,6 +19,7 @@ package org.apache.marmotta.ldcache.services.test.ng;
 
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
@@ -141,7 +142,7 @@ public abstract class BaseLDCacheTest {
 
         // run a SPARQL test to see if the returned data is correct
         InputStream sparql = BaseLDCacheTest.class.getResourceAsStream(sparqlFile);
-        final String query = IOUtils.toString(sparql);
+        final String query = IOUtils.toString(sparql,Charset.defaultCharset());
         BooleanQuery testLabel = connection.prepareBooleanQuery(QueryLanguage.SPARQL, query);
         final boolean testResult = testLabel.evaluate();
 

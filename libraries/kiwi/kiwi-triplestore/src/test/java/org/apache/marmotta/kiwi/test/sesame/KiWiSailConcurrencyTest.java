@@ -24,11 +24,13 @@ import org.eclipse.rdf4j.sail.SailConcurrencyTest;
 import org.eclipse.rdf4j.sail.SailException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * Run the Sesame {@link SailConcurrencyTest} suite.
+ *
  * @author Jakob Frank <jakob@apache.org>
  */
 @RunWith(KiWiDatabaseRunner.class)
@@ -39,7 +41,7 @@ public class KiWiSailConcurrencyTest extends SailConcurrencyTest {
     public KiWiSailConcurrencyTest(KiWiConfiguration kiwiConfig) {
         this.kiwiConfig = kiwiConfig;
     }
-    
+
     @Override
     protected Sail createSail() throws SailException {
         KiWiStore store = new KiWiStore(kiwiConfig);
@@ -52,16 +54,31 @@ public class KiWiSailConcurrencyTest extends SailConcurrencyTest {
     public void setUp() throws Exception {
         super.setUp();
     }
-    
+
     @Override
     @After
     public void tearDown() throws Exception {
         super.tearDown();
     }
-    
+
     @Override
     @Test
     public void testGetContextIDs() throws Exception {
         super.testGetContextIDs();
     }
+
+    @Override
+    @Test
+    @Ignore
+    public void testConcurrentAddLargeTxn() throws Exception {
+        super.testConcurrentAddLargeTxn();
+    }
+
+    @Override
+    @Test
+    @Ignore
+    public void testConcurrentAddLargeTxnRollback() throws Exception {
+        super.testConcurrentAddLargeTxnRollback();
+    }
+
 }

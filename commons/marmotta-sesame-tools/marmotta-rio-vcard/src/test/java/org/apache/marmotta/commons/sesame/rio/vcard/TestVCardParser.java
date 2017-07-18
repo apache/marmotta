@@ -18,6 +18,7 @@
 package org.apache.marmotta.commons.sesame.rio.vcard;
 
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import static java.util.Arrays.asList;
 import java.util.Collection;
@@ -90,7 +91,7 @@ public class TestVCardParser {
         int count = Iterations.asList(connection.getStatements(null, null, null, false)).size();
         assertTrue(count > 0);
 
-        BooleanQuery sparqlQuery = (BooleanQuery)connection.prepareQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql).replaceAll("http://rdfa.digitalbazaar.com/test-suite/test-cases/xhtml1/rdfa1.1/","http://localhost/rdfa/"));
+        BooleanQuery sparqlQuery = (BooleanQuery)connection.prepareQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql,Charset.defaultCharset()).replaceAll("http://rdfa.digitalbazaar.com/test-suite/test-cases/xhtml1/rdfa1.1/","http://localhost/rdfa/"));
         assertTrue("SPARQL query evaluation for "+fileName+" failed",sparqlQuery.evaluate());
 
         connection.close();

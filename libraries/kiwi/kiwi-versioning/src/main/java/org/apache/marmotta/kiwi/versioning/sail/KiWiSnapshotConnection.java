@@ -63,7 +63,7 @@ import org.eclipse.rdf4j.query.algebra.evaluation.impl.ConjunctiveConstraintSpli
 import org.eclipse.rdf4j.query.algebra.evaluation.impl.ConstantOptimizer;
 import org.eclipse.rdf4j.query.algebra.evaluation.impl.DisjunctiveConstraintOptimizer;
 import org.eclipse.rdf4j.query.algebra.evaluation.impl.EvaluationStatistics;
-import org.eclipse.rdf4j.query.algebra.evaluation.impl.EvaluationStrategyImpl;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.StrictEvaluationStrategy;
 import org.eclipse.rdf4j.query.algebra.evaluation.impl.FilterOptimizer;
 import org.eclipse.rdf4j.query.algebra.evaluation.impl.IterativeEvaluationOptimizer;
 import org.eclipse.rdf4j.query.algebra.evaluation.impl.OrderLimitOptimizer;
@@ -147,7 +147,7 @@ public class KiWiSnapshotConnection implements SailConnection {
         try {
             KiWiTripleSource tripleSource = new KiWiTripleSource(this, includeInferred);
             FederatedServiceResolver service = new FederatedServiceResolverImpl();
-            EvaluationStrategy strategy = new EvaluationStrategyImpl(tripleSource, dataset, service);
+            EvaluationStrategy strategy = new StrictEvaluationStrategy(tripleSource, dataset, service);
 
             new BindingAssigner().optimize(tupleExpr, dataset, bindings);
             new ConstantOptimizer(strategy).optimize(tupleExpr, dataset, bindings);

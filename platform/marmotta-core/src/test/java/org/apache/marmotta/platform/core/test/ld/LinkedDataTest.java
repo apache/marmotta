@@ -24,6 +24,7 @@ import static com.jayway.restassured.RestAssured.given;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.Random;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
@@ -79,7 +80,7 @@ public class LinkedDataTest {
         // import some test data
 
         // 1. read into string
-        String data = IOUtils.toString(LinkedDataTest.class.getResourceAsStream("/org/apache/marmotta/platform/core/test/sesame/demo-data.foaf"));
+        String data = IOUtils.toString(LinkedDataTest.class.getResourceAsStream("/org/apache/marmotta/platform/core/test/sesame/demo-data.foaf"),Charset.defaultCharset());
         StringReader in = new StringReader(data.replaceAll("http://localhost:8080/LMF", RestAssured.baseURI + ":" + RestAssured.port + RestAssured.basePath));
 
 

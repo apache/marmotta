@@ -18,6 +18,7 @@
 package org.apache.marmotta.ldclient.test.rdf;
 
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
@@ -65,7 +66,7 @@ public class TestStanbolProvider {
 
         // run a SPARQL test to see if the returned data is correct
         InputStream sparql = this.getClass().getResourceAsStream("dbpedia-berlin.sparql");
-        BooleanQuery testLabel = conBerlin.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
+        BooleanQuery testLabel = conBerlin.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql,Charset.defaultCharset()));
         Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
 
         conBerlin.commit();

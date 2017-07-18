@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.platform.ldp.patch.model;
 
+import java.util.Objects;
 import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
@@ -80,8 +81,8 @@ public class WildcardStatement implements Statement {
             // In general the number of different predicates in sets of
             // statements is the smallest, so predicate equality is checked
             // last.
-            return ObjectUtils.equals(object, otherSt.getObject()) && ObjectUtils.equals(subject, otherSt.getSubject())
-                    && ObjectUtils.equals(predicate, otherSt.getPredicate());
+            return Objects.equals(object, otherSt.getObject()) && Objects.equals(subject, otherSt.getSubject())
+                    && Objects.equals(predicate, otherSt.getPredicate());
         }
 
         return false;

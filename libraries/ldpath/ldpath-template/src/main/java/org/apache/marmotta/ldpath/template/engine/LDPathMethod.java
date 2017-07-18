@@ -19,7 +19,7 @@ package org.apache.marmotta.ldpath.template.engine;
 
 import freemarker.core.Environment;
 import freemarker.template.TemplateDateModel;
-import freemarker.template.TemplateMethodModel;
+import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
 import org.apache.marmotta.ldpath.LDPath;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
@@ -40,7 +40,7 @@ import java.util.Map;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class LDPathMethod<Node> implements TemplateMethodModel {
+public class LDPathMethod<Node> implements TemplateMethodModelEx {
 
 
     private LDPath<Node> ldpath;
