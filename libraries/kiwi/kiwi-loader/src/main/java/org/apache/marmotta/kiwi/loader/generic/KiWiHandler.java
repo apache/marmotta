@@ -39,7 +39,7 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.registry.CacheTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.DBTripleRegistry;
@@ -269,7 +269,7 @@ public class KiWiHandler implements RDFHandler {
     public void handleStatement(Statement st) throws RDFHandlerException {
         try {
             KiWiResource subject = (KiWiResource)convertNode(st.getSubject());
-            KiWiUriResource predicate = (KiWiUriResource)convertNode(st.getPredicate());
+            KiWiIriResource predicate = (KiWiIriResource)convertNode(st.getPredicate());
             KiWiNode object = convertNode(st.getObject());
             KiWiResource context;
 
@@ -353,7 +353,7 @@ public class KiWiHandler implements RDFHandler {
 
 
         KiWiLiteral result;
-        final KiWiUriResource rtype = type==null ? null : (KiWiUriResource) convertNode(type);
+        final KiWiIriResource rtype = type==null ? null : (KiWiIriResource) convertNode(type);
 
         try {
 
@@ -421,7 +421,7 @@ public class KiWiHandler implements RDFHandler {
             } catch(IllegalArgumentException ex) {
                 // malformed number or date
                 log.warn("malformed argument for typed literal of type {}: {}", rtype, value);
-                KiWiUriResource mytype = createURI(Namespaces.NS_XSD+"string");
+                KiWiIriResource mytype = createURI(Namespaces.NS_XSD+"string");
 
                 result = connection.loadLiteral(sanitizeString(value), lang, mytype);
 
@@ -446,14 +446,14 @@ public class KiWiHandler implements RDFHandler {
         }
     }
 
-    protected KiWiUriResource createURI(String uri) {
+    protected KiWiIriResource createURI(String uri) {
         try {
             // first look in the registry for newly created resources if the resource has already been created and
             // is still volatile
-            KiWiUriResource result = connection.loadUriResource(uri);
+            KiWiIriResource result = connection.loadUriResource(uri);
 
             if(result == null) {
-                result = new KiWiUriResource(uri, importDate);
+                result = new KiWiIriResource(uri, importDate);
 
                 storeNode(result);
 

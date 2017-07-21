@@ -51,7 +51,7 @@ public class HazelcastCacheManager implements CacheManager {
 
     private AsyncMap<Long,KiWiNode> nodeCache;
     private AsyncMap<Long,KiWiTriple> tripleCache;
-    private AsyncMap<String,KiWiUriResource> uriCache;
+    private AsyncMap<String,KiWiIriResource> uriCache;
     private AsyncMap<String,KiWiAnonResource> bnodeCache;
     private AsyncMap<String,KiWiLiteral> literalCache;
     private AsyncMap<String,KiWiNamespace> nsPrefixCache;
@@ -114,7 +114,7 @@ public class HazelcastCacheManager implements CacheManager {
         SerializerConfig scTriple = new SerializerConfig().setImplementation(new TripleSerializer()).setTypeClass(KiWiTriple.class);
         hcConfiguration.getSerializationConfig().addSerializerConfig(scTriple);
 
-        SerializerConfig scUri = new SerializerConfig().setImplementation(new UriSerializer()).setTypeClass(KiWiUriResource.class);
+        SerializerConfig scUri = new SerializerConfig().setImplementation(new UriSerializer()).setTypeClass(KiWiIriResource.class);
         hcConfiguration.getSerializationConfig().addSerializerConfig(scUri);
     }
 
@@ -173,15 +173,15 @@ public class HazelcastCacheManager implements CacheManager {
     }
 
     /**
-     * Return the uri -> KiWiUriResource cache from the cache manager. This cache is used when constructing new
+     * Return the uri -> KiWiIriResource cache from the cache manager. This cache is used when constructing new
      * KiWiUriResources to avoid a database lookup.
      *
      * @return
      */
     @Override
-    public Map<String, KiWiUriResource> getUriCache() {
+    public Map<String, KiWiIriResource> getUriCache() {
         if(uriCache == null) {
-            uriCache = new AsyncMap<>(hazelcast.<String,KiWiUriResource>getMap(URI_CACHE));
+            uriCache = new AsyncMap<>(hazelcast.<String,KiWiIriResource>getMap(URI_CACHE));
         }
 
         return uriCache;

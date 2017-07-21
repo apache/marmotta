@@ -32,7 +32,7 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiNamespace;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.eclipse.rdf4j.common.iteration.CloseableIteration;
 import org.eclipse.rdf4j.common.iteration.DelayedIteration;
@@ -281,7 +281,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
     @Override
     protected CloseableIteration<? extends Statement, SailException> getStatementsInternal(Resource subj, IRI pred, Value obj, final boolean includeInferred, Resource... contexts) throws SailException {
         final KiWiResource rsubj    = valueFactory.convert(subj);
-        final KiWiUriResource rpred = valueFactory.convert(pred);
+        final KiWiIriResource rpred = valueFactory.convert(pred);
         final KiWiNode robj         = valueFactory.convert(obj);
 
         Set<KiWiResource> contextSet = new HashSet<>();
@@ -593,7 +593,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         if(input == null) {
             if(defaultContext != null) {
                 // null value for context means statements without context; in KiWi, this means "default context"
-                return (KiWiUriResource)valueFactory.createIRI(defaultContext);
+                return (KiWiIriResource)valueFactory.createIRI(defaultContext);
             }
             return null;
         } else {

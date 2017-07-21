@@ -195,17 +195,17 @@ public class ResourceUtils {
     }
 
     /**
-     * Retrieve the KiWiUriResource with the given IRI if it exists, or return null if it doesn't exist.
+     * Retrieve the KiWiIriResource with the given IRI if it exists, or return null if it doesn't exist.
      * A Resource exists if and only if it is used in a Statement, i.e. it is uses either as Subject, Context, Predicate or Object.
-     * @param uri
+     * @param iri
      * @return the IRI or null if the Resource is not used.
      * @deprecated this method is easy to misinterpret. Use {@link #isUsed(RepositoryConnection, Resource)}, 
      * {@link #isSubject(RepositoryConnection, String)}, {@link #isPredicate(RepositoryConnection, String)}, 
      * {@link #isObject(RepositoryConnection, String)} or {@link #isContext(RepositoryConnection, String)} according to your usecase. 
      */
     @Deprecated
-    public static IRI getUriResource(RepositoryConnection con, String uri) {
-        IRI rsc = con.getValueFactory().createIRI(uri);
+    public static IRI getIriResource(RepositoryConnection con, String iri) {
+        IRI rsc = con.getValueFactory().createIRI(iri);
         if (isUsed(con, rsc)) {
             return rsc;
         } else {

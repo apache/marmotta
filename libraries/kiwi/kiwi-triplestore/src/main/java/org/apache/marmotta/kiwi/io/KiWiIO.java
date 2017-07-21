@@ -40,7 +40,7 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.eclipse.rdf4j.model.vocabulary.DC;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
@@ -118,7 +118,7 @@ public class KiWiIO {
 
     private static Map<Class<? extends KiWiNode>, Integer> classTable = new HashMap<>();
     static {
-        classTable.put(KiWiUriResource.class,    TYPE_URI);
+        classTable.put(KiWiIriResource.class,    TYPE_URI);
         classTable.put(KiWiAnonResource.class,   TYPE_BNODE);
         classTable.put(KiWiBooleanLiteral.class, TYPE_BOOLEAN);
         classTable.put(KiWiDateLiteral.class,    TYPE_DATE);
@@ -161,7 +161,7 @@ public class KiWiIO {
             output.writeByte(type);
             switch (type) {
                 case TYPE_URI:
-                    writeURI(output, (KiWiUriResource) node);
+                    writeURI(output, (KiWiIriResource) node);
                     break;
                 case TYPE_BNODE:
                     writeBNode(output, (KiWiAnonResource) node);
@@ -222,14 +222,14 @@ public class KiWiIO {
     }
 
     /**
-     * Efficiently serialize a KiWiUriResource to a DataOutput destination, using prefix compression for commonly used
-     * prefixes.
+     * Efficiently serialize a KiWiIriResource to a DataOutput destination, using prefix compression for commonly used
+ prefixes.
      *
      * @param out  DataOutput destination
-     * @param uri  KiWiUriResource to serialize
+     * @param uri  KiWiIriResource to serialize
      * @throws IOException
      */
-    public static void writeURI(DataOutput out, KiWiUriResource uri) throws IOException {
+    public static void writeURI(DataOutput out, KiWiIriResource uri) throws IOException {
         if(uri == null) {
             out.writeLong(-1L);
         } else {
@@ -283,13 +283,13 @@ public class KiWiIO {
 
 
     /**
-     * Read a KiWiUriResource serialized with writeURI and return it.
+     * Read a KiWiIriResource serialized with writeURI and return it.
      *
      * @param input DataInput source
-     * @return a KiWiUriResource
+     * @return a KiWiIriResource
      * @throws IOException
      */
-    public static KiWiUriResource readURI(DataInput input) throws IOException {
+    public static KiWiIriResource readURI(DataInput input) throws IOException {
         long id = input.readLong();
 
         if(id == -1) {
@@ -345,7 +345,7 @@ public class KiWiIO {
 
             Date created = new Date(input.readLong());
 
-            KiWiUriResource r = new KiWiUriResource(uriPrefix + uriSuffix,created);
+            KiWiIriResource r = new KiWiIriResource(uriPrefix + uriSuffix,created);
             r.setId(id);
 
             return r;
@@ -429,7 +429,7 @@ public class KiWiIO {
         } else {
             boolean content = input.readBoolean();
 
-            KiWiUriResource dtype = readURI(input);
+            KiWiIriResource dtype = readURI(input);
 
             Date created = new Date(input.readLong());
 
@@ -476,7 +476,7 @@ public class KiWiIO {
         } else {
             DateTime content = new DateTime(input.readLong(), DateTimeZone.forOffsetMillis(input.readInt()));
 
-            KiWiUriResource dtype = readURI(input);
+            KiWiIriResource dtype = readURI(input);
 
             Date created = new Date(input.readLong());
 
@@ -523,7 +523,7 @@ public class KiWiIO {
 
         double content = input.readDouble();
 
-        KiWiUriResource dtype = readURI(input);
+        KiWiIriResource dtype = readURI(input);
 
         Date created = new Date(input.readLong());
 
@@ -569,7 +569,7 @@ public class KiWiIO {
 
         long content = input.readLong();
 
-        KiWiUriResource dtype = readURI(input);
+        KiWiIriResource dtype = readURI(input);
 
         Date created = new Date(input.readLong());
 
@@ -671,7 +671,7 @@ public class KiWiIO {
 
 
 
-        KiWiUriResource dtype = readURI(input);
+        KiWiIriResource dtype = readURI(input);
 
         Date created = new Date(input.readLong());
 
@@ -752,7 +752,7 @@ public class KiWiIO {
             long sId = input.readLong();
             String sUri = prefix + DataIO.readString(input);
             long sTime = input.readLong();
-            KiWiUriResource s = new KiWiUriResource(sUri);
+            KiWiIriResource s = new KiWiIriResource(sUri);
             s.setId(sId);
             s.setCreated(new Date(sTime));
             result.setSubject(s);
@@ -762,7 +762,7 @@ public class KiWiIO {
             long oId = input.readLong();
             String oUri = prefix + DataIO.readString(input);
             long oTime = input.readLong();
-            KiWiUriResource o = new KiWiUriResource(oUri);
+            KiWiIriResource o = new KiWiIriResource(oUri);
             o.setId(oId);
             o.setCreated(new Date(oTime));
             result.setObject(o);

@@ -27,7 +27,7 @@ import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
@@ -510,7 +510,7 @@ public class KiWiVersioningConnection extends KiWiConnection {
      * @return a new RepositoryResult with a direct connection to the database; the result should be properly closed
      *         by the caller
      */
-    public RepositoryResult<Statement> listTriplesSnapshot(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, Date snapshotDate) throws SQLException {
+    public RepositoryResult<Statement> listTriplesSnapshot(KiWiResource subject, KiWiIriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, Date snapshotDate) throws SQLException {
 
         return new RepositoryResult<Statement>(
                 new ExceptionConvertingIteration<Statement, RepositoryException>(listTriplesInternalSnapshot(subject, predicate, object, context, inferred, snapshotDate)) {
@@ -535,7 +535,7 @@ public class KiWiVersioningConnection extends KiWiConnection {
      * @return a ClosableIteration that wraps the database ResultSet; needs to be closed explicitly by the caller
      * @throws SQLException
      */
-    private CloseableIteration<Statement, SQLException> listTriplesInternalSnapshot(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, Date snapshotDate) throws SQLException {
+    private CloseableIteration<Statement, SQLException> listTriplesInternalSnapshot(KiWiResource subject, KiWiIriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, Date snapshotDate) throws SQLException {
         // if one of the database ids is null, there will not be any database results, so we can return an empty result
         if(subject != null && subject.getId() < 0) {
             return new EmptyIteration<Statement, SQLException>();
@@ -600,7 +600,7 @@ public class KiWiVersioningConnection extends KiWiConnection {
      * @param inferred   if true, the result will also contain triples inferred by the reasoner, if false not
      * @return an SQL query string representing the triple pattern
      */
-    protected String constructTripleQuerySnapshot(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, Date snapshotDate) {
+    protected String constructTripleQuerySnapshot(KiWiResource subject, KiWiIriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, Date snapshotDate) {
         StringBuilder builder = new StringBuilder();
         builder.append("SELECT id,subject,predicate,object,context,deleted,inferred,creator,createdAt,deletedAt FROM triples");
         builder.append(" WHERE  createdAt <= ? AND (deleted = false OR deletedAt > ?)");

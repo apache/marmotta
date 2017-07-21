@@ -50,7 +50,7 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
 
     private Locale locale;
 
-    private KiWiUriResource type;
+    private KiWiIriResource type;
 
     public KiWiLiteral() {
         super();
@@ -61,13 +61,13 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
     }
 
 
-    protected KiWiLiteral(Locale locale, KiWiUriResource type) {
+    protected KiWiLiteral(Locale locale, KiWiIriResource type) {
         this();
         this.locale = locale;
         this.type = type;
     }
 
-    protected KiWiLiteral(Locale locale, KiWiUriResource type, Date created) {
+    protected KiWiLiteral(Locale locale, KiWiIriResource type, Date created) {
         super(created);
         this.locale = locale;
         this.type = type;
@@ -108,7 +108,7 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
      * Return the RDF/XSD type of this literal.
      * @return
      */
-    public KiWiUriResource getType() {
+    public KiWiIriResource getType() {
         return type;
     }
 
@@ -116,7 +116,7 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
      * Set the RDF/XSD type of this literal.
      * @param type
      */
-    public void setType(KiWiUriResource type) {
+    public void setType(KiWiIriResource type) {
         this.type = type;
     }
 

@@ -35,7 +35,7 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.reasoner.engine.ReasoningEngine;
 import org.apache.marmotta.kiwi.reasoner.model.exception.ReasoningException;
 import org.apache.marmotta.kiwi.reasoner.model.program.Justification;
@@ -72,7 +72,7 @@ public class JustificationResolutionTest {
     private Justification j1, j2, j3, j4, j5, tj1, tj2, tj3;
     private Rule r1, r2;
 
-    private KiWiUriResource ctx_inferred;
+    private KiWiIriResource ctx_inferred;
 
     @Before
     public void setup() {
@@ -80,12 +80,12 @@ public class JustificationResolutionTest {
 
         baseJustifications = StatementCommons.newQuadrupleMap();
 
-        KiWiUriResource s1 = randomURI();
-        KiWiUriResource s2 = randomURI();
-        KiWiUriResource s3 = randomURI();
-        KiWiUriResource s4 = randomURI();
-        KiWiUriResource p1 = randomURI();
-        KiWiUriResource p2 = randomURI();
+        KiWiIriResource s1 = randomURI();
+        KiWiIriResource s2 = randomURI();
+        KiWiIriResource s3 = randomURI();
+        KiWiIriResource s4 = randomURI();
+        KiWiIriResource p1 = randomURI();
+        KiWiIriResource p2 = randomURI();
         KiWiNode o1 = randomObject();
         KiWiNode o2 = randomObject();
         KiWiNode o3 = randomObject();
@@ -251,8 +251,8 @@ public class JustificationResolutionTest {
      * Return a random URI, with a 10% chance of returning a URI that has already been used.
      * @return
      */
-    protected KiWiUriResource randomURI() {
-        KiWiUriResource resource = new KiWiUriResource("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+    protected KiWiIriResource randomURI() {
+        KiWiIriResource resource = new KiWiIriResource("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
         return resource;
     }
 
@@ -263,19 +263,19 @@ public class JustificationResolutionTest {
     protected KiWiNode randomObject() {
         KiWiNode object;
         switch(rnd.nextInt(6)) {
-            case 0: object = new KiWiUriResource("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+            case 0: object = new KiWiIriResource("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
                 break;
             case 1: object = new KiWiAnonResource(RandomStringUtils.randomAscii(8));
                 break;
             case 2: object = new KiWiStringLiteral(RandomStringUtils.randomAscii(40));
                 break;
-            case 3: object = new KiWiIntLiteral(rnd.nextLong(), new KiWiUriResource(Namespaces.NS_XSD + "integer"));
+            case 3: object = new KiWiIntLiteral(rnd.nextLong(), new KiWiIriResource(Namespaces.NS_XSD + "integer"));
                 break;
-            case 4: object = new KiWiDoubleLiteral(rnd.nextDouble(), new KiWiUriResource(Namespaces.NS_XSD + "double"));
+            case 4: object = new KiWiDoubleLiteral(rnd.nextDouble(), new KiWiIriResource(Namespaces.NS_XSD + "double"));
                 break;
-            case 5: object = new KiWiBooleanLiteral(rnd.nextBoolean(), new KiWiUriResource(Namespaces.NS_XSD + "boolean"));
+            case 5: object = new KiWiBooleanLiteral(rnd.nextBoolean(), new KiWiIriResource(Namespaces.NS_XSD + "boolean"));
                 break;
-            default: object = new KiWiUriResource("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+            default: object = new KiWiIriResource("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
                 break;
 
         }

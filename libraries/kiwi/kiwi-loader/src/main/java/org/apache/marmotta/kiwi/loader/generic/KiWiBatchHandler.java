@@ -29,7 +29,7 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.rio.RDFHandler;
@@ -51,7 +51,7 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
     protected List<KiWiTriple> tripleBacklog;
 
     protected Map<String,KiWiLiteral> literalBacklogLookup;
-    protected Map<String,KiWiUriResource> uriBacklogLookup;
+    protected Map<String,KiWiIriResource> uriBacklogLookup;
     protected Map<String,KiWiAnonResource> bnodeBacklogLookup;
 
 
@@ -170,8 +170,8 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
     }
 
     @Override
-    protected KiWiUriResource createURI(String uri) {
-        KiWiUriResource result = uriBacklogLookup.get(uri);
+    protected KiWiIriResource createURI(String uri) {
+        KiWiIriResource result = uriBacklogLookup.get(uri);
         if(result == null) {
             result = super.createURI(uri);
         }
@@ -186,8 +186,8 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
 
         nodeBacklog.add(node);
 
-        if(node instanceof KiWiUriResource) {
-            uriBacklogLookup.put(node.stringValue(),(KiWiUriResource)node);
+        if(node instanceof KiWiIriResource) {
+            uriBacklogLookup.put(node.stringValue(),(KiWiIriResource)node);
         } else if(node instanceof KiWiAnonResource) {
             bnodeBacklogLookup.put(node.stringValue(), (KiWiAnonResource)node);
         } else if(node instanceof KiWiLiteral) {

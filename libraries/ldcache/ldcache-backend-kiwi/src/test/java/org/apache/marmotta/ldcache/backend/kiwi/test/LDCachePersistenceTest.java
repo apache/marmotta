@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
@@ -181,8 +181,8 @@ public class LDCachePersistenceTest {
     public void testCreateListEntries() throws Exception {
         LDCachingKiWiPersistenceConnection connection = vpersistence.getConnection();
         try {
-            KiWiUriResource subject1  = new KiWiUriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
-            KiWiUriResource subject2  = new KiWiUriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource subject1  = new KiWiIriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource subject2  = new KiWiIriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
 
             connection.storeNode(subject1);
             connection.storeNode(subject2);
@@ -242,8 +242,8 @@ public class LDCachePersistenceTest {
     public void testCreateListExpired() throws Exception {
         LDCachingKiWiPersistenceConnection connection = vpersistence.getConnection();
         try {
-            KiWiUriResource subject1  = new KiWiUriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
-            KiWiUriResource subject2  = new KiWiUriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource subject1  = new KiWiIriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource subject2  = new KiWiIriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
 
             connection.storeNode(subject1);
             connection.storeNode(subject2);

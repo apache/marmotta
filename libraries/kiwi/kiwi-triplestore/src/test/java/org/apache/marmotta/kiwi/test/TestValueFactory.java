@@ -33,7 +33,7 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
@@ -66,7 +66,7 @@ public class TestValueFactory extends AbstractValueFactory {
      */
     @Override
     public IRI createIRI(String iri) {
-        KiWiUriResource r = new KiWiUriResource(iri, new Date());
+        KiWiIriResource r = new KiWiIriResource(iri, new Date());
         r.setId(idGenerator.getId());
 
         return r;
@@ -150,11 +150,11 @@ public class TestValueFactory extends AbstractValueFactory {
      */
     @Override
     public Literal createLiteral(String label, IRI datatype) {
-        KiWiUriResource t;
-        if(datatype instanceof KiWiUriResource) {
-            t = (KiWiUriResource) datatype;
+        KiWiIriResource t;
+        if(datatype instanceof KiWiIriResource) {
+            t = (KiWiIriResource) datatype;
         } else {
-            t = (KiWiUriResource) createIRI(datatype.stringValue());
+            t = (KiWiIriResource) createIRI(datatype.stringValue());
         }
 
         KiWiLiteral l = new KiWiStringLiteral(label, null, t, new Date());
@@ -172,7 +172,7 @@ public class TestValueFactory extends AbstractValueFactory {
      */
     @Override
     public Literal createLiteral(boolean value) {
-        KiWiLiteral l = new KiWiBooleanLiteral(value, (KiWiUriResource) createIRI(LiteralCommons.getXSDType(Boolean.class)), new Date());
+        KiWiLiteral l = new KiWiBooleanLiteral(value, (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Boolean.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -187,7 +187,7 @@ public class TestValueFactory extends AbstractValueFactory {
      */
     @Override
     public Literal createLiteral(byte value) {
-        KiWiLiteral l = new KiWiIntLiteral(Long.valueOf(value), (KiWiUriResource) createIRI(LiteralCommons.getXSDType(Byte.class)), new Date());
+        KiWiLiteral l = new KiWiIntLiteral(Long.valueOf(value), (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Byte.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -202,7 +202,7 @@ public class TestValueFactory extends AbstractValueFactory {
      */
     @Override
     public Literal createLiteral(short value) {
-        KiWiLiteral l = new KiWiIntLiteral(Long.valueOf(value), (KiWiUriResource) createIRI(LiteralCommons.getXSDType(Short.class)), new Date());
+        KiWiLiteral l = new KiWiIntLiteral(Long.valueOf(value), (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Short.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -217,7 +217,7 @@ public class TestValueFactory extends AbstractValueFactory {
      */
     @Override
     public Literal createLiteral(int value) {
-        KiWiLiteral l = new KiWiIntLiteral(Long.valueOf(value), (KiWiUriResource) createIRI(LiteralCommons.getXSDType(Integer.class)), new Date());
+        KiWiLiteral l = new KiWiIntLiteral(Long.valueOf(value), (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Integer.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -232,7 +232,7 @@ public class TestValueFactory extends AbstractValueFactory {
      */
     @Override
     public Literal createLiteral(long value) {
-        KiWiLiteral l = new KiWiIntLiteral(Long.valueOf(value), (KiWiUriResource) createIRI(LiteralCommons.getXSDType(Long.class)), new Date());
+        KiWiLiteral l = new KiWiIntLiteral(Long.valueOf(value), (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Long.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -247,7 +247,7 @@ public class TestValueFactory extends AbstractValueFactory {
      */
     @Override
     public Literal createLiteral(float value) {
-        KiWiLiteral l = new KiWiDoubleLiteral(Double.valueOf(value), (KiWiUriResource) createIRI(LiteralCommons.getXSDType(Float.class)), new Date());
+        KiWiLiteral l = new KiWiDoubleLiteral(Double.valueOf(value), (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Float.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -262,7 +262,7 @@ public class TestValueFactory extends AbstractValueFactory {
      */
     @Override
     public Literal createLiteral(double value) {
-        KiWiLiteral l = new KiWiDoubleLiteral(Double.valueOf(value), (KiWiUriResource) createIRI(LiteralCommons.getXSDType(Double.class)), new Date());
+        KiWiLiteral l = new KiWiDoubleLiteral(Double.valueOf(value), (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Double.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -277,7 +277,7 @@ public class TestValueFactory extends AbstractValueFactory {
      */
     @Override
     public Literal createLiteral(XMLGregorianCalendar calendar) {
-        KiWiLiteral l = new KiWiDateLiteral(new DateTime(calendar.toGregorianCalendar()), (KiWiUriResource) createIRI(LiteralCommons.getXSDType(Date.class)), new Date());
+        KiWiLiteral l = new KiWiDateLiteral(new DateTime(calendar.toGregorianCalendar()), (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Date.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -292,7 +292,7 @@ public class TestValueFactory extends AbstractValueFactory {
      */
     @Override
     public Literal createLiteral(Date date) {
-        KiWiLiteral l = new KiWiDateLiteral(new DateTime(date), (KiWiUriResource) createIRI(LiteralCommons.getXSDType(Date.class)), new Date());
+        KiWiLiteral l = new KiWiDateLiteral(new DateTime(date), (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Date.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -328,7 +328,7 @@ public class TestValueFactory extends AbstractValueFactory {
         Preconditions.checkArgument(object instanceof KiWiNode);
         Preconditions.checkArgument(context == null || context instanceof KiWiNode);
 
-        KiWiTriple t = new KiWiTriple((KiWiResource)subject,(KiWiUriResource)predicate,(KiWiNode)object,(KiWiResource)context, new Date());
+        KiWiTriple t = new KiWiTriple((KiWiResource)subject,(KiWiIriResource)predicate,(KiWiNode)object,(KiWiResource)context, new Date());
         t.setId(idGenerator.getId());
 
         return t;

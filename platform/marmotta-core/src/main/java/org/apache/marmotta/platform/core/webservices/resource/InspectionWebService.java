@@ -42,7 +42,6 @@ import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handl
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.getAnonResource;
 import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.getLabel;
-import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.getUriResource;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.eclipse.rdf4j.model.BNode;
@@ -54,6 +53,7 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.RepositoryResult;
+import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.getIriResource;
 
 @Path("/" + ConfigurationService.INSPECT_PATH)
 public class InspectionWebService {
@@ -78,7 +78,7 @@ public class InspectionWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                IRI r = getUriResource(conn, uri);
+                IRI r = getIriResource(conn, uri);
                 if (r != null) return
                         buildResultList(conn, r, null, null, null, offset, batchSize);
                 else
@@ -102,7 +102,7 @@ public class InspectionWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                IRI r = getUriResource(conn, uri);
+                IRI r = getIriResource(conn, uri);
                 if (r != null)
                     return buildResultList(conn, null, r, null, null, offset, batchSize);
                 else
@@ -128,7 +128,7 @@ public class InspectionWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                IRI r = getUriResource(conn, uri);
+                IRI r = getIriResource(conn, uri);
                 if (r != null)
                     return buildResultList(conn, null, null, r, null, offset, batchSize);
                 else
@@ -153,7 +153,7 @@ public class InspectionWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                IRI r = getUriResource(conn, uri);
+                IRI r = getIriResource(conn, uri);
                 if (r != null)
                     return buildResultList(conn, null, null, null, r, offset, batchSize);
                 else
@@ -228,7 +228,7 @@ public class InspectionWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                Resource rsc = getUriResource(conn, uri);
+                Resource rsc = getIriResource(conn, uri);
                 if (rsc == null) {
                     rsc = getAnonResource(conn, uuid);
                 }
@@ -257,7 +257,7 @@ public class InspectionWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                Resource rsc = getUriResource(conn, uri);
+                Resource rsc = getIriResource(conn, uri);
                 if (rsc == null)
                     return Response.status(Status.NOT_FOUND).entity("Not found: " + uri).build();
                 else

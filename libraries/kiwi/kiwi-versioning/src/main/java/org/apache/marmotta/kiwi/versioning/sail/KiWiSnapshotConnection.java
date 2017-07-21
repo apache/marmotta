@@ -30,7 +30,7 @@ import java.util.Set;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNamespace;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.marmotta.kiwi.versioning.persistence.KiWiVersioningConnection;
 import org.eclipse.rdf4j.IsolationLevel;
@@ -203,7 +203,7 @@ public class KiWiSnapshotConnection implements SailConnection {
     @Override
     public CloseableIteration<? extends Statement, SailException> getStatements(Resource subj, IRI pred, Value obj, final boolean includeInferred, Resource... contexts) throws SailException {
         final KiWiResource rsubj = valueFactory.convert(subj);
-        final KiWiUriResource rpred = valueFactory.convert(pred);
+        final KiWiIriResource rpred = valueFactory.convert(pred);
         final KiWiNode robj = valueFactory.convert(obj);
 
         Set<KiWiResource> contextSet = new HashSet<>();

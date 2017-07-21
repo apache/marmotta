@@ -37,7 +37,7 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.registry.CacheTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.DBTripleRegistry;
@@ -140,10 +140,10 @@ public class KiWiValueFactory extends AbstractValueFactory {
         try {
             // first look in the registry for newly created resources if the resource has already been created and
             // is still volatile
-            KiWiUriResource result = connection.loadUriResource(iri);
+            KiWiIriResource result = connection.loadUriResource(iri);
 
             if (result == null) {
-                result = new KiWiUriResource(iri);
+                result = new KiWiIriResource(iri);
 
                 connection.storeNode(result);
 
@@ -321,7 +321,7 @@ public class KiWiValueFactory extends AbstractValueFactory {
 
         KiWiLiteral result;
 
-        final KiWiUriResource rtype = (KiWiUriResource) createIRI(type);
+        final KiWiIriResource rtype = (KiWiIriResource) createIRI(type);
 
         final KiWiConnection connection = aqcuireConnection();
         try {
@@ -405,7 +405,7 @@ public class KiWiValueFactory extends AbstractValueFactory {
             } catch (IllegalArgumentException ex) {
                 // malformed number or date
                 log.warn("malformed argument for typed literal of type {}: {}", rtype.stringValue(), value);
-                KiWiUriResource mytype = (KiWiUriResource) createIRI(Namespaces.NS_XSD + "string");
+                KiWiIriResource mytype = (KiWiIriResource) createIRI(Namespaces.NS_XSD + "string");
 
                 result = connection.loadLiteral(value.toString(), lang, mytype);
 
@@ -576,7 +576,7 @@ public class KiWiValueFactory extends AbstractValueFactory {
             IntArray cacheKey = IntArray.createSPOCKey(subject, predicate, object, context);
 
             KiWiResource ksubject = convert(subject);
-            KiWiUriResource kpredicate = convert(predicate);
+            KiWiIriResource kpredicate = convert(predicate);
             KiWiNode kobject = convert(object);
             KiWiResource kcontext = convert(context);
 
@@ -655,8 +655,8 @@ public class KiWiValueFactory extends AbstractValueFactory {
         return (KiWiResource) convert((Value) r);
     }
 
-    public KiWiUriResource convert(IRI r) {
-        return (KiWiUriResource) convert((Value) r);
+    public KiWiIriResource convert(IRI r) {
+        return (KiWiIriResource) convert((Value) r);
     }
 
     public KiWiNode convert(Value value) {
@@ -667,7 +667,7 @@ public class KiWiValueFactory extends AbstractValueFactory {
             return (KiWiNode) value;
         }
         if (value instanceof IRI) {
-            return (KiWiUriResource) createIRI(value.stringValue());
+            return (KiWiIriResource) createIRI(value.stringValue());
         }
         if (value instanceof BNode) {
             return (KiWiAnonResource) createBNode(value.stringValue());

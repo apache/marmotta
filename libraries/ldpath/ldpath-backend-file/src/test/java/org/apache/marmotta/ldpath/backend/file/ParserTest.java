@@ -19,6 +19,7 @@ package org.apache.marmotta.ldpath.backend.file;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
@@ -87,20 +88,20 @@ public class ParserTest {
     @Test
     public void testParseProgram() throws Exception {
 
-        Program<Value> p1 = parseProgram(IOUtils.toString(ParserTest.class.getResource("stanbol.search")));
+        Program<Value> p1 = parseProgram(IOUtils.toString(ParserTest.class.getResource("stanbol.search"), Charset.defaultCharset()));
         Assert.assertEquals(12,p1.getFields().size());
         Assert.assertNull(p1.getBooster());
         Assert.assertNotNull(p1.getFilter());
         Assert.assertEquals(5,p1.getNamespaces().size());
 
 
-        Program<Value> p2 = parseProgram(IOUtils.toString(ParserTest.class.getResource("sn.search")));
+        Program<Value> p2 = parseProgram(IOUtils.toString(ParserTest.class.getResource("sn.search"), Charset.defaultCharset()));
         Assert.assertEquals(11,p2.getFields().size());
         Assert.assertNotNull(p2.getBooster());
         Assert.assertNotNull(p2.getFilter());
         Assert.assertEquals(8,p2.getNamespaces().size());
 
-        Program<Value> p3 = parseProgram(IOUtils.toString(ParserTest.class.getResource("orf.search")));
+        Program<Value> p3 = parseProgram(IOUtils.toString(ParserTest.class.getResource("orf.search"), Charset.defaultCharset()));
         Assert.assertEquals(18,p3.getFields().size());
         Assert.assertNull(p3.getBooster());
         Assert.assertNotNull(p3.getFilter());

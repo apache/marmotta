@@ -59,12 +59,12 @@ public interface CacheManager {
 
 
     /**
-     * Return the uri -> KiWiUriResource cache from the cache manager. This cache is used when constructing new
+     * Return the uri -> KiWiIriResource cache from the cache manager. This cache is used when constructing new
      * KiWiUriResources to avoid a database lookup.
      *
      * @return
      */
-    Map<String, KiWiUriResource> getUriCache();
+    Map<String, KiWiIriResource> getUriCache();
 
 
     /**

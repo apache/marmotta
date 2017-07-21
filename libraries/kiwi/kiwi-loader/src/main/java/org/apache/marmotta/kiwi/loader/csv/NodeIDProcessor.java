@@ -17,7 +17,7 @@
 package org.apache.marmotta.kiwi.loader.csv;
 
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.exception.SuperCsvCellProcessorException;
@@ -56,7 +56,7 @@ public class NodeIDProcessor extends CellProcessorAdaptor implements CellProcess
         validateInputNotNull(value, context);
 
         if( !(value instanceof KiWiNode) ) {
-            throw new SuperCsvCellProcessorException(KiWiUriResource.class, value, context, this);
+            throw new SuperCsvCellProcessorException(KiWiIriResource.class, value, context, this);
         }
 
         return ((KiWiNode)value).getId();

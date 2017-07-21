@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -54,7 +55,7 @@ public class ProgramTest {
         final URL resource = ParserTest.class.getResource("/parse/program.ldpath");
         assertThat("Could not load test input data '/parse/program.ldpath'", resource, CoreMatchers.notNullValue());
 
-        expr = IOUtils.toString(resource);
+        expr = IOUtils.toString(resource,Charset.defaultCharset());
         
         LdPathParser<String> rdfPathParser = new LdPathParser<String>(backend,new StringReader(expr));
         rdfPathParser.registerTransformer("http://example.com/type", new NodeTransformer<String, String>() {

@@ -28,7 +28,7 @@ import java.util.Map;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryResultHandlerException;
-import org.eclipse.rdf4j.query.TupleQueryResultHandlerBase;
+import org.eclipse.rdf4j.query.AbstractTupleQueryResultHandler;
 import org.eclipse.rdf4j.query.TupleQueryResultHandlerException;
 import org.eclipse.rdf4j.query.resultio.QueryResultFormat;
 import org.eclipse.rdf4j.query.resultio.TupleQueryResultFormat;
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Sergio Fernández
  */
-public class SPARQLResultsHTMLWriter extends TupleQueryResultHandlerBase implements TupleQueryResultWriter {
+public class SPARQLResultsHTMLWriter extends AbstractTupleQueryResultHandler implements TupleQueryResultWriter {
 
 	private static final Logger log = LoggerFactory.getLogger(SPARQLResultsHTMLWriter.class);
     

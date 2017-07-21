@@ -21,7 +21,7 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 import org.apache.marmotta.kiwi.io.KiWiIO;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 
 import java.io.IOException;
 
@@ -30,7 +30,7 @@ import java.io.IOException;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class UriSerializer implements StreamSerializer<KiWiUriResource> {
+public class UriSerializer implements StreamSerializer<KiWiIriResource> {
 
     @Override
     public int getTypeId() {
@@ -38,12 +38,12 @@ public class UriSerializer implements StreamSerializer<KiWiUriResource> {
     }
 
     @Override
-    public void write(ObjectDataOutput output, KiWiUriResource object) throws IOException {
+    public void write(ObjectDataOutput output, KiWiIriResource object) throws IOException {
         KiWiIO.writeURI(output, object);
     }
 
     @Override
-    public KiWiUriResource read(ObjectDataInput input) throws IOException {
+    public KiWiIriResource read(ObjectDataInput input) throws IOException {
         return KiWiIO.readURI(input);
     }
 

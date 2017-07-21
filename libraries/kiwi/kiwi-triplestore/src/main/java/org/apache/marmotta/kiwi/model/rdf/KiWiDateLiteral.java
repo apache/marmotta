@@ -54,12 +54,12 @@ public class KiWiDateLiteral extends KiWiStringLiteral {
     }
 
 
-    public KiWiDateLiteral(DateTime dateContent, KiWiUriResource type) {
+    public KiWiDateLiteral(DateTime dateContent, KiWiIriResource type) {
         super(DateUtils.getXMLCalendar(dateContent.withMillisOfSecond(0)).toXMLFormat(),null,type);
         setDateContent(dateContent);
     }
 
-    public KiWiDateLiteral(DateTime dateContent, KiWiUriResource type, Date created) {
+    public KiWiDateLiteral(DateTime dateContent, KiWiIriResource type, Date created) {
         super(DateUtils.getXMLCalendar(dateContent.withMillisOfSecond(0)).toXMLFormat(),null,type, created);
         setDateContent(dateContent);
     }

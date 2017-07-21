@@ -40,13 +40,13 @@ public class KiWiIntLiteral extends KiWiDoubleLiteral {
     }
 
 
-    public KiWiIntLiteral(Long content, KiWiUriResource type) {
+    public KiWiIntLiteral(Long content, KiWiIriResource type) {
         super();
         setIntContent(content);
         setType(type);
     }
 
-    public KiWiIntLiteral(Long content, KiWiUriResource type, Date created) {
+    public KiWiIntLiteral(Long content, KiWiIriResource type, Date created) {
         super(created);
         setIntContent(content);
         setType(type);

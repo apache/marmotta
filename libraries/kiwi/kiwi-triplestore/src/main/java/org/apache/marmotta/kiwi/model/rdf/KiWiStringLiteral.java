@@ -52,12 +52,12 @@ public class KiWiStringLiteral extends KiWiLiteral {
     }
 
 
-    public KiWiStringLiteral(String content, Locale language, KiWiUriResource type) {
+    public KiWiStringLiteral(String content, Locale language, KiWiIriResource type) {
         super(language, type);
         this.content = content;
     }
 
-    public KiWiStringLiteral(String content, Locale language, KiWiUriResource type, Date created) {
+    public KiWiStringLiteral(String content, Locale language, KiWiIriResource type, Date created) {
         super(language, type, created);
         this.content = content;
     }

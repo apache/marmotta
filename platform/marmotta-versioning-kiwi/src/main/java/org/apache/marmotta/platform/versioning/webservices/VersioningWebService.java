@@ -35,7 +35,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.commons.util.JSONUtils;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
@@ -107,7 +107,7 @@ public class VersioningWebService {
             try {
                 if(resource_uri != null) {
                     IRI resource = conn.getValueFactory().createIRI(resource_uri);
-                    if(resource != null && resource instanceof KiWiUriResource) {
+                    if(resource != null && resource instanceof KiWiIriResource) {
 
                         if(dateFrom == null && dateTo == null) {
                             return Response.ok().entity(formatVersions(versioningService.listVersions(resource))).build();

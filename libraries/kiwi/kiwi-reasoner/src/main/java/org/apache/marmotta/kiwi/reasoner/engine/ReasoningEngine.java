@@ -39,7 +39,7 @@ import org.apache.marmotta.commons.sesame.tripletable.TripleTable;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.reasoner.model.exception.ReasoningException;
 import org.apache.marmotta.kiwi.reasoner.model.exception.UnjustifiedTripleException;
 import org.apache.marmotta.kiwi.reasoner.model.program.Justification;
@@ -635,9 +635,9 @@ public class ReasoningEngine implements TransactionListener {
                         log.info("cannot use value {} as property, because it is not a URI resource",binding.get(rule.getHead().getProperty()));
                         continue;
                     }
-                    property = (KiWiUriResource)binding.get(rule.getHead().getProperty());
+                    property = (KiWiIriResource)binding.get(rule.getHead().getProperty());
                 } else if(rule.getHead().getProperty() != null && rule.getHead().getProperty().isResourceField()) {
-                    property = (KiWiUriResource)((ResourceField)rule.getHead().getProperty()).getResource();
+                    property = (KiWiIriResource)((ResourceField)rule.getHead().getProperty()).getResource();
                 } else
                     throw new IllegalArgumentException("Property of rule head may only be a variable or a resource; rule: "+rule);
 

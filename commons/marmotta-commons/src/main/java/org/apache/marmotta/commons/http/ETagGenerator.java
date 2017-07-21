@@ -38,7 +38,7 @@ import org.eclipse.rdf4j.repository.RepositoryResult;
 public class ETagGenerator {
     
     public static String getETag(RepositoryConnection conn, String uri) throws RepositoryException {
-        IRI resource = ResourceUtils.getUriResource(conn, uri);
+        IRI resource = ResourceUtils.getIriResource(conn, uri);
         return getETag(conn, resource);
     }
     
@@ -75,7 +75,7 @@ public class ETagGenerator {
     
     public static String getWeakETag(RepositoryConnection conn, String resource) throws RepositoryException {
         if (resource.startsWith("http://")) {
-        	return getWeakETag(conn, ResourceUtils.getUriResource(conn, resource));
+        	return getWeakETag(conn, ResourceUtils.getIriResource(conn, resource));
         } else {
         	return getWeakETag(conn, ResourceUtils.getAnonResource(conn, resource));
         }

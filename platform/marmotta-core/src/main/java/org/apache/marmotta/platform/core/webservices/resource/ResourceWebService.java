@@ -140,7 +140,7 @@ public class ResourceWebService {
                 RepositoryConnection conn = sesameService.getConnection();
                 try {
                     conn.begin();
-                    IRI resource = ResourceUtils.getUriResource(conn, uri);
+                    IRI resource = ResourceUtils.getIriResource(conn, uri);
                     conn.commit();
 
                     methods = resource != null ? "PUT, GET, DELETE" : "POST";
@@ -187,7 +187,7 @@ public class ResourceWebService {
                 RepositoryConnection conn = sesameService.getConnection();
                 try {
                     conn.begin();
-                    IRI resource = ResourceUtils.getUriResource(conn, uri);
+                    IRI resource = ResourceUtils.getIriResource(conn, uri);
                     conn.commit();
 
                     String methods = resource != null ? "PUT, GET, DELETE" : "POST";
@@ -260,7 +260,7 @@ public class ResourceWebService {
                 conn.begin();
                 String location = remote ? configurationService.getServerIri() + ConfigurationService.RESOURCE_PATH + "?uri=" + uri : uri;
                 Response.Status status;
-                if (ResourceUtils.getUriResource(conn, uri) != null) {
+                if (ResourceUtils.getIriResource(conn, uri) != null) {
                     status = Status.OK;
                 } else {
                     conn.getValueFactory().createIRI(uri);
@@ -362,7 +362,7 @@ public class ResourceWebService {
                 if (UriUtil.validate(resource)) {
                     try {
                         if (ResourceUtils.isSubject(conn, resource)) {  //tests if a resource is used as subject
-                            r = ResourceUtils.getUriResource(conn, resource);
+                            r = ResourceUtils.getIriResource(conn, resource);
                         }
                     } catch (Exception e) {
                         log.error("Error retrieving the resource <{}>: {}", resource, e.getMessage());
@@ -531,7 +531,7 @@ public class ResourceWebService {
                     final RepositoryConnection con = sesameService.getConnection();
                     try {
                         con.begin();
-                        IRI resource = ResourceUtils.getUriResource(con, uri);
+                        IRI resource = ResourceUtils.getIriResource(con, uri);
                         con.commit();
                         return Response
                                 .status(configurationService.getIntConfiguration(LINKEDDATA_REDIRECT_STATUS, 303))
@@ -582,7 +582,7 @@ public class ResourceWebService {
                 RepositoryConnection conn = sesameService.getConnection();
                 try {
                     conn.begin();
-                    Resource resource = ResourceUtils.getUriResource(conn, URLDecoder.decode(iri, "utf-8"));
+                    Resource resource = ResourceUtils.getIriResource(conn, URLDecoder.decode(iri, "utf-8"));
                     if (resource != null) {
                         ResourceUtils.removeResource(conn, resource);
                         return Response.ok().build();

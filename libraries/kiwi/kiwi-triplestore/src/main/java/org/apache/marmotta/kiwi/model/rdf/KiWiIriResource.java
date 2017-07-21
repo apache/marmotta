@@ -27,7 +27,7 @@ import org.eclipse.rdf4j.model.IRI;
  * <p/>
  * User: sschaffe
  */
-public class KiWiUriResource extends KiWiResource implements IRI {
+public class KiWiIriResource extends KiWiResource implements IRI {
 
 	private static final long serialVersionUID = -6399293877969640084L;
 
@@ -41,17 +41,17 @@ public class KiWiUriResource extends KiWiResource implements IRI {
     private String localName;
 
     @Deprecated
-    public KiWiUriResource() {
+    public KiWiIriResource() {
         super();
     }
 
-    public KiWiUriResource(String iri) {
+    public KiWiIriResource(String iri) {
         super();
         Preconditions.checkArgument(iri.indexOf(':') >= 0, "Not a valid (absolute) IRI: " + iri);
         this.iri = iri;
     }
 
-    public KiWiUriResource(String iri, Date created) {
+    public KiWiIriResource(String iri, Date created) {
         super(created);
         Preconditions.checkArgument(iri.indexOf(':') >= 0, "Not a valid (absolute) IRI: " + iri);
         this.iri = iri;

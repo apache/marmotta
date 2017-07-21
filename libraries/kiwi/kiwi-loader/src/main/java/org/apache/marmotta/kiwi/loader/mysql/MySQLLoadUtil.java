@@ -41,7 +41,7 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.eclipse.rdf4j.model.IRI;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -147,8 +147,8 @@ public class MySQLLoadUtil {
         List<Object> row = Arrays.asList(rowArray);
 
         for(KiWiNode n : nodeBacklog) {
-            if(n instanceof KiWiUriResource) {
-                KiWiUriResource u = (KiWiUriResource)n;
+            if(n instanceof KiWiIriResource) {
+                KiWiIriResource u = (KiWiIriResource)n;
                 createNodeList(rowArray, u.getId(), u.getClass(), u.stringValue(), null, null, null, null, null, null, null, u.getCreated());
             } else if(n instanceof KiWiAnonResource) {
                 KiWiAnonResource a = (KiWiAnonResource)n;

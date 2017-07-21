@@ -59,7 +59,7 @@ public class NodeTypeProcessor extends CellProcessorAdaptor implements CellProce
         }
 
 
-        if(KiWiUriResource.class.equals(value)) {
+        if(KiWiIriResource.class.equals(value)) {
             return "uri";
         } else if(KiWiAnonResource.class.equals(value)) {
             return "bnode";

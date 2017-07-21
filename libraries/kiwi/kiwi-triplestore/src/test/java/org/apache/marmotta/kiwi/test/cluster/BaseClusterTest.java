@@ -21,7 +21,7 @@ import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.config.CachingBackends;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.eclipse.rdf4j.model.IRI;
@@ -67,7 +67,7 @@ public abstract class BaseClusterTest {
 
         log.info("testing cache synchronization ...");
 
-        KiWiUriResource u = (KiWiUriResource) repositorySync1.getValueFactory().createIRI("http://localhost/test1");
+        KiWiIriResource u = (KiWiIriResource) repositorySync1.getValueFactory().createIRI("http://localhost/test1");
 
 
         // give the cluster some time to performance asynchronous balancing
@@ -75,14 +75,14 @@ public abstract class BaseClusterTest {
 
 
         log.debug("test if resource is in cache where it was created ...");
-        KiWiUriResource u1 = cacheManagerSync1.getUriCache().get("http://localhost/test1");
+        KiWiIriResource u1 = cacheManagerSync1.getUriCache().get("http://localhost/test1");
 
         Assert.assertNotNull(u1);
         Assert.assertEquals(u, u1);
         Assert.assertEquals(u.getId(), u1.getId());
 
         log.debug("test if resource has been synced to other cache in cluster ...");
-        KiWiUriResource u2 = cacheManagerSync2.getUriCache().get("http://localhost/test1");
+        KiWiIriResource u2 = cacheManagerSync2.getUriCache().get("http://localhost/test1");
 
         Assert.assertNotNull(u2);
         Assert.assertEquals(u, u2);

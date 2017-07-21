@@ -24,7 +24,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
@@ -98,13 +98,13 @@ public class VersioningPersistenceTest {
     public void testCreateListVersions() throws Exception {
         KiWiVersioningConnection connection = vpersistence.getConnection();
         try {
-            KiWiUriResource subject1  = new KiWiUriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
-            KiWiUriResource subject2  = new KiWiUriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
-            KiWiUriResource pred_1   = new KiWiUriResource("http://localhost/predicate/P1");
-            KiWiUriResource pred_2   = new KiWiUriResource("http://localhost/predicate/P2");
-            KiWiUriResource object_1 = new KiWiUriResource("http://localhost/resource/"+RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource subject1  = new KiWiIriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource subject2  = new KiWiIriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource pred_1   = new KiWiIriResource("http://localhost/predicate/P1");
+            KiWiIriResource pred_2   = new KiWiIriResource("http://localhost/predicate/P2");
+            KiWiIriResource object_1 = new KiWiIriResource("http://localhost/resource/"+RandomStringUtils.randomAlphanumeric(8));
             KiWiStringLiteral object_2 = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(32));
-            KiWiUriResource context  = new KiWiUriResource("http://localhost/context/"+RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource context  = new KiWiIriResource("http://localhost/context/"+RandomStringUtils.randomAlphanumeric(8));
 
             connection.storeNode(subject1);
             connection.storeNode(subject2);
@@ -172,12 +172,12 @@ public class VersioningPersistenceTest {
     public void testCreateListVersionsBetween() throws Exception {
         KiWiVersioningConnection connection = vpersistence.getConnection();
         try {
-            KiWiUriResource subject  = new KiWiUriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
-            KiWiUriResource pred_1   = new KiWiUriResource("http://localhost/predicate/P1");
-            KiWiUriResource pred_2   = new KiWiUriResource("http://localhost/predicate/P2");
-            KiWiUriResource object_1 = new KiWiUriResource("http://localhost/resource/"+RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource subject  = new KiWiIriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource pred_1   = new KiWiIriResource("http://localhost/predicate/P1");
+            KiWiIriResource pred_2   = new KiWiIriResource("http://localhost/predicate/P2");
+            KiWiIriResource object_1 = new KiWiIriResource("http://localhost/resource/"+RandomStringUtils.randomAlphanumeric(8));
             KiWiStringLiteral object_2 = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(32));
-            KiWiUriResource context  = new KiWiUriResource("http://localhost/context/"+RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource context  = new KiWiIriResource("http://localhost/context/"+RandomStringUtils.randomAlphanumeric(8));
 
             connection.storeNode(subject);
             connection.storeNode(pred_1);
@@ -270,13 +270,13 @@ public class VersioningPersistenceTest {
     public void testCreateRemoveVersions() throws Exception {
         KiWiVersioningConnection connection = vpersistence.getConnection();
         try {
-            KiWiUriResource subject1  = new KiWiUriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
-            KiWiUriResource subject2  = new KiWiUriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
-            KiWiUriResource pred_1   = new KiWiUriResource("http://localhost/predicate/P1");
-            KiWiUriResource pred_2   = new KiWiUriResource("http://localhost/predicate/P2");
-            KiWiUriResource object_1 = new KiWiUriResource("http://localhost/resource/"+RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource subject1  = new KiWiIriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource subject2  = new KiWiIriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource pred_1   = new KiWiIriResource("http://localhost/predicate/P1");
+            KiWiIriResource pred_2   = new KiWiIriResource("http://localhost/predicate/P2");
+            KiWiIriResource object_1 = new KiWiIriResource("http://localhost/resource/"+RandomStringUtils.randomAlphanumeric(8));
             KiWiStringLiteral object_2 = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(32));
-            KiWiUriResource context  = new KiWiUriResource("http://localhost/context/"+RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource context  = new KiWiIriResource("http://localhost/context/"+RandomStringUtils.randomAlphanumeric(8));
 
             connection.storeNode(subject1);
             connection.storeNode(subject2);
