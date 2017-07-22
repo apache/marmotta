@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.platform.core.services.triplestore;
 
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
