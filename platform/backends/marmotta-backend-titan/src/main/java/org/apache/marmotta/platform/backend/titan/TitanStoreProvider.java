@@ -19,7 +19,6 @@ package org.apache.marmotta.platform.backend.titan;
 
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
-import com.tinkerpop.blueprints.oupls.sail.GraphSail;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -60,7 +59,10 @@ public class TitanStoreProvider implements StoreProvider {
 	public NotifyingSail createStore() {
 		log.info("Initializing Backend: Titan Store");
 		final TitanGraph graph = createTitanGraph();
-		return new GraphSail(graph);
+//		return new GraphSail(graph); 
+                // Ignore GraphSail because TnkerPop is deprecated; it uses sesame 2.
+                // This experimental backend will be removed.
+                return null;
 	}
 
 	public void configurationChanged(@Observes ConfigurationChangedEvent e) {
