@@ -178,7 +178,6 @@ class Persistence {
 template<typename T, typename Iterator>
 class DBIterator : public util::CloseableIterator<T> {
  public:
-
     DBIterator(Iterator *it)
             : it(it) {
         it->SeekToFirst();

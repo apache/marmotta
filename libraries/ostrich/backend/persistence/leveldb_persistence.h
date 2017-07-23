@@ -133,6 +133,10 @@ class LevelDBPersistence : public Persistence {
             db_ns_prefix, db_ns_url,
             // Triple store metadata.
             db_meta;
+
+    // Keep track of namespaces in memory for prefix compression.
+    rdf::NsMap namespaces;
+
     /**
      * Add the namespace to the given database batch operations.
      */

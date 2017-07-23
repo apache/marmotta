@@ -145,6 +145,13 @@ LevelDBPersistence::LevelDBPersistence(const std::string &path, int64_t cacheSiz
     CHECK_NOTNULL(db_opsc.get());
     CHECK_NOTNULL(db_pcos.get());
 
+    // Initialise in-memory namespaces.
+    Namespace ns;
+    GetNamespaces(ns, [this](const Namespace& ns) {
+       namespaces[ns.prefix()+":"] = ns.uri();
+        return true;
+    });
+
     LOG(INFO) << "LevelDB Database initialised.";
 }
 
@@ -449,15 +456,17 @@ void LevelDBPersistence::AddNamespace(
     ns.SerializeToString(&buffer);
     ns_prefix.Put(ns.prefix(), buffer);
     ns_url.Put(ns.uri(), buffer);
+    namespaces[ns.prefix()+":"] = ns.uri();
 }
 
 void LevelDBPersistence::RemoveNamespace(
         const Namespace &pattern, WriteBatch &ns_prefix, WriteBatch &ns_url) {
     DLOG(INFO) << "Removing namespaces matching pattern " << pattern.DebugString();
 
-    GetNamespaces(pattern, [&ns_prefix, &ns_url](const rdf::proto::Namespace& ns) -> bool {
+    GetNamespaces(pattern, [this, &ns_prefix, &ns_url](const rdf::proto::Namespace& ns) -> bool {
         ns_prefix.Delete(ns.prefix());
         ns_url.Delete(ns.uri());
+        namespaces.erase(ns.prefix() + ":");
         return true;
     });
 }
