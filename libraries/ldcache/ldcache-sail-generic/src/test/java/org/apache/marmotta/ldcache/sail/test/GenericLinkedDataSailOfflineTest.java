@@ -21,8 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
+import org.apache.marmotta.commons.sesame.filter.resource.IriPrefixFilter;
 import org.apache.marmotta.commons.sesame.filter.resource.ResourceFilter;
-import org.apache.marmotta.commons.sesame.filter.resource.UriPrefixFilter;
 import org.apache.marmotta.ldcache.backend.file.LDCachingFileBackend;
 import org.apache.marmotta.ldcache.sail.GenericLinkedDataSail;
 import org.apache.marmotta.ldcache.services.test.dummy.DummyEndpoint;
@@ -66,7 +66,7 @@ public class GenericLinkedDataSailOfflineTest {
 
     @Before
     public void initDatabase() throws RepositoryException {
-        cacheFilter = new UriPrefixFilter("http://localhost/");
+        cacheFilter = new IriPrefixFilter("http://localhost/");
 
         ClientConfiguration config = new ClientConfiguration();
         config.addEndpoint(new DummyEndpoint());
