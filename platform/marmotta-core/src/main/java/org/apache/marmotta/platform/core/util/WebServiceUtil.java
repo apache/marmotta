@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,16 +17,14 @@
  */
 package org.apache.marmotta.platform.core.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
+import javax.ws.rs.Path;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.ws.rs.Path;
-
-import org.apache.commons.lang3.exception.ExceptionUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Utility methods for web services
@@ -47,7 +45,7 @@ public class WebServiceUtil {
      * </code>
      */
     public static String jsonErrorResponse(Exception e) {
-        Map<String,Object> result = new HashMap<String, Object>();
+        Map<String,Object> result = new HashMap<>();
         result.put("type", e.getClass().getSimpleName());
         result.put("message", e.getMessage());
         result.put("trace", ExceptionUtils.getStackTrace(e));
@@ -72,7 +70,7 @@ public class WebServiceUtil {
      * </code>
      */
     public static void jsonErrorResponse(Exception ex, OutputStream out) throws IOException {
-        Map<String,Object> result = new HashMap<String, Object>();
+        Map<String,Object> result = new HashMap<>();
         result.put("type",ex.getClass().getSimpleName());
         result.put("message",ex.getMessage());
 

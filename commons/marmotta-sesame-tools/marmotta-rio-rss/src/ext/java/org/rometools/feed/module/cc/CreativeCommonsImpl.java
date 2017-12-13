@@ -44,6 +44,7 @@ import com.sun.syndication.feed.CopyFrom;
 import com.sun.syndication.feed.impl.EqualsBean;
 import com.sun.syndication.feed.impl.ToStringBean;
 import org.rometools.feed.module.cc.types.License;
+
 import java.lang.reflect.Array;
 
 /**
@@ -66,9 +67,7 @@ public class CreativeCommonsImpl implements CreativeCommons {
 
         Object[] array = (Object[])Array.newInstance(source.getClass().getComponentType(),source.length);
 
-        for(int i = 0; i < source.length; i++) {
-            array[i] = source[i];
-        }
+        System.arraycopy(source, 0, array, 0, source.length);
 
         return array;
     }

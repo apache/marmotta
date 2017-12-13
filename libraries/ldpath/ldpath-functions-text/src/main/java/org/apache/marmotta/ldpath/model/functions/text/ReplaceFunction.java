@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,6 +18,10 @@
 package org.apache.marmotta.ldpath.model.functions.text;
 
 
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
+import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
+
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
@@ -25,10 +29,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
-import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
-import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
 
 /**
  * Apply a {@link String#replaceAll(String, String)} to the passed Nodes.
@@ -39,10 +39,11 @@ import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
  */
 public class ReplaceFunction<Node> extends SelectorFunction<Node> {
 
-    private final StringTransformer<Node> transformer = new StringTransformer<Node>();
+    private final StringTransformer<Node> transformer = new StringTransformer<>();
 
+    @SafeVarargs
     @Override
-    public Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
+    public final Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
         if (args.length != 3 || args[1].size() != 1 || args[2].size() != 1) {
             throw new IllegalArgumentException("wrong usage: " + getSignature());
         }
@@ -54,7 +55,7 @@ public class ReplaceFunction<Node> extends SelectorFunction<Node> {
         try {
             final Pattern pattern = Pattern.compile(regex);
 
-            Set<Node> result = new HashSet<Node>();
+            Set<Node> result = new HashSet<>();
             for (Node node : nodes) {
                 final String string = backend.stringValue(node);
 

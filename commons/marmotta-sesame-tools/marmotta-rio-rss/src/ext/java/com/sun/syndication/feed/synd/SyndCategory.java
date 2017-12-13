@@ -66,6 +66,6 @@ public interface SyndCategory extends Cloneable {
      * @throws CloneNotSupportedException thrown if an element of the object cannot be cloned.
      *
      */
-    public Object clone() throws CloneNotSupportedException;
+    Object clone() throws CloneNotSupportedException;
 
 }

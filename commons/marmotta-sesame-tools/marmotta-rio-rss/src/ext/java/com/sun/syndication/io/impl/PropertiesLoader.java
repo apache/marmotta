@@ -116,10 +116,10 @@ public class PropertiesLoader {
      */
     public String[] getTokenizedProperty(String key,String separator) {
         List entriesList = new ArrayList();
-        for (int i=0;i<_properties.length;i++) {
-            String values = _properties[i].getProperty(key);
-            if (values!=null) {
-                StringTokenizer st = new StringTokenizer(values,separator);
+        for (Properties _property : _properties) {
+            String values = _property.getProperty(key);
+            if (values != null) {
+                StringTokenizer st = new StringTokenizer(values, separator);
                 while (st.hasMoreTokens()) {
                     String token = st.nextToken();
                     entriesList.add(token);
@@ -141,9 +141,9 @@ public class PropertiesLoader {
      */
     public String[] getProperty(String key) {
         List entriesList = new ArrayList();
-        for (int i=0;i<_properties.length;i++) {
-            String values = _properties[i].getProperty(key);
-            if (values!=null) {
+        for (Properties _property : _properties) {
+            String values = _property.getProperty(key);
+            if (values != null) {
                 entriesList.add(values);
             }
         }

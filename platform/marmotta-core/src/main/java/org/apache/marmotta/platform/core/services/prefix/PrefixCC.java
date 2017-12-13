@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.platform.core.services.prefix;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.http.HttpEntity;
@@ -54,7 +55,25 @@ public class PrefixCC implements PrefixProvider {
     private Logger log;
 
     @Inject
-    private HttpClientService   httpClientService;
+    private HttpClientService httpClientService;
+
+    @Override
+    public boolean ping() {
+        HttpGet head = new HttpGet(URI);
+        HttpRequestUtil.setUserAgentString(head, USER_AGENT);
+        try {
+            return httpClientService.execute(head, new ResponseHandler<Boolean>() {
+
+                @Override
+                public Boolean handleResponse(HttpResponse response) {
+                    return (200 == response.getStatusLine().getStatusCode());
+                }
+            });
+        } catch (IOException e) {
+            log.error("Error pinging {}: {}", URI, e.getMessage());
+            return false;
+        }
+    }
 
     @Override
     public String getNamespace(final String prefix) {
@@ -81,12 +100,12 @@ public class PrefixCC implements PrefixProvider {
                             it.close();
                         }
                     }
-                    log.error("Error: prefix '" + prefix + "' not found at prefix.cc");
+                    log.error("Error: prefix '{}' not found at prefix.cc", prefix);
                     return null;
                 }
             });
         } catch (Exception e) {
-            log.error("Error retrieving prefix '" + prefix + "' from prefix.cc: " + e.getMessage());
+            log.error("Error retrieving prefix '{}' from prefix.cc: {}", prefix, e.getMessage());
             return null;
         }
     }
@@ -117,12 +136,12 @@ public class PrefixCC implements PrefixProvider {
                             it.close();
                         }
                     }
-                    log.error("Error: reverse namespace lookup for '" + namespace + "' not found at prefix.cc");
+                    log.error("Error: reverse namespace lookup for '{}' not found at prefix.cc", namespace);
                     return null;
                 }
             });
         } catch (Exception e) {
-            log.error("Error trying to retrieve prefic.cc reverse lookup for namespace '" + namespace + "': " + e.getMessage());
+            log.error("Error trying to retrieve prefic.cc reverse lookup for namespace '{}': {}", namespace, e.getMessage());
             return null;
         }
     }

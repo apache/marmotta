@@ -18,13 +18,13 @@
 package com.sun.syndication.feed;
 
 import com.sun.syndication.feed.impl.ObjectBean;
+import com.sun.syndication.feed.module.Extendable;
 import com.sun.syndication.feed.module.Module;
 import com.sun.syndication.feed.module.impl.ModuleUtils;
-import com.sun.syndication.feed.module.Extendable;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Parent class of the RSS (Channel) and Atom (Feed) feed beans.
@@ -184,7 +184,7 @@ public abstract class WireFeed implements Cloneable, Serializable, Extendable {
      *
      */
     public List<Module> getModules() {
-        return (_modules==null) ? (_modules=new ArrayList<Module>()) : _modules;
+        return (_modules==null) ? (_modules= new ArrayList<>()) : _modules;
     }
 
     /**

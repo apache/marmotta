@@ -41,6 +41,7 @@
 package org.rometools.feed.module.slash;
 
 import com.sun.syndication.feed.module.Module;
+
 import java.io.Serializable;
 
 /** This interface represents the Slash RSS extension.
@@ -49,22 +50,22 @@ import java.io.Serializable;
  */
 public interface Slash extends Module, Serializable {
     
-    public static final String URI = "http://purl.org/rss/1.0/modules/slash/";
+    String URI = "http://purl.org/rss/1.0/modules/slash/";
     
-    public String getSection();
+    String getSection();
     
-    public void setSection(String section);
+    void setSection(String section);
     
-    public String getDepartment();
+    String getDepartment();
     
-    public void setDepartment(String department);
+    void setDepartment(String department);
     
-    public Integer getComments();
+    Integer getComments();
     
-    public void setComments(Integer comments );
+    void setComments(Integer comments);
     
-    public Integer[] getHitParade();
+    Integer[] getHitParade();
     
-    public void setHitParade( Integer[] hitParade );
+    void setHitParade(Integer[] hitParade);
     
 }

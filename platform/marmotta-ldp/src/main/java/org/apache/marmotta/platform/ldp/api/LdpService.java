@@ -49,14 +49,14 @@ import java.util.*;
  */
 public interface LdpService {
 
-    public static final Set<URI> SERVER_MANAGED_PROPERTIES = new HashSet<>(Arrays.asList(
+    Set<URI> SERVER_MANAGED_PROPERTIES = new HashSet<>(Arrays.asList(
             LDP.contains, DCTERMS.CREATED, DCTERMS.MODIFIED
     ));
-    public static final List<RDFFormat> SERVER_PREFERED_RDF_FORMATS = Arrays.asList(
-            RDFFormat.TURTLE, RDFFormat.JSONLD, RDFFormat.RDFXML, RDFFormat.N3, RDFFormat.NTRIPLES
+    List<RDFFormat> SERVER_PREFERED_RDF_FORMATS = Arrays.asList(
+            RDFFormat.TURTLE, RDFFormat.JSONLD, RDFFormat.RDFXML, RDFFormat.N3
     );
 
-    public static enum InteractionModel {
+    enum InteractionModel {
         LDPR(LDP.Resource),
         LDPC(LDP.Container);
 

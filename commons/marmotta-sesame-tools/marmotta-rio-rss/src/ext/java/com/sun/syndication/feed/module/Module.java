@@ -17,6 +17,7 @@
 package com.sun.syndication.feed.module;
 
 import com.sun.syndication.feed.CopyFrom;
+
 import java.io.Serializable;
 
 /**
@@ -43,6 +44,6 @@ public interface Module extends Cloneable,CopyFrom,Serializable{
      * @throws CloneNotSupportedException thrown if an element of the object cannot be cloned.
      *
      */
-    public Object clone() throws CloneNotSupportedException;
+    Object clone() throws CloneNotSupportedException;
 
 }

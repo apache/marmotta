@@ -29,5 +29,5 @@ import org.openrdf.model.Value;
 public interface ValueConverter {
 
 
-    public KiWiNode convert(Value value);
+    KiWiNode convert(Value value);
 }

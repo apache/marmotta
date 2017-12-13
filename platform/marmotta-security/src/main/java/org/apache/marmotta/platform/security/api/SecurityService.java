@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -37,7 +37,7 @@ public interface SecurityService {
      * @param request
      * @return true in case the active security constraints grant access, false otherwise
      */
-    public boolean grantAccess(HttpServletRequest request);
+    boolean grantAccess(HttpServletRequest request);
 
     /**
      * Load a pre-configured security profile from the classpath. When calling this method, the service will
@@ -45,18 +45,18 @@ public interface SecurityService {
      * the new security constraints.
      * @param profile
      */
-    public void loadSecurityProfile(String profile);
+    void loadSecurityProfile(String profile);
 
     /**
      * List all security constraints, ordered by priority.
      * @return
      */
-    public List<SecurityConstraint> listSecurityConstraints();
+    List<SecurityConstraint> listSecurityConstraints();
 
     /**
      * Does nothing, just ensures the security service is properly initialised.
      * TODO: this is a workaround and should be fixed differently.
      */
-    public void ping();
+    void ping();
 
 }

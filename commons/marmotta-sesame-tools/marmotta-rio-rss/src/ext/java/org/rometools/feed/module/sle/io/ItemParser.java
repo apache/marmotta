@@ -18,22 +18,16 @@
 package org.rometools.feed.module.sle.io;
 
 import com.sun.syndication.feed.module.Module;
-import org.rometools.feed.module.sle.SleEntryImpl;
-import org.rometools.feed.module.sle.types.DateValue;
-import org.rometools.feed.module.sle.types.EntryValue;
-import org.rometools.feed.module.sle.types.NumberValue;
-import org.rometools.feed.module.sle.types.Sort;
-import org.rometools.feed.module.sle.types.StringValue;
 import com.sun.syndication.io.impl.DateParser;
-
 import org.jdom2.Element;
+import org.jdom2.Namespace;
+import org.rometools.feed.module.sle.SleEntryImpl;
+import org.rometools.feed.module.sle.types.*;
 
 import java.math.BigDecimal;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.jdom2.Namespace;
 
 
 /**
@@ -119,7 +113,7 @@ public class ItemParser implements com.sun.syndication.io.ModuleParser {
                     dateValue = DateParser.parseRFC822(sort.getAttributeValue("value"));
                     dateValue = (dateValue == null) ? DateParser.parseW3CDateTime(sort.getAttributeValue("value")) : dateValue;
                 } catch (Exception e) {
-                    ; // ignore parse exceptions
+                    // ignore parse exceptions
                 }
 
                 value.setValue(dateValue);
@@ -137,7 +131,7 @@ public class ItemParser implements com.sun.syndication.io.ModuleParser {
                 try {
                     value.setValue(new BigDecimal(sort.getAttributeValue("value")));
                 } catch (NumberFormatException nfe) {
-                    ; // ignore
+                    // ignore
                     values.add(value);
                     element.removeContent(sort);
                 }

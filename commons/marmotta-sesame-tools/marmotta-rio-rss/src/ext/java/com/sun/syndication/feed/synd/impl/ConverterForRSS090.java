@@ -75,8 +75,8 @@ public class ConverterForRSS090 implements Converter {
 
     protected List createSyndEntries(List rssItems, boolean preserveWireItems) {
         List syndEntries = new ArrayList();
-        for (int i=0;i<rssItems.size();i++) {
-            syndEntries.add(createSyndEntry((Item) rssItems.get(i), preserveWireItems));
+        for (Object rssItem : rssItems) {
+            syndEntries.add(createSyndEntry((Item) rssItem, preserveWireItems));
         }
         return syndEntries;
     }
@@ -145,8 +145,8 @@ public class ConverterForRSS090 implements Converter {
 
     protected List createRSSItems(List sEntries) {
         List list = new ArrayList();
-        for (int i=0;i<sEntries.size();i++) {
-            list.add(createRSSItem((SyndEntry)sEntries.get(i)));
+        for (Object sEntry : sEntries) {
+            list.add(createRSSItem((SyndEntry) sEntry));
         }
         return list;
     }

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,21 +18,14 @@
 package org.apache.marmotta.ldpath.template.engine;
 
 import freemarker.core.Environment;
-import freemarker.template.TemplateDirectiveBody;
-import freemarker.template.TemplateDirectiveModel;
-import freemarker.template.TemplateException;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
-import freemarker.template.TemplateScalarModel;
+import freemarker.template.*;
+import org.apache.marmotta.ldpath.template.model.freemarker.TemplateWrapperModel;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.marmotta.ldpath.template.model.freemarker.TemplateWrapperModel;
 
 /**
  * Add file description here!
@@ -77,29 +70,28 @@ public class NamespaceDirective implements TemplateDirectiveModel {
 
         Map<String,String> namespaces;
         if(namespacesWrapped == null) {
-            namespaces = new HashMap<String, String>();
-            namespacesWrapped = new TemplateWrapperModel<Map<String, String>>(namespaces);
+            namespaces = new HashMap<>();
+            namespacesWrapped = new TemplateWrapperModel<>(namespaces);
             env.setGlobalVariable("namespaces",namespacesWrapped);
         } else {
             namespaces = namespacesWrapped.getAdaptedObject(Map.class);
         }
 
 
-        Iterator paramIter = params.entrySet().iterator();
-        while (paramIter.hasNext()) {
-            Map.Entry ent = (Map.Entry) paramIter.next();
+        for (Object o : params.entrySet()) {
+            Map.Entry ent = (Map.Entry) o;
 
             String paramName = (String) ent.getKey();
             TemplateModel paramValue = (TemplateModel) ent.getValue();
 
-            if(paramValue instanceof TemplateScalarModel) {
-                String uri = ((TemplateScalarModel)paramValue).getAsString();
+            if (paramValue instanceof TemplateScalarModel) {
+                String uri = ((TemplateScalarModel) paramValue).getAsString();
 
                 try {
                     URI test = new URI(uri);
-                    namespaces.put(paramName,test.toString());
+                    namespaces.put(paramName, test.toString());
                 } catch (URISyntaxException e) {
-                    throw new TemplateModelException("invalid namespace URI '"+uri+"'",e);
+                    throw new TemplateModelException("invalid namespace URI '" + uri + "'", e);
                 }
             }
         }

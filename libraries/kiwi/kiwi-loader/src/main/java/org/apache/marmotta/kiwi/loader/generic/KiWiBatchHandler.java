@@ -87,7 +87,7 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
     }
 
     /**
-     * Peform cleanup on shutdown, e.g. re-creating indexes after import completed
+     * Perform cleanup on shutdown, e.g. re-creating indexes after import completed
      */
     @Override
     public void shutdown() throws RDFHandlerException {
@@ -97,12 +97,10 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
                 createIndexes();
                 connection.commit();
             } catch (SQLException e) {
-                throw new RDFHandlerException("error while dropping indexes", e);
+                throw new RDFHandlerException("error while creating indexes", e);
             }
         }
         super.shutdown();
-
-
     }
 
     /**

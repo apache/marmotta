@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -45,9 +45,8 @@ public class BNode extends RDFNode {
 
         BNode bNode = (BNode) o;
 
-        if (anonId != null ? !anonId.equals(bNode.anonId) : bNode.anonId != null) return false;
+        return anonId != null ? anonId.equals(bNode.anonId) : bNode.anonId == null;
 
-        return true;
     }
 
     @Override

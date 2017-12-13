@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -19,7 +19,6 @@ package org.apache.marmotta.platform.core.jndi;
 
 import javax.naming.*;
 import javax.naming.spi.ObjectFactory;
-
 import java.util.*;
 
 /**
@@ -44,8 +43,8 @@ public class MarmottaContext implements Context {
     public MarmottaContext(Hashtable<Object, Object> environment) {
         this.environment = environment;
 
-        this.bindings  = new HashMap<Name, Object>();
-        this.factories = new HashMap<String, ObjectFactory>();
+        this.bindings  = new HashMap<>();
+        this.factories = new HashMap<>();
     }
 
     private ObjectFactory getObjectFactory(String className) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
@@ -75,8 +74,8 @@ public class MarmottaContext implements Context {
     public Object lookup(Name name) throws NamingException {
         if(name.size() == 0) {
             // clone current context
-            MarmottaContext clone = new MarmottaContext(new Hashtable<Object, Object>(this.environment));
-            clone.bindings = new HashMap<Name, Object>(this.bindings);
+            MarmottaContext clone = new MarmottaContext(new Hashtable<>(this.environment));
+            clone.bindings = new HashMap<>(this.bindings);
             return clone;
         } else if(name.size() > 1) {
             // look in subcontexts
@@ -494,7 +493,7 @@ public class MarmottaContext implements Context {
      */
     @Override
     public Context createSubcontext(Name name) throws NamingException {
-        MarmottaContext subcontext = new MarmottaContext(new Hashtable<Object, Object>(this.environment));
+        MarmottaContext subcontext = new MarmottaContext(new Hashtable<>(this.environment));
         bind(name,subcontext);
         return subcontext;
     }
@@ -687,7 +686,7 @@ public class MarmottaContext implements Context {
      */
     @Override
     public Hashtable<?, ?> getEnvironment() throws NamingException {
-        return new Hashtable<Object, Object>(environment);
+        return new Hashtable<>(environment);
     }
 
     /**

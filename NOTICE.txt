@@ -1,5 +1,5 @@
 Apache Marmotta
-Copyright 2012-2014 The Apache Software Foundation
+Copyright 2012-2016 The Apache Software Foundation
 
 This product includes software developed at 
 The Apache Software Foundation (http://www.apache.org/).
@@ -16,3 +16,10 @@ This product also includes some third-party source components:
    of the Javolution library. Javolution has copyright (c) 2012, Javolution and
    is licensed under BSD license. The original source code is available from
    http://javolution.org
+
+ * The module kiwi/kiwi-triplestore contains a modified and customized version 
+   of the ScriptRunner.java script. ScriptRunner has copyright (c) 2004 Clinton 
+   Begin, with minor later contributions by several authors, and is licensed
+   under Apache License 2.0. The original source dode is available from
+   https://gist.github.com/joe776/831762
+

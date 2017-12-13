@@ -53,11 +53,11 @@ public class RSS094Parser extends RSS093Parser {
             Integer ttlValue = null;        
             try{
                  ttlValue = new Integer(eTtl.getText());
-            } catch(NumberFormatException nfe ){ 
-                ; //let it go by
+            } catch(NumberFormatException nfe ){
+                //let it go by
             }
             if (ttlValue != null) {
-                channel.setTtl(ttlValue.intValue());
+                channel.setTtl(ttlValue);
             }
         }
 

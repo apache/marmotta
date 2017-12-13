@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.0-SNAPSHOT</version>
         <relativePath>../../../parent</relativePath>
     </parent>
 
@@ -37,7 +37,6 @@
                 <version>1.0.4</version>
                 <configuration>
                     <noticeTemplate>NOTICE.template</noticeTemplate>
-
                     <licenseMapping>
                         <param>../../../license-mappings.xml</param>
                     </licenseMapping>
@@ -123,7 +122,6 @@
                                     </filesets>
                                 </configuration>
                             </execution>
-
                         </executions>
                     </plugin>
                     <plugin>

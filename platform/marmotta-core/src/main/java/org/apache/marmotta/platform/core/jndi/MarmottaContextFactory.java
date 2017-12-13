@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
-
 import java.util.Hashtable;
 
 /**
@@ -54,7 +53,7 @@ public class MarmottaContextFactory implements InitialContextFactory {
     @Override
     public Context getInitialContext(Hashtable<?, ?> hashtable) throws NamingException {
 
-        Hashtable<Object,Object> env = new Hashtable<Object, Object>();
+        Hashtable<Object,Object> env = new Hashtable<>();
         env.put("jndi.syntax.direction", "left_to_right");
         env.put("jndi.syntax.separator","/");
 

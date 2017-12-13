@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,15 +18,14 @@
 package org.apache.marmotta.ldpath.model.selectors;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.marmotta.ldpath.api.backend.NodeBackend;
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
-import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 
 /**
  * Perform a reverse navigation step over the property wrapped by this selector
@@ -56,7 +55,7 @@ public class ReversePropertySelector<Node> implements NodeSelector<Node> {
     public Collection<Node> select(RDFBackend<Node> rdfBackend, Node context, List<Node> path, Map<Node, List<Node>> resultPaths) {
         if(rdfBackend.isURI(context) || rdfBackend.isBlank(context)) {
             if(path != null && resultPaths != null) {
-                Collection<Node> results = rdfBackend.listSubjects(context, property);
+                Collection<Node> results = rdfBackend.listSubjects(property, context);
                 for(Node n :results) {
                     resultPaths.put(n, new ImmutableList.Builder<Node>().addAll(path).add(context).add(n).build());
                 }
@@ -88,6 +87,13 @@ public class ReversePropertySelector<Node> implements NodeSelector<Node> {
         return nodeRDFBackend.stringValue(property);
     }
 
+    /**
+     * Getter for child property node
+     * @return child property node
+     */
+    public Node getProperty() {
+        return property;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -97,9 +103,8 @@ public class ReversePropertySelector<Node> implements NodeSelector<Node> {
         @SuppressWarnings("rawtypes")
 		ReversePropertySelector that = (ReversePropertySelector) o;
 
-        if (property != null ? !property.equals(that.property) : that.property != null) return false;
+        return property != null ? property.equals(that.property) : that.property == null;
 
-        return true;
     }
 
     @Override

@@ -24,7 +24,9 @@ import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.jdom2.output.XMLOutputter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  */
@@ -167,15 +169,14 @@ public class Atom03Parser extends BaseWireFeedParser {
     // List(Elements) -> List(Link)
     private List parseLinks(List eLinks,boolean alternate) {
         List links = new ArrayList();
-        for (int i=0;i<eLinks.size();i++) {
-            Element eLink = (Element) eLinks.get(i);
+        for (Object eLink1 : eLinks) {
+            Element eLink = (Element) eLink1;
             String rel = getAttributeValue(eLink, "rel");
             if (alternate) {
                 if ("alternate".equals(rel)) {
                     links.add(parseLink(eLink));
                 }
-            }
-            else {
+            } else {
                 if (!("alternate".equals(rel))) {
                     links.add(parseLink(eLink));
                 }
@@ -214,8 +215,8 @@ public class Atom03Parser extends BaseWireFeedParser {
     // List(Elements) -> List(Persons)
     private List parsePersons(List ePersons) {
         List persons = new ArrayList();
-        for (int i=0;i<ePersons.size();i++) {
-            persons.add(parsePerson((Element)ePersons.get(i)));
+        for (Object ePerson : ePersons) {
+            persons.add(parsePerson((Element) ePerson));
         }
         return (persons.size()>0) ? persons : null;
     }
@@ -228,29 +229,29 @@ public class Atom03Parser extends BaseWireFeedParser {
         if (mode == null) {
             mode = Content.XML; // default to xml content
         }
-        if (mode.equals(Content.ESCAPED)) {
-            // do nothing XML Parser took care of this
-            value = e.getText();
-        }
-        else
-        if (mode.equals(Content.BASE64)) {
+        switch (mode) {
+            case Content.ESCAPED:
+                // do nothing XML Parser took care of this
+                value = e.getText();
+                break;
+            case Content.BASE64:
                 value = Base64.decode(e.getText());
-        }
-        else
-        if (mode.equals(Content.XML)) {
-            XMLOutputter outputter = new XMLOutputter();
-            List eContent = e.getContent();
-            Iterator i = eContent.iterator();
-            while (i.hasNext()) {
-                org.jdom2.Content c = (org.jdom2.Content) i.next();
-                if (c instanceof Element) {
-                    Element eC = (Element) c;
-                    if (eC.getNamespace().equals(getAtomNamespace())) {
-                        ((Element)c).setNamespace(Namespace.NO_NAMESPACE);
+                break;
+            case Content.XML:
+                XMLOutputter outputter = new XMLOutputter();
+                List eContent = e.getContent();
+                Iterator i = eContent.iterator();
+                while (i.hasNext()) {
+                    org.jdom2.Content c = (org.jdom2.Content) i.next();
+                    if (c instanceof Element) {
+                        Element eC = (Element) c;
+                        if (eC.getNamespace().equals(getAtomNamespace())) {
+                            ((Element) c).setNamespace(Namespace.NO_NAMESPACE);
+                        }
                     }
                 }
-            }
-            value = outputter.outputString(eContent);
+                value = outputter.outputString(eContent);
+                break;
         }
 
         Content content = new Content();
@@ -263,8 +264,8 @@ public class Atom03Parser extends BaseWireFeedParser {
     // List(Elements) -> List(Entries)
     private List parseEntries(List eEntries) {
         List entries = new ArrayList();
-        for (int i=0;i<eEntries.size();i++) {
-            entries.add(parseEntry((Element)eEntries.get(i)));
+        for (Object eEntry : eEntries) {
+            entries.add(parseEntry((Element) eEntry));
         }
         return (entries.size()>0) ? entries : null;
     }
@@ -321,8 +322,8 @@ public class Atom03Parser extends BaseWireFeedParser {
         eList = eEntry.getChildren("content",getAtomNamespace());
         if (eList.size()>0) {
             List content = new ArrayList();
-            for (int i=0;i<eList.size();i++) {
-                content.add(parseContent((Element)eList.get(i)));
+            for (Object anEList : eList) {
+                content.add(parseContent((Element) anEList));
             }
             entry.setContents(content);
         }

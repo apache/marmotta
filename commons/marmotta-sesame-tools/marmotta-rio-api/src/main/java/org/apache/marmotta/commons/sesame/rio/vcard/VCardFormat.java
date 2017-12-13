@@ -20,6 +20,7 @@ import org.openrdf.rio.RDFFormat;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Add file description here!
@@ -30,7 +31,7 @@ public class VCardFormat {
 
     public static final RDFFormat FORMAT = new RDFFormat(
             "VCard",
-            Arrays.asList("text/vcard"),
+            Collections.singletonList("text/vcard"),
             Charset.forName("UTF-8"),
             Arrays.asList("vcf", "vcard"),
             false,

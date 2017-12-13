@@ -18,13 +18,12 @@
 package org.rometools.feed.module.sle.io;
 
 import com.sun.syndication.feed.module.Module;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.rometools.feed.module.sle.SimpleListExtension;
 import org.rometools.feed.module.sle.SimpleListExtensionImpl;
 import org.rometools.feed.module.sle.types.Group;
 import org.rometools.feed.module.sle.types.Sort;
-
-import org.jdom2.Element;
-import org.jdom2.Namespace;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +91,7 @@ public class ModuleParser implements com.sun.syndication.io.ModuleParser {
             String elementName = se.getAttributeValue("element");
             String label = se.getAttributeValue("label");
             String dataType = se.getAttributeValue("data-type");
-            boolean defaultOrder = (se.getAttributeValue("default") == null) ? false : new Boolean(se.getAttributeValue("default")).booleanValue();
+            boolean defaultOrder = se.getAttributeValue("default") != null && Boolean.valueOf(se.getAttributeValue("default"));
             values.add(new Sort(ns, elementName, dataType, label, defaultOrder));
         }
 
@@ -103,9 +102,7 @@ public class ModuleParser implements com.sun.syndication.io.ModuleParser {
     }
 
     protected void addNotNullAttribute(Element target, String name, Object value) {
-        if ((target == null) || (value == null)) {
-            return;
-        } else {
+        if (target != null && value != null) {
             target.setAttribute(name, value.toString());
         }
     }
@@ -115,37 +112,37 @@ public class ModuleParser implements com.sun.syndication.io.ModuleParser {
             Element e = (Element) elements.get(i);
             Group[] groups = sle.getGroupFields();
 
-            for (int g = 0; g < groups.length; g++) {
-                Element value = e.getChild(groups[g].getElement(), groups[g].getNamespace());
+            for (Group group1 : groups) {
+                Element value = e.getChild(group1.getElement(), group1.getNamespace());
 
                 if (value == null) {
                     continue;
                 }
 
                 Element group = new Element("group", TEMP);
-                addNotNullAttribute(group, "element", groups[g].getElement());
-                addNotNullAttribute(group, "label", groups[g].getLabel());
+                addNotNullAttribute(group, "element", group1.getElement());
+                addNotNullAttribute(group, "label", group1.getLabel());
                 addNotNullAttribute(group, "value", value.getText());
-                addNotNullAttribute(group, "ns", groups[g].getNamespace().getURI() );
-                
+                addNotNullAttribute(group, "ns", group1.getNamespace().getURI());
+
                 e.addContent(group);
             }
 
             Sort[] sorts = sle.getSortFields();
 
-            for (int s = 0; s < sorts.length; s++) {
-                System.out.println("Inserting for "+sorts[s].getElement()+" "+sorts[s].getDataType());
+            for (Sort sort1 : sorts) {
+                System.out.println("Inserting for " + sort1.getElement() + " " + sort1.getDataType());
                 Element sort = new Element("sort", TEMP);
-                // this is the default sort order, so I am just going to ignore 
-                // the actual values and add a number type. It really shouldn't 
+                // this is the default sort order, so I am just going to ignore
+                // the actual values and add a number type. It really shouldn't
                 // work this way. I should be checking to see if any of the elements
                 // defined have a value then use that value. This will preserve the
                 // sort order, however, if anyone is using the SleEntry to display
                 // the value of the field, it will not give the correct value.
-                // This, however, would require knowledge in the item parser that I don't 
+                // This, however, would require knowledge in the item parser that I don't
                 // have right now.
-                if (sorts[s].getDefaultOrder()) {
-                    sort.setAttribute("label", sorts[s].getLabel());
+                if (sort1.getDefaultOrder()) {
+                    sort.setAttribute("label", sort1.getLabel());
                     sort.setAttribute("value", Integer.toString(i));
                     sort.setAttribute("data-type", Sort.NUMBER_TYPE);
                     e.addContent(sort);
@@ -153,23 +150,23 @@ public class ModuleParser implements com.sun.syndication.io.ModuleParser {
                     continue;
                 }
                 //System.out.println(e.getName());
-                Element value = e.getChild(sorts[s].getElement(), sorts[s].getNamespace());
-                if(value == null ){
-                    System.out.println("No value for "+sorts[s].getElement()+" : "+sorts[s].getNamespace());
+                Element value = e.getChild(sort1.getElement(), sort1.getNamespace());
+                if (value == null) {
+                    System.out.println("No value for " + sort1.getElement() + " : " + sort1.getNamespace());
                 } else {
-                    System.out.println(sorts[s].getElement() +" value: "+value.getText());
+                    System.out.println(sort1.getElement() + " value: " + value.getText());
                 }
                 if (value == null) {
                     continue;
                 }
 
-                addNotNullAttribute(sort, "label", sorts[s].getLabel());
-                addNotNullAttribute(sort, "element", sorts[s].getElement());
+                addNotNullAttribute(sort, "label", sort1.getLabel());
+                addNotNullAttribute(sort, "element", sort1.getElement());
                 addNotNullAttribute(sort, "value", value.getText());
-                addNotNullAttribute(sort, "data-type", sorts[s].getDataType());
-                addNotNullAttribute(sort, "ns", sorts[s].getNamespace().getURI() );
+                addNotNullAttribute(sort, "data-type", sort1.getDataType());
+                addNotNullAttribute(sort, "ns", sort1.getNamespace().getURI());
                 e.addContent(sort);
-                System.out.println("Added "+sort+" "+sorts[s].getLabel()+" = "+value.getText());
+                System.out.println("Added " + sort + " " + sort1.getLabel() + " = " + value.getText());
             }
         }
     }

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -37,7 +37,7 @@ public interface LDCachingConnection extends RepositoryConnection {
      * @param resource the resource to look for
      * @return the cache entry for the resource, or null if the resource has never been cached or is expired
      */
-    public CacheEntry getCacheEntry(URI resource) throws RepositoryException;
+    CacheEntry getCacheEntry(URI resource) throws RepositoryException;
 
     /**
      * Store a cache entry for the passed resource in the backend. Depending on the backend, this can be a
@@ -46,14 +46,14 @@ public interface LDCachingConnection extends RepositoryConnection {
      * @param resource
      * @param entry
      */
-    public void addCacheEntry(URI resource, CacheEntry entry) throws RepositoryException;
+    void addCacheEntry(URI resource, CacheEntry entry) throws RepositoryException;
 
 
     /**
      * Remove the currently stored cache entry for the passed resource from the backend.
      * @param resource
      */
-    public void removeCacheEntry(URI resource) throws RepositoryException;
+    void removeCacheEntry(URI resource) throws RepositoryException;
 
 
 }

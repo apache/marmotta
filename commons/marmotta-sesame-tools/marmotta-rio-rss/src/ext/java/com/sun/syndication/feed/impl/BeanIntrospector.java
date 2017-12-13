@@ -60,33 +60,30 @@ public class BeanIntrospector {
 
     private static Map getPDs(Method[] methods,boolean setters) throws IntrospectionException {
         Map pds = new HashMap();
-        for (int i=0;i<methods.length;i++) {
+        for (Method method : methods) {
             String pName = null;
             PropertyDescriptor pDescriptor = null;
-            if ((methods[i].getModifiers()&Modifier.PUBLIC)!=0) {
+            if ((method.getModifiers() & Modifier.PUBLIC) != 0) {
                 if (setters) {
-                    if (methods[i].getName().startsWith(SETTER) &&
-                        methods[i].getReturnType()==void.class && methods[i].getParameterTypes().length==1) {
-                        pName = Introspector.decapitalize(methods[i].getName().substring(3));
-                        pDescriptor = new PropertyDescriptor(pName,null,methods[i]);
+                    if (method.getName().startsWith(SETTER) &&
+                            method.getReturnType() == void.class && method.getParameterTypes().length == 1) {
+                        pName = Introspector.decapitalize(method.getName().substring(3));
+                        pDescriptor = new PropertyDescriptor(pName, null, method);
                     }
-                }
-                else {
-                    if (methods[i].getName().startsWith(GETTER) &&
-                        methods[i].getReturnType()!=void.class && methods[i].getParameterTypes().length==0) {
-                        pName = Introspector.decapitalize(methods[i].getName().substring(3));
-                        pDescriptor = new PropertyDescriptor(pName,methods[i],null);
-                    }
-                    else
-                    if (methods[i].getName().startsWith(BOOLEAN_GETTER) &&
-                        methods[i].getReturnType()==boolean.class && methods[i].getParameterTypes().length==0) {
-                        pName = Introspector.decapitalize(methods[i].getName().substring(2));
-                        pDescriptor = new PropertyDescriptor(pName,methods[i],null);
+                } else {
+                    if (method.getName().startsWith(GETTER) &&
+                            method.getReturnType() != void.class && method.getParameterTypes().length == 0) {
+                        pName = Introspector.decapitalize(method.getName().substring(3));
+                        pDescriptor = new PropertyDescriptor(pName, method, null);
+                    } else if (method.getName().startsWith(BOOLEAN_GETTER) &&
+                            method.getReturnType() == boolean.class && method.getParameterTypes().length == 0) {
+                        pName = Introspector.decapitalize(method.getName().substring(2));
+                        pDescriptor = new PropertyDescriptor(pName, method, null);
                     }
                 }
             }
-            if (pName!=null) {
-                pds.put(pName,pDescriptor);
+            if (pName != null) {
+                pds.put(pName, pDescriptor);
             }
         }
         return pds;
@@ -95,25 +92,22 @@ public class BeanIntrospector {
     private static List merge(Map getters,Map setters) throws IntrospectionException {
         List props = new ArrayList();
         Set processedProps = new HashSet();
-        Iterator gs = getters.keySet().iterator();
-        while (gs.hasNext()) {
-            String name = (String) gs.next();
+        for (Object o : getters.keySet()) {
+            String name = (String) o;
             PropertyDescriptor getter = (PropertyDescriptor) getters.get(name);
             PropertyDescriptor setter = (PropertyDescriptor) setters.get(name);
-            if (setter!=null) {
+            if (setter != null) {
                 processedProps.add(name);
-                PropertyDescriptor prop = new PropertyDescriptor(name,getter.getReadMethod(),setter.getWriteMethod());
+                PropertyDescriptor prop = new PropertyDescriptor(name, getter.getReadMethod(), setter.getWriteMethod());
                 props.add(prop);
-            }
-            else {
+            } else {
                 props.add(getter);
             }
         }
         Set writeOnlyProps = new HashSet(setters.keySet());
         writeOnlyProps.removeAll(processedProps);
-        Iterator ss = writeOnlyProps.iterator();
-        while (ss.hasNext()) {
-            String name = (String) ss.next();
+        for (Object writeOnlyProp : writeOnlyProps) {
+            String name = (String) writeOnlyProp;
             PropertyDescriptor setter = (PropertyDescriptor) setters.get(name);
             props.add(setter);
         }

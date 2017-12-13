@@ -32,6 +32,6 @@ public interface CacheManagerFactory {
      * @param configuration KiWi configuration used by the underlying triple store
      * @return a new cache manager instance for this triple store
      */
-    public CacheManager createCacheManager(KiWiConfiguration configuration);
+    CacheManager createCacheManager(KiWiConfiguration configuration);
 
 }

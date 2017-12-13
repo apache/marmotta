@@ -25,6 +25,6 @@ $(function() {
 		blacklist_keys : [  ],
 		toplink : true,
 		prefix : 'sparql'
-	}
+	};
 	$('#search_configurator').lmf_configurator(settings);
 });

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -41,7 +41,7 @@ public interface HttpClientService {
      * 
      * @see HttpClient#execute(HttpUriRequest, ResponseHandler)
      */
-    public <T> T execute(HttpRequestBase request, ResponseHandler<? extends T> handler) throws ClientProtocolException, IOException;
+    <T> T execute(HttpRequestBase request, ResponseHandler<? extends T> handler) throws ClientProtocolException, IOException;
 
     /**
      * Execute the {@link HttpRequestBase}.
@@ -56,7 +56,7 @@ public interface HttpClientService {
      *         use {@link #cleanupResponse(HttpResponse)}!
      * @see #cleanupResponse(HttpResponse)
      */
-    public HttpResponse execute(HttpRequestBase request) throws ClientProtocolException, IOException;
+    HttpResponse execute(HttpRequestBase request) throws ClientProtocolException, IOException;
 
     /**
      * Close and release all resources of the provided {@link HttpResponse}.
@@ -64,7 +64,7 @@ public interface HttpClientService {
      * @param response the {@link HttpResponse} to clean up.
      * @see org.apache.http.util.EntityUtils#consume(HttpEntity)
      */
-    public void cleanupResponse(HttpResponse response);
+    void cleanupResponse(HttpResponse response);
 
     /**
      * Convenience method to execute a <code>GET</code>-request.
@@ -73,7 +73,7 @@ public interface HttpClientService {
      * @param responseHandler the {@link ResponseHandler} for the request
      * @return whatever the {@link ResponseHandler} builds.
      */
-    public <T> T doGet(String requestUrl, ResponseHandler<? extends T> responseHandler) throws IOException;
+    <T> T doGet(String requestUrl, ResponseHandler<? extends T> responseHandler) throws IOException;
 
     /**
      * Convenience method to execute a <code>GET</code>-request, returning the response-entity as
@@ -82,7 +82,7 @@ public interface HttpClientService {
      * @param requestUrl the request URL
      * @return the response-entity.
      */
-    public String doGet(String requestUrl) throws IOException;
+    String doGet(String requestUrl) throws IOException;
 
     /**
      * Convenience method to execute a <code>POST</code>-request.
@@ -92,7 +92,7 @@ public interface HttpClientService {
      * @param responseHandler the {@link ResponseHandler} for the request
      * @return whatever the {@link ResponseHandler} builds.
      */
-    public <T> T doPost(String requestUrl, HttpEntity body, ResponseHandler<? extends T> responseHandler) throws IOException;
+    <T> T doPost(String requestUrl, HttpEntity body, ResponseHandler<? extends T> responseHandler) throws IOException;
 
     /**
      * Convenience method to execute a <code>POST</code>-request, returning the response-entity as
@@ -102,7 +102,7 @@ public interface HttpClientService {
      * @param body the (body) content of the <code>POST</code>-request
      * @return the response-entity.
      */
-    public String doPost(String url, String body) throws IOException;
+    String doPost(String url, String body) throws IOException;
 
     /**
      * Convenience method to execute a <code>PUT</code>-request.
@@ -112,7 +112,7 @@ public interface HttpClientService {
      * @param responseHandler the {@link ResponseHandler} for the request
      * @return whatever the {@link ResponseHandler} builds.
      */
-    public <T> T doPut(String url, HttpEntity body, ResponseHandler<? extends T> responseHandler) throws IOException;
+    <T> T doPut(String url, HttpEntity body, ResponseHandler<? extends T> responseHandler) throws IOException;
 
     /**
      * Convenience method to execute a <code>PUT</code>-request, returning the response-entity as
@@ -122,7 +122,7 @@ public interface HttpClientService {
      * @param body the (body) content of the <code>PUT</code>-request
      * @return the response-entity.
      */
-    public String doPut(String url, String body) throws IOException;
+    String doPut(String url, String body) throws IOException;
 
     /**
      * Convenience method to execute a <code>DELETE</code>-request.
@@ -131,7 +131,7 @@ public interface HttpClientService {
      * @param responseHandler the {@link ResponseHandler} for the request
      * @return whatever the {@link ResponseHandler} builds.
      */
-    public <T> T doDelete(String url, ResponseHandler<? extends T> responseHandler) throws IOException;
+    <T> T doDelete(String url, ResponseHandler<? extends T> responseHandler) throws IOException;
 
     /**
      * Convenience method to execute a <code>DELETE</code>-request, returning the response code.
@@ -140,7 +140,7 @@ public interface HttpClientService {
      * @return the http response code (e.g. <code>200</code> for success)
      * @see org.apache.http.HttpStatus
      */
-    public int doDelete(String url) throws IOException;
+    int doDelete(String url) throws IOException;
 
     /**
      * Convenience method to execute a <code>HEAD</code>-request.
@@ -149,7 +149,7 @@ public interface HttpClientService {
      * @param responseHandler the {@link ResponseHandler} for the request
      * @return whatever the {@link ResponseHandler} builds.
      */
-    public <T> T doHead(String url, ResponseHandler<? extends T> responseHandler) throws IOException;
+    <T> T doHead(String url, ResponseHandler<? extends T> responseHandler) throws IOException;
 
     /**
      * Convenience method to execute a <code>HEAD</code>-request, returning the last-modified date.
@@ -158,11 +158,11 @@ public interface HttpClientService {
      * @return the value Last-Modified Header, or <code>null</code> if the header was missing or
      *         could not be parsed.
      */
-    public Date doHead(String url) throws IOException;
+    Date doHead(String url) throws IOException;
 
     /**
      * Get a ready-to-use {@link HttpClient}.
      */
-    public HttpClient getHttpClient();
+    HttpClient getHttpClient();
 
 }

@@ -17,13 +17,7 @@
 package com.sun.syndication.io.impl;
 
 import com.sun.syndication.feed.WireFeed;
-import com.sun.syndication.feed.rss.Category;
-import com.sun.syndication.feed.rss.Channel;
-import com.sun.syndication.feed.rss.Cloud;
-import com.sun.syndication.feed.rss.Description;
-import com.sun.syndication.feed.rss.Enclosure;
-import com.sun.syndication.feed.rss.Item;
-import com.sun.syndication.feed.rss.Source;
+import com.sun.syndication.feed.rss.*;
 import org.jdom2.Element;
 
 import java.util.ArrayList;
@@ -94,19 +88,19 @@ public class RSS092Parser extends RSS091UserlandParser {
         List eEnclosures = eItem.getChildren("enclosure");//getRSSNamespace()); DONT KNOW WHY DOESN'T WORK
         if (eEnclosures.size()>0) {
             List enclosures = new ArrayList();
-            for (int i=0;i<eEnclosures.size();i++) {
-                e = (Element) eEnclosures.get(i);
+            for (Object eEnclosure : eEnclosures) {
+                e = (Element) eEnclosure;
 
                 Enclosure enclosure = new Enclosure();
                 String att = e.getAttributeValue("url");//getRSSNamespace()); DONT KNOW WHY DOESN'T WORK
-                if (att!=null) {
+                if (att != null) {
                     enclosure.setUrl(att);
                 }
                 att = e.getAttributeValue("length");//getRSSNamespace()); DONT KNOW WHY DOESN'T WORK
-                enclosure.setLength(NumberParser.parseLong(att,0L));
+                enclosure.setLength(NumberParser.parseLong(att, 0L));
 
                 att = e.getAttributeValue("type");//getRSSNamespace()); DONT KNOW WHY DOESN'T WORK
-                if (att!=null) {
+                if (att != null) {
                     enclosure.setType(att);
                 }
                 enclosures.add(enclosure);
@@ -124,11 +118,11 @@ public class RSS092Parser extends RSS091UserlandParser {
         List cats = null;
         if (eCats.size()>0) {
             cats = new ArrayList();
-            for (int i=0;i<eCats.size();i++) {
+            for (Object eCat : eCats) {
                 Category cat = new Category();
-                Element e = (Element) eCats.get(i);
+                Element e = (Element) eCat;
                 String att = e.getAttributeValue("domain");//getRSSNamespace()); DONT KNOW WHY DOESN'T WORK
-                if (att!=null) {
+                if (att != null) {
                     cat.setDomain(att);
                 }
                 cat.setValue(e.getText());

@@ -31,42 +31,42 @@ public interface SimpleListExtension extends Module {
     /**
      * "http://www.microsoft.com/schemas/rss/core/2005"
      */
-    public static final String URI = "http://www.microsoft.com/schemas/rss/core/2005";
+    String URI = "http://www.microsoft.com/schemas/rss/core/2005";
 
     /**
      * The cf:group element is intended to inform the client that the property to which it refers is one that is “groupable” – that is, that the client should provide a user interface that allows the user to group or filter on the values of that property. Groupable properties should contain a small set of discrete values (e.g. book genres are perfect for groups).
      * @param groupFields Array of types.Group objects.
      */
-    public void setGroupFields(Group[] groupFields);
+    void setGroupFields(Group[] groupFields);
 
     /**
      * The cf:group element is intended to inform the client that the property to which it refers is one that is “groupable” – that is, that the client should provide a user interface that allows the user to group or filter on the values of that property. Groupable properties should contain a small set of discrete values (e.g. book genres are perfect for groups).
      * @return Array of types.Group objects.
      */
-    public Group[] getGroupFields();
+    Group[] getGroupFields();
 
     /**
      * The cf:sort element is intended to inform the client that the property to which it refers is one that is “sortable” – that is, that the client should provide a user interface that allows the user to sort on that property.
      * @param sortFields Array of types.Sort objects
      */
-    public void setSortFields(Sort[] sortFields);
+    void setSortFields(Sort[] sortFields);
 
     /**
      * The cf:sort element is intended to inform the client that the property to which it refers is one that is “sortable” – that is, that the client should provide a user interface that allows the user to sort on that property.
      * @return Array of types.Sort objects
      */
-    public Sort[] getSortFields();
+    Sort[] getSortFields();
 
     /**
      * This XML element allows the publisher of a feed document to indicate to the consumers of the feed that the feed is intended to be consumed as a list.
      * (defaults to "list" )
      * @param value treatAs value
      */
-    public void setTreatAs(String value);
+    void setTreatAs(String value);
 
     /**
      * This XML element allows the publisher of a feed document to indicate to the consumers of the feed that the feed is intended to be consumed as a list.
      * @return treatAs value.
      */
-    public String getTreatAs();
+    String getTreatAs();
 }

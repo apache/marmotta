@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -100,9 +100,8 @@ public class Literal extends RDFNode {
 
         if (!content.equals(literal.content)) return false;
         if (language != null ? !language.equals(literal.language) : literal.language != null) return false;
-        if (type != null ? !type.equals(literal.type) : literal.type != null) return false;
+        return type != null ? type.equals(literal.type) : literal.type == null;
 
-        return true;
     }
 
     @Override

@@ -46,5 +46,5 @@ package org.rometools.feed.module.base.types;
  * @version $Revision: 1.1 $
  */
 public interface CloneableType extends Cloneable {
-    public Object clone();
+    Object clone();
 }

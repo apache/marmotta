@@ -32,6 +32,7 @@ import org.openrdf.model.URI;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.*;
 import org.slf4j.Logger;
@@ -119,6 +120,7 @@ public class LdpUtils {
 
         writer.handleNamespace(LDP.PREFIX, LDP.NAMESPACE);
         writer.handleNamespace(RDF.PREFIX, RDF.NAMESPACE);
+        writer.handleNamespace(RDFS.PREFIX, RDFS.NAMESPACE);
         writer.handleNamespace(XSD.PREFIX, XSD.NAMESPACE);
         writer.handleNamespace(DCTERMS.PREFIX, DCTERMS.NAMESPACE);
 
@@ -142,7 +144,7 @@ public class LdpUtils {
         }
         if (StringUtils.isNotBlank(extraFormats)) {
             sb.append(extraFormats);
-        } else {
+        } else if (sb.length() > 1) {
             sb.delete(sb.length()-2, sb.length());
         }
         return sb.toString();

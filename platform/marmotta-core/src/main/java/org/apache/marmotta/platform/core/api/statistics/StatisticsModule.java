@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -31,36 +31,36 @@ public interface StatisticsModule {
 	/**
 	 * Enable this module. Depending on the type of information, this may involve additional runtime overhead.
 	 */
-	public void enable();
+    void enable();
 	
 	/**
 	 * Disable this module.
 	 */
-	public void disable();
+    void disable();
 	
 	/**
 	 * Return true if the module is enabled.
 	 * @return
 	 */
-	public boolean isEnabled();
+    boolean isEnabled();
 	
 	
 	/**
 	 * Return all names of properties supported by this module.
 	 * @return
 	 */
-	public List<String> getPropertyNames();
+    List<String> getPropertyNames();
 	
 	/**
 	 * Return the statistics as a map from key to value
 	 * @return
 	 */
-	public Map<String,String> getStatistics();
+    Map<String,String> getStatistics();
 
 
     /**
      * Return the display name of the statistics module.
      * @return
      */
-    public String getName();
+    String getName();
 }

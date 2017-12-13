@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -105,8 +105,8 @@ public class KiWiPersistence {
 
         try {
             logPoolInfo();
-        } catch (SQLException e) {
-
+        } catch (SQLException ignore) {
+            // must not happen!
         }
 
         idGenerator = new SnowflakeIDGenerator(configuration.getDatacenterId());
@@ -134,7 +134,8 @@ public class KiWiPersistence {
             Class factory = Class.forName(configuration.getCachingBackend().getFactoryClass());
             cacheManager = ((CacheManagerFactory)factory.newInstance()).createCacheManager(configuration);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            log.warn("cache manager factory {} not found on classpath (error: {}); falling back to Guava in-memory cache backend!", configuration.getCachingBackend(), e.getMessage());
+            log.warn("cache manager factory {} not found on classpath (error: {}); falling back to Guava in-memory cache backend!",
+                    configuration.getCachingBackend(), e.getMessage());
 
             CacheManagerFactory factory = new GuavaCacheManagerFactory();
             cacheManager = factory.createCacheManager(configuration);
@@ -161,7 +162,7 @@ public class KiWiPersistence {
         */
 
         // interceptors
-        if(configuration.isQueryLoggingEnabled()) {
+        if (configuration.isQueryLoggingEnabled()) {
             poolConfig.setJdbcInterceptors(
                     "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"   +
                             "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer;" +
@@ -174,7 +175,7 @@ public class KiWiPersistence {
             );
         }
 
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             poolConfig.setSuspectTimeout(30);
             poolConfig.setLogAbandoned(true);
         }
@@ -197,13 +198,14 @@ public class KiWiPersistence {
     }
 
     public void logPoolInfo() throws SQLException {
-        if(connectionPool != null) {
-            log.debug("num_busy_connections:    {}", connectionPool.getNumActive());
-            log.debug("num_idle_connections:    {}", connectionPool.getNumIdle());
-        } else {
-            log.debug("connection pool not initialized");
+        if (log.isDebugEnabled()) {
+            if (connectionPool != null) {
+                log.debug("num_busy_connections:    {}", connectionPool.getNumActive());
+                log.debug("num_idle_connections:    {}", connectionPool.getNumIdle());
+            } else {
+                log.debug("connection pool not initialized");
+            }
         }
-
     }
 
 
@@ -223,7 +225,7 @@ public class KiWiPersistence {
         try {
             Set<String> tables = connection.getDatabaseTables();
 
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("database tables:");
                 for(String table : tables) {
                     log.debug("- found table: {}",table);
@@ -232,10 +234,10 @@ public class KiWiPersistence {
 
             // check existence of all tables; if the necessary tables are not there, they need to be created
             boolean createNeeded = false;
-            for(String tableName : checkTables) {
+            for (String tableName : checkTables) {
                 createNeeded = createNeeded || !tables.contains(tableName);
             }
-            if(createNeeded) {
+            if (createNeeded) {
                 log.info("creating new KiWi database ...");
 
                 ScriptRunner runner = new ScriptRunner(connection.getJDBCConnection(), false, false);
@@ -300,9 +302,9 @@ public class KiWiPersistence {
             try {
                 Set<String> tables = connection.getDatabaseTables();
 
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     log.debug("BEFORE DROP: database tables");
-                    for(String table : tables) {
+                    for (String table : tables) {
                         log.debug("- found table: {}",table);
                     }
                 }
@@ -311,10 +313,10 @@ public class KiWiPersistence {
                 runner.runScript(new StringReader(configuration.getDialect().getDropScript(scriptName)));
 
 
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     tables = connection.getDatabaseTables();
                     log.debug("AFTER DROP: database tables");
-                    for(String table : tables) {
+                    for (String table : tables) {
                         log.debug("- found table: {}",table);
                     }
                 }
@@ -341,25 +343,25 @@ public class KiWiPersistence {
      * @throws SQLException in case a new connection could not be established
      */
     public KiWiConnection getConnection() throws SQLException {
-        if(!initialized) {
+        if (!initialized) {
             throw new SQLException("persistence backend not initialized; call initialise before acquiring a connection");
         }
 
-        if(connectionPool != null) {
-            KiWiConnection con = new KiWiConnection(this,configuration.getDialect(),cacheManager);
-            if(getDialect().isBatchSupported()) {
-                con.setBatchCommit(configuration.isTripleBatchCommit());
-                con.setBatchSize(configuration.getTripleBatchSize());
-            }
-            return con;
-        } else {
+        if (connectionPool == null) {
             throw new SQLException("connection pool is closed, database connections not available");
         }
+
+        KiWiConnection con = new KiWiConnection(this,configuration.getDialect(),cacheManager);
+        if(getDialect().isBatchSupported()) {
+            con.setBatchCommit(configuration.isTripleBatchCommit());
+            con.setBatchSize(configuration.getTripleBatchSize());
+        }
+        return con;
     }
 
     /**
      * Return a raw JDBC connection from the connection pool, which already has the auto-commit disabled.
-     * @return
+     * @return a raw JDBC connection, with auto-commit disabled
      * @throws SQLException
      */
     public Connection getJDBCConnection() throws SQLException {
@@ -368,36 +370,37 @@ public class KiWiPersistence {
 
     /**
      * Return a raw JDBC connection from the connection pool, which already has the auto-commit disabled.
-     * @return
+     * @param maintenance put the database in maintenance mode - further calls to this method will block.
+     * @return a raw JDBC connection, with auto-commit disabled
      * @throws SQLException
      */
     public Connection getJDBCConnection(boolean maintenance) throws SQLException {
         synchronized (this) {
-            if(this.maintenance) {
+            if (this.maintenance) {
                 try {
                     this.wait();
-                } catch (InterruptedException e) { }
+                } catch (InterruptedException ignore) { }
             }
-            if(maintenance) {
+            if (maintenance) {
                 this.maintenance = true;
             }
         }
 
-        if(initialized && connectionPool != null) {
-            Connection conn = connectionPool.getConnection();
-            conn.setAutoCommit(false);
-
-            return conn;
-        } else {
+        if (!initialized || connectionPool == null) {
             throw new SQLException("connection pool is closed, database connections not available");
         }
+
+        Connection conn = connectionPool.getConnection();
+        conn.setAutoCommit(false);
+
+        return conn;
     }
 
 
     /**
      * Release the JDBC connection passed as argument. This method will close the connection and release
      * any locks that might be held by the caller.
-     * @param con
+     * @param con the JDBC connection to release
      * @throws SQLException
      */
     public void releaseJDBCConnection(Connection con) throws SQLException {
@@ -426,8 +429,8 @@ public class KiWiPersistence {
      * is used when cleaning up unreferenced deleted entries in the nodes table. In theory, we could
      * get this information from the database, but each database has a very different way of doing this, so
      * it is easier to simply let dependent modules register this information.
-     * @param tableName
-     * @param columnName
+     * @param tableName name of the depending table in the database
+     * @param columnName name of the depending column in the table
      */
     public void addNodeTableDependency(String tableName, String columnName) {
         garbageCollector.addNodeTableDependency(tableName, columnName);
@@ -438,8 +441,8 @@ public class KiWiPersistence {
      * is used when cleaning up unreferenced deleted entries in the triples table. In theory, we could
      * get this information from the database, but each database has a very different way of doing this, so
      * it is easier to simply let dependent modules register this information.
-     * @param tableName
-     * @param columnName
+     * @param tableName name of the depending table in the database
+     * @param columnName name of the depending column in the table
      */
     public void addTripleTableDependency(String tableName, String columnName) {
         garbageCollector.addTripleTableDependency(tableName, columnName);

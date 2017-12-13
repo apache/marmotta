@@ -39,9 +39,7 @@ public class UUIDRandomIDGenerator implements IDGenerator {
      *
      */
     @Override
-    public void shutdown() {
-
-    }
+    public void shutdown() {}
 
     /**
      * Return the next unique id for the type with the given name using the generator's id generation strategy.

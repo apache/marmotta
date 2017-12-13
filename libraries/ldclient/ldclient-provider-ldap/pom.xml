@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.0-SNAPSHOT</version>
         <relativePath>../../../parent</relativePath>
     </parent>
 
@@ -31,6 +31,24 @@
     <description>
         This package allows the Linked Data Client to access LDAP resources by mapped to FOAF
     </description>
+    <packaging>bundle</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            org.apache.marmotta.ldclient.provider.ldap.*;version=${project.version}
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>

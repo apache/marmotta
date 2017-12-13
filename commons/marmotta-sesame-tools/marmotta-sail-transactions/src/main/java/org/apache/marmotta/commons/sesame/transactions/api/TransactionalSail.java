@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -33,20 +33,20 @@ public interface TransactionalSail extends NotifyingSail {
      *
      * @param listener the listener to add to the list
      */
-    public void addTransactionListener(TransactionListener listener);
+    void addTransactionListener(TransactionListener listener);
 
     /**
      * Remove a transaction listener from the list.
      *
      * @param listener the listener to remove
      */
-    public void removeTransactionListener(TransactionListener listener);
+    void removeTransactionListener(TransactionListener listener);
 
     /**
      * Check if extended transaction support is enabled
      * @return true if extended transactions are enabled
      */
-    public boolean isTransactionsEnabled();
+    boolean isTransactionsEnabled();
 
     /**
      * Temporarily enable/disable extended transactions. Disabling transactions might be useful when bulk loading large
@@ -54,7 +54,7 @@ public interface TransactionalSail extends NotifyingSail {
      *
      * @param transactionsEnabled
      */
-    public void setTransactionsEnabled(boolean transactionsEnabled);
+    void setTransactionsEnabled(boolean transactionsEnabled);
 
 
 }

@@ -60,21 +60,21 @@ public class AtomicCollectionImpl<E> extends CollectionView<E> {
     @Override
     public synchronized boolean add(E element) {
         boolean changed = target().add(element);
-        if (changed && !updateInProgress()) immutable = cloneTarget();
+        if (changed && noUpdateInProgress()) immutable = cloneTarget();
         return changed;
     }
 
     @Override
     public synchronized boolean addAll(Collection<? extends E> c) {
         boolean changed = target().addAll(c);
-        if (changed && !updateInProgress()) immutable = cloneTarget();
+        if (changed && noUpdateInProgress()) immutable = cloneTarget();
         return changed;
     }
 
     @Override
     public synchronized void clear() {
         clear();
-        if (!updateInProgress()) {
+        if (noUpdateInProgress()) {
             immutable = cloneTarget();
         }
     }
@@ -124,21 +124,21 @@ public class AtomicCollectionImpl<E> extends CollectionView<E> {
     @Override
     public synchronized boolean remove(Object o) {
         boolean changed = target().remove(o);
-        if (changed && !updateInProgress()) immutable = cloneTarget();
+        if (changed && noUpdateInProgress()) immutable = cloneTarget();
         return changed;
     }
 
     @Override
     public synchronized boolean removeAll(Collection<?> c) {
         boolean changed = target().removeAll(c);
-        if (changed && !updateInProgress()) immutable = cloneTarget();
+        if (changed && noUpdateInProgress()) immutable = cloneTarget();
         return changed;
     }
 
     @Override
     public synchronized boolean retainAll(Collection<?> c) {
         boolean changed = target().retainAll(c);
-        if (changed && !updateInProgress()) immutable = cloneTarget();
+        if (changed && noUpdateInProgress()) immutable = cloneTarget();
         return changed;
     }
 
@@ -186,8 +186,8 @@ public class AtomicCollectionImpl<E> extends CollectionView<E> {
     }
 
     /** Indicates if the current thread is doing an atomic update. */
-    protected final boolean updateInProgress() {
-        return updatingThread == Thread.currentThread();
+    protected final boolean noUpdateInProgress() {
+        return updatingThread != Thread.currentThread();
 
     }
 }

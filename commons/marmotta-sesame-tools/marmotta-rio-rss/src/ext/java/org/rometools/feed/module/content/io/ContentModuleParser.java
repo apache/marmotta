@@ -43,14 +43,13 @@
  */
 package org.rometools.feed.module.content.io;
 
-import org.rometools.feed.module.content.ContentItem;
-import org.rometools.feed.module.content.ContentModule;
-import org.rometools.feed.module.content.ContentModuleImpl;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
-
 import org.jdom2.output.XMLOutputter;
+import org.rometools.feed.module.content.ContentItem;
+import org.rometools.feed.module.content.ContentModule;
+import org.rometools.feed.module.content.ContentModuleImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,8 +79,8 @@ public class ContentModuleParser implements com.sun.syndication.io.ModuleParser 
         if (encodeds.size() > 0) {
             foundSomething = true;
 
-            for (int i = 0; i < encodeds.size(); i++) {
-                Element encodedElement = (Element) encodeds.get(i);
+            for (Object encoded : encodeds) {
+                Element encodedElement = (Element) encoded;
                 encodedStrings.add(encodedElement.getText());
                 contentStrings.add(encodedElement.getText());
             }
@@ -90,14 +89,14 @@ public class ContentModuleParser implements com.sun.syndication.io.ModuleParser 
         ArrayList contentItems = new ArrayList();
         List items = element.getChildren("items", CONTENT_NS);
 
-        for (int i = 0; i < items.size(); i++) {
+        for (Object item1 : items) {
             foundSomething = true;
 
-            List lis = ((Element) items.get(i)).getChild("Bag", RDF_NS).getChildren("li", RDF_NS);
+            List lis = ((Element) item1).getChild("Bag", RDF_NS).getChildren("li", RDF_NS);
 
-            for (int j = 0; j < lis.size(); j++) {
+            for (Object li1 : lis) {
                 ContentItem ci = new ContentItem();
-                Element li = (Element) lis.get(j);
+                Element li = (Element) li1;
                 Element item = li.getChild("item", CONTENT_NS);
                 Element format = item.getChild("format", CONTENT_NS);
                 Element encoding = item.getChild("encoding", CONTENT_NS);
@@ -148,7 +147,7 @@ public class ContentModuleParser implements com.sun.syndication.io.ModuleParser 
     }
 
     protected String getXmlInnerText(Element e) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         XMLOutputter xo = new XMLOutputter();
         List children = e.getContent();
         sb.append(xo.outputString(children));

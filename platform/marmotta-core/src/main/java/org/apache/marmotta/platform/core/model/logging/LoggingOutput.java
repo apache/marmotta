@@ -109,9 +109,8 @@ public abstract class LoggingOutput {
 
         LoggingOutput that = (LoggingOutput) o;
 
-        if (!id.equals(that.id)) return false;
+        return id.equals(that.id);
 
-        return true;
     }
 
     @Override

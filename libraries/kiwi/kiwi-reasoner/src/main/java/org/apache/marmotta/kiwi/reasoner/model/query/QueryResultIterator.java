@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -35,5 +35,5 @@ public interface QueryResultIterator extends CloseableIteration<QueryResult, SQL
     /**
      * Close the underlying result set and database connection.
      */
-    public void close();
+    void close();
 }

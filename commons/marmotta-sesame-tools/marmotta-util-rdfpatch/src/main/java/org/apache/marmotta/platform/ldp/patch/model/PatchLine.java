@@ -18,7 +18,6 @@
 package org.apache.marmotta.platform.ldp.patch.model;
 
 import org.openrdf.model.Statement;
-import org.openrdf.model.vocabulary.RDFS;
 
 /**
  * A single PatchLine, i.e. a operation of a Patch.
@@ -31,7 +30,7 @@ public class PatchLine {
 
         private final String cmd;
 
-        private Operator(String cmd) {
+        Operator(String cmd) {
             this.cmd = cmd;
         }
 

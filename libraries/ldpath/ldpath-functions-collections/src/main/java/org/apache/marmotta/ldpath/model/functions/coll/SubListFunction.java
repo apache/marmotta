@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,17 +18,18 @@
 package org.apache.marmotta.ldpath.model.functions.coll;
 
 
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
-
 public class SubListFunction<Node> extends AbstractCollFunction<Node> {
 
+    @SafeVarargs
     @Override
-    public Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
+    public final Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
         final Collection<Node> nodes;
         final int start, end;
         switch (args.length) {
@@ -57,7 +58,7 @@ public class SubListFunction<Node> extends AbstractCollFunction<Node> {
             throw new IllegalArgumentException(getLocalName() + " takes at most 3 arguments");
         }
 
-        final List<Node> result = new LinkedList<Node>();
+        final List<Node> result = new LinkedList<>();
         for (Node node : nodes) {
             if (hasType(backend, node, RDF + "Bag")) {
                 result.addAll(subListFromContainer(backend, node, start, end));
@@ -88,7 +89,7 @@ public class SubListFunction<Node> extends AbstractCollFunction<Node> {
     }
 
     private Collection<? extends Node> subListFromContainer(RDFBackend<Node> backend, Node node, int start, int end) {
-        List<Node> result = new LinkedList<Node>();
+        List<Node> result = new LinkedList<>();
         for (int i = start; i < end; i++) {
             final Collection<Node> objects = backend.listObjects(node, backend.createURI(RDF + "_" + (i + 1)));
             if (objects.size() > 0) {

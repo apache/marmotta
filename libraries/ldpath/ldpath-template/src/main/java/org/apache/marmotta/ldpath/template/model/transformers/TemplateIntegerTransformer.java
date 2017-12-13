@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.ldpath.template.model.transformers;
 
+import freemarker.template.TemplateModelException;
+import freemarker.template.TemplateNumberModel;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 import org.apache.marmotta.ldpath.model.transformers.IntTransformer;
-
-import freemarker.template.TemplateModelException;
-import freemarker.template.TemplateNumberModel;
 
 import java.util.Map;
 
@@ -36,7 +35,7 @@ public class TemplateIntegerTransformer<Node> implements NodeTransformer<Templat
     private IntTransformer<Node> delegate;
 
     public TemplateIntegerTransformer() {
-        delegate = new IntTransformer<Node>();
+        delegate = new IntTransformer<>();
     }
 
     /**

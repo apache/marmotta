@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.0-SNAPSHOT</version>
         <relativePath>../../../parent</relativePath>
     </parent>
 
@@ -32,6 +32,26 @@
         This package allows accessing wiki articles stored in a MediaWiki installation, particularly Wikipedia. It
         accesses the wiki through the MediaWiki API to retrieve raw article data.
     </description>
+    <packaging>bundle</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            org.apache.marmotta.ldclient.endpoint.mediawiki;version=${project.version},
+                            org.apache.marmotta.ldclient.provider.mediawiki.*;version=${project.version}
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 
     <dependencies>
         <dependency>

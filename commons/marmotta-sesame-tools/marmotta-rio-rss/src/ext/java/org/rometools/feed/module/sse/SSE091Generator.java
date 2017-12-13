@@ -1,16 +1,15 @@
 package org.rometools.feed.module.sse;
 
 import com.sun.syndication.feed.module.Module;
-import org.rometools.feed.module.sse.modules.*;
 import com.sun.syndication.feed.rss.Item;
 import com.sun.syndication.io.DelegatingModuleGenerator;
 import com.sun.syndication.io.WireFeedGenerator;
 import com.sun.syndication.io.impl.DateParser;
 import com.sun.syndication.io.impl.RSS20Generator;
 import org.jdom2.Element;
+import org.rometools.feed.module.sse.modules.*;
 
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -108,9 +107,9 @@ public class SSE091Generator implements DelegatingModuleGenerator {
     private void generateConflicts(Element syncElement, List conflicts) {
         if (conflicts != null) {
             Element conflictsElement = new Element(Conflicts.NAME, SSEModule.SSE_NS);
-            for (Iterator confictIter = conflicts.iterator(); confictIter.hasNext();) {
+            for (Object conflict1 : conflicts) {
                 Element conflictElement = new Element(Conflict.NAME, SSEModule.SSE_NS);
-                Conflict conflict = (Conflict) confictIter.next();
+                Conflict conflict = (Conflict) conflict1;
                 generateAttribute(conflictElement, Conflict.BY_ATTRIBUTE, conflict.getBy());
                 generateAttribute(conflictElement, Conflict.VERSION_ATTRIBUTE, conflict.getVersion());
                 generateAttribute(conflictElement, Conflict.WHEN_ATTRIBUTE, conflict.getWhen());
@@ -142,9 +141,9 @@ public class SSE091Generator implements DelegatingModuleGenerator {
 
     private void generateUpdates(Element historyElement, List updates) {
         if (updates != null) {
-            for (Iterator updateIter = updates.iterator(); updateIter.hasNext();) {
+            for (Object update1 : updates) {
                 Element updateElement = new Element(Update.NAME, SSEModule.SSE_NS);
-                Update update = (Update) updateIter.next();
+                Update update = (Update) update1;
                 generateAttribute(updateElement, Update.BY_ATTRIBUTE, update.getBy());
                 generateAttribute(updateElement, Update.WHEN_ATTRIBUTE, update.getWhen());
                 historyElement.addContent(updateElement);

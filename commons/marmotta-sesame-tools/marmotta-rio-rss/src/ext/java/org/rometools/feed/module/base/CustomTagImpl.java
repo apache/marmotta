@@ -25,7 +25,6 @@ import org.rometools.feed.module.base.types.IntUnit;
 import org.rometools.feed.module.base.types.ShortDate;
 
 import java.net.URL;
-
 import java.util.Date;
 
 
@@ -208,8 +207,7 @@ public class CustomTagImpl implements CustomTag {
         }
 	
 	public boolean equals( Object o ){
-	    if( o instanceof Location && ((Location) o).value.equals(this.value) ) return true;
-	    else return false;
+        return o instanceof Location && ((Location) o).value.equals(this.value);
 	}
     }
 }

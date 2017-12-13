@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>marmotta-parent</artifactId>
+        <version>3.4.0-SNAPSHOT</version>
+        <relativePath>../../parent</relativePath>
+    </parent>
+
+    <artifactId>marmotta-backend-ostrich</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Apache Marmotta Platform: C++ LevelDB Backend</name>
+    <description>
+        This module provides an Apache Marmotta backend using a LevelDB database. This is a suitable backend
+        for high performance environments.
+    </description>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin> <!-- generate JRebel Configuration -->
+                    <groupId>org.zeroturnaround</groupId>
+                    <artifactId>jrebel-maven-plugin</artifactId>
+                    <version>1.1.3</version>
+                    <executions>
+                        <execution>
+                            <id>generate-rebel-xml</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <relativePath>../../../</relativePath>
+                        <rootPath>$${rebel.root}</rootPath>
+                        <classpath>
+                            <resources>
+                                <resource><!-- default resource --></resource>
+                                <resource><directory>src/main/resources</directory></resource>
+                            </resources>
+                        </classpath>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>buildinfo-maven-plugin</artifactId>
+                <configuration>
+                    <systemProperties>
+                        <systemProperty>user.name</systemProperty>
+                        <systemProperty>user.timezone</systemProperty>
+                        <systemProperty>java.vm.vendor</systemProperty>
+                        <systemProperty>java.vm.version</systemProperty>
+                        <systemProperty>java.vm.name</systemProperty>
+                        <systemProperty>java.runtime.version</systemProperty>
+                        <systemProperty>os.name</systemProperty>
+                        <systemProperty>os.version</systemProperty>
+                        <systemProperty>os.arch</systemProperty>
+                    </systemProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>extract</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <!--
+                    <execution>
+                        <id>aggregate</id>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                        <phase>site</phase>
+                    </execution>
+                    -->
+                    <execution>
+                        <!-- configure how the REST API documentation will be produced -->
+                        <id>restapi</id>
+                        <configuration>
+                            <doclet>com.lunatech.doclets.jax.jaxrs.JAXRSDoclet</doclet>
+
+                            <name>REST API</name>
+                            <description>REST API for Marmotta Webservices</description>
+
+                            <outputDirectory>${project.build.outputDirectory}/doc</outputDirectory>
+                            <reportOutputDirectory>${project.build.outputDirectory}/web/doc</reportOutputDirectory>
+                            <destDir>rest</destDir>
+
+                            <docletArtifact>
+                                <groupId>com.lunatech.jax-doclets</groupId>
+                                <artifactId>doclets</artifactId>
+                                <version>${jax.doclets.version}</version>
+                            </docletArtifact>
+                            <additionalparam>
+                                -jaxrscontext {BASE}
+                                -charset UTF-8
+                            </additionalparam>
+
+                            <!--
+                                                        <stylesheetfile>${project.parent.basedir}/config/doc/doclet.css</stylesheetfile>
+                            -->
+
+                            <header><![CDATA[<!--###BEGIN_CONTENT###--><div class="javadoc">]]></header>
+                            <footer><![CDATA[</div><!--###END_CONTENT###-->]]></footer>
+                            <encoding>UTF-8</encoding>
+                            <detectOfflineLinks>false</detectOfflineLinks>
+
+                            <!-- For the project-reports page -->
+                        </configuration>
+                        <goals>
+                            <goal>javadoc</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-sail-transactions</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ostrich-model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ostrich-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+    </dependencies>
+
+
+</project>

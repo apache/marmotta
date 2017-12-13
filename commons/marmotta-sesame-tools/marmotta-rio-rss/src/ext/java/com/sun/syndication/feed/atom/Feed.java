@@ -141,7 +141,7 @@ public class Feed extends WireFeed {
      *         an empty list if none.
      */
     public List<Link> getAlternateLinks() {
-        return (_alternateLinks==null) ? (_alternateLinks=new ArrayList<Link>()) : _alternateLinks;
+        return (_alternateLinks==null) ? (_alternateLinks= new ArrayList<>()) : _alternateLinks;
     }
 
     /**
@@ -181,7 +181,7 @@ public class Feed extends WireFeed {
      * 
      */
     public List<Person> getAuthors() {
-        return (_authors==null) ? (_authors=new ArrayList<Person>()) : _authors;
+        return (_authors==null) ? (_authors= new ArrayList<>()) : _authors;
     }
 
     /**
@@ -202,7 +202,7 @@ public class Feed extends WireFeed {
      *
      */
     public List<Person> getContributors() {
-        return (_contributors==null) ? (_contributors=new ArrayList<Person>()) : _contributors;
+        return (_contributors==null) ? (_contributors= new ArrayList<>()) : _contributors;
     }
 
     /**
@@ -336,7 +336,7 @@ public class Feed extends WireFeed {
      *
      */
     public List<Entry> getEntries() {
-        return (_entries==null) ? (_entries=new ArrayList<Entry>()) : _entries;
+        return (_entries==null) ? (_entries= new ArrayList<>()) : _entries;
     }
 
     /**
@@ -358,7 +358,7 @@ public class Feed extends WireFeed {
      *
      */
     public List<Module> getModules() {
-        return (_modules==null) ? (_modules=new ArrayList<Module>()) : _modules;
+        return (_modules==null) ? (_modules= new ArrayList<>()) : _modules;
     }
 
     /**

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -74,7 +74,7 @@ public class ContextWebService {
     public Response listContexts(@QueryParam("labels") String labels, @QueryParam("filter") String filter) {
         try {
             if(labels == null) {
-                ArrayList<String> res = new ArrayList<String>();
+                ArrayList<String> res = new ArrayList<>();
                 for(org.openrdf.model.URI r : contextService.listContexts(filter != null)) {
                     res.add(r.stringValue());
                 }
@@ -82,7 +82,7 @@ public class ContextWebService {
             } else {
                 ArrayList<Map<String,Object>> result = new ArrayList<>();
                 for(org.openrdf.model.URI r : contextService.listContexts(filter != null)) {
-                    Map<String,Object> ctxDesc = new HashMap<String, Object>();
+                    Map<String,Object> ctxDesc = new HashMap<>();
                     ctxDesc.put("uri",r.stringValue());
                     ctxDesc.put("label", contextService.getContextLabel(r));
                     ctxDesc.put("size", contextService.getContextSize(r));

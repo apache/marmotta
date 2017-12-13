@@ -255,7 +255,7 @@ public class HazelcastCacheManager implements CacheManager {
     @Override
     public Map<Long, Long> getRegistryCache() {
         if(registryCache == null) {
-            registryCache = hazelcast.<Long, Long>getMap(REGISTRY_CACHE);
+            registryCache = hazelcast.getMap(REGISTRY_CACHE);
         }
 
         return registryCache;

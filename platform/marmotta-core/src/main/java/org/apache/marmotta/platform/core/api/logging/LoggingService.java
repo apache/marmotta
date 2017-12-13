@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -41,7 +41,7 @@ public interface LoggingService {
 	 * @param injectionPoint
 	 * @return
 	 */
-	public Logger createLogger(InjectionPoint injectionPoint);
+    Logger createLogger(InjectionPoint injectionPoint);
 
 
     /**
@@ -49,7 +49,7 @@ public interface LoggingService {
      *
      * @return
      */
-    public List<LoggingOutput> listOutputConfigurations();
+    List<LoggingOutput> listOutputConfigurations();
 
 
     /**
@@ -57,7 +57,7 @@ public interface LoggingService {
      * @param id
      * @return
      */
-    public LoggingOutput getOutputConfiguration(String id);
+    LoggingOutput getOutputConfiguration(String id);
 
 
     /**
@@ -66,7 +66,7 @@ public interface LoggingService {
      *
      * @return
      */
-    public ConsoleOutput getConsoleOutput();
+    ConsoleOutput getConsoleOutput();
 
     /**
      * Create a new syslog output configuration using the given parameters; further options can be set on the object
@@ -76,7 +76,7 @@ public interface LoggingService {
      * @param name human-readable name for configuration (displayed in UI)
      * @return
      */
-    public SyslogOutput createSyslogOutput(String id, String name);
+    SyslogOutput createSyslogOutput(String id, String name);
 
     /**
      * Create a new logfile output configuration using the given parameters; further options can be set on the object
@@ -87,7 +87,7 @@ public interface LoggingService {
      * @param file filename under MARMOTTA_HOME/log
      * @return
      */
-    public LogFileOutput createLogFileOutput(String id, String name, String file);
+    LogFileOutput createLogFileOutput(String id, String name, String file);
 
 
     /**
@@ -96,6 +96,6 @@ public interface LoggingService {
      *
      * @return
      */
-    public List<LoggingModule> listModules();
+    List<LoggingModule> listModules();
 
 }

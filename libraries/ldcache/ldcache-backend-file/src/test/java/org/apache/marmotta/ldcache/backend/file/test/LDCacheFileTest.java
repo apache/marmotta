@@ -14,16 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.marmotta.ldcache.backend.file.test;
 
-import com.google.common.io.Files;
-import org.apache.commons.io.FileUtils;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.backend.file.LDCachingFileBackend;
 import org.apache.marmotta.ldcache.services.test.ng.BaseLDCacheTest;
+import org.junit.Rule;
 import org.junit.internal.AssumptionViolatedException;
-import org.openrdf.repository.RepositoryException;
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,33 +37,24 @@ public class LDCacheFileTest extends BaseLDCacheTest {
 
     private static Logger log = LoggerFactory.getLogger(LDCacheFileTest.class);
 
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     /**
      * Needs to be implemented by tests to provide the correct backend. Backend needs to be properly initialised.
      *
-     * @return
+     * @return an LDCachingBackend
      */
     @Override
     protected LDCachingBackend createBackend() {
-        final File storageDir = Files.createTempDir();
-
-        LDCachingBackend backend = null;
         try {
-            backend = new LDCachingFileBackend(storageDir) {
-                @Override
-                public void shutdown() {
-                    super.shutdown();
-
-                    try {
-                        FileUtils.deleteDirectory(storageDir);
-                    } catch (IOException e) {
-                    }
-                }
-            };
+            final File storageDir = temporaryFolder.newFolder();
+            LDCachingBackend backend = new LDCachingFileBackend(storageDir);
             backend.initialize();
 
             return backend;
-        } catch (RepositoryException e) {
-            throw new AssumptionViolatedException("could not initialise backend",e);
+        } catch (IOException e) {
+            throw new AssumptionViolatedException("could not create storage-dir for file backend", e);
         }
     }
 

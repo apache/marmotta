@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -50,7 +50,6 @@ public class PathEqualityTest<Node> extends NodeTest<Node> {
      * Throws IllegalArgumentException if the function cannot be applied to the nodes passed as argument
      * or the number of arguments is not correct.
      *
-     * @param args a nested list of KiWiNodes
      * @return
      */
     @Override
@@ -98,6 +97,22 @@ public class PathEqualityTest<Node> extends NodeTest<Node> {
         return "Tests whether the two node lists intersect";
     }
 
+    /**
+     * Get the Path/Selector to run the test on
+     * @return the Selector to test
+     */
+    public NodeSelector<Node> getPath() {
+        return path;
+    }
+
+    /**
+     * Get the expected value to test for
+     * @return the value to test for.
+     */
+    public Node getNode() {
+        return node;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -113,11 +128,8 @@ public class PathEqualityTest<Node> extends NodeTest<Node> {
         if (node != null ? !node.equals(that.node) : that.node != null) {
             return false;
         }
-        if (path != null ? !path.equals(that.path) : that.path != null) {
-            return false;
-        }
+        return path != null ? path.equals(that.path) : that.path == null;
 
-        return true;
     }
 
     @Override

@@ -16,11 +16,9 @@
  */
 package org.rometools.feed.module.georss;
 
-import org.jdom2.Element;
-
 import com.sun.syndication.feed.module.Module;
-import org.rometools.feed.module.georss.GMLParser;
 import com.sun.syndication.io.ModuleParser;
+import org.jdom2.Element;
 import org.rometools.feed.module.georss.geometries.*;
 
 /**
@@ -56,8 +54,7 @@ public class SimpleParser implements ModuleParser {
      * @see com.sun.syndication.io.ModuleParser#parse(org.jdom2.Element)
      */
     public Module parse(Element element) {
-        Module geoRssModule = parseSimple(element);
-        return geoRssModule;
+        return parseSimple(element);
     }
     
     static Module parseSimple(Element element) {

@@ -29,7 +29,7 @@ import java.util.*;
  *
  */
 public class SyModuleImpl extends ModuleImpl implements SyModule {
-    private static final Set<String> PERIODS = new HashSet<String>();
+    private static final Set<String> PERIODS = new HashSet<>();
 
     static {
         PERIODS.add(HOURLY );

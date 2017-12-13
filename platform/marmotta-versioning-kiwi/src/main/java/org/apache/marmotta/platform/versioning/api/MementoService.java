@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -42,7 +42,7 @@ public interface MementoService {
      * @return the version with respect to the date
      * @throws MementoException
      */
-    public Version getVersion(Resource resource, Date date) throws MementoException;
+    Version getVersion(Resource resource, Date date) throws MementoException;
 
     //public Version getLastVersion(Resource resource) throws MementoException;
     //public Version getFirstVersion(Resource resource) throws MementoException;
@@ -56,6 +56,6 @@ public interface MementoService {
      * @throws MementoException
      * @see MementoVersionSet
      */
-    public MementoVersionSet getVersionSet(Resource resource, Date date) throws MementoException;
+    MementoVersionSet getVersionSet(Resource resource, Date date) throws MementoException;
 
 }

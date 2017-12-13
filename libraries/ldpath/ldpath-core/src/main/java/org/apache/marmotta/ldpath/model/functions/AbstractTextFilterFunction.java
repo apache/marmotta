@@ -17,11 +17,6 @@
  */
 package org.apache.marmotta.ldpath.model.functions;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
@@ -29,11 +24,16 @@ import org.apache.marmotta.ldpath.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
 public abstract class AbstractTextFilterFunction<Node> extends SelectorFunction<Node> {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final StringTransformer<Node> transformer = new StringTransformer<Node>();
+    private final StringTransformer<Node> transformer = new StringTransformer<>();
 
     /**
      * Apply the function to the list of nodes passed as arguments and return the result as type T.
@@ -43,8 +43,9 @@ public abstract class AbstractTextFilterFunction<Node> extends SelectorFunction<
      * @param args a nested list of KiWiNodes
      * @return
      */
+    @SafeVarargs
     @Override
-    public Collection<Node> apply(RDFBackend<Node> rdfBackend, Node context, Collection<Node>... args) throws IllegalArgumentException {
+    public final Collection<Node> apply(RDFBackend<Node> rdfBackend, Node context, Collection<Node>... args) throws IllegalArgumentException {
         if(args.length < 1){
             log.debug("filter text from context {}",context);
             return java.util.Collections.singleton(
@@ -52,7 +53,7 @@ public abstract class AbstractTextFilterFunction<Node> extends SelectorFunction<
         } else {
             log.debug("filter text from parameters");
             Iterator<Node> it = Collections.iterator(args);
-            List<Node> result = new ArrayList<Node>();
+            List<Node> result = new ArrayList<>();
             while (it.hasNext()) {
                 result.add(rdfBackend.createLiteral(doFilter(transformer.transform(rdfBackend, it.next(), null))));
             }

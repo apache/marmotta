@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -34,25 +34,25 @@ public interface MarmottaIOService {
 	 * returns a list of all mimetypes which can be parsed by implemented parsers
 	 * @return
 	 */
-	public List<String> getAcceptTypes();
+    List<String> getAcceptTypes();
 
 	/**
 	 * returns a list of all mimetypes which can be produced by implemented serializers
 	 * @return
 	 */
-	public List<String> getProducedTypes();
+    List<String> getProducedTypes();
 
 	/**
 	 * returns a serializer for a given mimetype; null if no serializer defined
 	 * @param mimetype
 	 * @return
 	 */
-	public RDFFormat getSerializer(String mimetype);
+    RDFFormat getSerializer(String mimetype);
 	/**
 	 * returns a parser for a given mimetype; null if no parser defined
 	 * @param mimetype
 	 * @return
 	 */
-	public RDFFormat getParser(String mimetype);
+    RDFFormat getParser(String mimetype);
 
 }

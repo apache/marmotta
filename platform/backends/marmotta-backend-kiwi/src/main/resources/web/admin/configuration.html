@@ -16,11 +16,8 @@
   -->
 <html>
 <head>
-<title>Storage Backend: BigData</title>
-<script type="text/javascript">
-	var _SERVER_URL = "http://localhost:8080/LMF/";
-</script>
 <!--###BEGIN_HEAD###-->
+  <title>KiWi Configuration</title>
     <script type="text/javascript" src="../../webjars/jquery/1.8.2/jquery.min.js"></script>
     <script type="text/javascript" src="../../core/public/js/widgets/configurator/configurator.js"></script>
     <link rel="stylesheet" href="style.css" />
@@ -32,7 +29,7 @@
                 container : "kiwi_configurator",
                 prefix : 'database',
                 blacklist: ['database.type','database.url','database.user','database.password','database.h2.','database.postgres.','database.mysql.']
-            }
+            };
             var configurator = new Configurator(options);
         });
     </script>

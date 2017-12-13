@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -54,8 +54,8 @@ public class TransactionData {
 
     public TransactionData() {
         transactionId  = "TX-" + UUID.randomUUID().toString();
-        removedTriples = new TripleTable<Statement>();
-        addedTriples   = new TripleTable<Statement>();
+        removedTriples = new TripleTable<>();
+        addedTriples   = new TripleTable<>();
     }
 
 

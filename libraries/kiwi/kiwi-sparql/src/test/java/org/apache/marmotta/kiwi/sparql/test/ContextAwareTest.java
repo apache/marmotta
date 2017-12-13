@@ -60,7 +60,6 @@ public class ContextAwareTest {
 
     private Repository repository;
 
-
     private URI context1, context2;
 
     private URI subject, object11, object21;
@@ -72,7 +71,6 @@ public class ContextAwareTest {
     public ContextAwareTest(KiWiConfiguration dbConfig) {
         this.dbConfig = dbConfig;
     }
-
 
     @Before
     public void initDatabase() throws RepositoryException, IOException, RDFParseException {

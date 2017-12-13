@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -131,7 +131,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
 
     public Set<KiWiTriple> addStatementInternal(Resource subj, URI pred, Value obj, boolean inferred, Resource... contexts) throws SailException {
         try {
-            Set<Resource> contextSet = new HashSet<Resource>();
+            Set<Resource> contextSet = new HashSet<>();
             for(Resource ctx : contexts) {
                 if(ctx != null) {
                     contextSet.add(ctx);
@@ -148,7 +148,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                 contextSet.add(valueFactory.createURI(inferredContext));
             }
 
-            Set<KiWiTriple> added = new HashSet<KiWiTriple>();
+            Set<KiWiTriple> added = new HashSet<>();
             for(Resource context : contextSet) {
                 KiWiResource kcontext = valueFactory.convert(context);
 
@@ -254,7 +254,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         final KiWiUriResource rpred = valueFactory.convert(pred);
         final KiWiNode robj         = valueFactory.convert(obj);
 
-        Set<KiWiResource> contextSet = new HashSet<KiWiResource>();
+        Set<KiWiResource> contextSet = new HashSet<>();
         contextSet.addAll(Lists.transform(Arrays.asList(contexts), new Function<Resource, KiWiResource>() {
             @Override
             public KiWiResource apply(Resource input) {
@@ -262,7 +262,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             }
         }));
 
-        Set<DelayedIteration<Statement,RepositoryException>> iterations = new HashSet<DelayedIteration<Statement, RepositoryException>>();
+        Set<DelayedIteration<Statement,RepositoryException>> iterations = new HashSet<>();
         if(contextSet.size() > 0) {
             for(final KiWiResource context : contextSet) {
                 iterations.add(new DelayedIteration<Statement, RepositoryException>() {
@@ -294,7 +294,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         }
 
 
-        return new UnionIteration<Statement, SailException>(
+        return new UnionIteration<>(
                 Iterables.transform(iterations, new Function<DelayedIteration<Statement, RepositoryException>, Iteration<? extends Statement, SailException>>() {
                     @Override
                     public Iteration<? extends Statement, SailException> apply(DelayedIteration<Statement, RepositoryException> input) {
@@ -318,13 +318,13 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         try {
             if(contexts.length == 0) {
                 return databaseConnection.getSize();
-            } else {
-                long sum = 0;
-                for(Resource context : contexts) {
-                    sum += databaseConnection.getSize(valueFactory.convert(context));
-                }
-                return sum;
             }
+
+            long sum = 0;
+            for(Resource context : contexts) {
+                sum += databaseConnection.getSize(valueFactory.convert(context));
+            }
+            return sum;
         } catch(SQLException ex) {
             throw new SailException("database error while listing triples",ex);
         }
@@ -509,9 +509,8 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             KiWiNamespace result = databaseConnection.loadNamespaceByPrefix(prefix);
             if(result != null) {
                 return result.getUri();
-            } else {
-                return null;
             }
+            return null;
         } catch (SQLException e) {
             throw new SailException("database error while querying namespaces",e);
         }
@@ -561,9 +560,8 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             if(defaultContext != null) {
                 // null value for context means statements without context; in KiWi, this means "default context"
                 return (KiWiUriResource)valueFactory.createURI(defaultContext);
-            } else {
-                return null;
             }
+            return null;
         } else {
             return valueFactory.convert(input);
         }
@@ -611,25 +609,22 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                         if (e instanceof ClosedByInterruptException) {
                             return new QueryInterruptedException(e);
                         }
-                        else if (e instanceof IOException) {
+                        if (e instanceof IOException) {
                             return new QueryEvaluationException(e);
                         }
-                        else if (e instanceof SailException) {
+                        if (e instanceof SailException) {
                             if(e.getCause() instanceof ResultInterruptedException) {
                                 return new QueryInterruptedException(e);
-                            } else {
-                                return new QueryEvaluationException(e);
                             }
+                            return new QueryEvaluationException(e);
                         }
-                        else if (e instanceof RuntimeException) {
+                        if (e instanceof RuntimeException) {
                             throw (RuntimeException)e;
                         }
-                        else if (e == null) {
+                        if (e == null) {
                             throw new IllegalArgumentException("e must not be null");
                         }
-                        else {
-                            throw new IllegalArgumentException("Unexpected exception type: " + e.getClass(),e);
-                        }
+                        throw new IllegalArgumentException("Unexpected exception type: " + e.getClass(),e);
                     }
                 };
             } catch (SailException ex) {
@@ -657,7 +652,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
     @Override
     public RepositoryResult<Resource> getResources() throws RepositoryException {
         try {
-            return new RepositoryResult<Resource>(new ExceptionConvertingIteration<Resource,RepositoryException>(databaseConnection.listResources()) {
+            return new RepositoryResult<>(new ExceptionConvertingIteration<Resource, RepositoryException>(databaseConnection.listResources()) {
                 @Override
                 protected RepositoryException convert(Exception e) {
                     return new RepositoryException(e);
@@ -676,7 +671,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
     @Override
     public RepositoryResult<URI> getResources(String prefix) throws RepositoryException {
         try {
-            return new RepositoryResult<URI>(new ExceptionConvertingIteration<URI,RepositoryException>(databaseConnection.listResources(prefix)) {
+            return new RepositoryResult<>(new ExceptionConvertingIteration<URI, RepositoryException>(databaseConnection.listResources(prefix)) {
                 @Override
                 protected RepositoryException convert(Exception e) {
                     return new RepositoryException(e);

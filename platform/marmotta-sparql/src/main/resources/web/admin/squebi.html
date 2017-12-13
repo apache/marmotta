@@ -25,7 +25,7 @@
         SQUEBI = {
             selectService : "../select",
             updateService : "../update",
-            home : "../../webjars/squebi/1.0.1",
+            home : "../../webjars/squebi/1.0.3",
             hints : [],
             container : '#squebi_container',
             browse : {
@@ -43,14 +43,14 @@
             "outputQueryParam":"output"
         };
     </script>
-    <script data-main="../../webjars/squebi/1.0.1/squebi" src="../../webjars/requirejs/2.1.15/require.js"></script>
-    <link href="../../webjars/squebi/1.0.1/squebi.css" rel="stylesheet" type="text/css">
+    <script data-main="../../webjars/squebi/1.0.3/squebi" src="../../webjars/requirejs/2.1.15/require.js"></script>
+    <link href="../../webjars/squebi/1.0.3/squebi.css" rel="stylesheet" type="text/css">
     <!--###END_HEAD###-->
 </head>
 <body>
 <!--###BEGIN_CONTENT###-->
 <div id="appLoader" style="margin-top: 100px; text-align: center; margin-bottom: 100px">
-    <img src="../../webjars/squebi/1.0.1/img/ajax-loader-big.gif">
+    <img src="../../webjars/squebi/1.0.3/img/ajax-loader-big.gif">
 </div>
 <div style="display: none" id="squebi_container" class="container">
     <div ng-controller="SampleCtrl" class="header">
@@ -103,7 +103,7 @@
     <div ng-show="showResults" ng-controller="ResultCtrl" class="row result">
         <div ng-show="!loader" ng-include src="template"></div>
         <div class="loader" ng-show="loader">
-            <img src="../../webjars/squebi/1.0.1/img/ajax-loader-big.gif">
+            <img src="../../webjars/squebi/1.0.3/img/ajax-loader-big.gif">
         </div>
     </div>
 

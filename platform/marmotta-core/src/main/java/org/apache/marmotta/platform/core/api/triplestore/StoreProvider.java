@@ -34,7 +34,7 @@ public interface StoreProvider extends SailProvider {
      *
      * @return a new instance of the store
      */
-    public NotifyingSail createStore();
+    NotifyingSail createStore();
 
 
     /**
@@ -44,6 +44,6 @@ public interface StoreProvider extends SailProvider {
      * @param sail
      * @return
      */
-    public SailRepository createRepository(Sail sail);
+    SailRepository createRepository(Sail sail);
 
 }

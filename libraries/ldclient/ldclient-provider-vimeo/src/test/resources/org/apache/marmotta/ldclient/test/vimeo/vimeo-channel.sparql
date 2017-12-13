@@ -19,6 +19,6 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX ma: <http://www.w3.org/ns/ma-ont#>
 ASK {
-    <http://vimeo.com/channels/ninlive09> ma:hasMember <http://vimeo.com/8344405> .
+    <http://vimeo.com/channels/ninlive09> ma:hasMember <https://vimeo.com/8344405> .
     <http://vimeo.com/channels/ninlive09> rdf:type ma:Collection
 }

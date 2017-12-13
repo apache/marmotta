@@ -32,7 +32,7 @@ public interface CustomTag  {
      * Returns the tag name used.
      * @return Returns the tag name used.
      */
-    public String getName();
+    String getName();
     
     /**
      * The value of the custom tag.
@@ -120,6 +120,6 @@ public interface CustomTag  {
      * </tbody></table>
      * @return The value of the tag. The objects class is determined by the "type" attribute on the tag.
      */
-    public Object getValue();
+    Object getValue();
     
 }

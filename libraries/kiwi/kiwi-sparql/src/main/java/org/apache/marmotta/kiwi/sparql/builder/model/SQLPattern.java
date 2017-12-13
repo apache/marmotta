@@ -37,7 +37,7 @@ public class SQLPattern extends SQLClause {
     /**
      * Describe the different columns of the triple table that we might need to join with
      */
-    public static enum TripleColumns {
+    public enum TripleColumns {
         SUBJECT  ("subject"),
         PREDICATE("predicate"),
         OBJECT   ("object"),
@@ -52,7 +52,7 @@ public class SQLPattern extends SQLClause {
         public String getFieldName() {
             return fieldName;
         }
-    };
+    }
 
     /**
      * This map contains mappings from column to variable names. If for a given column an entry is contained in the
@@ -155,7 +155,7 @@ public class SQLPattern extends SQLClause {
         StringBuilder fromClause = new StringBuilder();
 
 
-        fromClause.append("triples " + name);
+        fromClause.append("triples ").append(name);
 
 
         for(Map.Entry<TripleColumns,String> colEntry : joinFields.entrySet()) {
@@ -163,9 +163,9 @@ public class SQLPattern extends SQLClause {
             String        var = colEntry.getValue();
 
             fromClause.append("\n    INNER JOIN nodes AS ");
-            fromClause.append(name + "_" + col.getFieldName() + "_" + var);
+            fromClause.append(name).append("_").append(col.getFieldName()).append("_").append(var);
 
-            fromClause.append(" ON " + name + "." + col.getFieldName() + " = " + name + "_" + col.getFieldName() + "_" + var + ".id ");
+            fromClause.append(" ON ").append(name).append(".").append(col.getFieldName()).append(" = ").append(name).append("_").append(col.getFieldName()).append("_").append(var).append(".id ");
 
         }
 

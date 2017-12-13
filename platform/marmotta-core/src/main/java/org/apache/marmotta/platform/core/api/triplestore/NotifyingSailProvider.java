@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -34,5 +34,5 @@ public interface NotifyingSailProvider extends SailProvider {
      * @param parent the parent sail to wrap by the provider
      * @return the wrapped sail
      */
-    public NotifyingSailWrapper createSail(NotifyingSail parent);
+    NotifyingSailWrapper createSail(NotifyingSail parent);
 }

@@ -120,8 +120,6 @@ public class DateTimeRange implements CloneableType {
 	}
 	if( this.start != null && !this.start.equals( d.getStart()) )
 	    return false;
-	if( this.end != null && !this.end.equals( d.getEnd()) )
-	    return false;
-	return true;
+        return !(this.end != null && !this.end.equals(d.getEnd()));
     }
 }

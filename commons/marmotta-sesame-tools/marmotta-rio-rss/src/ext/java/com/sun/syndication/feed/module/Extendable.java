@@ -31,7 +31,7 @@ public interface Extendable {
      * @param uri the URI of the ModuleImpl.
      * @return The module with the given URI, <b>null</b> if none.
      */
-    public Module getModule(String uri);
+    Module getModule(String uri);
 
     /**
      * Returns the entry modules.

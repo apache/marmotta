@@ -79,11 +79,11 @@ import org.rometools.feed.module.portablecontacts.ContactModule;
 public interface HasLocation {
 
 
-    public GeoRSSModule getLocation();
+    GeoRSSModule getLocation();
 
-    public void setLocation(GeoRSSModule location);
+    void setLocation(GeoRSSModule location);
 
-    public ContactModule getAddress();
+    ContactModule getAddress();
 
-    public void setAddress(ContactModule address);
+    void setAddress(ContactModule address);
 }

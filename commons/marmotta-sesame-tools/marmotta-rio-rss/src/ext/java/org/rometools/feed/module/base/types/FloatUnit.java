@@ -65,8 +65,8 @@ public class FloatUnit implements CloneableType {
      * @return boolean indicating presence.
      */
     private boolean inCharArray( char find, char[] array ){
-        for( int i=0; i < array.length; i++ ){
-            if( find == array[i])
+        for (char anArray : array) {
+            if (find == anArray)
                 return true;
         }
         return false;
@@ -151,9 +151,6 @@ public class FloatUnit implements CloneableType {
 	if( f.getValue() != this.value ){
 	    return false;	    
 	}
-	if( this.units == f.getUnits() || ( this.units != null && this.units.equals( f.getUnits() )) ){
-	    return true;
-	}
-	return false;
+        return this.units == f.getUnits() || (this.units != null && this.units.equals(f.getUnits()));
     }
 }

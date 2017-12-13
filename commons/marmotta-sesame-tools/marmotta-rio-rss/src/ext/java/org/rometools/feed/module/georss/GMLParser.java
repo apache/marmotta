@@ -16,19 +16,12 @@
  */
 package org.rometools.feed.module.georss;
 
-import org.jdom2.Element;
-
 import com.sun.syndication.feed.module.Module;
-import org.rometools.feed.module.georss.geometries.LineString;
-import org.rometools.feed.module.georss.geometries.LinearRing;
-import org.rometools.feed.module.georss.geometries.Point;
-import org.rometools.feed.module.georss.geometries.Polygon;
-import org.rometools.feed.module.georss.geometries.Envelope;
-import org.rometools.feed.module.georss.geometries.Position;
-import org.rometools.feed.module.georss.geometries.PositionList;
 import com.sun.syndication.io.ModuleParser;
+import org.jdom2.Element;
+import org.rometools.feed.module.georss.geometries.*;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * GMLParser is a parser for the GML georss format.
@@ -54,8 +47,7 @@ public class GMLParser implements ModuleParser {
          * @see com.sun.syndication.io.ModuleParser#parse(org.jdom2.Element)
          */
     public Module parse(Element element) {
-        Module geoRssModule = parseGML(element);
-        return geoRssModule;
+        return parseGML(element);
     }
     
     private static PositionList parsePosList(Element element) {
@@ -113,9 +105,8 @@ public class GMLParser implements ModuleParser {
             
             // The internal rings (holes)
             List interiorElementList = polygonElement.getChildren("interior", GeoRSSModule.GML_NS);
-            Iterator it = interiorElementList.iterator();
-            while (it.hasNext()) {
-                Element interiorElement = (Element)it.next();
+            for (Object anInteriorElementList : interiorElementList) {
+                Element interiorElement = (Element) anInteriorElementList;
                 if (interiorElement != null) {
                     Element linearRingElement = interiorElement.getChild("LinearRing", GeoRSSModule.GML_NS);
                     if (linearRingElement != null) {
@@ -127,7 +118,7 @@ public class GMLParser implements ModuleParser {
                         }
                     }
                 }
-                
+
             }
             
             if (poly != null) {

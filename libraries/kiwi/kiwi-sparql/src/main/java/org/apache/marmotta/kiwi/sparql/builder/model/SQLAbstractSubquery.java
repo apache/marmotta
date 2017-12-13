@@ -109,9 +109,8 @@ public abstract class SQLAbstractSubquery extends SQLClause {
             VariableMapping that = (VariableMapping) o;
 
             if (!parentName.equals(that.parentName)) return false;
-            if (!subqueryName.equals(that.subqueryName)) return false;
+            return subqueryName.equals(that.subqueryName);
 
-            return true;
         }
 
         @Override

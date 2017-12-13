@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -34,24 +34,24 @@ public interface MediaContentItem  extends Facade {
      * @return
      */
     @RDF(Namespaces.NS_KIWI_CORE+"hasContentPath")
-    public String getContentPath();
+    String getContentPath();
 
     /**
      * Set the file system path of this content.
      * @param path
      */
-    public void setContentPath(String path);
+    void setContentPath(String path);
 
     /**
      * Return the URI location of the content for this resource
      * @return
      */
     @RDF(Namespaces.NS_KIWI_CORE+"hasContentLocation")
-    public String getContentLocation();
+    String getContentLocation();
 
     /**
      * Set the URI location of the content for this resource
      * @return
      */
-    public void setContentLocation(String location);
+    void setContentLocation(String location);
 }

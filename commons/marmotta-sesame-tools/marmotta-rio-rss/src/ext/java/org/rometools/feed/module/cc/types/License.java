@@ -41,6 +41,7 @@ package org.rometools.feed.module.cc.types;
 
 import com.sun.syndication.feed.impl.EqualsBean;
 import com.sun.syndication.feed.impl.ToStringBean;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.StringTokenizer;
@@ -124,7 +125,7 @@ public class License {
 	//No I am going to try an guess about unknown licenses
 	// This is try and match known CC licenses of other versions or various URLs to
 	// current licenses, then make a new one with the same permissions.
-	if(found == null && uri.startsWith("http://") && uri.toLowerCase().indexOf("creativecommons.org") != -1) {
+	if(found == null && uri.startsWith("http://") && uri.toLowerCase().contains("creativecommons.org")) {
 	    Iterator it = License.lookupLicense.keySet().iterator();
 	    while(it.hasNext()&&(found == null)) {
 		try{
@@ -134,7 +135,7 @@ public class License {
 			StringTokenizer tok = new StringTokenizer( licensePath, "/");
 			String license = tok.nextToken();
 			String version = tok.nextToken();
-			if( uri.toLowerCase().indexOf("creativecommons.org/licenses/"+license) != -1){
+			if(uri.toLowerCase().contains("creativecommons.org/licenses/" + license)){
 			    License current = (License) lookupLicense.get( key );
 			    found = new License( uri, current.getRequires(), current.getPermits() );
 			}

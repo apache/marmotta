@@ -42,13 +42,14 @@ package org.rometools.feed.module.cc.io;
 
 import com.sun.syndication.feed.module.Module;
 import com.sun.syndication.io.ModuleGenerator;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.rometools.feed.module.cc.CreativeCommons;
 import org.rometools.feed.module.cc.CreativeCommonsImpl;
 import org.rometools.feed.module.cc.types.License;
+
 import java.util.HashSet;
 import java.util.Set;
-import org.jdom2.Element;
-import org.jdom2.Namespace;
 
 /**
  * @version $Revision: 1.1 $
@@ -101,33 +102,33 @@ public class CCModuleGenerator implements ModuleGenerator{
 	if( element.getName().equals("channel")){
 	    // Do all licenses list.
 	    License[] all = module.getAllLicenses();
-	    for( int i=0; i < all.length ; i++){
-		Element license = new Element( "License", RSS1 );
-		license.setAttribute( "about", all[i].getValue(), RDF );
-		License.Behaviour[] permits = all[i].getPermits();
-		for( int j=0; permits != null && j < permits.length; j++ ){
-		    Element permit = new Element( "permits", RSS1 );
-		    permit.setAttribute( "resource", permits[j].toString(), RDF);
-		    license.addContent( permit );
-		}
-		License.Behaviour[] requires = all[i].getPermits();
-		for( int j=0; requires != null && j < requires.length; j++ ){
-		    Element permit = new Element( "requires", RSS1 );
-		    permit.setAttribute( "resource", permits[j].toString(), RDF);
-		    license.addContent( permit );
-		}
-		System.out.println("Is Root?"+element.getParentElement());
-		element.getParentElement().addContent( license );
-	    }	    
+        for (License anAll : all) {
+            Element license = new Element("License", RSS1);
+            license.setAttribute("about", anAll.getValue(), RDF);
+            License.Behaviour[] permits = anAll.getPermits();
+            for (int j = 0; permits != null && j < permits.length; j++) {
+                Element permit = new Element("permits", RSS1);
+                permit.setAttribute("resource", permits[j].toString(), RDF);
+                license.addContent(permit);
+            }
+            License.Behaviour[] requires = anAll.getPermits();
+            for (int j = 0; requires != null && j < requires.length; j++) {
+                Element permit = new Element("requires", RSS1);
+                permit.setAttribute("resource", permits[j].toString(), RDF);
+                license.addContent(permit);
+            }
+            System.out.println("Is Root?" + element.getParentElement());
+            element.getParentElement().addContent(license);
+        }
 	}
 	 
 	//Do local licenses
 	License[] licenses = module.getLicenses();
-	for( int i=0; i < licenses.length; i++ ){
-	    Element license = new Element( "license", RSS1 );
-	    license.setAttribute( "resource", licenses[i].getValue(), RDF);
-	    element.addContent( license );
-	}
+        for (License license1 : licenses) {
+            Element license = new Element("license", RSS1);
+            license.setAttribute("resource", license1.getValue(), RDF);
+            element.addContent(license);
+        }
 	
     }
     

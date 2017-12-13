@@ -22,10 +22,8 @@ import com.sun.syndication.feed.module.Module;
 import com.sun.syndication.feed.module.impl.ModuleUtils;
 
 import java.io.Serializable;
-
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -100,7 +98,7 @@ public class Entry implements Cloneable, Serializable, Extendable {
      *
      */
     public List<Person> getAuthors() {
-        return (_authors == null) ? (_authors = new ArrayList<Person>()) : _authors;
+        return (_authors == null) ? (_authors = new ArrayList<>()) : _authors;
     }
 
     /**
@@ -140,7 +138,7 @@ public class Entry implements Cloneable, Serializable, Extendable {
      *         an empty list if none.
      */
     public List<Content> getContents() {
-        return (_contents == null) ? (_contents = new ArrayList<Content>()) : _contents;
+        return (_contents == null) ? (_contents = new ArrayList<>()) : _contents;
     }
 
     /**
@@ -250,9 +248,7 @@ public class Entry implements Cloneable, Serializable, Extendable {
         boolean mediaEntry = false;
         List links = getOtherLinks();
 
-        for (Iterator<Link> it = links.iterator(); it.hasNext();) {
-            Link link = it.next();
-
+        for (Link link : (Iterable<Link>) links) {
             if ("edit-media".equals(link.getRel())) {
                 mediaEntry = true;
 
@@ -330,7 +326,7 @@ public class Entry implements Cloneable, Serializable, Extendable {
      *         an empty list if none.
      */
     public List<Link> getOtherLinks() {
-        return (_otherLinks == null) ? (_otherLinks = new ArrayList<Link>()) : _otherLinks;
+        return (_otherLinks == null) ? (_otherLinks = new ArrayList<>()) : _otherLinks;
     }
 
     /**

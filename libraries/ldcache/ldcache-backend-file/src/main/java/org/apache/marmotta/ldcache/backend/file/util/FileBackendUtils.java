@@ -41,9 +41,8 @@ public class FileBackendUtils {
 	}
 
 	public static File getMetaFile(String resourceURI, File baseDir) {
-		File meta = getResourceFile(baseDir, resourceURI, META_EXT);
 
-		return meta;
+        return getResourceFile(baseDir, resourceURI, META_EXT);
 	}
 
 	private static File getResourceFile(File baseDir, String resourceURI, String ext) {
@@ -63,7 +62,7 @@ public class FileBackendUtils {
 	}
 	
 	public static List<File> listFiles(final File baseDir, final String ext) {
-		List<File> list = new LinkedList<File>();
+		List<File> list = new LinkedList<>();
 		listFiles(baseDir, ext, list);
 		return list;		
 	}
@@ -72,8 +71,7 @@ public class FileBackendUtils {
 		for (File f: baseDir.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File pathname) {
-				if (pathname.isDirectory()) return true;
-				else return pathname.getName().endsWith(ext);
+				return pathname.isDirectory() || pathname.getName().endsWith(ext);
 			}
 		})) {
 			if (f.isDirectory()) {
@@ -110,16 +108,13 @@ public class FileBackendUtils {
         // ensure that the directory where we write the file exists
         metaFile.getParentFile().mkdirs();
 		try {
-			PrintStream ps = new PrintStream(metaFile);
-			try {
+			try (PrintStream ps = new PrintStream(metaFile)) {
 				ps.println(ce.getResource().stringValue());
 				ps.printf("%tQ # last retrieved: %<tF %<tT.%<tL%n", ce.getLastRetrieved());
 				ps.printf("%tQ # expires: %<tF %<tT.%<tL%n", ce.getExpiryDate());
 				ps.printf("%d # %<d updates%n", ce.getUpdateCount());
-                ps.printf("%d # %<d triples%n", ce.getTripleCount());
-                ps.flush();
-			} finally {
-				ps.close();
+				ps.printf("%d # %<d triples%n", ce.getTripleCount());
+				ps.flush();
 			}
 		} catch (FileNotFoundException e) {
 			throw e;

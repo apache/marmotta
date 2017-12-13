@@ -12,7 +12,7 @@ public interface SyndEnclosure extends Cloneable, CopyFrom<SyndEnclosure> {
      * @return the enclosure URL, <b>null</b> if none.
      *
      */
-    public String getUrl();
+    String getUrl();
 
     /**
      * Sets the enclosure URL.
@@ -20,7 +20,7 @@ public interface SyndEnclosure extends Cloneable, CopyFrom<SyndEnclosure> {
      * @param url the enclosure URL to set, <b>null</b> if none.
      *
      */
-    public void setUrl(String url);
+    void setUrl(String url);
 
     /**
      * Returns the enclosure length.
@@ -28,7 +28,7 @@ public interface SyndEnclosure extends Cloneable, CopyFrom<SyndEnclosure> {
      * @return the enclosure length, <b>0</b> if none.
      *
      */
-    public long getLength();
+    long getLength();
 
     /**
      * Sets the enclosure length.
@@ -36,7 +36,7 @@ public interface SyndEnclosure extends Cloneable, CopyFrom<SyndEnclosure> {
      * @param length the enclosure length to set, <b>0</b> if none.
      *
      */
-    public void setLength(long length);
+    void setLength(long length);
 
     /**
      * Returns the enclosure type.
@@ -44,7 +44,7 @@ public interface SyndEnclosure extends Cloneable, CopyFrom<SyndEnclosure> {
      * @return the enclosure type, <b>null</b> if none.
      *
      */
-    public String getType();
+    String getType();
 
     /**
      * Sets the enclosure type.
@@ -52,6 +52,6 @@ public interface SyndEnclosure extends Cloneable, CopyFrom<SyndEnclosure> {
      * @param type the enclosure type to set, <b>null</b> if none.
      *
      */
-    public void setType(String type);
+    void setType(String type);
 
 }

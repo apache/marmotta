@@ -112,10 +112,10 @@ public class Category implements Serializable {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer(this.getName());
+        StringBuilder sb = new StringBuilder(this.getName());
 
         if (this.getSubcategory() != null) {
-            sb.append(" -> " + this.getSubcategory().toString());
+            sb.append(" -> ").append(this.getSubcategory().toString());
         }
 
         return sb.toString();

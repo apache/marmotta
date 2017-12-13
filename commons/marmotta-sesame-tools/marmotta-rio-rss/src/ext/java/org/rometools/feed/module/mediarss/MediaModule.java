@@ -35,17 +35,17 @@ import org.rometools.feed.module.mediarss.types.PlayerReference;
  */
 public interface MediaModule extends Module {
     //the URI of the MediaRSS specification as hosted by yahoo
-    public final static String URI = "http://search.yahoo.com/mrss/";
+    String URI = "http://search.yahoo.com/mrss/";
 
     /**
      * Returns Metadata associated with the feed.
      * @return Returns Metadata associated with the feed.
      */
-    public Metadata getMetadata();
+    Metadata getMetadata();
 
     /**
      * Returns a player reference associated with the feed.
      * @return Returns a player reference associated with the feed.
      */
-    public PlayerReference getPlayer();
+    PlayerReference getPlayer();
 }

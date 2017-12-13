@@ -42,14 +42,13 @@ package org.rometools.feed.module.cc.io;
 
 import com.sun.syndication.feed.module.Module;
 import com.sun.syndication.io.ModuleParser;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.rometools.feed.module.cc.CreativeCommonsImpl;
 import org.rometools.feed.module.cc.types.License;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import org.jdom2.Element;
-import org.jdom2.Namespace;
 
 /**
  *
@@ -77,19 +76,17 @@ public class ModuleParserRSS2 implements ModuleParser {
 		items = root.getChildren("item");
 	    else
 		items = root.getChildren("entry");
-	    
-	    Iterator iit = items.iterator();
-	    while( iit.hasNext() ){
-		Element item = (Element) iit.next();
-		List licenseTags = item.getChildren( "license", NS );
-		Iterator lit = licenseTags.iterator();
-		while(lit.hasNext() ){
-		    Element licenseTag = (Element) lit.next();
-		    License license = License.findByValue( licenseTag.getTextTrim() );
-		    if( !licenses.contains( license ));
-			licenses.add( license );
-		}
-	    }
+
+        for (Object item1 : items) {
+            Element item = (Element) item1;
+            List licenseTags = item.getChildren("license", NS);
+            for (Object licenseTag1 : licenseTags) {
+                Element licenseTag = (Element) licenseTag1;
+                License license = License.findByValue(licenseTag.getTextTrim());
+                if (!licenses.contains(license)) ;
+                licenses.add(license);
+            }
+        }
 	    if( licenses.size() > 0 ){
 		module.setAllLicenses( (License[]) licenses.toArray( new License[0] ) );
 	    }
@@ -97,11 +94,10 @@ public class ModuleParserRSS2 implements ModuleParser {
 	// do element local
 	ArrayList licenses = new ArrayList();
 	List licenseTags = element.getChildren( "license", NS );
-	Iterator it = licenseTags.iterator();
-	while( it.hasNext() ){
-	    Element licenseTag = (Element) it.next();
-	    licenses.add( License.findByValue(licenseTag.getTextTrim() ));
-	}
+        for (Object licenseTag1 : licenseTags) {
+            Element licenseTag = (Element) licenseTag1;
+            licenses.add(License.findByValue(licenseTag.getTextTrim()));
+        }
 	if( licenses.size() > 0 ){
 	    module.setLicenses( (License[]) licenses.toArray( new License[0]));
 	}

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,12 +18,12 @@
 package org.apache.marmotta.ldpath.model.functions.text;
 
 
-import java.util.Collection;
-import java.util.Collections;
-
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Join the string representation of all provided nodes to a single string literal.
@@ -31,10 +31,11 @@ import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
  */
 public class StrJoinFunction<Node> extends SelectorFunction<Node> {
 
-    private final StringTransformer<Node> transformer = new StringTransformer<Node>();
+    private final StringTransformer<Node> transformer = new StringTransformer<>();
 
+    @SafeVarargs
     @Override
-    public Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
+    public final Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
         if ((args.length < 2 || args.length > 4)) {
             throw new IllegalArgumentException("wrong usage: " + getSignature());
         }
