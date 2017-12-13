@@ -96,7 +96,7 @@ public class HTTPUtil {
 
         final HttpPost post = new HttpPost(uriBuilder.build());
 
-        if (StringUtils.isNotBlank(config.getMarmottaUser()) && StringUtils.isNotBlank(config.getMarmottaUser())) {
+        if (StringUtils.isNotBlank(config.getMarmottaUser())) {
             final String credentials = String.format("%s:%s", config.getMarmottaUser(), config.getMarmottaPassword());
             try {
                 final String encoded = DatatypeConverter.printBase64Binary(credentials.getBytes("UTF-8"));
