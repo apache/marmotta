@@ -16,8 +16,8 @@
 #
 
 language: java
-
-sudo: required
+dist: precise
+sudo: false
 
 branches:
   only:
