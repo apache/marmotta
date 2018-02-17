@@ -24,8 +24,8 @@ import org.eclipse.rdf4j.sail.SailConcurrencyTest;
 import org.eclipse.rdf4j.sail.SailException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 /**
@@ -69,14 +69,14 @@ public class KiWiSailConcurrencyTest extends SailConcurrencyTest {
 
     @Override
     @Test
-    @Ignore
+    @Category(LargeConcurrencyTx.class)
     public void testConcurrentAddLargeTxn() throws Exception {
         super.testConcurrentAddLargeTxn();
     }
 
     @Override
     @Test
-    @Ignore
+    @Category(LargeConcurrencyTx.class)
     public void testConcurrentAddLargeTxnRollback() throws Exception {
         super.testConcurrentAddLargeTxnRollback();
     }
