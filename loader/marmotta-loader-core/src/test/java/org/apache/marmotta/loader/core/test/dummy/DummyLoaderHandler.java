@@ -18,18 +18,18 @@
 package org.apache.marmotta.loader.core.test.dummy;
 
 import org.apache.marmotta.loader.api.LoaderHandler;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.model.impl.TreeModel;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.helpers.RDFHandlerBase;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.impl.TreeModel;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.helpers.AbstractRDFHandler;
 
 /**
  * Add file description here!
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class DummyLoaderHandler extends RDFHandlerBase implements LoaderHandler {
+public class DummyLoaderHandler extends AbstractRDFHandler implements LoaderHandler {
 
     private final long sleep;
     private final Model model;
@@ -51,7 +51,7 @@ public class DummyLoaderHandler extends RDFHandlerBase implements LoaderHandler 
      * Initialise the handler, performing any initialisation steps that are necessary before bulk importing can
      * start (e.g. dropping indexes or establishing a connection).
      *
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      */
     @Override
     public void initialise() throws RDFHandlerException {

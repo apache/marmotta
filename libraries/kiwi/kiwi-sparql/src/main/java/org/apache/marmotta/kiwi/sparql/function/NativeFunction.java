@@ -19,7 +19,7 @@ package org.apache.marmotta.kiwi.sparql.function;
 
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.sparql.builder.ValueType;
-import org.openrdf.query.algebra.evaluation.function.Function;
+import org.eclipse.rdf4j.query.algebra.evaluation.function.Function;
 
 /**
  * Specification of extended native function support for KiWi. Subclasses represent Sesame SPARQL functions

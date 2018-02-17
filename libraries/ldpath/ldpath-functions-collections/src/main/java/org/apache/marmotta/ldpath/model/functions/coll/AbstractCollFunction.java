@@ -34,7 +34,7 @@ public abstract class AbstractCollFunction<Node> extends SelectorFunction<Node> 
     }
 
     protected boolean hasType(RDFBackend<Node> backend, Node node, String type) {
-        return backend.listObjects(node, backend.createURI(RDF + "type")).contains(backend.createURI(type));
+        return backend.listObjects(node, backend.createIRI(RDF + "type")).contains(backend.createIRI(type));
     }
 
     protected boolean isNil(NodeBackend<Node> backend, Node node) {

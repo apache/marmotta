@@ -17,14 +17,13 @@
  */
 package org.apache.marmotta.commons.http;
 
-import org.apache.commons.lang3.StringUtils;
-import org.openrdf.query.resultio.QueryResultFormat;
-
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.rdf4j.query.resultio.QueryResultFormat;
 
 /**
  * Add file description here!

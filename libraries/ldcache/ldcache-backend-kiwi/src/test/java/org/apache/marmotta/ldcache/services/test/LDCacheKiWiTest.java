@@ -16,6 +16,8 @@
  */
 package org.apache.marmotta.ldcache.services.test;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
@@ -25,17 +27,14 @@ import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.backend.kiwi.LDCachingKiWiBackend;
 import org.apache.marmotta.ldcache.services.test.ng.BaseLDCacheTest;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This test checks if the ldcache main class works, i.e. the system properly stores cache entries and cached triples.

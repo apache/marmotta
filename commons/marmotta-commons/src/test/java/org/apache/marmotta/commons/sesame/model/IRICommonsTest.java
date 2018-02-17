@@ -17,32 +17,29 @@
  */
 package org.apache.marmotta.commons.sesame.model;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
-
-import org.apache.marmotta.commons.sesame.model.URICommons;
 import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.openrdf.model.URI;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.memory.MemoryStore;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RunWith(Parameterized.class)
-public class URICommonsTest {
+public class IRICommonsTest {
 
 
     private final String prefix;
     private final String local;
-    private URI uri;
+    private IRI uri;
     private String uri_string;
 
     @Parameters(name = "{0}{1}")
@@ -55,7 +52,7 @@ public class URICommonsTest {
         return d;
     }
 
-    public URICommonsTest(String prefix, String local) {
+    public IRICommonsTest(String prefix, String local) {
         this.prefix = prefix;
         this.local = local;
     }
@@ -66,14 +63,14 @@ public class URICommonsTest {
         repository.initialize();
 
         uri_string = prefix + local;
-        uri = repository.getValueFactory().createURI(prefix, local);
+        uri = repository.getValueFactory().createIRI(prefix, local);
 
         repository.shutDown();
     }
 
     @Test
     public void testSplitNamespace() {
-        String[] split = URICommons.splitNamespace(uri_string);
+        String[] split = IRICommons.splitNamespace(uri_string);
 
         assertEquals(2, split.length);
         Assert.assertThat(split, equalTo(new String[] { prefix, local }));
@@ -81,9 +78,9 @@ public class URICommonsTest {
 
     @Test
     public void testCreateCacheKey() {
-        assertEquals(uri_string, URICommons.createCacheKey(uri));
-        assertEquals(uri.stringValue(), URICommons.createCacheKey(uri_string));
-        assertEquals(URICommons.createCacheKey(uri_string), URICommons.createCacheKey(uri));
+        assertEquals(uri_string, IRICommons.createCacheKey(uri));
+        assertEquals(uri.stringValue(), IRICommons.createCacheKey(uri_string));
+        assertEquals(IRICommons.createCacheKey(uri_string), IRICommons.createCacheKey(uri));
     }
 
 }

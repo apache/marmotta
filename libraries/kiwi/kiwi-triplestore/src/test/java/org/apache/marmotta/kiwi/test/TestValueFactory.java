@@ -18,22 +18,38 @@
 package org.apache.marmotta.kiwi.test;
 
 import com.google.common.base.Preconditions;
-import org.apache.marmotta.commons.sesame.model.LiteralCommons;
-import org.apache.marmotta.kiwi.generator.SnowflakeIDGenerator;
-import org.apache.marmotta.kiwi.model.rdf.*;
-import org.joda.time.DateTime;
-import org.openrdf.model.*;
-
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.Date;
 import java.util.Locale;
+import javax.xml.datatype.XMLGregorianCalendar;
+import org.apache.marmotta.commons.sesame.model.LiteralCommons;
+import org.apache.marmotta.kiwi.generator.SnowflakeIDGenerator;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.AbstractValueFactory;
+import org.joda.time.DateTime;
 
 /**
  * A value factory creating KiWi values without requiring a real repository
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class TestValueFactory implements ValueFactory {
+//public class TestValueFactory implements ValueFactory {
+public class TestValueFactory extends AbstractValueFactory {
 
     private SnowflakeIDGenerator idGenerator;
 
@@ -42,37 +58,37 @@ public class TestValueFactory implements ValueFactory {
     }
 
     /**
-     * Creates a new URI from the supplied string-representation.
+     * Creates a new IRI from the supplied string-representation.
      *
-     * @param uri A string-representation of a URI.
-     * @return An object representing the URI.
-     * @throws IllegalArgumentException If the supplied string does not resolve to a legal (absolute) URI.
+     * @param iri A string-representation of a IRI.
+     * @return An object representing the IRI.
+     * @throws IllegalArgumentException If the supplied string does not resolve to a legal (absolute) IRI.
      */
     @Override
-    public URI createURI(String uri) {
-        KiWiUriResource r = new KiWiUriResource(uri, new Date());
+    public IRI createIRI(String iri) {
+        KiWiIriResource r = new KiWiIriResource(iri, new Date());
         r.setId(idGenerator.getId());
 
         return r;
     }
 
     /**
-     * Creates a new URI from the supplied namespace and local name. Calling this
-     * method is funtionally equivalent to calling {@link #createURI(String)
-     * createURI(namespace+localName)}, but allows the ValueFactory to reuse
+     * Creates a new IRI from the supplied namespace and local name. Calling this
+     * method is funtionally equivalent to calling {@link #createIRI(String)
+     * createIRI(namespace+localName)}, but allows the ValueFactory to reuse
      * supplied namespace and local name strings whenever possible. Note that the
-     * values returned by {@link org.openrdf.model.URI#getNamespace()} and
-     * {@link org.openrdf.model.URI#getLocalName()} are not necessarily the same as the values that
+     * values returned by {@link org.eclipse.rdf4j.model.IRI#getNamespace()} and
+     * {@link org.eclipse.rdf4j.model.IRI#getLocalName()} are not necessarily the same as the values that
      * are supplied to this method.
      *
-     * @param namespace The URI's namespace.
-     * @param localName The URI's local name.
+     * @param namespace The IRI's namespace.
+     * @param localName The IRI's local name.
      * @throws IllegalArgumentException If the supplied namespace and localname do not resolve to a legal
-     *                                  (absolute) URI.
+     *                                  (absolute) IRI.
      */
     @Override
-    public URI createURI(String namespace, String localName) {
-        return createURI(namespace+localName);
+    public IRI createIRI(String namespace, String localName) {
+        return createIRI(namespace+localName);
     }
 
     /**
@@ -133,12 +149,12 @@ public class TestValueFactory implements ValueFactory {
      * @param datatype The literal's datatype, or <tt>null</tt> if the literal doesn't
      */
     @Override
-    public Literal createLiteral(String label, URI datatype) {
-        KiWiUriResource t;
-        if(datatype instanceof KiWiUriResource) {
-            t = (KiWiUriResource) datatype;
+    public Literal createLiteral(String label, IRI datatype) {
+        KiWiIriResource t;
+        if(datatype instanceof KiWiIriResource) {
+            t = (KiWiIriResource) datatype;
         } else {
-            t = (KiWiUriResource) createURI(datatype.stringValue());
+            t = (KiWiIriResource) createIRI(datatype.stringValue());
         }
 
         KiWiLiteral l = new KiWiStringLiteral(label, null, t, new Date());
@@ -156,7 +172,7 @@ public class TestValueFactory implements ValueFactory {
      */
     @Override
     public Literal createLiteral(boolean value) {
-        KiWiLiteral l = new KiWiBooleanLiteral(value, (KiWiUriResource) createURI(LiteralCommons.getXSDType(Boolean.class)), new Date());
+        KiWiLiteral l = new KiWiBooleanLiteral(value, (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Boolean.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -171,7 +187,7 @@ public class TestValueFactory implements ValueFactory {
      */
     @Override
     public Literal createLiteral(byte value) {
-        KiWiLiteral l = new KiWiIntLiteral(Long.valueOf(value), (KiWiUriResource) createURI(LiteralCommons.getXSDType(Byte.class)), new Date());
+        KiWiLiteral l = new KiWiIntLiteral(Long.valueOf(value), (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Byte.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -186,7 +202,7 @@ public class TestValueFactory implements ValueFactory {
      */
     @Override
     public Literal createLiteral(short value) {
-        KiWiLiteral l = new KiWiIntLiteral(Long.valueOf(value), (KiWiUriResource) createURI(LiteralCommons.getXSDType(Short.class)), new Date());
+        KiWiLiteral l = new KiWiIntLiteral(Long.valueOf(value), (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Short.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -201,7 +217,7 @@ public class TestValueFactory implements ValueFactory {
      */
     @Override
     public Literal createLiteral(int value) {
-        KiWiLiteral l = new KiWiIntLiteral(Long.valueOf(value), (KiWiUriResource) createURI(LiteralCommons.getXSDType(Integer.class)), new Date());
+        KiWiLiteral l = new KiWiIntLiteral(Long.valueOf(value), (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Integer.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -216,7 +232,7 @@ public class TestValueFactory implements ValueFactory {
      */
     @Override
     public Literal createLiteral(long value) {
-        KiWiLiteral l = new KiWiIntLiteral(Long.valueOf(value), (KiWiUriResource) createURI(LiteralCommons.getXSDType(Long.class)), new Date());
+        KiWiLiteral l = new KiWiIntLiteral(Long.valueOf(value), (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Long.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -231,7 +247,7 @@ public class TestValueFactory implements ValueFactory {
      */
     @Override
     public Literal createLiteral(float value) {
-        KiWiLiteral l = new KiWiDoubleLiteral(Double.valueOf(value), (KiWiUriResource) createURI(LiteralCommons.getXSDType(Float.class)), new Date());
+        KiWiLiteral l = new KiWiDoubleLiteral(Double.valueOf(value), (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Float.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -246,7 +262,7 @@ public class TestValueFactory implements ValueFactory {
      */
     @Override
     public Literal createLiteral(double value) {
-        KiWiLiteral l = new KiWiDoubleLiteral(Double.valueOf(value), (KiWiUriResource) createURI(LiteralCommons.getXSDType(Double.class)), new Date());
+        KiWiLiteral l = new KiWiDoubleLiteral(Double.valueOf(value), (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Double.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -261,7 +277,7 @@ public class TestValueFactory implements ValueFactory {
      */
     @Override
     public Literal createLiteral(XMLGregorianCalendar calendar) {
-        KiWiLiteral l = new KiWiDateLiteral(new DateTime(calendar.toGregorianCalendar()), (KiWiUriResource) createURI(LiteralCommons.getXSDType(Date.class)), new Date());
+        KiWiLiteral l = new KiWiDateLiteral(new DateTime(calendar.toGregorianCalendar()), (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Date.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -276,7 +292,7 @@ public class TestValueFactory implements ValueFactory {
      */
     @Override
     public Literal createLiteral(Date date) {
-        KiWiLiteral l = new KiWiDateLiteral(new DateTime(date), (KiWiUriResource) createURI(LiteralCommons.getXSDType(Date.class)), new Date());
+        KiWiLiteral l = new KiWiDateLiteral(new DateTime(date), (KiWiIriResource) createIRI(LiteralCommons.getXSDType(Date.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;
@@ -291,7 +307,7 @@ public class TestValueFactory implements ValueFactory {
      * @return The created statement.
      */
     @Override
-    public Statement createStatement(Resource subject, URI predicate, Value object) {
+    public Statement createStatement(Resource subject, IRI predicate, Value object) {
         return createStatement(subject, predicate, object, null);
     }
 
@@ -306,13 +322,13 @@ public class TestValueFactory implements ValueFactory {
      * @return The created statement.
      */
     @Override
-    public Statement createStatement(Resource subject, URI predicate, Value object, Resource context) {
+    public Statement createStatement(Resource subject, IRI predicate, Value object, Resource context) {
         Preconditions.checkArgument(subject instanceof KiWiNode);
         Preconditions.checkArgument(predicate instanceof KiWiNode);
         Preconditions.checkArgument(object instanceof KiWiNode);
         Preconditions.checkArgument(context == null || context instanceof KiWiNode);
 
-        KiWiTriple t = new KiWiTriple((KiWiResource)subject,(KiWiUriResource)predicate,(KiWiNode)object,(KiWiResource)context, new Date());
+        KiWiTriple t = new KiWiTriple((KiWiResource)subject,(KiWiIriResource)predicate,(KiWiNode)object,(KiWiResource)context, new Date());
         t.setId(idGenerator.getId());
 
         return t;

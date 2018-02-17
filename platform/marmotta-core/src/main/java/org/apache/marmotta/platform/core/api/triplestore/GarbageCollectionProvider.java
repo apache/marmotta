@@ -17,8 +17,8 @@
 
 package org.apache.marmotta.platform.core.api.triplestore;
 
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.SailException;
+import org.eclipse.rdf4j.sail.Sail;
+import org.eclipse.rdf4j.sail.SailException;
 
 /**
  * This interface can be implemented by services in the backend in case the underlying triple store supports

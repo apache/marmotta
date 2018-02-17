@@ -17,16 +17,16 @@
  */
 package org.apache.marmotta.commons.sesame.contextaware;
 
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.SingletonIteration;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.sail.SailConnection;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.UpdateContext;
-import org.openrdf.sail.helpers.SailConnectionWrapper;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.common.iteration.SingletonIteration;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.sail.SailConnection;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.UpdateContext;
+import org.eclipse.rdf4j.sail.helpers.SailConnectionWrapper;
 
 /**
  * A SAIL connection overriding all provided context values with the default context used when creating the connection
@@ -43,17 +43,17 @@ public class ContextAwareSailConnection extends SailConnectionWrapper {
     }
 
     @Override
-    public CloseableIteration<? extends Statement, SailException> getStatements(Resource subj, URI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
+    public CloseableIteration<? extends Statement, SailException> getStatements(Resource subj, IRI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
         return super.getStatements(subj, pred, obj, includeInferred, context);
     }
 
     @Override
-    public void addStatement(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+    public void addStatement(Resource subj, IRI pred, Value obj, Resource... contexts) throws SailException {
         super.addStatement(subj, pred, obj, context);
     }
 
     @Override
-    public void addStatement(UpdateContext modify, Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+    public void addStatement(UpdateContext modify, Resource subj, IRI pred, Value obj, Resource... contexts) throws SailException {
         super.addStatement(modify, subj, pred, obj, context);
     }
 
@@ -63,12 +63,12 @@ public class ContextAwareSailConnection extends SailConnectionWrapper {
     }
 
     @Override
-    public void removeStatements(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+    public void removeStatements(Resource subj, IRI pred, Value obj, Resource... contexts) throws SailException {
         super.removeStatements(subj, pred, obj, context);
     }
 
     @Override
-    public void removeStatement(UpdateContext modify, Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+    public void removeStatement(UpdateContext modify, Resource subj, IRI pred, Value obj, Resource... contexts) throws SailException {
         super.removeStatement(modify, subj, pred, obj, context);
     }
 

@@ -19,17 +19,6 @@ package org.apache.marmotta.ldpath.ldquery;
 
 import ch.qos.logback.classic.Level;
 import com.fasterxml.jackson.jr.ob.JSON;
-import org.apache.commons.cli.*;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.output.ProxyOutputStream;
-import org.apache.marmotta.ldpath.LDPath;
-import org.apache.marmotta.ldpath.backend.linkeddata.LDCacheBackend;
-import org.apache.marmotta.ldpath.exception.LDPathParseException;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Value;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -37,6 +26,24 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.OptionGroup;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.output.ProxyOutputStream;
+import org.apache.marmotta.ldpath.LDPath;
+import org.apache.marmotta.ldpath.backend.linkeddata.LDCacheBackend;
+import org.apache.marmotta.ldpath.exception.LDPathParseException;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Command line application for querying input from the LinkedDataCloud.
@@ -86,7 +93,7 @@ public class LDQuery {
 
             Resource context = null;
             if(cmd.hasOption("context")) {
-                context = backend.createURI(cmd.getOptionValue("context"));
+                context = backend.createIRI(cmd.getOptionValue("context"));
             }
 
             if(backend != null && context != null) {

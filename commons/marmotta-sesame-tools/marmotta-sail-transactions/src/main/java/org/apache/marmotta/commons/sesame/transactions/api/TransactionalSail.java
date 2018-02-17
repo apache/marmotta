@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.commons.sesame.transactions.api;
 
-import org.openrdf.sail.NotifyingSail;
+import org.eclipse.rdf4j.sail.NotifyingSail;
 
 /**
  * Add file description here!

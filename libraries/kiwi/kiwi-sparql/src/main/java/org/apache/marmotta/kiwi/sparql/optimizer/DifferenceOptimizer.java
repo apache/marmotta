@@ -18,16 +18,21 @@
 package org.apache.marmotta.kiwi.sparql.optimizer;
 
 import com.google.common.collect.Sets;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.Dataset;
-import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.evaluation.QueryOptimizer;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashSet;
 import java.util.Set;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.Dataset;
+import org.eclipse.rdf4j.query.algebra.Difference;
+import org.eclipse.rdf4j.query.algebra.Exists;
+import org.eclipse.rdf4j.query.algebra.Filter;
+import org.eclipse.rdf4j.query.algebra.Not;
+import org.eclipse.rdf4j.query.algebra.TupleExpr;
+import org.eclipse.rdf4j.query.algebra.ValueExpr;
+import org.eclipse.rdf4j.query.algebra.Var;
+import org.eclipse.rdf4j.query.algebra.evaluation.QueryOptimizer;
+import org.eclipse.rdf4j.query.algebra.helpers.AbstractQueryModelVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This optimizer replaces occurrences of Difference with constructs that can be translated to SQL more easily:
@@ -50,7 +55,7 @@ public class DifferenceOptimizer implements QueryOptimizer {
     }
 
 
-    private static class DifferenceReplacer extends QueryModelVisitorBase<RuntimeException> {
+    private static class DifferenceReplacer extends AbstractQueryModelVisitor<RuntimeException> {
 
         @Override
         public void meet(Difference node) throws RuntimeException {
@@ -76,7 +81,7 @@ public class DifferenceOptimizer implements QueryOptimizer {
     }
 
 
-    private static class VariableFinder extends QueryModelVisitorBase<RuntimeException> {
+    private static class VariableFinder extends AbstractQueryModelVisitor<RuntimeException> {
         Set<String> variables = new HashSet<>();
 
         public VariableFinder(TupleExpr expr) {

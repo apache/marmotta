@@ -16,19 +16,18 @@
  */
 package org.apache.marmotta.kiwi.test.sesame;
 
+import java.sql.SQLException;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.sail.SailException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openrdf.model.Literal;
-import org.openrdf.sail.SailException;
-
-import java.sql.SQLException;
 
 /**
  * Tests for testing locales against the KiWi Triple store 
@@ -69,10 +68,10 @@ public class KiWiLocaleTest  {
     public void createBCP47LiteralsTests() {
     	Literal enLiteral = vf.createLiteral("Hungary", "en");
     	Assert.assertEquals("Hungary", enLiteral.getLabel());
-    	Assert.assertEquals("en", enLiteral.getLanguage());
+    	Assert.assertEquals("en", enLiteral.getLanguage().orElse(null));
     	Literal warLiteral = vf.createLiteral("Hungary", "war");
     	Assert.assertEquals("Hungary", warLiteral.getLabel());
-    	Assert.assertEquals("war", warLiteral.getLanguage());
+    	Assert.assertEquals("war", warLiteral.getLanguage().orElse(null));
     }
 
     /** 
@@ -82,7 +81,7 @@ public class KiWiLocaleTest  {
     public void createBCP47LiteralsInvalidTests() {
     	Literal invalidLangLiteral = vf.createLiteral("Hungary", "invalid-bcp47-languagetag");
     	Assert.assertEquals("Hungary", invalidLangLiteral.getLabel());
-    	Assert.assertNull(invalidLangLiteral.getLanguage());
+        Assert.assertFalse(invalidLangLiteral.getLanguage().isPresent());
     }
 
 //    /** 

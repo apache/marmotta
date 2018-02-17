@@ -17,12 +17,34 @@
 
 package org.apache.marmotta.kiwi.test.externalizer;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Random;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.commons.vocabulary.XSD;
-import org.apache.marmotta.kiwi.infinispan.externalizer.*;
+import org.apache.marmotta.kiwi.infinispan.externalizer.BNodeExternalizer;
+import org.apache.marmotta.kiwi.infinispan.externalizer.BooleanLiteralExternalizer;
+import org.apache.marmotta.kiwi.infinispan.externalizer.DateLiteralExternalizer;
+import org.apache.marmotta.kiwi.infinispan.externalizer.DoubleLiteralExternalizer;
+import org.apache.marmotta.kiwi.infinispan.externalizer.IntLiteralExternalizer;
+import org.apache.marmotta.kiwi.infinispan.externalizer.StringLiteralExternalizer;
+import org.apache.marmotta.kiwi.infinispan.externalizer.TripleExternalizer;
+import org.apache.marmotta.kiwi.infinispan.externalizer.UriExternalizer;
 import org.apache.marmotta.kiwi.infinispan.remote.CustomJBossMarshaller;
-import org.apache.marmotta.kiwi.model.rdf.*;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.test.TestValueFactory;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.OWL;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.marshall.StreamingMarshaller;
 import org.infinispan.configuration.cache.CacheMode;
@@ -35,15 +57,8 @@ import org.infinispan.manager.EmbeddedCacheManager;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.vocabulary.OWL;
-import org.openrdf.model.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.util.Random;
 
 /**
  * Test the different externalizer implementations we provide for Infinispan
@@ -96,15 +111,15 @@ public class ExternalizerTest {
 
 
     @Test
-    public void testUriResource() throws Exception {
-        marshall((KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8)), new UriExternalizer());
+    public void testIriResource() throws Exception {
+        marshall((KiWiIriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8)), new UriExternalizer());
     }
 
     @Test
-    public void testCompressedUriResource() throws Exception {
-        marshall((KiWiUriResource) valueFactory.createURI(XSD.Double.stringValue()), new UriExternalizer());
-        marshall((KiWiUriResource) valueFactory.createURI(RDFS.LABEL.stringValue()), new UriExternalizer());
-        marshall((KiWiUriResource) valueFactory.createURI(OWL.SAMEAS.stringValue()), new UriExternalizer());
+    public void testCompressedIriResource() throws Exception {
+        marshall((KiWiIriResource) valueFactory.createIRI(XSD.Double.stringValue()), new UriExternalizer());
+        marshall((KiWiIriResource) valueFactory.createIRI(RDFS.LABEL.stringValue()), new UriExternalizer());
+        marshall((KiWiIriResource) valueFactory.createIRI(OWL.SAMEAS.stringValue()), new UriExternalizer());
     }
 
 
@@ -131,7 +146,7 @@ public class ExternalizerTest {
 
     @Test
     public void testTypeLiteral() throws Exception {
-        marshall((KiWiStringLiteral) valueFactory.createLiteral(RandomStringUtils.randomAscii(40),valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8))), new StringLiteralExternalizer());
+        marshall((KiWiStringLiteral) valueFactory.createLiteral(RandomStringUtils.randomAscii(40),valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8))), new StringLiteralExternalizer());
     }
 
 
@@ -143,8 +158,8 @@ public class ExternalizerTest {
 
     @Test
     public void testTriple() throws Exception {
-        KiWiUriResource s = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
-        KiWiUriResource p = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiIriResource s = (KiWiIriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiIriResource p = (KiWiIriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
         KiWiNode o = (KiWiNode) randomNode();
         KiWiTriple t = (KiWiTriple) valueFactory.createStatement(s,p,o);
 
@@ -153,9 +168,9 @@ public class ExternalizerTest {
 
     @Test
     public void testPrefixCompressedTriple() throws Exception {
-        KiWiUriResource s = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
-        KiWiUriResource p = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
-        KiWiUriResource o = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiIriResource s = (KiWiIriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiIriResource p = (KiWiIriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiIriResource o = (KiWiIriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
         KiWiTriple t = (KiWiTriple) valueFactory.createStatement(s,p,o);
 
         marshall(t, new TripleExternalizer());
@@ -229,7 +244,7 @@ public class ExternalizerTest {
     protected Value randomNode() {
         Value object;
         switch(rnd.nextInt(6)) {
-            case 0: object = valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+            case 0: object = valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
                 break;
             case 1: object = valueFactory.createBNode();
                 break;
@@ -241,7 +256,7 @@ public class ExternalizerTest {
                 break;
             case 5: object = valueFactory.createLiteral(rnd.nextBoolean());
                 break;
-            default: object = valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+            default: object = valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
                 break;
 
         }

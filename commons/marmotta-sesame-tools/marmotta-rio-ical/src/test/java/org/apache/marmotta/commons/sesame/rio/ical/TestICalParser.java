@@ -13,32 +13,29 @@
  */
 package org.apache.marmotta.commons.sesame.rio.ical;
 
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import static java.util.Arrays.asList;
+import java.util.Collection;
+import net.fortuna.ical4j.util.CompatibilityHints;
+import org.apache.commons.io.IOUtils;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import static org.hamcrest.CoreMatchers.everyItem;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
-
-import info.aduna.iteration.Iterations;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import net.fortuna.ical4j.util.CompatibilityHints;
-
-import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +95,7 @@ public class TestICalParser {
         int count = Iterations.asList(connection.getStatements(null, null, null, false)).size();
         assertTrue(count > 0);
 
-        BooleanQuery sparqlQuery = (BooleanQuery)connection.prepareQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
+        BooleanQuery sparqlQuery = (BooleanQuery)connection.prepareQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql,Charset.defaultCharset()));
         assertTrue("SPARQL query evaluation for "+fileName+" failed",sparqlQuery.evaluate());
 
         connection.close();

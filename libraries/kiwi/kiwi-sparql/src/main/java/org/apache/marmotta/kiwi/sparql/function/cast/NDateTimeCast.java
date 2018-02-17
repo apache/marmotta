@@ -23,7 +23,7 @@ import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
-import org.openrdf.query.algebra.evaluation.function.DateTimeCast;
+import org.eclipse.rdf4j.query.algebra.evaluation.function.xsd.DateTimeCast;
 
 /**
  * Add file description here!

@@ -17,7 +17,6 @@
 
 package org.apache.marmotta.kiwi.sparql.sail;
 
-import info.aduna.iteration.CloseableIteration;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.marmotta.kiwi.sparql.evaluation.KiWiEvaluationStatistics;
@@ -26,17 +25,23 @@ import org.apache.marmotta.kiwi.sparql.evaluation.KiWiTripleSource;
 import org.apache.marmotta.kiwi.sparql.optimizer.DifferenceOptimizer;
 import org.apache.marmotta.kiwi.sparql.optimizer.DistinctLimitOptimizer;
 import org.apache.marmotta.kiwi.sparql.optimizer.NativeFilterOptimizer;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.Dataset;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.algebra.QueryRoot;
-import org.openrdf.query.algebra.TupleExpr;
-import org.openrdf.query.algebra.evaluation.EvaluationStrategy;
-import org.openrdf.query.algebra.evaluation.impl.*;
-import org.openrdf.query.impl.EmptyBindingSet;
-import org.openrdf.sail.NotifyingSailConnection;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.NotifyingSailConnectionWrapper;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.Dataset;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.algebra.QueryRoot;
+import org.eclipse.rdf4j.query.algebra.TupleExpr;
+import org.eclipse.rdf4j.query.algebra.evaluation.EvaluationStrategy;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.BindingAssigner;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.CompareOptimizer;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.ConjunctiveConstraintSplitter;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.IterativeEvaluationOptimizer;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.QueryJoinOptimizer;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.QueryModelNormalizer;
+import org.eclipse.rdf4j.query.impl.EmptyBindingSet;
+import org.eclipse.rdf4j.sail.NotifyingSailConnection;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.NotifyingSailConnectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

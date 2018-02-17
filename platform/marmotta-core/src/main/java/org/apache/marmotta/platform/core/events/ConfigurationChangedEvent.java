@@ -21,9 +21,10 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
+ * <p>
  * An event indicating that the configuration has been updated. Takes the configuration key as argument
  *
- * <p/>
+ * </p>
  * KiWiUser: sschaffe
  */
 public class ConfigurationChangedEvent {

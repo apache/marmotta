@@ -19,17 +19,16 @@ package org.apache.marmotta.commons.sesame.model;
 
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
-import org.joda.time.DateTime;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.joda.time.DateTime;
 
 /**
  * Utility methods for working with literals.
@@ -54,10 +53,10 @@ public class LiteralCommons {
 	 *
 	 * @param content  string content representing the literal (can be an MD5 sum for binary types)
 	 * @param language language of the literal (optional)
-	 * @param type     datatype URI of the literal (optional)
+	 * @param type     datatype IRI of the literal (optional)
 	 * @return a 64bit hash key for the literal
 	 */
-    public static String createCacheKey(String content, Locale language, URI type) {
+    public static String createCacheKey(String content, Locale language, IRI type) {
 		return createCacheKey(content, language != null ? language.getLanguage() : null, type != null ? type.stringValue() : null);
 	}
 
@@ -66,7 +65,7 @@ public class LiteralCommons {
      *
      * @param content  string content representing the literal (can be an MD5 sum for binary types)
      * @param language language of the literal (optional)
-     * @param type     datatype URI of the literal (optional)
+     * @param type     datatype IRI of the literal (optional)
      * @return a 64bit hash key for the literal
      */
     public static String createCacheKey(String content, Locale language, String type) {
@@ -78,7 +77,7 @@ public class LiteralCommons {
      * to a XMLGregorianCalendar with UTC timezone and then calls the method above.
      *
      * @param date date object of the date literal
-     * @param type datatype URI of the literal
+     * @param type datatype IRI of the literal
      * @return a 64bit hash key for the literal
      */
     public static String createCacheKey(DateTime date, String type) {
@@ -91,13 +90,13 @@ public class LiteralCommons {
 
     /**
      * Create a cache key for the literal passed as argument. Takes content, language
-     * and datatype URI as parameter to create a 64bit hash.
+     * and datatype IRI as parameter to create a 64bit hash.
      *
      * @param l the literal to create the hash for
      * @return a 64bit hash key for the literal
      */
     public static String createCacheKey(Literal l) {
-        return createCacheKey(l.getLabel(), l.getLanguage(), l.getDatatype() != null ? l.getDatatype().stringValue() : null);
+        return createCacheKey(l.getLabel(), l.getLanguage().orElse(null), l.getDatatype() != null ? l.getDatatype().stringValue() : null);
     }
 
 
@@ -106,7 +105,7 @@ public class LiteralCommons {
      *
      * @param content  string content representing the literal (can be an MD5 sum for binary types)
      * @param language language of the literal (optional)
-     * @param type     datatype URI of the literal (optional)
+     * @param type     datatype IRI of the literal (optional)
      * @return a 64bit hash key for the literal
      */
     public static String createCacheKey(String content, String language, String type) {
@@ -114,10 +113,16 @@ public class LiteralCommons {
         hasher.putString(content, Charset.defaultCharset());
         if(type != null) {
             hasher.putString(type, Charset.defaultCharset());
+        } else {
+            // Since Sesame 2.8 all literals are datatyped, so when a null type is received, it must be replaced with default values (xsd:string or rdf:langString).
+            // Details: https://web.archive.org/web/20160412201829/http://rdf4j.org:80/sesame/2.8/docs/articles/upgrade-notes.docbook?view
+            if (language==null) type=getXSDType(String.class);
+            else type=getRDFLangStringType();
+            hasher.putString(type, Charset.defaultCharset());
         }
         if(language != null) {
             hasher.putString(language.toLowerCase(), Charset.defaultCharset());
-        }
+        } 
         return hasher.hash().toString();
     }
 

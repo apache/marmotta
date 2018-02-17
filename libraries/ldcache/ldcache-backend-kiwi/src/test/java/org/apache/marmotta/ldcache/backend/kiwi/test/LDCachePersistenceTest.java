@@ -17,9 +17,12 @@
  */
 package org.apache.marmotta.ldcache.backend.kiwi.test;
 
-import info.aduna.iteration.CloseableIteration;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
@@ -28,21 +31,20 @@ import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.ldcache.backend.kiwi.model.KiWiCacheEntry;
 import org.apache.marmotta.ldcache.backend.kiwi.persistence.LDCachingKiWiPersistence;
 import org.apache.marmotta.ldcache.backend.kiwi.persistence.LDCachingKiWiPersistenceConnection;
-import org.junit.*;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import static org.hamcrest.Matchers.hasItems;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.hamcrest.Matchers.hasItems;
 
 /**
  * This test checks if the database persistence for the ldcache kiwi backend functionality works properly.
@@ -179,8 +181,8 @@ public class LDCachePersistenceTest {
     public void testCreateListEntries() throws Exception {
         LDCachingKiWiPersistenceConnection connection = vpersistence.getConnection();
         try {
-            KiWiUriResource subject1  = new KiWiUriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
-            KiWiUriResource subject2  = new KiWiUriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource subject1  = new KiWiIriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource subject2  = new KiWiIriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
 
             connection.storeNode(subject1);
             connection.storeNode(subject2);
@@ -240,8 +242,8 @@ public class LDCachePersistenceTest {
     public void testCreateListExpired() throws Exception {
         LDCachingKiWiPersistenceConnection connection = vpersistence.getConnection();
         try {
-            KiWiUriResource subject1  = new KiWiUriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
-            KiWiUriResource subject2  = new KiWiUriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource subject1  = new KiWiIriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource subject2  = new KiWiIriResource("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
 
             connection.storeNode(subject1);
             connection.storeNode(subject2);
@@ -296,6 +298,8 @@ public class LDCachePersistenceTest {
     /**
      * Workaround for https://openrdf.atlassian.net/browse/SES-1702 in Sesame 2.7.0-beta1
      * @param <E>
+     * @param <X>
+     * @param result
      * @return
      */
     public static <E,X extends Exception> List<E> asList(CloseableIteration<E,X> result) throws RepositoryException {

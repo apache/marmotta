@@ -17,37 +17,55 @@
  */
 package org.apache.marmotta.kiwi.sail;
 
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.IllformedLocaleException;
+import java.util.Locale;
+import java.util.Random;
+import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.tripletable.IntArray;
-import org.apache.marmotta.kiwi.model.rdf.*;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.registry.CacheTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.DBTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.KiWiTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.LocalTripleRegistry;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.AbstractValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
-import org.openrdf.model.*;
-import org.openrdf.model.impl.ContextStatementImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.sql.SQLException;
-import java.util.*;
 
 /**
  * Add file description here!
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class KiWiValueFactory implements ValueFactory {
+public class KiWiValueFactory extends AbstractValueFactory {
 
     private static Logger log = LoggerFactory.getLogger(KiWiValueFactory.class);
 
     private Random anonIdGenerator;
-
 
     private KiWiStore store;
 
@@ -61,22 +79,22 @@ public class KiWiValueFactory implements ValueFactory {
         switch (store.getPersistence().getConfiguration().getRegistryStrategy()) {
             case DATABASE:
                 log.info("KiWi Value Factory: database registry");
-                registry        = new DBTripleRegistry(store);
+                registry = new DBTripleRegistry(store);
                 break;
             case CACHE:
                 log.info("KiWi Value Factory: cache registry");
-                registry        = new CacheTripleRegistry(store.getPersistence().getCacheManager());
+                registry = new CacheTripleRegistry(store.getPersistence().getCacheManager());
                 break;
             case LOCAL:
                 log.info("KiWi Value Factory: in-memory registry");
-                registry        = new LocalTripleRegistry();
+                registry = new LocalTripleRegistry();
                 break;
             default:
                 log.info("KiWi Value Factory: in-memory registry");
-                registry        = new LocalTripleRegistry();
+                registry = new LocalTripleRegistry();
         }
 
-        this.store          = store;
+        this.store = store;
         this.defaultContext = defaultContext;
     }
 
@@ -85,7 +103,7 @@ public class KiWiValueFactory implements ValueFactory {
             KiWiConnection connection = store.getPersistence().getConnection();
             connection.setAutoCommit(true);
             return connection;
-        } catch(SQLException ex) {
+        } catch (SQLException ex) {
             log.error("could not acquire database connection", ex);
             throw new RuntimeException(ex);
         }
@@ -107,37 +125,37 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public BNode createBNode() {
-        return createBNode(Long.toHexString(System.currentTimeMillis())+Integer.toHexString(anonIdGenerator.nextInt(1000)));
+        return createBNode(Long.toHexString(System.currentTimeMillis()) + Integer.toHexString(anonIdGenerator.nextInt(1000)));
     }
 
     /**
-     * Creates a new URI from the supplied string-representation.
+     * Creates a new IRI from the supplied string-representation.
      *
-     * @param uri A string-representation of a URI.
-     * @return An object representing the URI.
+     * @param iri A string-representation of a IRI.
+     * @return An object representing the IRI.
      */
     @Override
-    public URI createURI(String uri) {
+    public IRI createIRI(String iri) {
         KiWiConnection connection = aqcuireConnection();
         try {
             // first look in the registry for newly created resources if the resource has already been created and
             // is still volatile
-            KiWiUriResource result = connection.loadUriResource(uri);
+            KiWiIriResource result = connection.loadUriResource(iri);
 
-            if(result == null) {
-                result = new KiWiUriResource(uri);
+            if (result == null) {
+                result = new KiWiIriResource(iri);
 
                 connection.storeNode(result);
 
             }
-            if(result.getId() < 0) {
+            if (result.getId() < 0) {
                 log.error("node ID is null!");
             }
 
             return result;
         } catch (SQLException e) {
-            log.error("database error, could not load URI resource",e);
-            throw new IllegalStateException("database error, could not load URI resource",e);
+            log.error("database error, could not load IRI resource", e);
+            throw new IllegalStateException("database error, could not load IRI resource", e);
         } finally {
             releaseConnection(connection);
         }
@@ -145,22 +163,23 @@ public class KiWiValueFactory implements ValueFactory {
     }
 
     /**
-     * Creates a new URI from the supplied namespace and local name. Calling this
-     * method is funtionally equivalent to calling
-     * {@link #createURI(String) createURI(namespace+localName)}, but allows the
+     * Creates a new IRI from the supplied namespace and local name. Calling
+     * this method is funtionally equivalent to calling
+     * {@link #createIRI(String) createIRI(namespace+localName)}, but allows the
      * ValueFactory to reuse supplied namespace and local name strings whenever
-     * possible. Note that the values returned by {@link org.openrdf.model.URI#getNamespace()} and
-     * {@link org.openrdf.model.URI#getLocalName()} are not necessarily the same as the values that
-     * are supplied to this method.
+     * possible. Note that the values returned by
+     * {@link org.eclipse.rdf4j.model.IRI#getNamespace()} and
+     * {@link org.eclipse.rdf4j.model.IRI#getLocalName()} are not necessarily the same
+     * as the values that are supplied to this method.
      *
-     * @param namespace The URI's namespace.
-     * @param localName The URI's local name.
-     * @throws IllegalArgumentException If the supplied namespace and localname do not resolve to a legal
-     *                                  (absolute) URI.
+     * @param namespace The IRI's namespace.
+     * @param localName The IRI's local name.
+     * @throws IllegalArgumentException If the supplied namespace and localname
+     * do not resolve to a legal (absolute) IRI.
      */
     @Override
-    public URI createURI(String namespace, String localName) {
-        return createURI(namespace+localName);
+    public IRI createIRI(String namespace, String localName) {
+        return createIRI(namespace + localName);
     }
 
     /**
@@ -177,19 +196,19 @@ public class KiWiValueFactory implements ValueFactory {
             // is still volatile
             KiWiAnonResource result = connection.loadAnonResource(nodeID);
 
-            if(result == null) {
+            if (result == null) {
                 result = new KiWiAnonResource(nodeID);
 
                 connection.storeNode(result);
             }
-            if(result.getId() < 0) {
+            if (result.getId() < 0) {
                 log.error("node ID is null!");
             }
 
             return result;
         } catch (SQLException e) {
-            log.error("database error, could not load anonymous resource",e);
-            throw new IllegalStateException("database error, could not load anonymous resource",e);
+            log.error("database error, could not load anonymous resource", e);
+            throw new IllegalStateException("database error, could not load anonymous resource", e);
         } finally {
             releaseConnection(connection);
         }
@@ -207,13 +226,14 @@ public class KiWiValueFactory implements ValueFactory {
     }
 
     /**
-     * Creates a typed {@link org.openrdf.model.Literal} out of the supplied object, mapping the
-     * runtime type of the object to the appropriate XML Schema type. If no
-     * mapping is available, the method returns a literal with the string
-     * representation of the supplied object as the value, and
-     * {@link org.openrdf.model.vocabulary.XMLSchema#STRING} as the datatype. Recognized types are
-     * {@link Boolean}, {@link Byte}, {@link Double}, {@link Float},
-     * {@link Integer}, {@link Long}, {@link Short}, {@link javax.xml.datatype.XMLGregorianCalendar }
+     * Creates a typed {@link org.eclipse.rdf4j.model.Literal} out of the supplied
+     * object, mapping the runtime type of the object to the appropriate XML
+     * Schema type. If no mapping is available, the method returns a literal
+     * with the string representation of the supplied object as the value, and
+     * {@link org.eclipse.rdf4j.model.vocabulary.XMLSchema#STRING} as the datatype.
+     * Recognized types are      {@link Boolean}, {@link Byte}, {@link Double}, {@link Float},
+     * {@link Integer}, {@link Long}, {@link Short}, {@link javax.xml.datatype.XMLGregorianCalendar
+     * }
      * , and {@link java.util.Date}.
      *
      * @param object an object to be converted to a typed literal.
@@ -221,10 +241,10 @@ public class KiWiValueFactory implements ValueFactory {
      * @since 2.7.0
      */
     public Literal createLiteral(Object object) {
-        if(object instanceof XMLGregorianCalendar) {
-            return createLiteral((XMLGregorianCalendar)object);
+        if (object instanceof XMLGregorianCalendar) {
+            return createLiteral((XMLGregorianCalendar) object);
         }
-        return createLiteral(object,null,LiteralCommons.getXSDType(object.getClass()));
+        return createLiteral(object, null, LiteralCommons.getXSDType(object.getClass()));
     }
 
     /**
@@ -242,9 +262,9 @@ public class KiWiValueFactory implements ValueFactory {
     /**
      * Creates a new literal with the supplied label and language attribute.
      *
-     * @param label    The literal's label.
-     * @param language The literal's language attribute, or <tt>null</tt> if the literal
-     *                 doesn't have a language.
+     * @param label The literal's label.
+     * @param language The literal's language attribute, or <tt>null</tt> if the
+     * literal doesn't have a language.
      */
     @Override
     public Literal createLiteral(String label, String language) {
@@ -256,19 +276,20 @@ public class KiWiValueFactory implements ValueFactory {
     /**
      * Creates a new literal with the supplied label and datatype.
      *
-     * @param label    The literal's label.
-     * @param datatype The literal's datatype, or <tt>null</tt> if the literal doesn't
-     *                 have a datatype.
+     * @param label The literal's label.
+     * @param datatype The literal's datatype, or <tt>null</tt> if the literal
+     * doesn't have a datatype.
      */
     @Override
-    public Literal createLiteral(String label, URI datatype) {
-        return createLiteral(label,null,datatype.stringValue());
+    public Literal createLiteral(String label, IRI datatype) {
+        return createLiteral(label, null, datatype.stringValue());
     }
-
-
+    
+    
     /**
-     * Internal createLiteral method for different datatypes. This method distinguishes based on the Java class
-     * type and the type argument passed as argument how to load and possibly create the new literal.
+     * Internal createLiteral method for different datatypes. This method
+     * distinguishes based on the Java class type and the type argument passed
+     * as argument how to load and possibly create the new literal.
      *
      * @param value
      * @param lang
@@ -278,7 +299,7 @@ public class KiWiValueFactory implements ValueFactory {
      */
     private <T> KiWiLiteral createLiteral(T value, String lang, String type) {
         Locale locale;
-        if(lang != null) {
+        if (lang != null) {
             try {
                 Locale.Builder builder = new Locale.Builder();
                 builder.setLanguageTag(lang);
@@ -292,30 +313,29 @@ public class KiWiValueFactory implements ValueFactory {
             locale = null;
         }
 
+        //Since Sesame 2.8 all literals are datatyped so when a null type is received it must be replaced with default values (xsd:string or rdf:langString)
+        //More details: https://web.archive.org/web/20160412201829/http://rdf4j.org:80/sesame/2.8/docs/articles/upgrade-notes.docbook?view
+        if (type == null) {
+            type = lang != null ? LiteralCommons.getRDFLangStringType() : LiteralCommons.getXSDType(String.class);
+        }
+
         KiWiLiteral result;
 
-        final KiWiUriResource rtype = type==null ? null: (KiWiUriResource)createURI(type);
+        final KiWiIriResource rtype = (KiWiIriResource) createIRI(type);
 
         final KiWiConnection connection = aqcuireConnection();
         try {
 
             try {
                 // differentiate between the different types of the value
-                if (type == null) {
-                    // FIXME: MARMOTTA-39 (this is to avoid a NullPointerException in the following if-clauses)
-                    result = connection.loadLiteral(value.toString(), lang, null);
-
-                    if(result == null) {
-                        result = new KiWiStringLiteral(value.toString(), locale, null);
-                    }
-                } else if(value instanceof Date || value instanceof DateTime ||
-                        type.equals(Namespaces.NS_XSD+"dateTime") || type.equals(Namespaces.NS_XSD+"date") ||
-                        type.equals(Namespaces.NS_XSD+"time")) {
+                if (value instanceof Date || value instanceof DateTime
+                        || type.equals(Namespaces.NS_XSD + "dateTime") || type.equals(Namespaces.NS_XSD + "date")
+                        || type.equals(Namespaces.NS_XSD + "time")) {
                     // parse if necessary
                     final DateTime dvalue;
-                    if(value instanceof DateTime) {
+                    if (value instanceof DateTime) {
                         dvalue = ((DateTime) value).withMillisOfDay(0);
-                    } else if(value instanceof Date || value instanceof Calendar) {
+                    } else if (value instanceof Date || value instanceof Calendar) {
                         dvalue = new DateTime(value);
                     } else {
                         dvalue = ISODateTimeFormat.dateTimeParser().withOffsetParsed().parseDateTime(value.toString()).withMillisOfSecond(0);
@@ -323,91 +343,87 @@ public class KiWiValueFactory implements ValueFactory {
 
                     result = connection.loadLiteral(dvalue);
 
-                    if(result == null) {
-                        result= new KiWiDateLiteral(dvalue, rtype);
+                    if (result == null) {
+                        result = new KiWiDateLiteral(dvalue, rtype);
                     }
-                } else if(Integer.class.equals(value.getClass()) || int.class.equals(value.getClass())  ||
-                        Long.class.equals(value.getClass())    || long.class.equals(value.getClass()) ||
-                        type.equals(Namespaces.NS_XSD+"integer") || type.equals(Namespaces.NS_XSD+"long")) {
+                } else if (Integer.class.equals(value.getClass()) || int.class.equals(value.getClass())
+                        || Long.class.equals(value.getClass()) || long.class.equals(value.getClass())
+                        || type.equals(Namespaces.NS_XSD + "integer") || type.equals(Namespaces.NS_XSD + "long")) {
                     long ivalue = 0;
-                    if(Integer.class.equals(value.getClass()) || int.class.equals(value.getClass())) {
-                        ivalue = (Integer)value;
-                    } else if(Long.class.equals(value.getClass()) || long.class.equals(value.getClass())) {
-                        ivalue = (Long)value;
+                    if (Integer.class.equals(value.getClass()) || int.class.equals(value.getClass())) {
+                        ivalue = (Integer) value;
+                    } else if (Long.class.equals(value.getClass()) || long.class.equals(value.getClass())) {
+                        ivalue = (Long) value;
                     } else {
                         ivalue = Long.parseLong(value.toString());
                     }
 
-
                     result = connection.loadLiteral(ivalue);
 
-                    if(result == null) {
-                        result= new KiWiIntLiteral(ivalue, rtype);
+                    if (result == null) {
+                        result = new KiWiIntLiteral(ivalue, rtype);
                     }
-                } else if(Double.class.equals(value.getClass())   || double.class.equals(value.getClass())  ||
-                        Float.class.equals(value.getClass())    || float.class.equals(value.getClass()) ||
-                        type.equals(Namespaces.NS_XSD+"double") || type.equals(Namespaces.NS_XSD+"float") ||
-                        type.equals(Namespaces.NS_XSD+"decimal")) {
+                } else if (Double.class.equals(value.getClass()) || double.class.equals(value.getClass())
+                        || Float.class.equals(value.getClass()) || float.class.equals(value.getClass())
+                        || type.equals(Namespaces.NS_XSD + "double") || type.equals(Namespaces.NS_XSD + "float")
+                        || type.equals(Namespaces.NS_XSD + "decimal")) {
                     double dvalue = 0.0;
-                    if(Float.class.equals(value.getClass()) || float.class.equals(value.getClass())) {
-                        dvalue = (Float)value;
-                    } else if(Double.class.equals(value.getClass()) || double.class.equals(value.getClass())) {
-                        dvalue = (Double)value;
+                    if (Float.class.equals(value.getClass()) || float.class.equals(value.getClass())) {
+                        dvalue = (Float) value;
+                    } else if (Double.class.equals(value.getClass()) || double.class.equals(value.getClass())) {
+                        dvalue = (Double) value;
                     } else {
                         dvalue = Double.parseDouble(value.toString());
                     }
 
-
                     result = connection.loadLiteral(dvalue);
 
-                    if(result == null) {
-                        result= new KiWiDoubleLiteral(dvalue, rtype);
+                    if (result == null) {
+                        result = new KiWiDoubleLiteral(dvalue, rtype);
                     }
-                } else if(Boolean.class.equals(value.getClass())   || boolean.class.equals(value.getClass())  ||
-                        type.equals(Namespaces.NS_XSD+"boolean")) {
+                } else if (Boolean.class.equals(value.getClass()) || boolean.class.equals(value.getClass())
+                        || type.equals(Namespaces.NS_XSD + "boolean")) {
                     boolean bvalue = false;
-                    if(Boolean.class.equals(value.getClass())   || boolean.class.equals(value.getClass())) {
-                        bvalue = (Boolean)value;
+                    if (Boolean.class.equals(value.getClass()) || boolean.class.equals(value.getClass())) {
+                        bvalue = (Boolean) value;
                     } else {
                         bvalue = Boolean.parseBoolean(value.toString());
                     }
 
-
                     result = connection.loadLiteral(bvalue);
 
-                    if(result == null) {
-                        result= new KiWiBooleanLiteral(bvalue, rtype);
+                    if (result == null) {
+                        result = new KiWiBooleanLiteral(bvalue, rtype);
                     }
                 } else {
                     result = connection.loadLiteral(value.toString(), lang, rtype);
 
-                    if(result == null) {
+                    if (result == null) {
                         result = new KiWiStringLiteral(value.toString(), locale, rtype);
                     }
                 }
-            } catch(IllegalArgumentException ex) {
+            } catch (IllegalArgumentException ex) {
                 // malformed number or date
                 log.warn("malformed argument for typed literal of type {}: {}", rtype.stringValue(), value);
-                KiWiUriResource mytype = (KiWiUriResource)createURI(Namespaces.NS_XSD+"string");
+                KiWiIriResource mytype = (KiWiIriResource) createIRI(Namespaces.NS_XSD + "string");
 
                 result = connection.loadLiteral(value.toString(), lang, mytype);
 
-                if(result == null) {
+                if (result == null) {
                     result = new KiWiStringLiteral(value.toString(), locale, mytype);
                 }
 
             }
 
-            if(result.getId() < 0) {
+            if (result.getId() < 0) {
                 connection.storeNode(result);
             }
 
             return result;
 
-
         } catch (SQLException e) {
-            log.error("database error, could not load literal",e);
-            throw new IllegalStateException("database error, could not load literal",e);
+            log.error("database error, could not load literal", e);
+            throw new IllegalStateException("database error, could not load literal", e);
         } finally {
             releaseConnection(connection);
         }
@@ -422,31 +438,31 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public Literal createLiteral(boolean value) {
-        return createLiteral(value,null,LiteralCommons.getXSDType(Boolean.class));
+        return createLiteral(value, null, LiteralCommons.getXSDType(Boolean.class));
     }
 
     /**
-     * Creates a new <tt>xsd:byte</tt>-typed literal representing the
-     * specified value.
+     * Creates a new <tt>xsd:byte</tt>-typed literal representing the specified
+     * value.
      *
      * @param value The value for the literal.
      * @return An <tt>xsd:byte</tt>-typed literal for the specified value.
      */
     @Override
     public Literal createLiteral(byte value) {
-        return createLiteral((int)value,null,LiteralCommons.getXSDType(Byte.class));
+        return createLiteral((int) value, null, LiteralCommons.getXSDType(Byte.class));
     }
 
     /**
-     * Creates a new <tt>xsd:short</tt>-typed literal representing the
-     * specified value.
+     * Creates a new <tt>xsd:short</tt>-typed literal representing the specified
+     * value.
      *
      * @param value The value for the literal.
      * @return An <tt>xsd:short</tt>-typed literal for the specified value.
      */
     @Override
     public Literal createLiteral(short value) {
-        return createLiteral((int)value,null,LiteralCommons.getXSDType(Short.class));
+        return createLiteral((int) value, null, LiteralCommons.getXSDType(Short.class));
     }
 
     /**
@@ -458,31 +474,31 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public Literal createLiteral(int value) {
-        return createLiteral(value,null,LiteralCommons.getXSDType(Integer.class));
+        return createLiteral(value, null, LiteralCommons.getXSDType(Integer.class));
     }
 
     /**
-     * Creates a new <tt>xsd:long</tt>-typed literal representing the
-     * specified value.
+     * Creates a new <tt>xsd:long</tt>-typed literal representing the specified
+     * value.
      *
      * @param value The value for the literal.
      * @return An <tt>xsd:long</tt>-typed literal for the specified value.
      */
     @Override
     public Literal createLiteral(long value) {
-        return createLiteral(value,null,LiteralCommons.getXSDType(Long.class));
+        return createLiteral(value, null, LiteralCommons.getXSDType(Long.class));
     }
 
     /**
-     * Creates a new <tt>xsd:float</tt>-typed literal representing the
-     * specified value.
+     * Creates a new <tt>xsd:float</tt>-typed literal representing the specified
+     * value.
      *
      * @param value The value for the literal.
      * @return An <tt>xsd:float</tt>-typed literal for the specified value.
      */
     @Override
     public Literal createLiteral(float value) {
-        return createLiteral(value,null,LiteralCommons.getXSDType(Float.class));
+        return createLiteral(value, null, LiteralCommons.getXSDType(Float.class));
     }
 
     /**
@@ -494,7 +510,7 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public Literal createLiteral(double value) {
-        return createLiteral(value,null,LiteralCommons.getXSDType(Double.class));
+        return createLiteral(value, null, LiteralCommons.getXSDType(Double.class));
     }
 
     /**
@@ -508,70 +524,70 @@ public class KiWiValueFactory implements ValueFactory {
     public Literal createLiteral(XMLGregorianCalendar calendar) {
         Date value = calendar.toGregorianCalendar().getTime();
 
-        return createLiteral(value,null,LiteralCommons.getXSDType(Date.class));
+        return createLiteral(value, null, LiteralCommons.getXSDType(Date.class));
     }
 
     /**
      * Creates a new statement with the supplied subject, predicate and object.
      *
-     * @param subject   The statement's subject.
+     * @param subject The statement's subject.
      * @param predicate The statement's predicate.
-     * @param object    The statement's object.
+     * @param object The statement's object.
      * @return The created statement.
      */
     @Override
-    public Statement createStatement(Resource subject, URI predicate, Value object) {
-        if(defaultContext != null) {
-            return createStatement(subject, predicate, object, createURI(defaultContext));
-        } else {
-            return createStatement(subject, predicate, object, null);
-        }
+    public Statement createStatement(Resource subject, IRI predicate, Value object) {
+        return SimpleValueFactory.getInstance().createStatement(subject, predicate, object);
     }
 
     /**
      * Creates a new statement with the supplied subject, predicate and object
      * and associated context.
      *
-     * @param subject   The statement's subject.
+     * @param subject The statement's subject.
      * @param predicate The statement's predicate.
-     * @param object    The statement's object.
-     * @param context   The statement's context.
+     * @param object The statement's object.
+     * @param context The statement's context.
      * @return The created statement.
      */
     @Override
-    public Statement createStatement(Resource subject, URI predicate, Value object, Resource context) {
-        return new ContextStatementImpl(subject,predicate,object,context);
+    public Statement createStatement(Resource subject, IRI predicate, Value object, Resource context) {
+        if (context == null) {
+            return createStatement(subject, predicate, object);
+        }
+        return SimpleValueFactory.getInstance().createStatement(subject, predicate, object, context);
     }
 
     /**
-     * Creates a new statement with the supplied subject, predicate and object and associated context. This is a
-     * specialised form of createStatement that allows the existance check for a triple to run in the same connection
-     * as the rest of the repository operations.
+     * Creates a new statement with the supplied subject, predicate and object
+     * and associated context. This is a specialised form of createStatement
+     * that allows the existance check for a triple to run in the same
+     * connection as the rest of the repository operations.
      *
-     * @param subject   The statement's subject.
+     * @param subject The statement's subject.
      * @param predicate The statement's predicate.
-     * @param object    The statement's object.
-     * @param context   The statement's context.
+     * @param object The statement's object.
+     * @param context The statement's context.
      * @return The created statement.
      */
-    public Statement createStatement(Resource subject, URI predicate, Value object, Resource context, KiWiConnection connection) {
+    public Statement createStatement(Resource subject, IRI predicate, Value object, Resource context, KiWiConnection connection) {
         try {
 
             IntArray cacheKey = IntArray.createSPOCKey(subject, predicate, object, context);
 
-            KiWiResource ksubject   = convert(subject);
-            KiWiUriResource kpredicate = convert(predicate);
-            KiWiNode kobject    = convert(object);
-            KiWiResource    kcontext   = convert(context);
+            KiWiResource ksubject = convert(subject);
+            KiWiIriResource kpredicate = convert(predicate);
+            KiWiNode kobject = convert(object);
+            KiWiResource kcontext = convert(context);
 
-            KiWiTriple result = new KiWiTriple(ksubject,kpredicate,kobject,kcontext);
+            KiWiTriple result = new KiWiTriple(ksubject, kpredicate, kobject, kcontext);
 
             boolean needsDBLookup = false;
 
             synchronized (registry) {
                 long tripleId = registry.lookupKey(cacheKey);
 
-                if(tripleId >= 0) {
+                if (tripleId >= 0) {
                     // try getting id from registry
                     result.setId(tripleId);
 
@@ -582,18 +598,18 @@ public class KiWiValueFactory implements ValueFactory {
                 }
             }
 
-            if(needsDBLookup) {
-                result.setId(connection.getTripleId(ksubject,kpredicate,kobject,kcontext));
+            if (needsDBLookup) {
+                result.setId(connection.getTripleId(ksubject, kpredicate, kobject, kcontext));
             }
 
             // triple has no id from registry or database, so we create one and flag it for reasoning
-            if(result.getId() < 0) {
+            if (result.getId() < 0) {
                 synchronized (registry) {
                     // It's possible a concurrent thread might have created this
                     // triple while we were blocked.  Check the registry again.
                     long tripleId = registry.lookupKey(cacheKey);
 
-                    if(tripleId >= 0) {
+                    if (tripleId >= 0) {
                         // A concurrent thread got in first.  Take the one it created.
                         result.setId(tripleId);
                     } else {
@@ -610,16 +626,18 @@ public class KiWiValueFactory implements ValueFactory {
 
         } catch (SQLException e) {
             log.error("database error, could not load triple", e);
-            throw new IllegalStateException("database error, could not load triple",e);
+            throw new IllegalStateException("database error, could not load triple", e);
         }
     }
 
     /**
-     * Remove a statement from the triple registry. Called when the statement is deleted and the transaction commits.
+     * Remove a statement from the triple registry. Called when the statement is
+     * deleted and the transaction commits.
+     *
      * @param triple
      */
     protected void removeStatement(KiWiTriple triple) {
-        if(triple.getId() >= 0) {
+        if (triple.getId() >= 0) {
             IntArray cacheKey = IntArray.createSPOCKey(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getContext());
 
             synchronized (registry) {
@@ -633,40 +651,38 @@ public class KiWiValueFactory implements ValueFactory {
         registry.releaseTransaction(connection.getTransactionId());
     }
 
-
     public KiWiResource convert(Resource r) {
-        return (KiWiResource)convert((Value)r);
+        return (KiWiResource) convert((Value) r);
     }
 
-    public KiWiUriResource convert(URI r) {
-        return (KiWiUriResource)convert((Value)r);
+    public KiWiIriResource convert(IRI r) {
+        return (KiWiIriResource) convert((Value) r);
     }
 
     public KiWiNode convert(Value value) {
-        if(value == null) {
+        if (value == null) {
             return null;
         }
-        if(value instanceof KiWiNode) {
-            return (KiWiNode)value;
+        if (value instanceof KiWiNode) {
+            return (KiWiNode) value;
         }
-        if(value instanceof URI) {
-            return (KiWiUriResource)createURI(value.stringValue());
+        if (value instanceof IRI) {
+            return (KiWiIriResource) createIRI(value.stringValue());
         }
-        if(value instanceof BNode) {
-            return (KiWiAnonResource)createBNode(value.stringValue());
+        if (value instanceof BNode) {
+            return (KiWiAnonResource) createBNode(value.stringValue());
         }
-        if(value instanceof Literal) {
-            Literal l = (Literal)value;
-            return createLiteral(l.getLabel(),l.getLanguage(), l.getDatatype() != null ? l.getDatatype().stringValue(): null);
+        if (value instanceof Literal) {
+            Literal l = (Literal) value;
+            return createLiteral(l.getLabel(), l.getLanguage().orElse(null), l.getDatatype() != null ? l.getDatatype().stringValue() : null);
         }
 
         throw new IllegalArgumentException("the value passed as argument does not have the correct type");
     }
 
-
     public void close() {
 
     }
-
+    
 
 }

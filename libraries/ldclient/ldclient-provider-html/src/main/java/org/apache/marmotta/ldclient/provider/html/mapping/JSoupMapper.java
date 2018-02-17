@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.ldclient.provider.html.mapping;
 
+import java.util.List;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
-import java.util.List;
 
 
 public interface JSoupMapper {

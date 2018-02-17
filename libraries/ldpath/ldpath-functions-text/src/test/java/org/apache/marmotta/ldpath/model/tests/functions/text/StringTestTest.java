@@ -21,11 +21,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
-
 import org.apache.marmotta.ldpath.api.tests.NodeTest;
-import org.apache.marmotta.ldpath.parser.ParseException;
 import org.apache.marmotta.ldpath.parser.LdPathParser;
+import org.apache.marmotta.ldpath.parser.ParseException;
 import org.apache.marmotta.ldpath.test.AbstractTestBase;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -36,10 +39,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.repository.sail.SailRepositoryConnection;
 
 @RunWith(Parameterized.class)
 public class StringTestTest extends AbstractTestBase {
@@ -62,7 +61,7 @@ public class StringTestTest extends AbstractTestBase {
     
     private String errSalt;
     
-    private URI subject, predicate;
+    private IRI subject, predicate;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -81,8 +80,8 @@ public class StringTestTest extends AbstractTestBase {
         
         errSalt = UUID.randomUUID().toString();
         
-        subject = repository.getValueFactory().createURI(ns("foo", UUID.randomUUID().toString()));
-        predicate = repository.getValueFactory().createURI(ns("foo", UUID.randomUUID().toString()));
+        subject = repository.getValueFactory().createIRI(ns("foo", UUID.randomUUID().toString()));
+        predicate = repository.getValueFactory().createIRI(ns("foo", UUID.randomUUID().toString()));
 
         final SailRepositoryConnection con = repository.getConnection();
         try {
@@ -100,7 +99,7 @@ public class StringTestTest extends AbstractTestBase {
     public void tearDown() throws Exception {
     }
     
-    private boolean checkTest(String ldPathTest, URI context) throws ParseException {
+    private boolean checkTest(String ldPathTest, IRI context) throws ParseException {
         final LdPathParser<Value> parser = createParserFromString(ldPathTest);
         final NodeTest<Value> test = parser.parseTest(NSS);
         return test.accept(backend, context, context);

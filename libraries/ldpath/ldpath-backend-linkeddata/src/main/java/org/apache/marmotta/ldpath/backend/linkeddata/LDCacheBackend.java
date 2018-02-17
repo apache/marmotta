@@ -17,26 +17,28 @@
  */
 package org.apache.marmotta.ldpath.backend.linkeddata;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.concurrent.ThreadPoolExecutor;
+import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.backend.infinispan.LDCachingInfinispanBackend;
 import org.apache.marmotta.ldcache.model.CacheConfiguration;
 import org.apache.marmotta.ldcache.services.LDCache;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Value;
-import org.openrdf.model.impl.LiteralImpl;
-import org.openrdf.model.impl.URIImpl;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * A Linked Data backend with persistent caching of the retrieved data. All data is read and stored in the directory
@@ -45,11 +47,10 @@ import java.util.concurrent.ThreadPoolExecutor;
  * Author: Sebastian Schaffert
  */
 public class LDCacheBackend implements RDFBackend<Value> {
+
     private static final Logger log = LoggerFactory.getLogger(LDCacheBackend.class);
 
-
     private LDCache ldcache;
-
 
     public LDCacheBackend() {
         LDCachingBackend backend = new LDCachingInfinispanBackend();
@@ -81,7 +82,7 @@ public class LDCacheBackend implements RDFBackend<Value> {
      */
     @Override
     public boolean isURI(Value n) {
-        return n instanceof org.openrdf.model.URI;
+        return n instanceof org.eclipse.rdf4j.model.IRI;
     }
 
     /**
@@ -105,8 +106,8 @@ public class LDCacheBackend implements RDFBackend<Value> {
     @Override
     public Locale getLiteralLanguage(Value n) {
         try {
-            if(((Literal)n).getLanguage() != null) {
-                return new Locale( ((Literal)n).getLanguage() );
+            if(((Literal)n).getLanguage().orElse(null) != null) {
+                return new Locale( ((Literal)n).getLanguage().orElse(null) );
             } else {
                 return null;
             }
@@ -130,7 +131,7 @@ public class LDCacheBackend implements RDFBackend<Value> {
                 try {
                     return new URI(((Literal)n).getDatatype().stringValue());
                 } catch (URISyntaxException e) {
-                    log.error("literal datatype was not a valid URI: {}",((Literal) n).getDatatype());
+                    log.error("literal datatype was not a valid URI: {}", ((Literal) n).getDatatype());
                     return null;
                 }
             } else {
@@ -269,7 +270,7 @@ public class LDCacheBackend implements RDFBackend<Value> {
 
     @Override
     public Literal createLiteral(String content) {
-        return new LiteralImpl(content);
+        return SimpleValueFactory.getInstance().createLiteral(content);
     }
 
     @Override
@@ -278,15 +279,15 @@ public class LDCacheBackend implements RDFBackend<Value> {
         if(language == null && type == null) {
             return createLiteral(content);
         } else if(type == null) {
-            return new LiteralImpl(content,language.getLanguage());
+            return SimpleValueFactory.getInstance().createLiteral(content,language.getLanguage());
         } else  {
-            return new LiteralImpl(content, createURI(type.toString()));
+            return SimpleValueFactory.getInstance().createLiteral(content, createIRI(type.toString()));
         }
     }
 
     @Override
-    public org.openrdf.model.URI createURI(String uri) {
-        return new URIImpl(uri);
+    public org.eclipse.rdf4j.model.IRI createIRI(String uri) {
+        return SimpleValueFactory.getInstance().createIRI(uri);
     }
 
 
@@ -317,9 +318,9 @@ public class LDCacheBackend implements RDFBackend<Value> {
     @Override
     public Collection<Value> listObjects(Value subject, Value property) {
         log.info("retrieving resource {}", subject);
-        if(subject instanceof org.openrdf.model.URI && subject instanceof org.openrdf.model.URI) {
-            org.openrdf.model.URI s = (org.openrdf.model.URI) subject;
-            org.openrdf.model.URI p = (org.openrdf.model.URI) property;
+        if(subject instanceof org.eclipse.rdf4j.model.IRI) {
+            org.eclipse.rdf4j.model.IRI s = (org.eclipse.rdf4j.model.IRI) subject;
+            org.eclipse.rdf4j.model.IRI p = (org.eclipse.rdf4j.model.IRI) property;
             return ldcache.get(s).filter(s, p, null).objects();
         } else {
             return Collections.emptyList();
@@ -339,4 +340,5 @@ public class LDCacheBackend implements RDFBackend<Value> {
     public Collection<Value> listSubjects(Value property, Value object) {
         throw new UnsupportedOperationException("reverse traversal not supported for Linked Data backend");
     }
+    
 }

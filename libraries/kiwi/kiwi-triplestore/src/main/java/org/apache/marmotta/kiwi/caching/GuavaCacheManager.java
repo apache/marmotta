@@ -43,7 +43,7 @@ public class GuavaCacheManager implements CacheManager {
 
     private Cache<Long,KiWiNode> nodeCache;
     private Cache<Long,KiWiTriple> tripleCache;
-    private Cache<String,KiWiUriResource> uriCache;
+    private Cache<String,KiWiIriResource> uriCache;
     private Cache<String,KiWiAnonResource> bnodeCache;
     private Cache<String,KiWiLiteral> literalCache;
     private Cache<String,KiWiNamespace> namespaceUriCache, namespacePrefixCache;
@@ -126,13 +126,13 @@ public class GuavaCacheManager implements CacheManager {
     }
 
     /**
-     * Return the uri -> KiWiUriResource cache from the cache manager. This cache is used when constructing new
+     * Return the uri -> KiWiIriResource cache from the cache manager. This cache is used when constructing new
      * KiWiUriResources to avoid a database lookup.
      *
      * @return
      */
     @Override
-    public Map<String, KiWiUriResource> getUriCache() {
+    public Map<String, KiWiIriResource> getUriCache() {
         return uriCache.asMap();
     }
 

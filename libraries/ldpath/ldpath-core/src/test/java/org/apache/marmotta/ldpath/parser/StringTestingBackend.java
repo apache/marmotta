@@ -81,7 +81,7 @@ public class StringTestingBackend extends AbstractBackend<String> {
     }
 
     @Override
-    public String createURI(String uri) {
+    public String createIRI(String uri) {
         return "<" + uri + ">";
     }
 

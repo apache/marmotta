@@ -17,11 +17,11 @@
  */
 package org.apache.marmotta.platform.core.services.sesame;
 
-import org.openrdf.model.BNode;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Value;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.event.base.RepositoryConnectionInterceptorAdapter;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.event.base.RepositoryConnectionInterceptorAdapter;
 
 /**
  * A filter/view on repositories that displays only the metadata for a resource
@@ -38,10 +38,10 @@ public class ResourceSubjectMetadata extends RepositoryConnectionInterceptorAdap
     }
 
     @Override
-    public boolean add(RepositoryConnection conn, Resource s, org.openrdf.model.URI p, Value o, Resource... contexts) {
+    public boolean add(RepositoryConnection conn, Resource s, org.eclipse.rdf4j.model.IRI p, Value o, Resource... contexts) {
         boolean denyAdd;
-        if (s instanceof org.openrdf.model.URI && subject instanceof org.openrdf.model.URI ) {
-            // if s is a URI and subject a KiWiUriResource, return
+        if (s instanceof org.eclipse.rdf4j.model.IRI && subject instanceof org.eclipse.rdf4j.model.IRI ) {
+            // if s is a IRI and subject a KiWiUriResource, return
             // true if they are different
             denyAdd = !s.stringValue().equals(subject.stringValue());
         } else if (s instanceof BNode && subject instanceof BNode) {
@@ -57,10 +57,10 @@ public class ResourceSubjectMetadata extends RepositoryConnectionInterceptorAdap
     }
 
     @Override
-    public boolean remove(RepositoryConnection conn, Resource s, org.openrdf.model.URI p, Value o, Resource... contexts) {
+    public boolean remove(RepositoryConnection conn, Resource s, org.eclipse.rdf4j.model.IRI p, Value o, Resource... contexts) {
         boolean denyRemove;
-        if (s instanceof org.openrdf.model.URI && subject instanceof org.openrdf.model.URI ) {
-            // if s is a URI and subject a KiWiUriResource, return
+        if (s instanceof org.eclipse.rdf4j.model.IRI && subject instanceof org.eclipse.rdf4j.model.IRI ) {
+            // if s is a IRI and subject a KiWiUriResource, return
             // true if they are different
             denyRemove = !s.stringValue().equals(subject.stringValue());
         } else if (s instanceof BNode && subject instanceof BNode) {

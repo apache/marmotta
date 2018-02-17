@@ -20,7 +20,28 @@ package org.apache.marmotta.loader.core;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.apache.commons.cli.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.Set;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.OptionGroup;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -49,14 +70,15 @@ import org.apache.marmotta.loader.functions.BackendIdentifierFunction;
 import org.apache.marmotta.loader.rio.GeonamesFormat;
 import org.apache.marmotta.loader.statistics.StatisticsHandler;
 import org.apache.marmotta.loader.util.DirectoryFilter;
-import org.openrdf.model.impl.URIImpl;
-import org.openrdf.rio.*;
-import org.openrdf.rio.helpers.BasicParserSettings;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.util.*;
 
 /**
  * Add file description here!
@@ -83,7 +105,7 @@ public class MarmottaLoader {
         LoaderHandler handler = getLoader();
 
         if(configuration.containsKey(LoaderOptions.CONTEXT)) {
-            handler = new ContextHandler(handler, new URIImpl(configuration.getString(LoaderOptions.CONTEXT)));
+            handler = new ContextHandler(handler, SimpleValueFactory.getInstance().createIRI(configuration.getString(LoaderOptions.CONTEXT)));
         }
 
         if(configuration.containsKey(LoaderOptions.STATISTICS_ENABLED)) {
@@ -190,8 +212,7 @@ public class MarmottaLoader {
     public void loadFile(File file, LoaderHandler handler, RDFFormat format, String compression) throws RDFParseException, IOException {
         log.info("loading file {} ...", file);
 
-        CompressorStreamFactory cf = new CompressorStreamFactory();
-        cf.setDecompressConcatenated(true);
+        CompressorStreamFactory cf = new CompressorStreamFactory(true);
 
         // detect the file compression
         String detectedCompression = detectCompression(file);
@@ -210,7 +231,7 @@ public class MarmottaLoader {
 
 
         // detect the file format
-        RDFFormat detectedFormat = Rio.getParserFormatForFileName(uncompressedName(file));
+        RDFFormat detectedFormat = Rio.getParserFormatForFileName(uncompressedName(file)).orElse(null);
         if(format == null) {
             if(detectedFormat != null) {
                 log.info("using auto-detected format ({})", detectedFormat.getName());
@@ -301,7 +322,7 @@ public class MarmottaLoader {
                             log.info("loading entry {} ...", entry.getName());
 
                             // detect the file format
-                            RDFFormat detectedFormat = Rio.getParserFormatForFileName(entry.getName());
+                            RDFFormat detectedFormat = Rio.getParserFormatForFileName(entry.getName()).orElse(null);
                             if(format == null) {
                                 if(detectedFormat != null) {
                                     log.info("auto-detected entry format: {}", detectedFormat.getName());
@@ -372,7 +393,7 @@ public class MarmottaLoader {
                         log.info("loading entry {} ...", entry.getName());
 
                         // detect the file format
-                        RDFFormat detectedFormat = Rio.getParserFormatForFileName(entry.getName());
+                        RDFFormat detectedFormat = Rio.getParserFormatForFileName(entry.getName()).orElse(null);
                         if(format == null) {
                             if(detectedFormat != null) {
                                 log.info("auto-detected entry format: {}", detectedFormat.getName());
@@ -518,7 +539,7 @@ public class MarmottaLoader {
         } else if(StringUtils.equalsIgnoreCase(spec,"geonames")) {
             return GeonamesFormat.FORMAT;
         } else if(spec != null) {
-            return Rio.getParserFormatForMIMEType(spec);
+            return Rio.getParserFormatForMIMEType(spec).orElse(null);
         } else {
             return null;
         }

@@ -17,16 +17,15 @@
 
 package org.apache.marmotta.platform.backend.ostrich;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import org.apache.marmotta.ostrich.sail.OstrichSail;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.StoreProvider;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.NotifyingSail;
-import org.openrdf.sail.Sail;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.NotifyingSail;
+import org.eclipse.rdf4j.sail.Sail;
 import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 /**
  * A store implementation using a Sesame NativeStore as backend for Marmotta. The triples are stored in the

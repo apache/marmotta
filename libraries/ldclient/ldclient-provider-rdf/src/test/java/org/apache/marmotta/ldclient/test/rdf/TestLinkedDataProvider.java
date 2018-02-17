@@ -21,11 +21,11 @@ import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.test.provider.ProviderTestBase;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openrdf.repository.RepositoryConnection;
 
 /**
  * Test if the LinkedDataProvider is working properly.

@@ -17,17 +17,6 @@
  */
 package org.apache.marmotta.platform.ldp.services;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.marmotta.commons.util.HashUtils;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.ldp.api.LdpBinaryStoreService;
-import org.openrdf.model.URI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,6 +25,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import org.apache.commons.io.IOUtils;
+import org.apache.marmotta.commons.util.HashUtils;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.ldp.api.LdpBinaryStoreService;
+import org.eclipse.rdf4j.model.IRI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Very basic disk-based implementation of the LDP Binary Store
@@ -98,7 +97,7 @@ public class LdpBinaryStoreServiceImpl implements LdpBinaryStoreService {
     }
 
     @Override
-    public boolean store(URI resource, InputStream stream) {
+    public boolean store(IRI resource, InputStream stream) {
         return store(resource.stringValue(), stream);
     }
 
@@ -119,7 +118,7 @@ public class LdpBinaryStoreServiceImpl implements LdpBinaryStoreService {
     }
 
     @Override
-    public InputStream read(URI resource) throws IOException {
+    public InputStream read(IRI resource) throws IOException {
         return read(resource.stringValue());
     }
 
@@ -135,12 +134,12 @@ public class LdpBinaryStoreServiceImpl implements LdpBinaryStoreService {
     }
 
     @Override
-    public String getHash(URI uri) {
+    public String getHash(IRI uri) {
         return getHash(uri.stringValue());
     }
 
     @Override
-    public boolean delete(URI uri) {
+    public boolean delete(IRI uri) {
         return delete(uri.stringValue());
     }
 

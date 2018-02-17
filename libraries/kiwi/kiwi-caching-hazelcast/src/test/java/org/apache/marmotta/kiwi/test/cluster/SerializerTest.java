@@ -19,28 +19,46 @@ package org.apache.marmotta.kiwi.test.cluster;
 
 import com.hazelcast.config.SerializationConfig;
 import com.hazelcast.config.SerializerConfig;
-import com.hazelcast.nio.serialization.*;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.marmotta.commons.vocabulary.SCHEMA;
-import org.apache.marmotta.commons.vocabulary.XSD;
-import org.apache.marmotta.kiwi.hazelcast.serializer.*;
-import org.apache.marmotta.kiwi.model.rdf.*;
-import org.apache.marmotta.kiwi.test.TestValueFactory;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.vocabulary.OWL;
-import org.openrdf.model.vocabulary.RDFS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.hazelcast.nio.serialization.ObjectDataInputStream;
+import com.hazelcast.nio.serialization.ObjectDataOutputStream;
+import com.hazelcast.nio.serialization.SerializationService;
+import com.hazelcast.nio.serialization.SerializationServiceBuilder;
+import com.hazelcast.nio.serialization.StreamSerializer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Random;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.marmotta.commons.vocabulary.SCHEMA;
+import org.apache.marmotta.commons.vocabulary.XSD;
+import org.apache.marmotta.kiwi.hazelcast.serializer.BNodeSerializer;
+import org.apache.marmotta.kiwi.hazelcast.serializer.BooleanLiteralSerializer;
+import org.apache.marmotta.kiwi.hazelcast.serializer.DateLiteralSerializer;
+import org.apache.marmotta.kiwi.hazelcast.serializer.DoubleLiteralSerializer;
+import org.apache.marmotta.kiwi.hazelcast.serializer.IntLiteralSerializer;
+import org.apache.marmotta.kiwi.hazelcast.serializer.StringLiteralSerializer;
+import org.apache.marmotta.kiwi.hazelcast.serializer.TripleSerializer;
+import org.apache.marmotta.kiwi.hazelcast.serializer.UriSerializer;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
+import org.apache.marmotta.kiwi.test.TestValueFactory;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.OWL;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test the different externalizer implementations we provide for Infinispan
@@ -85,7 +103,7 @@ public class SerializerTest {
         SerializerConfig scTriple = new SerializerConfig().setImplementation(new TripleSerializer()).setTypeClass(KiWiTriple.class);
         config.addSerializerConfig(scTriple);
 
-        SerializerConfig scUri = new SerializerConfig().setImplementation(new UriSerializer()).setTypeClass(KiWiUriResource.class);
+        SerializerConfig scUri = new SerializerConfig().setImplementation(new UriSerializer()).setTypeClass(KiWiIriResource.class);
         config.addSerializerConfig(scUri);
 
 
@@ -96,18 +114,18 @@ public class SerializerTest {
 
 
     @Test
-    public void testUriResource() throws Exception {
-        marshall((KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8)), new UriSerializer());
+    public void testIriResource() throws Exception {
+        marshall((KiWiIriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8)), new UriSerializer());
     }
 
     @Test
-    public void testCompressedUriResource() throws Exception {
-        marshall((KiWiUriResource) valueFactory.createURI(XSD.Double.stringValue()), new UriSerializer());
-        marshall((KiWiUriResource) valueFactory.createURI(RDFS.LABEL.stringValue()), new UriSerializer());
-        marshall((KiWiUriResource) valueFactory.createURI(OWL.SAMEAS.stringValue()), new UriSerializer());
-        marshall((KiWiUriResource) valueFactory.createURI(SCHEMA.Place.stringValue()), new UriSerializer());
-        marshall((KiWiUriResource) valueFactory.createURI("http://dbpedia.org/resource/Colorado"), new UriSerializer());
-        marshall((KiWiUriResource) valueFactory.createURI("http://rdf.freebase.com/ns/test"), new UriSerializer());
+    public void testCompressedIriResource() throws Exception {
+        marshall((KiWiIriResource) valueFactory.createIRI(XSD.Double.stringValue()), new UriSerializer());
+        marshall((KiWiIriResource) valueFactory.createIRI(RDFS.LABEL.stringValue()), new UriSerializer());
+        marshall((KiWiIriResource) valueFactory.createIRI(OWL.SAMEAS.stringValue()), new UriSerializer());
+        marshall((KiWiIriResource) valueFactory.createIRI(SCHEMA.Place.stringValue()), new UriSerializer());
+        marshall((KiWiIriResource) valueFactory.createIRI("http://dbpedia.org/resource/Colorado"), new UriSerializer());
+        marshall((KiWiIriResource) valueFactory.createIRI("http://rdf.freebase.com/ns/test"), new UriSerializer());
     }
 
 
@@ -128,7 +146,7 @@ public class SerializerTest {
 
     @Test
     public void testTypeLiteral() throws Exception {
-        marshall((KiWiStringLiteral) valueFactory.createLiteral(RandomStringUtils.randomAscii(40),valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8))), new StringLiteralSerializer());
+        marshall((KiWiStringLiteral) valueFactory.createLiteral(RandomStringUtils.randomAscii(40),valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8))), new StringLiteralSerializer());
     }
 
 
@@ -140,8 +158,8 @@ public class SerializerTest {
 
     @Test
     public void testTriple() throws Exception {
-        KiWiUriResource s = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
-        KiWiUriResource p = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiIriResource s = (KiWiIriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiIriResource p = (KiWiIriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
         KiWiNode o = (KiWiNode) randomNode();
         KiWiTriple t = (KiWiTriple) valueFactory.createStatement(s,p,o);
 
@@ -150,9 +168,9 @@ public class SerializerTest {
 
     @Test
     public void testPrefixCompressedTriple() throws Exception {
-        KiWiUriResource s = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
-        KiWiUriResource p = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
-        KiWiUriResource o = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiIriResource s = (KiWiIriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiIriResource p = (KiWiIriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiIriResource o = (KiWiIriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
         KiWiTriple t = (KiWiTriple) valueFactory.createStatement(s,p,o);
 
         marshall(t, new TripleSerializer());
@@ -223,7 +241,7 @@ public class SerializerTest {
     protected Value randomNode() {
         Value object;
         switch(rnd.nextInt(6)) {
-            case 0: object = valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+            case 0: object = valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
                 break;
             case 1: object = valueFactory.createBNode();
                 break;
@@ -235,7 +253,7 @@ public class SerializerTest {
                 break;
             case 5: object = valueFactory.createLiteral(rnd.nextBoolean());
                 break;
-            default: object = valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+            default: object = valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
                 break;
 
         }

@@ -17,14 +17,15 @@
  */
 package org.apache.marmotta.platform.core.api.cache;
 
-import javax.enterprise.inject.spi.InjectionPoint;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
+import javax.enterprise.inject.spi.InjectionPoint;
 
 /**
+ * <p>
  * Simple caching functionality for the Marmotta Platform modules. Note that the KiWi triplestore (and other
  * triple stores) come with their own custom caching implementations.
- * <p/>
+ * </p>
  * User: sschaffe
  */
 public interface CachingService {

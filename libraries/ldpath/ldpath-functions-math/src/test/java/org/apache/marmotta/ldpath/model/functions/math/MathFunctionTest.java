@@ -19,21 +19,20 @@ package org.apache.marmotta.ldpath.model.functions.math;
 
 import java.util.Collection;
 import java.util.Random;
-
 import org.apache.marmotta.ldpath.model.fields.FieldMapping;
-import org.apache.marmotta.ldpath.parser.ParseException;
 import org.apache.marmotta.ldpath.parser.LdPathParser;
+import org.apache.marmotta.ldpath.parser.ParseException;
 import org.apache.marmotta.ldpath.test.AbstractTestBase;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepositoryConnection;
 
 
 
@@ -43,8 +42,8 @@ public class MathFunctionTest extends AbstractTestBase {
     private long[] lData;
     private float[] fData;
     private double[] dData;
-    private URI subject;
-    private URI iProp, lProp, fProp, dProp;
+    private IRI subject;
+    private IRI iProp, lProp, fProp, dProp;
 
     @Before
     public void createData() throws RepositoryException {
@@ -64,11 +63,11 @@ public class MathFunctionTest extends AbstractTestBase {
             dData[i] = rnd.nextInt() * 10e-8f;
         }
 
-        subject = repository.getValueFactory().createURI(NSS.get("ex") + rnd.nextInt());
-        iProp = repository.getValueFactory().createURI(NSS.get("foo") + "integer");
-        lProp = repository.getValueFactory().createURI(NSS.get("foo") + "long");
-        fProp = repository.getValueFactory().createURI(NSS.get("foo") + "float");
-        dProp = repository.getValueFactory().createURI(NSS.get("foo") + "double");
+        subject = repository.getValueFactory().createIRI(NSS.get("ex") + rnd.nextInt());
+        iProp = repository.getValueFactory().createIRI(NSS.get("foo") + "integer");
+        lProp = repository.getValueFactory().createIRI(NSS.get("foo") + "long");
+        fProp = repository.getValueFactory().createIRI(NSS.get("foo") + "float");
+        dProp = repository.getValueFactory().createIRI(NSS.get("foo") + "double");
 
         final SailRepositoryConnection con = repository.getConnection();
         try {

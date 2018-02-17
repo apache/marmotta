@@ -17,12 +17,11 @@
 
 package org.apache.marmotta.platform.backend.kiwi;
 
+import javax.enterprise.context.ApplicationScoped;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.platform.core.api.triplestore.GarbageCollectionProvider;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.SailException;
-
-import javax.enterprise.context.ApplicationScoped;
+import org.eclipse.rdf4j.sail.Sail;
+import org.eclipse.rdf4j.sail.SailException;
 
 /**
  * Add file description here!

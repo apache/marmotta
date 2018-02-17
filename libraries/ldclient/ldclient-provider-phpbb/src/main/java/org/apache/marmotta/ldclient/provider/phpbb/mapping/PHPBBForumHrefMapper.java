@@ -17,19 +17,18 @@
  */
 package org.apache.marmotta.ldclient.provider.phpbb.mapping;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.marmotta.ldclient.provider.html.mapping.CssSelectorMapper;
-import org.jsoup.nodes.Element;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.marmotta.ldclient.provider.html.mapping.CssSelectorMapper;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.jsoup.nodes.Element;
 
 public class PHPBBForumHrefMapper extends CssSelectorMapper {
 
@@ -49,7 +48,7 @@ public class PHPBBForumHrefMapper extends CssSelectorMapper {
                 params.put(p.getName(), p.getValue());
             }
 
-            return Collections.singletonList((Value) factory.createURI(baseUriTopic + "f=" + params.get("f")));
+            return Collections.singletonList((Value) factory.createIRI(baseUriTopic + "f=" + params.get("f")));
         } catch (URISyntaxException ex) {
             throw new RuntimeException("invalid syntax for URI", ex);
         }

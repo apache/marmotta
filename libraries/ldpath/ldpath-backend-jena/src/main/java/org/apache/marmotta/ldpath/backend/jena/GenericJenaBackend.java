@@ -183,13 +183,13 @@ public class GenericJenaBackend implements RDFBackend<RDFNode> {
     }
 
     /**
-     * Create a URI mode with the URI passed as argument
+     * Create a IRI mode with the IRI passed as argument
      *
-     * @param uri URI of the resource to create
-     * @return a URI node using the model used by this backend
+     * @param iri IRI of the resource to create
+     * @return a IRI node using the model used by this backend
      */
     @Override
-    public RDFNode createURI(String uri) {
+    public RDFNode createIRI(String uri) {
         return model.createProperty(uri);
     }
 

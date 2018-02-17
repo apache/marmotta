@@ -17,22 +17,22 @@
  */
 package org.apache.marmotta.commons.sesame.model;
 
-import org.openrdf.model.URI;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  * Add file description here!
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class URICommons {
+public class IRICommons {
 
     /**
-     * Return the cache key for the URI passed as argument.
+     * Return the cache key for the IRI passed as argument.
      *
      * @param node a Sesame BNode for which to create a cache key
      * @return a string that can be used as cache key
      */
-    public static String createCacheKey(URI node) {
+    public static String createCacheKey(IRI node) {
         return node.stringValue();
     }
 
@@ -40,7 +40,7 @@ public class URICommons {
     /**
      * Return the cache key for the BNode ID passed as argument.
      *
-     * @param uri the string representation of a Sesame URI  for which to create a cache key
+     * @param uri the string representation of a Sesame IRI  for which to create a cache key
      * @return a string that can be used as cache key
      */
     public static String createCacheKey(String uri) {
@@ -48,13 +48,13 @@ public class URICommons {
     }
 
     /**
-     * Split a String URI into namespace and local name as described in the comment of {@link URI}
+     * Split a String IRI into namespace and local name as described in the comment of {@link IRI}
      *
-     * @param uri the URI to split
+     * @param uri the IRI to split
      * @return a String array of length 2 where the first argument is the namespace, the second the local name
      */
     public static String[] splitNamespace(String uri) {
-        // split according to algorithm in URI class
+        // split according to algorithm in IRI class
         String[] components = uri.split("#",2);
 
         String namespace, localName;

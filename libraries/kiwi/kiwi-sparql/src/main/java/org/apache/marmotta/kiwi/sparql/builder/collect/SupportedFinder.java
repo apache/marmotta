@@ -19,8 +19,28 @@ package org.apache.marmotta.kiwi.sparql.builder.collect;
 
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
-import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
+import org.eclipse.rdf4j.query.algebra.ArbitraryLengthPath;
+import org.eclipse.rdf4j.query.algebra.BindingSetAssignment;
+import org.eclipse.rdf4j.query.algebra.CompareAll;
+import org.eclipse.rdf4j.query.algebra.CompareAny;
+import org.eclipse.rdf4j.query.algebra.Count;
+import org.eclipse.rdf4j.query.algebra.Datatype;
+import org.eclipse.rdf4j.query.algebra.DescribeOperator;
+import org.eclipse.rdf4j.query.algebra.Difference;
+import org.eclipse.rdf4j.query.algebra.EmptySet;
+import org.eclipse.rdf4j.query.algebra.FunctionCall;
+import org.eclipse.rdf4j.query.algebra.Intersection;
+import org.eclipse.rdf4j.query.algebra.ListMemberOperator;
+import org.eclipse.rdf4j.query.algebra.MultiProjection;
+import org.eclipse.rdf4j.query.algebra.Sample;
+import org.eclipse.rdf4j.query.algebra.Service;
+import org.eclipse.rdf4j.query.algebra.TupleExpr;
+import org.eclipse.rdf4j.query.algebra.UpdateExpr;
+import org.eclipse.rdf4j.query.algebra.ValueConstant;
+import org.eclipse.rdf4j.query.algebra.ValueExpr;
+import org.eclipse.rdf4j.query.algebra.Var;
+import org.eclipse.rdf4j.query.algebra.ZeroLengthPath;
+import org.eclipse.rdf4j.query.algebra.helpers.AbstractQueryModelVisitor;
 
 /**
  * Check if all constructs in the query are supported natively. Whenever you add a new construct to SQLBuilder
@@ -28,7 +48,7 @@ import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class SupportedFinder extends QueryModelVisitorBase<RuntimeException> {
+public class SupportedFinder extends AbstractQueryModelVisitor<RuntimeException> {
 
     private boolean supported = true;
     private KiWiDialect dialect;
@@ -154,7 +174,7 @@ public class SupportedFinder extends QueryModelVisitorBase<RuntimeException> {
     }
 
     private boolean isFunctionSupported(FunctionCall fc) {
-        return NativeFunctionRegistry.getInstance().get(fc.getURI()) != null && NativeFunctionRegistry.getInstance().get(fc.getURI()).isSupported(dialect);
+        return NativeFunctionRegistry.getInstance().get(fc.getURI()) != null && NativeFunctionRegistry.getInstance().get(fc.getURI()).get().isSupported(dialect);
     }
 
 

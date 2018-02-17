@@ -17,27 +17,25 @@
  */
 package org.apache.marmotta.platform.sparql.services.sparqlio.rdf;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
-
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.GraphQueryResult;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryResultHandlerException;
-import org.openrdf.query.TupleQueryResultHandlerException;
-import org.openrdf.query.resultio.QueryResultFormat;
-import org.openrdf.query.resultio.QueryResultIO;
-import org.openrdf.query.resultio.QueryResultWriter;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.RioSetting;
-import org.openrdf.rio.WriterConfig;
-
-import edu.emory.mathcs.backport.java.util.Collections;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.GraphQueryResult;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryResultHandlerException;
+import org.eclipse.rdf4j.query.TupleQueryResultHandlerException;
+import org.eclipse.rdf4j.query.resultio.QueryResultFormat;
+import org.eclipse.rdf4j.query.resultio.QueryResultIO;
+import org.eclipse.rdf4j.query.resultio.QueryResultWriter;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.RioSetting;
+import org.eclipse.rdf4j.rio.WriterConfig;
 
 /**
  * SPARQL graph result writer for Sesame RIO
@@ -62,7 +60,7 @@ public class SPARQLGraphResultWriter implements QueryResultWriter {
 
     public SPARQLGraphResultWriter(OutputStream outputStream, String mimeType) {
         this.outputStream = outputStream;
-        this.format = Rio.getWriterFormatForMIMEType(mimeType, RDFFormat.RDFXML);
+        this.format = Rio.getWriterFormatForMIMEType(mimeType).orElse(RDFFormat.RDFXML);
     }
 
     public RDFFormat getFormat() {
@@ -76,7 +74,7 @@ public class SPARQLGraphResultWriter implements QueryResultWriter {
     @Deprecated
     public void write(GraphQueryResult result) throws IOException {
         try {
-            QueryResultIO.write(result, format, outputStream);
+            QueryResultIO.writeGraph(result, format, outputStream);
             outputStream.flush();
             outputStream.close();
         } catch (QueryEvaluationException e) {

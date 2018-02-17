@@ -24,10 +24,10 @@ import org.apache.marmotta.ldclient.model.ClientConfiguration;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.apache.marmotta.ldclient.test.helper.TestLDClient;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openrdf.repository.RepositoryConnection;
 
 /**
  * Tests the LdapFoafProvider

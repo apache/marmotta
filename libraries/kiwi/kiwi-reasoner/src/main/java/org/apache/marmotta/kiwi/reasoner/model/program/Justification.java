@@ -19,13 +19,12 @@ package org.apache.marmotta.kiwi.reasoner.model.program;
 
 
 import com.google.common.base.Equivalence;
-import org.apache.marmotta.commons.sesame.model.StatementCommons;
-import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.openrdf.model.Statement;
-
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.marmotta.commons.sesame.model.StatementCommons;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.eclipse.rdf4j.model.Statement;
 
 /**
  * Reason Maintenance: A justification for the existence of a triple. The justification

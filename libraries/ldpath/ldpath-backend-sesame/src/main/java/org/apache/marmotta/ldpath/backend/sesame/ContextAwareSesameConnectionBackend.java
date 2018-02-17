@@ -17,8 +17,8 @@
  */
 package org.apache.marmotta.ldpath.backend.sesame;
 
-import org.openrdf.model.Resource;
-import org.openrdf.repository.RepositoryConnection;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 
 /**
  * {@link SesameConnectionBackend} that considers only data from the provided contexts.

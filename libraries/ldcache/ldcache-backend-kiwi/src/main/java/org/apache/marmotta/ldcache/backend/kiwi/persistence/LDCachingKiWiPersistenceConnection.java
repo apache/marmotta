@@ -17,18 +17,6 @@
  */
 package org.apache.marmotta.ldcache.backend.kiwi.persistence;
 
-import info.aduna.iteration.CloseableIteration;
-import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
-import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
-import org.apache.marmotta.kiwi.persistence.KiWiConnection;
-import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
-import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
-import org.apache.marmotta.ldcache.backend.kiwi.model.KiWiCacheEntry;
-import org.apache.marmotta.ldcache.model.CacheEntry;
-import org.openrdf.model.URI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Closeable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,6 +25,17 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
+import org.apache.marmotta.kiwi.persistence.KiWiConnection;
+import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
+import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
+import org.apache.marmotta.ldcache.backend.kiwi.model.KiWiCacheEntry;
+import org.apache.marmotta.ldcache.model.CacheEntry;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.model.IRI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Add file description here!
@@ -84,7 +83,7 @@ public class LDCachingKiWiPersistenceConnection implements Closeable {
         entry.setLastRetrieved(new Date(row.getTimestamp("retrieved_at").getTime()));
         entry.setExpiryDate(new Date(row.getTimestamp("expires_at").getTime()));
         entry.setUpdateCount(row.getInt("update_count"));
-        entry.setResource((URI) connection.loadNodeById(row.getLong("resource_id")));
+        entry.setResource((IRI) connection.loadNodeById(row.getLong("resource_id")));
         entry.setTripleCount(row.getInt("triple_count"));
 
         entryIdCache.put(id,entry);

@@ -17,34 +17,33 @@
  */
 package org.apache.marmotta.kiwi.reasoner.test.sesame;
 
+import java.sql.SQLException;
 import org.apache.marmotta.commons.sesame.transactions.sail.KiWiTransactionalSail;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.reasoner.engine.ReasoningConfiguration;
 import org.apache.marmotta.kiwi.reasoner.sail.KiWiReasoningSail;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.eclipse.rdf4j.IsolationLevels;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.repository.RDFSchemaRepositoryConnectionTest;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.base.RepositoryConnectionWrapper;
+import org.eclipse.rdf4j.repository.base.RepositoryWrapper;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.Sail;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.SailWrapper;
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.repository.RDFSchemaRepositoryConnectionTest;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.base.RepositoryConnectionWrapper;
-import org.openrdf.repository.base.RepositoryWrapper;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.SailWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.SQLException;
-
-import static org.junit.Assert.fail;
 
 /**
  * Run the {@link KiWiRDFSchemaRepositoryConnectionTest}s.
@@ -63,11 +62,12 @@ public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryCo
     private KiWiReasoningSail rsail;
 
     public KiWiRDFSchemaRepositoryConnectionTest(KiWiConfiguration config) {
+        super(IsolationLevels.SNAPSHOT_READ);
         this.config = config;
     }
 
     /* (non-Javadoc)
-     * @see org.openrdf.repository.RepositoryConnectionTest#createRepository()
+     * @see org.eclipse.rdf4j.repository.RepositoryConnectionTest#createRepository()
      */
     @Override
     protected Repository createRepository() throws Exception {

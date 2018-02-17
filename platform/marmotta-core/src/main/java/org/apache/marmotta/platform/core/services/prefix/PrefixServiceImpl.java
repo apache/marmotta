@@ -77,7 +77,7 @@ public class PrefixServiceImpl implements PrefixService {
     }
 
     protected void addLocalMappings() {
-        String base = configurationService.getBaseUri();
+        String base = configurationService.getBaseIri();
         cache.put("local", base + ConfigurationService.RESOURCE_PATH + "/");
         cache.put("context", base + ConfigurationService.CONTEXT_PATH + "/");
     }

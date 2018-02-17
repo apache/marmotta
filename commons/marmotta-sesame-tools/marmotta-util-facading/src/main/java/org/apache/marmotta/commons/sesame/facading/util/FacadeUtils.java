@@ -17,17 +17,16 @@
 package org.apache.marmotta.commons.sesame.facading.util;
 
 
-import org.apache.commons.lang3.LocaleUtils;
-import org.apache.marmotta.commons.sesame.facading.model.Facade;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Value;
-
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
+import org.apache.commons.lang3.LocaleUtils;
+import org.apache.marmotta.commons.sesame.facading.model.Facade;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 
 /**
  * @author Sebastian Schaffert

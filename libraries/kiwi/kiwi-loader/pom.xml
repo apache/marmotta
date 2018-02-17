@@ -76,8 +76,8 @@
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-rdfxml</artifactId>
+            <groupId>org.eclipse.rdf4j</groupId>
+            <artifactId>rdf4j-rio-rdfxml</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

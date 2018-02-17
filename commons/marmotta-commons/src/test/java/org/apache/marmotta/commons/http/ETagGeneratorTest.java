@@ -17,24 +17,21 @@
  */
 package org.apache.marmotta.commons.http;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assume.assumeThat;
-
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.apache.marmotta.commons.http.ETagGenerator;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import org.junit.After;
 import org.junit.Assert;
+import static org.junit.Assume.assumeThat;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.sail.memory.MemoryStore;
 
 /**
  * Test the ETag Generator

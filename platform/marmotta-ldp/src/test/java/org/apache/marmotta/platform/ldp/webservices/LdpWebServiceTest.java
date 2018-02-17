@@ -20,51 +20,46 @@ package org.apache.marmotta.platform.ldp.webservices;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.regex.Pattern;
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Link;
+import javax.ws.rs.core.UriBuilder;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.commons.sesame.test.SesameMatchers;
+import static org.apache.marmotta.commons.sesame.test.SesameMatchers.hasStatement;
+import static org.apache.marmotta.commons.sesame.test.SesameMatchers.rdfStringMatches;
 import org.apache.marmotta.commons.util.HashUtils;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.ldp.api.LdpService;
 import org.apache.marmotta.platform.ldp.util.LdpUtils;
-import org.apache.marmotta.platform.ldp.webservices.util.HeaderMatchers;
+import static org.apache.marmotta.platform.ldp.webservices.util.HeaderMatchers.hasEntityTag;
+import static org.apache.marmotta.platform.ldp.webservices.util.HeaderMatchers.headerNotPresent;
+import static org.apache.marmotta.platform.ldp.webservices.util.HeaderMatchers.isLink;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.hamcrest.CoreMatchers;
+import static org.hamcrest.CoreMatchers.anyOf;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openrdf.model.URI;
-import org.openrdf.model.impl.LiteralImpl;
-import org.openrdf.model.impl.URIImpl;
-import org.openrdf.model.vocabulary.DCTERMS;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3.ldp.testsuite.matcher.HttpStatusSuccessMatcher;
-
-import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Link;
-import javax.ws.rs.core.UriBuilder;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.regex.Pattern;
-
-import static org.apache.marmotta.commons.sesame.test.SesameMatchers.hasStatement;
-import static org.apache.marmotta.commons.sesame.test.SesameMatchers.rdfStringMatches;
-import static org.apache.marmotta.platform.ldp.webservices.util.HeaderMatchers.hasEntityTag;
-import static org.apache.marmotta.platform.ldp.webservices.util.HeaderMatchers.headerNotPresent;
-import static org.apache.marmotta.platform.ldp.webservices.util.HeaderMatchers.isLink;
-import static org.hamcrest.CoreMatchers.anyOf;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Testing LDP web services
@@ -134,8 +129,8 @@ public class LdpWebServiceTest {
                 .header(HttpHeaders.ETAG, hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
                 .body(rdfStringMatches(mimeType, container,
-                        hasStatement(new URIImpl(container), DCTERMS.MODIFIED, null),
-                        hasStatement(new URIImpl(container), RDF.TYPE, LDP.BasicContainer)
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(container), DCTERMS.MODIFIED, null),
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(container), RDF.TYPE, LDP.BasicContainer)
                 ))
             .get(container);
 
@@ -152,8 +147,8 @@ public class LdpWebServiceTest {
                 .header(HttpHeaders.ETAG, hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
                 .body(rdfStringMatches(mimeType, container,
-                        hasStatement(new URIImpl(newResource), DCTERMS.MODIFIED, null),
-                        hasStatement(new URIImpl(newResource), RDF.TYPE, LDP.Resource)
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(newResource), DCTERMS.MODIFIED, null),
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(newResource), RDF.TYPE, LDP.Resource)
                 ))
             .get(newResource);
 
@@ -226,12 +221,12 @@ public class LdpWebServiceTest {
                 .header(HttpHeaders.ETAG, hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
                 .body(rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), container,
-                                hasStatement(new URIImpl(container), RDF.TYPE, LDP.Resource),
-                                hasStatement(new URIImpl(container), RDF.TYPE, LDP.RDFSource),
-                                hasStatement(new URIImpl(container), RDF.TYPE, LDP.Container),
-                                hasStatement(new URIImpl(container), RDF.TYPE, LDP.BasicContainer),
-                                hasStatement(new URIImpl(container), DCTERMS.MODIFIED, null),
-                                hasStatement(new URIImpl(container), LDP.contains, new URIImpl(binaryResource)))
+                                hasStatement(SimpleValueFactory.getInstance().createIRI(container), RDF.TYPE, LDP.Resource),
+                                hasStatement(SimpleValueFactory.getInstance().createIRI(container), RDF.TYPE, LDP.RDFSource),
+                                hasStatement(SimpleValueFactory.getInstance().createIRI(container), RDF.TYPE, LDP.Container),
+                                hasStatement(SimpleValueFactory.getInstance().createIRI(container), RDF.TYPE, LDP.BasicContainer),
+                                hasStatement(SimpleValueFactory.getInstance().createIRI(container), DCTERMS.MODIFIED, null),
+                                hasStatement(SimpleValueFactory.getInstance().createIRI(container), LDP.contains, SimpleValueFactory.getInstance().createIRI(binaryResource)))
                 )
             .get(container);
 
@@ -250,10 +245,10 @@ public class LdpWebServiceTest {
                 .header(HttpHeaders.ETAG, hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
                 .body(rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), metaResource,
-                        hasStatement(new URIImpl(metaResource), RDF.TYPE, LDP.Resource),
-                        hasStatement(new URIImpl(metaResource), RDF.TYPE, LDP.RDFSource),
-                        hasStatement(new URIImpl(metaResource), DCTERMS.MODIFIED, null),
-                        hasStatement(new URIImpl(metaResource), DCTERMS.HAS_FORMAT, new URIImpl(binaryResource))
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(metaResource), RDF.TYPE, LDP.Resource),
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(metaResource), RDF.TYPE, LDP.RDFSource),
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(metaResource), DCTERMS.MODIFIED, null),
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(metaResource), DCTERMS.HAS_FORMAT, SimpleValueFactory.getInstance().createIRI(binaryResource))
                 ))
             .get(metaResource);
 
@@ -271,11 +266,11 @@ public class LdpWebServiceTest {
                 .header(HttpHeaders.ETAG, hasEntityTag(false)) // FIXME: be more specific here
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
                 .body(rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), binaryResource,
-                        hasStatement(new URIImpl(binaryResource), RDF.TYPE, LDP.Resource),
-                        hasStatement(new URIImpl(binaryResource), RDF.TYPE, LDP.NonRDFSource),
-                        hasStatement(new URIImpl(binaryResource), DCTERMS.MODIFIED, null),
-                        hasStatement(new URIImpl(binaryResource), DCTERMS.FORMAT, new LiteralImpl(mimeType)),
-                        hasStatement(new URIImpl(binaryResource), DCTERMS.IS_FORMAT_OF, new URIImpl(metaResource))
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(binaryResource), RDF.TYPE, LDP.Resource),
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(binaryResource), RDF.TYPE, LDP.NonRDFSource),
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(binaryResource), DCTERMS.MODIFIED, null),
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(binaryResource), DCTERMS.FORMAT, SimpleValueFactory.getInstance().createLiteral(mimeType)),
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(binaryResource), DCTERMS.IS_FORMAT_OF, SimpleValueFactory.getInstance().createIRI(metaResource))
                 ))
             .get(binaryResource);
 
@@ -352,7 +347,7 @@ public class LdpWebServiceTest {
                 .statusCode(201)
             .post(container)
                 .getHeader(HttpHeaders.LOCATION);
-        final URI uri = new URIImpl(resource);
+        final IRI uri = SimpleValueFactory.getInstance().createIRI(resource);
 
         // Check the data is there
         EntityTag etag = EntityTag.valueOf(RestAssured
@@ -361,7 +356,7 @@ public class LdpWebServiceTest {
             .expect()
                 .contentType(RDFFormat.RDFXML.getDefaultMIMEType())
                 .body(rdfStringMatches(RDFFormat.RDFXML, resource,
-                        hasStatement(uri, RDF.TYPE, new URIImpl("http://example.com/Example")),
+                        hasStatement(uri, RDF.TYPE, SimpleValueFactory.getInstance().createIRI("http://example.com/Example")),
                         not(hasStatement(uri, RDFS.LABEL, null)),
                         not(hasStatement(uri, LDP.contains, uri))
                 ))
@@ -405,7 +400,7 @@ public class LdpWebServiceTest {
             .expect()
                 .contentType(RDFFormat.RDFXML.getDefaultMIMEType())
                 .body(rdfStringMatches(RDFFormat.RDFXML, resource,
-                        hasStatement(uri, RDF.TYPE, new URIImpl("http://example.com/Example")),
+                        hasStatement(uri, RDF.TYPE, SimpleValueFactory.getInstance().createIRI("http://example.com/Example")),
                         hasStatement(uri, RDFS.LABEL, null),
                         not(hasStatement(uri, LDP.contains, uri))
                 ))
@@ -491,8 +486,8 @@ public class LdpWebServiceTest {
                 .header(HttpHeaders.ETAG, hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
                 .body(rdfStringMatches(mimeType, container,
-                        hasStatement(new URIImpl(container), DCTERMS.MODIFIED, null),
-                        hasStatement(new URIImpl(container), RDF.TYPE, LDP.BasicContainer)
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(container), DCTERMS.MODIFIED, null),
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(container), RDF.TYPE, LDP.BasicContainer)
                 ))
             .get(container);
 
@@ -507,8 +502,8 @@ public class LdpWebServiceTest {
                 .header(HttpHeaders.ETAG, hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
                 .body(rdfStringMatches(mimeType, container,
-                        hasStatement(new URIImpl(newResource), DCTERMS.MODIFIED, null),
-                        hasStatement(new URIImpl(newResource), RDF.TYPE, LDP.Resource)
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(newResource), DCTERMS.MODIFIED, null),
+                        hasStatement(SimpleValueFactory.getInstance().createIRI(newResource), RDF.TYPE, LDP.Resource)
                 ))
             .get(newResource);
 

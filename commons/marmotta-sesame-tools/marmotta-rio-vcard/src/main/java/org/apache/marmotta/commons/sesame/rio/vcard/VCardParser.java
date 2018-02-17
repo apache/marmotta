@@ -18,6 +18,12 @@
 package org.apache.marmotta.commons.sesame.rio.vcard;
 
 import com.google.common.base.Preconditions;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.util.CompatibilityHints;
 import net.fortuna.ical4j.vcard.Parameter;
@@ -25,24 +31,25 @@ import net.fortuna.ical4j.vcard.Property;
 import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardBuilder;
 import net.fortuna.ical4j.vcard.parameter.Type;
-import net.fortuna.ical4j.vcard.property.*;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.helpers.RDFParserBase;
+import net.fortuna.ical4j.vcard.property.Address;
+import net.fortuna.ical4j.vcard.property.Agent;
+import net.fortuna.ical4j.vcard.property.Geo;
+import net.fortuna.ical4j.vcard.property.Logo;
+import net.fortuna.ical4j.vcard.property.N;
+import net.fortuna.ical4j.vcard.property.Org;
+import net.fortuna.ical4j.vcard.property.Photo;
+import net.fortuna.ical4j.vcard.property.Sound;
+import net.fortuna.ical4j.vcard.property.Telephone;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.helpers.AbstractRDFParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * A parser for parsing VCard files into RDF. Uses the vcard vocabulary (http://www.w3.org/2006/vcard/ns) for
@@ -52,7 +59,7 @@ import java.util.UUID;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class VCardParser extends RDFParserBase {
+public class VCardParser extends AbstractRDFParser {
 
     private static Logger log = LoggerFactory.getLogger(VCardParser.class);
 
@@ -92,7 +99,7 @@ public class VCardParser extends RDFParserBase {
     }
 
     /**
-     * Creates a new RDFParserBase that will use a {@link org.openrdf.model.impl.ValueFactoryImpl} to
+     * Creates a new AbstractRDFParser that will use a {@link org.eclipse.rdf4j.model.impl.ValueFactoryImpl} to
      * create RDF model objects.
      */
     public VCardParser() {
@@ -100,7 +107,7 @@ public class VCardParser extends RDFParserBase {
     }
 
     /**
-     * Creates a new RDFParserBase that will use the supplied ValueFactory to
+     * Creates a new AbstractRDFParser that will use the supplied ValueFactory to
      * create RDF model objects.
      *
      * @param valueFactory A ValueFactory.
@@ -120,23 +127,23 @@ public class VCardParser extends RDFParserBase {
     }
 
     /**
-     * Parses the data from the supplied InputStream, using the supplied baseURI
-     * to resolve any relative URI references.
+     * Parses the data from the supplied InputStream, using the supplied baseIRI
+     * to resolve any relative IRI references.
      *
      * @param in      The InputStream from which to read the data.
-     * @param baseURI The URI associated with the data in the InputStream.
+     * @param baseIRI The IRI associated with the data in the InputStream.
      * @throws java.io.IOException If an I/O error occurred while data was read from the InputStream.
-     * @throws org.openrdf.rio.RDFParseException
+     * @throws org.eclipse.rdf4j.rio.RDFParseException
      *                             If the parser has found an unrecoverable parse error.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *                             If the configured statement handler has encountered an
      *                             unrecoverable error.
      */
     @Override
-    public void parse(InputStream in, String baseURI) throws IOException, RDFParseException, RDFHandlerException {
-        Preconditions.checkNotNull(baseURI);
+    public void parse(InputStream in, String baseIRI) throws IOException, RDFParseException, RDFHandlerException {
+        Preconditions.checkNotNull(baseIRI);
 
-        setBaseURI(baseURI);
+        setBaseURI(baseIRI);
         try {
             for(VCard card : new VCardBuilder(in).buildAll()) {
                 parseVCard(card);
@@ -147,23 +154,23 @@ public class VCardParser extends RDFParserBase {
     }
 
     /**
-     * Parses the data from the supplied Reader, using the supplied baseURI to
-     * resolve any relative URI references.
+     * Parses the data from the supplied Reader, using the supplied baseIRI to
+     * resolve any relative IRI references.
      *
      * @param reader  The Reader from which to read the data.
-     * @param baseURI The URI associated with the data in the InputStream.
+     * @param baseIRI The IRI associated with the data in the InputStream.
      * @throws java.io.IOException If an I/O error occurred while data was read from the InputStream.
-     * @throws org.openrdf.rio.RDFParseException
+     * @throws org.eclipse.rdf4j.rio.RDFParseException
      *                             If the parser has found an unrecoverable parse error.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *                             If the configured statement handler has encountered an
      *                             unrecoverable error.
      */
     @Override
-    public void parse(Reader reader, String baseURI) throws IOException, RDFParseException, RDFHandlerException {
-        Preconditions.checkNotNull(baseURI);
+    public void parse(Reader reader, String baseIRI) throws IOException, RDFParseException, RDFHandlerException {
+        Preconditions.checkNotNull(baseIRI);
 
-        setBaseURI(baseURI);
+        setBaseURI(baseIRI);
         try {
             for(VCard card : new VCardBuilder(reader).buildAll()) {
                 parseVCard(card);
@@ -174,7 +181,7 @@ public class VCardParser extends RDFParserBase {
     }
 
     private void parseVCard(VCard vCard) throws RDFHandlerException, RDFParseException {
-        URI uri;
+        IRI uri;
 
         // create uri for resource representing the vcard based on the UID if present or on a random UUID
         if(vCard.getProperty(Property.Id.UID) != null) {
@@ -183,12 +190,12 @@ public class VCardParser extends RDFParserBase {
             uri = resolveURI(UUID.randomUUID().toString());
         }
         Resource t_vcard = createURI(NS_VCARD + "VCard");
-        URI p_type       = createURI(NS_RDF + "type");
+        IRI p_type       = createURI(NS_RDF + "type");
         rdfHandler.handleStatement(createStatement(uri,p_type,t_vcard));
 
         for(Property p : vCard.getProperties()) {
             if(propertyMappings.containsKey(p.getId())) {
-                URI prop =  createURI(propertyMappings.get(p.getId()));
+                IRI prop =  createURI(propertyMappings.get(p.getId()));
 
                 switch (p.getId()) {
                     case ADR:
@@ -205,7 +212,7 @@ public class VCardParser extends RDFParserBase {
                         }
                         break;
                     case EMAIL:
-                        URI email = createURI("mailto:"+p.getValue());
+                        IRI email = createURI("mailto:"+p.getValue());
                         rdfHandler.handleStatement(createStatement(uri,prop,email));
                         break;
                     case GEO:
@@ -230,7 +237,7 @@ public class VCardParser extends RDFParserBase {
                         createTel(uri, prop, (Telephone) p);
                         break;
                     case URL:
-                        URI url = createURI(p.getValue());
+                        IRI url = createURI(p.getValue());
                         rdfHandler.handleStatement(createStatement(uri,prop,url));
                         break;
 
@@ -245,50 +252,50 @@ public class VCardParser extends RDFParserBase {
     }
 
 
-    private void createAddress(URI uri, URI prop, Address adr) throws RDFHandlerException, RDFParseException {
+    private void createAddress(IRI uri, IRI prop, Address adr) throws RDFHandlerException, RDFParseException {
         Resource r_adr = createBNode();
         Resource t_adr = createURI(NS_VCARD + "Address");
-        URI p_type     = createURI(NS_RDF + "type");
+        IRI p_type     = createURI(NS_RDF + "type");
         rdfHandler.handleStatement(createStatement(r_adr,p_type,t_adr));
 
         if(adr.getCountry() != null) {
-            URI p_country = createURI(NS_VCARD + "country-name");
+            IRI p_country = createURI(NS_VCARD + "country-name");
             Literal v_country = createLiteral(adr.getCountry(),null,null);
             rdfHandler.handleStatement(createStatement(r_adr,p_country,v_country));
         }
 
         if(adr.getExtended() != null && !"".equals(adr.getExtended().trim())) {
-            URI p_ext = createURI(NS_VCARD + "extended-address");
+            IRI p_ext = createURI(NS_VCARD + "extended-address");
             Literal v_ext = createLiteral(adr.getExtended(),null,null);
             rdfHandler.handleStatement(createStatement(r_adr,p_ext,v_ext));
         }
 
         if(adr.getLocality() != null && !"".equals(adr.getLocality().trim())) {
-            URI p_locality = createURI(NS_VCARD + "locality");
+            IRI p_locality = createURI(NS_VCARD + "locality");
             Literal v_locality = createLiteral(adr.getLocality(),null,null);
             rdfHandler.handleStatement(createStatement(r_adr,p_locality,v_locality));
         }
 
         if(adr.getPoBox() != null && !"".equals(adr.getPoBox().trim())) {
-            URI p_pobox = createURI(NS_VCARD + "post-office-box");
+            IRI p_pobox = createURI(NS_VCARD + "post-office-box");
             Literal v_pobox = createLiteral(adr.getPoBox(),null,null);
             rdfHandler.handleStatement(createStatement(r_adr,p_pobox,v_pobox));
         }
 
         if(adr.getPostcode() != null  && !"".equals(adr.getPostcode().trim())) {
-            URI p_postcode = createURI(NS_VCARD + "postal-code");
+            IRI p_postcode = createURI(NS_VCARD + "postal-code");
             Literal v_postcode = createLiteral(adr.getPostcode(),null,null);
             rdfHandler.handleStatement(createStatement(r_adr,p_postcode,v_postcode));
         }
 
         if(adr.getRegion() != null && !"".equals(adr.getRegion().trim())) {
-            URI p_region = createURI(NS_VCARD + "region");
+            IRI p_region = createURI(NS_VCARD + "region");
             Literal v_region = createLiteral(adr.getRegion(),null,null);
             rdfHandler.handleStatement(createStatement(r_adr,p_region,v_region));
         }
 
         if(adr.getStreet() != null) {
-            URI p_street = createURI(NS_VCARD + "street-address");
+            IRI p_street = createURI(NS_VCARD + "street-address");
             Literal v_street = createLiteral(adr.getStreet(),null,null);
             rdfHandler.handleStatement(createStatement(r_adr,p_street,v_street));
         }
@@ -300,10 +307,10 @@ public class VCardParser extends RDFParserBase {
             Type type = (Type)adr.getParameter(Parameter.Id.TYPE);
             for(String value : type.getTypes()) {
                 if("HOME".equals(value)) {
-                    URI p_home = createURI(NS_VCARD + "homeAdr");
+                    IRI p_home = createURI(NS_VCARD + "homeAdr");
                     rdfHandler.handleStatement(createStatement(uri,p_home,r_adr));
                 } else if("WORK".equals(value)) {
-                    URI p_work = createURI(NS_VCARD + "workAdr");
+                    IRI p_work = createURI(NS_VCARD + "workAdr");
                     rdfHandler.handleStatement(createStatement(uri,p_work,r_adr));
                 } else {
                     rdfHandler.handleStatement(createStatement(uri,prop,r_adr));
@@ -316,24 +323,24 @@ public class VCardParser extends RDFParserBase {
     }
 
 
-    private void createAgent(URI uri, URI prop, Agent agent) throws RDFHandlerException, RDFParseException {
+    private void createAgent(IRI uri, IRI prop, Agent agent) throws RDFHandlerException, RDFParseException {
         if(agent.getUri() != null) {
-            URI r_agent = createURI(agent.getUri().toString());
+            IRI r_agent = createURI(agent.getUri().toString());
             rdfHandler.handleStatement(createStatement(uri,prop,r_agent));
         } else {
             log.warn("ignoring agent relation, since agent cannot be resolved");
         }
     }
 
-    private void createLocation(URI uri, URI prop, Geo geo) throws RDFHandlerException, RDFParseException {
+    private void createLocation(IRI uri, IRI prop, Geo geo) throws RDFHandlerException, RDFParseException {
         Resource r_location = createBNode();
         Resource t_adr = createURI(NS_VCARD + "Location");
-        URI p_type     = createURI(NS_RDF + "type");
+        IRI p_type     = createURI(NS_RDF + "type");
         rdfHandler.handleStatement(createStatement(r_location,p_type,t_adr));
 
-        URI p_latitute = createURI(NS_VCARD+"latitude");
-        URI p_longitude = createURI(NS_VCARD+"longitude");
-        URI t_decimal   = createURI("http://www.w3.org/2001/XMLSchema#double");
+        IRI p_latitute = createURI(NS_VCARD+"latitude");
+        IRI p_longitude = createURI(NS_VCARD+"longitude");
+        IRI t_decimal   = createURI("http://www.w3.org/2001/XMLSchema#double");
 
         Literal v_latitude = createLiteral(geo.getLatitude().toPlainString(),null,t_decimal);
         Literal v_longitude = createLiteral(geo.getLongitude().toPlainString(), null, t_decimal);
@@ -344,9 +351,9 @@ public class VCardParser extends RDFParserBase {
     }
 
 
-    private void createLogo(URI uri, URI prop, Logo logo) throws RDFHandlerException, RDFParseException {
+    private void createLogo(IRI uri, IRI prop, Logo logo) throws RDFHandlerException, RDFParseException {
         if(logo.getUri() != null) {
-            URI r_logo = createURI(logo.getUri().toString());
+            IRI r_logo = createURI(logo.getUri().toString());
             rdfHandler.handleStatement(createStatement(uri,prop,r_logo));
         } else {
             log.warn("ignoring logo relation, since binary logos are not supported in RDF");
@@ -354,26 +361,26 @@ public class VCardParser extends RDFParserBase {
     }
 
 
-    private void createName(URI uri, URI prop, N name) throws RDFHandlerException, RDFParseException {
+    private void createName(IRI uri, IRI prop, N name) throws RDFHandlerException, RDFParseException {
         Resource r_name = createBNode();
         Resource t_name = createURI(NS_VCARD + "Name");
-        URI p_type      = createURI(NS_RDF + "type");
+        IRI p_type      = createURI(NS_RDF + "type");
         rdfHandler.handleStatement(createStatement(r_name,p_type,t_name));
 
         if(name.getFamilyName() != null) {
-            URI p_family_name = createURI(NS_VCARD + "family-name");
+            IRI p_family_name = createURI(NS_VCARD + "family-name");
             Literal v_family_name = createLiteral(name.getFamilyName(),null,null);
             rdfHandler.handleStatement(createStatement(r_name,p_family_name,v_family_name));
         }
 
         if(name.getGivenName() != null) {
-            URI p_given_name = createURI(NS_VCARD + "given-name");
+            IRI p_given_name = createURI(NS_VCARD + "given-name");
             Literal v_given_name = createLiteral(name.getGivenName(),null,null);
             rdfHandler.handleStatement(createStatement(r_name,p_given_name,v_given_name));
         }
 
         if(name.getAdditionalNames() != null && name.getAdditionalNames().length > 0) {
-            URI p_additional_name = createURI(NS_VCARD + "additional-name");
+            IRI p_additional_name = createURI(NS_VCARD + "additional-name");
             for(String additionalName : name.getAdditionalNames()) {
                 if(!"".equals(additionalName)) {
                     Literal v_additional_name = createLiteral(additionalName,null,null);
@@ -383,7 +390,7 @@ public class VCardParser extends RDFParserBase {
         }
 
         if(name.getPrefixes() != null && name.getPrefixes().length > 0) {
-            URI p_prefix = createURI(NS_VCARD + "honorific-prefix");
+            IRI p_prefix = createURI(NS_VCARD + "honorific-prefix");
             for(String namePrefix : name.getPrefixes()) {
                 if(!"".equals(namePrefix)) {
                     Literal v_prefix = createLiteral(namePrefix,null,null);
@@ -393,7 +400,7 @@ public class VCardParser extends RDFParserBase {
         }
 
         if(name.getSuffixes() != null && name.getSuffixes().length > 0) {
-            URI p_suffix = createURI(NS_VCARD + "honorific-suffix");
+            IRI p_suffix = createURI(NS_VCARD + "honorific-suffix");
             for(String nameSuffix : name.getSuffixes()) {
                 if(!"".equals(nameSuffix)) {
                     Literal v_suffix = createLiteral(nameSuffix,null,null);
@@ -406,14 +413,14 @@ public class VCardParser extends RDFParserBase {
     }
 
 
-    private void createOrganization(URI uri, URI prop, Org org) throws RDFHandlerException, RDFParseException {
+    private void createOrganization(IRI uri, IRI prop, Org org) throws RDFHandlerException, RDFParseException {
         for(String orgName : org.getValues()) {
             Resource r_name = createBNode();
             Resource t_org = createURI(NS_VCARD + "Organization");
-            URI p_type     = createURI(NS_RDF + "type");
+            IRI p_type     = createURI(NS_RDF + "type");
             rdfHandler.handleStatement(createStatement(r_name,p_type,t_org));
 
-            URI p_name = createURI(NS_VCARD + "organization-name");
+            IRI p_name = createURI(NS_VCARD + "organization-name");
             Literal v_name = createLiteral(orgName,null,null);
 
             rdfHandler.handleStatement(createStatement(r_name,p_name,v_name));
@@ -422,18 +429,18 @@ public class VCardParser extends RDFParserBase {
     }
 
 
-    private void createPhoto(URI uri, URI prop, Photo photo) throws RDFHandlerException, RDFParseException {
+    private void createPhoto(IRI uri, IRI prop, Photo photo) throws RDFHandlerException, RDFParseException {
         if(photo.getUri() != null) {
-            URI r_logo = createURI(photo.getUri().toString());
+            IRI r_logo = createURI(photo.getUri().toString());
             rdfHandler.handleStatement(createStatement(uri,prop,r_logo));
         } else {
             log.warn("ignoring photo relation, since binary photos are not supported in RDF");
         }
     }
 
-    private void createSound(URI uri, URI prop, Sound sound) throws RDFHandlerException, RDFParseException {
+    private void createSound(IRI uri, IRI prop, Sound sound) throws RDFHandlerException, RDFParseException {
         if(sound.getUri() != null) {
-            URI r_logo = createURI(sound.getUri().toString());
+            IRI r_logo = createURI(sound.getUri().toString());
             rdfHandler.handleStatement(createStatement(uri,prop,r_logo));
         } else {
             log.warn("ignoring photo relation, since binary photos are not supported in RDF");
@@ -441,8 +448,8 @@ public class VCardParser extends RDFParserBase {
     }
 
 
-    private void createTel(URI uri, URI prop, Telephone telephone) throws RDFHandlerException, RDFParseException {
-        URI r_tel;
+    private void createTel(IRI uri, IRI prop, Telephone telephone) throws RDFHandlerException, RDFParseException {
+        IRI r_tel;
 
         if(telephone.getUri() != null) {
             r_tel = createURI(telephone.getUri().toString());
@@ -454,13 +461,13 @@ public class VCardParser extends RDFParserBase {
             Type type = (Type)telephone.getParameter(Parameter.Id.TYPE);
             for(String value : type.getTypes()) {
                 if("HOME".equals(value)) {
-                    URI p_home = createURI(NS_VCARD + "homeTel");
+                    IRI p_home = createURI(NS_VCARD + "homeTel");
                     rdfHandler.handleStatement(createStatement(uri,p_home,r_tel));
                 } else if("WORK".equals(value)) {
-                    URI p_work = createURI(NS_VCARD + "workTel");
+                    IRI p_work = createURI(NS_VCARD + "workTel");
                     rdfHandler.handleStatement(createStatement(uri,p_work,r_tel));
                 } else if("CELL".equals(value)) {
-                    URI p_work = createURI(NS_VCARD + "mobileTel");
+                    IRI p_work = createURI(NS_VCARD + "mobileTel");
                     rdfHandler.handleStatement(createStatement(uri,p_work,r_tel));
                 } else {
                     rdfHandler.handleStatement(createStatement(uri,prop,r_tel));

@@ -18,7 +18,7 @@
 package org.apache.marmotta.commons.sesame.model;
 
 import com.google.common.base.Function;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.Value;
 
 /**
  * Utility functions for working with values.

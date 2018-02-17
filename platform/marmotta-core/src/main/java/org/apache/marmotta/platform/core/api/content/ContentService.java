@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.platform.core.api.content;
 
-import org.apache.marmotta.platform.core.exception.MarmottaException;
-import org.apache.marmotta.platform.core.exception.WritingNotSupportedException;
-import org.openrdf.model.Resource;
-
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.marmotta.platform.core.exception.MarmottaException;
+import org.apache.marmotta.platform.core.exception.WritingNotSupportedException;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * User: Thomas Kurz
@@ -44,6 +43,7 @@ public interface ContentService {
      * @param resource  the resource for which to store the content
      * @param mimeType  the mime type of the content
      * @param data a byte array containing the content of the resource
+     * @throws org.apache.marmotta.platform.core.exception.WritingNotSupportedException
      */
     void setContentData(Resource resource, byte[] data, String mimeType) throws WritingNotSupportedException;
 
@@ -57,6 +57,7 @@ public interface ContentService {
      * @param resource  the resource for which to return the content
      * @param mimeType  the mime type to retrieve of the content
      * @param in a InputStream containing the content of the resource
+     * @throws org.apache.marmotta.platform.core.exception.WritingNotSupportedException
      */
     void setContentStream(Resource resource, InputStream in, String mimeType) throws WritingNotSupportedException;
 
@@ -89,6 +90,7 @@ public interface ContentService {
      * @param resource  the resource for which to return the content
      * @param mimetype  the mime type to retrieve of the content
      * @return a InputStream containing the content of the resource, or null if no content exists
+     * @throws java.io.IOException
      */
     InputStream getContentStream(Resource resource, String mimetype) throws IOException;
 
@@ -109,6 +111,7 @@ public interface ContentService {
       * Return the number of bytes the content of this resource contains.
       *
       * @param resource resource for which to return the content length
+     * @param mimetype
       * @return byte count for the resource content
       */
 
@@ -117,6 +120,8 @@ public interface ContentService {
      * Delete the content of the specified resource.
      *
      * @param resource the resource for which to delete the content
+     * @return 
+     * @throws org.apache.marmotta.platform.core.exception.MarmottaException
      */
     boolean deleteContent(Resource resource) throws MarmottaException;
 

@@ -17,7 +17,7 @@
 package org.apache.marmotta.commons.sesame.facading.impl;
 
 /**
- * Simple class encapsulating the predicate/property uris.
+ * Simple class encapsulating the predicate/property iris.
  */
 public class FacadingPredicate {
 

@@ -17,15 +17,9 @@
  */
 package org.apache.marmotta.kiwi.reasoner.test.engine;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.junit.Assert.fail;
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.Iterations;
-
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
 import org.apache.marmotta.commons.sesame.transactions.model.TransactionData;
 import org.apache.marmotta.commons.sesame.transactions.sail.KiWiTransactionalSail;
@@ -43,21 +37,23 @@ import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningConnection;
 import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningPersistence;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import static org.hamcrest.Matchers.hasItem;
 import org.junit.After;
 import org.junit.Assert;
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,9 +149,9 @@ public class ReasoningEngineTest {
             con.begin();
             // create a triple (ex:a ex:symmetric ex:b); this should trigger rule 2 of the reasoner and add the
             // inverse relationship
-            Resource subject  = con.getValueFactory().createURI(NS+"a");
-            URI      property = con.getValueFactory().createURI(NS+"symmetric");
-            Resource object   = con.getValueFactory().createURI(NS+"b");
+            Resource subject  = con.getValueFactory().createIRI(NS+"a");
+            IRI      property = con.getValueFactory().createIRI(NS+"symmetric");
+            Resource object   = con.getValueFactory().createIRI(NS+"b");
 
             con.add(subject,property,object);
             con.commit();
@@ -237,11 +233,11 @@ public class ReasoningEngineTest {
             con.begin();
             // create a triple (ex:a ex:symmetric ex:b); this should trigger rule 2 of the reasoner and add the
             // inverse relationship
-            Resource a  = con.getValueFactory().createURI(NS+"a");
-            URI      property = con.getValueFactory().createURI(NS+"transitive");
-            Resource b   = con.getValueFactory().createURI(NS+"b");
-            Resource c   = con.getValueFactory().createURI(NS+"c");
-            Resource d   = con.getValueFactory().createURI(NS+"d");
+            Resource a  = con.getValueFactory().createIRI(NS+"a");
+            IRI      property = con.getValueFactory().createIRI(NS+"transitive");
+            Resource b   = con.getValueFactory().createIRI(NS+"b");
+            Resource c   = con.getValueFactory().createIRI(NS+"c");
+            Resource d   = con.getValueFactory().createIRI(NS+"d");
 
             con.add(a,property,b);
             con.add(b,property,c);
@@ -361,12 +357,12 @@ public class ReasoningEngineTest {
             // add some triples
             con.begin();
 
-            Resource a   = con.getValueFactory().createURI(NS+"a");
-            Resource b   = con.getValueFactory().createURI(NS+"b");
-            Resource c   = con.getValueFactory().createURI(NS+"c");
-            Resource d   = con.getValueFactory().createURI(NS+"d");
-            URI      t   = con.getValueFactory().createURI(NS+"transitive");
-            URI      s   = con.getValueFactory().createURI(NS+"symmetric");
+            Resource a   = con.getValueFactory().createIRI(NS+"a");
+            Resource b   = con.getValueFactory().createIRI(NS+"b");
+            Resource c   = con.getValueFactory().createIRI(NS+"c");
+            Resource d   = con.getValueFactory().createIRI(NS+"d");
+            IRI      t   = con.getValueFactory().createIRI(NS+"transitive");
+            IRI      s   = con.getValueFactory().createIRI(NS+"symmetric");
 
             con.add(this.getClass().getResourceAsStream("simple.ttl"),"http://localhost/resource/", RDFFormat.TURTLE);
             con.commit();
@@ -396,7 +392,7 @@ public class ReasoningEngineTest {
             };
 
 
-            RepositoryResult<Statement> result = con.getStatements(null,null,null,true, con.getValueFactory().createURI(store.getInferredContext()));
+            RepositoryResult<Statement> result = con.getStatements(null,null,null,true, con.getValueFactory().createIRI(store.getInferredContext()));
             if(result.hasNext()) {
                 while (result.hasNext()) {
                     Statement stmt1 = result.next();
@@ -431,12 +427,12 @@ public class ReasoningEngineTest {
             // add some triples
             con.begin();
 
-            Resource a   = con.getValueFactory().createURI(NS+"a");
-            Resource b   = con.getValueFactory().createURI(NS+"b");
-            Resource c   = con.getValueFactory().createURI(NS+"c");
-            Resource d   = con.getValueFactory().createURI(NS+"d");
-            URI      t   = con.getValueFactory().createURI(NS+"transitive");
-            URI      s   = con.getValueFactory().createURI(NS+"symmetric");
+            Resource a   = con.getValueFactory().createIRI(NS+"a");
+            Resource b   = con.getValueFactory().createIRI(NS+"b");
+            Resource c   = con.getValueFactory().createIRI(NS+"c");
+            Resource d   = con.getValueFactory().createIRI(NS+"d");
+            IRI      t   = con.getValueFactory().createIRI(NS+"transitive");
+            IRI      s   = con.getValueFactory().createIRI(NS+"symmetric");
 
             con.add(this.getClass().getResourceAsStream("simple.ttl"),"http://localhost/resource/", RDFFormat.TURTLE);
             con.commit();

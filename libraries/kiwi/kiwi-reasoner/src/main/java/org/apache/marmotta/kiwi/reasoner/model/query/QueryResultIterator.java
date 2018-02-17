@@ -17,9 +17,8 @@
  */
 package org.apache.marmotta.kiwi.reasoner.model.query;
 
-import info.aduna.iteration.CloseableIteration;
-
 import java.sql.SQLException;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
 
 /**
  * An iterator over query results. Allows lazy iterating over the database results of the query.

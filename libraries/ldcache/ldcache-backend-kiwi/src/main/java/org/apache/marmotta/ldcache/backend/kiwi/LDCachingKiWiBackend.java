@@ -17,7 +17,7 @@
 
 package org.apache.marmotta.ldcache.backend.kiwi;
 
-import info.aduna.iteration.CloseableIteration;
+import java.sql.SQLException;
 import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
@@ -25,22 +25,21 @@ import org.apache.marmotta.ldcache.backend.kiwi.model.KiWiCacheEntry;
 import org.apache.marmotta.ldcache.backend.kiwi.persistence.LDCachingKiWiPersistence;
 import org.apache.marmotta.ldcache.backend.kiwi.persistence.LDCachingKiWiPersistenceConnection;
 import org.apache.marmotta.ldcache.model.CacheEntry;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.impl.TreeModel;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.base.RepositoryWrapper;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.SailConnection;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.SailWrapper;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.impl.TreeModel;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.base.RepositoryWrapper;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.Sail;
+import org.eclipse.rdf4j.sail.SailConnection;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.SailWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.SQLException;
 
 /**
  * Add file description here!
@@ -128,7 +127,7 @@ public class LDCachingKiWiBackend implements LDCachingBackend {
      * @return
      */
     @Override
-    public CacheEntry getEntry(URI resource) {
+    public CacheEntry getEntry(IRI resource) {
         try {
             try(LDCachingKiWiPersistenceConnection dbcon = persistence.getConnection()) {
 
@@ -142,7 +141,7 @@ public class LDCachingKiWiBackend implements LDCachingBackend {
                         con.begin();
 
                         Model triples = new TreeModel();
-                        ModelCommons.add(triples,con.getStatements(resource,null,null,true,store.getValueFactory().createURI(cacheContext)));
+                        ModelCommons.add(triples,con.getStatements(resource,null,null,true,store.getValueFactory().createIRI(cacheContext)));
                         ce.setTriples(triples);
 
                         con.commit();
@@ -170,7 +169,7 @@ public class LDCachingKiWiBackend implements LDCachingBackend {
      * @param entry    the entry for the resource
      */
     @Override
-    public void putEntry(URI resource, CacheEntry entry) {
+    public void putEntry(IRI resource, CacheEntry entry) {
         try {
             try(LDCachingKiWiPersistenceConnection dbcon = persistence.getConnection()) {
 
@@ -182,14 +181,14 @@ public class LDCachingKiWiBackend implements LDCachingBackend {
                 try {
                     con.begin();
 
-                    con.removeStatements(resource, null, null, store.getValueFactory().createURI(cacheContext));
+                    con.removeStatements(resource, null, null, store.getValueFactory().createIRI(cacheContext));
                     for(Statement stmt : entry.getTriples()) {
-                        con.addStatement(stmt.getSubject(), stmt.getPredicate(), stmt.getObject(), store.getValueFactory().createURI(cacheContext));
+                        con.addStatement(stmt.getSubject(), stmt.getPredicate(), stmt.getObject(), store.getValueFactory().createIRI(cacheContext));
                     }
 
                     con.commit();
 
-                    entry.setResource(store.getValueFactory().createURI(resource.stringValue()));
+                    entry.setResource(store.getValueFactory().createIRI(resource.stringValue()));
 
                     dbcon.storeCacheEntry(entry);
                 } catch(SailException ex) {
@@ -212,7 +211,7 @@ public class LDCachingKiWiBackend implements LDCachingBackend {
      * @param resource the resource to remove the entry for
      */
     @Override
-    public void removeEntry(URI resource) {
+    public void removeEntry(IRI resource) {
         try {
             try(LDCachingKiWiPersistenceConnection dbcon = persistence.getConnection()) {
 
@@ -224,7 +223,7 @@ public class LDCachingKiWiBackend implements LDCachingBackend {
                 try {
                     con.begin();
 
-                    con.removeStatements(resource, null, null, store.getValueFactory().createURI(cacheContext));
+                    con.removeStatements(resource, null, null, store.getValueFactory().createIRI(cacheContext));
 
                     con.commit();
                 } catch(SailException ex) {
@@ -259,7 +258,7 @@ public class LDCachingKiWiBackend implements LDCachingBackend {
                 try {
                     con.begin();
 
-                    con.removeStatements((Resource) null, null, null, store.getValueFactory().createURI(cacheContext));
+                    con.removeStatements((Resource) null, null, null, store.getValueFactory().createIRI(cacheContext));
 
                     con.commit();
                 } catch(SailException ex) {
@@ -288,7 +287,7 @@ public class LDCachingKiWiBackend implements LDCachingBackend {
         }
 
         // register cache context in database
-        store.getValueFactory().createURI(cacheContext);
+        store.getValueFactory().createIRI(cacheContext);
 
     }
 

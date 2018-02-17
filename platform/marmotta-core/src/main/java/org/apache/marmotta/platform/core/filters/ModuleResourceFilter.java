@@ -17,23 +17,27 @@
  */
 package org.apache.marmotta.platform.core.filters;
 
+import java.io.IOException;
+import java.net.URL;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
 import org.apache.marmotta.platform.core.api.modules.MarmottaResourceService;
 import org.apache.marmotta.platform.core.api.modules.ResourceEntry;
 import org.slf4j.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URL;
-
 /**
+ * <p>
  * Resolve the resources of LMF modules and deliver them. Proceeds with the chain if not found.
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 @ApplicationScoped
@@ -49,7 +53,7 @@ public class ModuleResourceFilter implements MarmottaHttpFilter {
     private ConfigurationService configurationService;
 
     /**
-     * Return the pattern (regular expression) that a request URI (relative to the LMF base URI) has to match
+     * Return the pattern (regular expression) that a request IRI (relative to the LMF base IRI) has to match
      * before triggering this filter.
      *
      * @return
@@ -80,6 +84,8 @@ public class ModuleResourceFilter implements MarmottaHttpFilter {
      * The web container cannot place the filter into service if the init method either<br>
      * 1.Throws a ServletException <br>
      * 2.Does not return within a time period defined by the web container
+     * @param filterConfig
+     * @throws javax.servlet.ServletException
      */
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {

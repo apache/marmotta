@@ -26,12 +26,11 @@ import java.util.Collection;
 import org.apache.marmotta.ldpath.parser.ParseException;
 import org.apache.marmotta.ldpath.test.AbstractTestBase;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.URI;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepositoryConnection;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 
 /**
  * @author Jakob Frank <jakob@apache.org>
@@ -42,8 +41,8 @@ public class XmlTextFunctionTest extends AbstractTestBase {
     private static final String TEXT = "This is some text -> with XML-Stuff (tags & entities) and an umlaut (Ö) contained.";
     private static final String UNESCAPED = "<text>This is some text -> with XML-Stuff (tags & entities) and an umlaut (Ö) contained.</text>";
     
-    private URI resource;
-    private URI prop;
+    private IRI resource;
+    private IRI prop;
 
     @Before
     public void setUp() {

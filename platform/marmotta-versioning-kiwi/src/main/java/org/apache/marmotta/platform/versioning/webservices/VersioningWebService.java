@@ -17,14 +17,11 @@
  */
 package org.apache.marmotta.platform.versioning.webservices;
 
-import info.aduna.iteration.Iterations;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -36,20 +33,20 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.commons.util.JSONUtils;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.versioning.services.VersioningSailProvider;
-import org.openrdf.model.URI;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.sail.SailException;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.sail.SailException;
 import org.slf4j.Logger;
 
 /**
@@ -109,8 +106,8 @@ public class VersioningWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 if(resource_uri != null) {
-                    URI resource = conn.getValueFactory().createURI(resource_uri);
-                    if(resource != null && resource instanceof KiWiUriResource) {
+                    IRI resource = conn.getValueFactory().createIRI(resource_uri);
+                    if(resource != null && resource instanceof KiWiIriResource) {
 
                         if(dateFrom == null && dateTo == null) {
                             return Response.ok().entity(formatVersions(versioningService.listVersions(resource))).build();

@@ -21,7 +21,29 @@ import com.google.common.base.Preconditions;
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;
 import com.google.common.primitives.Longs;
-import info.aduna.iteration.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Savepoint;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IllformedLocaleException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
@@ -29,23 +51,38 @@ import org.apache.marmotta.commons.sesame.tripletable.TripleTable;
 import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.exception.ResultInterruptedException;
-import org.apache.marmotta.kiwi.model.rdf.*;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNamespace;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.common.iteration.ConvertingIteration;
+import org.eclipse.rdf4j.common.iteration.DelayedIteration;
+import org.eclipse.rdf4j.common.iteration.DistinctIteration;
+import org.eclipse.rdf4j.common.iteration.EmptyIteration;
+import org.eclipse.rdf4j.common.iteration.ExceptionConvertingIteration;
+import org.eclipse.rdf4j.common.iteration.Iteration;
+import org.eclipse.rdf4j.common.iteration.IteratorIteration;
+import org.eclipse.rdf4j.common.iteration.UnionIteration;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.*;
-import java.util.*;
-import java.util.Date;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A KiWiConnection offers methods for storing and retrieving KiWiTriples, KiWiNodes, and KiWiNamespaces in the
@@ -83,7 +120,7 @@ public class KiWiConnection implements AutoCloseable {
     /**
      * Cache URI resources by uri
      */
-    private Map<String,KiWiUriResource> uriCache;
+    private Map<String,KiWiIriResource> uriCache;
 
     /**
      * Cache BNodes by BNode ID
@@ -318,17 +355,21 @@ public class KiWiConnection implements AutoCloseable {
      * Count all non-deleted triples in the triple store
      * @return number of non-deleted triples in the triple store
      * @throws SQLException
-     */
+     */         
     public long getSize() throws SQLException {
         requireJDBCConnection();
+        
+        if(tripleBatch != null && tripleBatch.size() > 0) {
+            flushBatch();
+        }
 
         PreparedStatement querySize = getPreparedStatement("query.size");
         try (ResultSet result = querySize.executeQuery()) {
             if (result.next()) {
-                return result.getLong(1) + (tripleBatch != null ? tripleBatch.size() : 0);
+                return result.getLong(1);
             }
         }
-        return tripleBatch != null ? tripleBatch.size() : 0;
+        return 0;
     }
 
     /**
@@ -344,15 +385,19 @@ public class KiWiConnection implements AutoCloseable {
 
         requireJDBCConnection();
 
+        if(tripleBatch != null && tripleBatch.size() > 0) {
+            flushBatch();
+        }
+
         PreparedStatement querySize = getPreparedStatement("query.size_ctx");
         querySize.setLong(1,context.getId());
 
         try (ResultSet result = querySize.executeQuery()) {
             if (result.next()) {
-                return result.getLong(1) + (tripleBatch != null ? tripleBatch.listTriples(null, null, null, context, false).size() : 0);
+                return result.getLong(1);
             }
         }
-        return tripleBatch != null ? tripleBatch.listTriples(null, null, null, context, false).size() : 0;
+        return 0;
     }
 
     /**
@@ -361,7 +406,7 @@ public class KiWiConnection implements AutoCloseable {
      * construct an appropriate subclass instance of KiWiNode with the obtained values. The result will be
      * constructed based on the value of the NTYPE column as follows:
      * <ul>
-     *     <li>'uri' - KiWiUriResource using the id and svalue (as URI) columns</li>
+     *     <li>'uri' - KiWiIriResource using the id and svalue (as URI) columns</li>
      *     <li>'bnode' - KiWiAnonResource using the id and svalue (as AnonId) columns</li>
      *     <li>'string' - KiWiStringLiteral using the id, svalue (literal value), lang (literal
      *         language) and ltype (literal type) columns</li>
@@ -505,21 +550,21 @@ public class KiWiConnection implements AutoCloseable {
     }
 
     /**
-     * Load a KiWiUriResource by URI. The method will first look in the node cache for cached nodes. If
-     * no cache entry is found, it will run a database query ('load.uri_by_uri') on the NODES table and
-     * construct a new KiWiUriResource using the values of the id and svalue columns.
-     * <p/>
+     * Load a KiWiIriResource by URI. The method will first look in the node cache for cached nodes. If
+ no cache entry is found, it will run a database query ('load.uri_by_uri') on the NODES table and
+ construct a new KiWiIriResource using the values of the id and svalue columns.
+ <p/>
      * When a node is loaded from the database, it will be added to the different caches to speed up
      * subsequent requests.
      *
      * @param uri the URI of the resource to load
-     * @return the KiWiUriResource identified by the given URI  or null if it does not exist
+     * @return the KiWiIriResource identified by the given URI  or null if it does not exist
      */
-    public KiWiUriResource loadUriResource(String uri) throws SQLException {
+    public KiWiIriResource loadUriResource(String uri) throws SQLException {
         Preconditions.checkNotNull(uri);
 
         // look in cache
-        KiWiUriResource element = uriCache.get(uri);
+        KiWiIriResource element = uriCache.get(uri);
         if (element != null) {
             return element;
         }
@@ -537,7 +582,7 @@ public class KiWiConnection implements AutoCloseable {
             // caching the constructed node for future calls
             try (ResultSet result = query.executeQuery()) {
                 if (result.next()) {
-                    return (KiWiUriResource) constructNodeFromDatabase(result);
+                    return (KiWiIriResource) constructNodeFromDatabase(result);
                 }
             }
         } finally {
@@ -603,7 +648,7 @@ public class KiWiConnection implements AutoCloseable {
      * @return the literal matching the given arguments or null if it does not exist
      * @throws SQLException
      */
-    public KiWiLiteral loadLiteral(String value, String lang, KiWiUriResource ltype) throws SQLException {
+    public KiWiLiteral loadLiteral(String value, String lang, KiWiIriResource ltype) throws SQLException {
         // look in cache
         final KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(value,getLocale(lang), ltype));
         if (element != null) {
@@ -670,7 +715,7 @@ public class KiWiConnection implements AutoCloseable {
 
         requireJDBCConnection();
 
-        KiWiUriResource ltype = loadUriResource(Namespaces.NS_XSD + "dateTime");
+        KiWiIriResource ltype = loadUriResource(Namespaces.NS_XSD + "dateTime");
 
         if(ltype == null || ltype.getId() < 0) {
             return null;
@@ -721,7 +766,7 @@ public class KiWiConnection implements AutoCloseable {
 
         requireJDBCConnection();
 
-        KiWiUriResource ltype = loadUriResource(Namespaces.NS_XSD + "integer");
+        KiWiIriResource ltype = loadUriResource(Namespaces.NS_XSD + "integer");
 
         // ltype not persisted
         if (ltype == null || ltype.getId() < 0) {
@@ -772,7 +817,7 @@ public class KiWiConnection implements AutoCloseable {
 
         requireJDBCConnection();
 
-        KiWiUriResource ltype = loadUriResource(Namespaces.NS_XSD + "double");
+        KiWiIriResource ltype = loadUriResource(Namespaces.NS_XSD + "double");
 
         // ltype not persisted
         if(ltype == null || ltype.getId() < 0) {
@@ -825,7 +870,7 @@ public class KiWiConnection implements AutoCloseable {
 
         requireJDBCConnection();
 
-        KiWiUriResource ltype = loadUriResource(Namespaces.NS_XSD + "boolean");
+        KiWiIriResource ltype = loadUriResource(Namespaces.NS_XSD + "boolean");
 
         // ltype not persisted
         if (ltype == null || ltype.getId() < 0) {
@@ -882,8 +927,8 @@ public class KiWiConnection implements AutoCloseable {
         }
 
         // distinguish the different node types and run the appropriate updates
-        if (node instanceof KiWiUriResource) {
-            KiWiUriResource uriResource = (KiWiUriResource)node;
+        if (node instanceof KiWiIriResource) {
+            KiWiIriResource uriResource = (KiWiIriResource)node;
 
             PreparedStatement insertNode = getPreparedStatement("store.uri");
             insertNode.setLong(1,node.getId());
@@ -1097,7 +1142,7 @@ public class KiWiConnection implements AutoCloseable {
      * @param context the context of the triple
      * @return the database-id of the triple or {@code -1} if it does not exist.
      */
-    public synchronized long getTripleId(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context) throws SQLException {
+    public synchronized long getTripleId(final KiWiResource subject, final KiWiIriResource predicate, final KiWiNode object, final KiWiResource context) throws SQLException {
         if (tripleBatch != null && tripleBatch.size() > 0) {
             Collection<KiWiTriple> batched = tripleBatch.listTriples(subject,predicate,object,context, false);
             if(batched.size() > 0) {
@@ -1112,8 +1157,10 @@ public class KiWiConnection implements AutoCloseable {
         loadTripleId.setLong(3, object.getId());
         if (context != null) {
             loadTripleId.setLong(4, context.getId());
+            loadTripleId.setLong(5, context.getId());
         } else {
             loadTripleId.setNull(4, Types.BIGINT);
+            loadTripleId.setNull(5, Types.BIGINT);
         }
 
         try (ResultSet result = loadTripleId.executeQuery()) {
@@ -1428,7 +1475,7 @@ public class KiWiConnection implements AutoCloseable {
      * @return
      * @throws SQLException
      */
-    public CloseableIteration<KiWiUriResource, SQLException> listResources(String prefix) throws SQLException {
+    public CloseableIteration<KiWiIriResource, SQLException> listResources(String prefix) throws SQLException {
         requireJDBCConnection();
 
         PreparedStatement queryContexts = getPreparedStatement("query.resources_prefix");
@@ -1436,10 +1483,10 @@ public class KiWiConnection implements AutoCloseable {
 
         final ResultSet result = queryContexts.executeQuery();
 
-        return new ResultSetIteration<>(result, new ResultTransformerFunction<KiWiUriResource>() {
+        return new ResultSetIteration<>(result, new ResultTransformerFunction<KiWiIriResource>() {
             @Override
-            public KiWiUriResource apply(ResultSet row) throws SQLException {
-                return (KiWiUriResource)constructNodeFromDatabase(row);
+            public KiWiIriResource apply(ResultSet row) throws SQLException {
+                return (KiWiIriResource)constructNodeFromDatabase(row);
             }
         });
 
@@ -1483,7 +1530,7 @@ public class KiWiConnection implements AutoCloseable {
      * @return a new RepositoryResult with a direct connection to the database; the result should be properly closed
      *         by the caller
      */
-    public RepositoryResult<Statement> listTriples(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred, final boolean wildcardContext) throws SQLException {
+    public RepositoryResult<Statement> listTriples(final KiWiResource subject, final KiWiIriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred, final boolean wildcardContext) throws SQLException {
 
 
         if(tripleBatch != null && tripleBatch.size() > 0) {
@@ -1534,7 +1581,7 @@ public class KiWiConnection implements AutoCloseable {
      * @return a ClosableIteration that wraps the database ResultSet; needs to be closed explicitly by the caller
      * @throws SQLException
      */
-    private CloseableIteration<Statement, SQLException> listTriplesInternal(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, final boolean wildcardContext) throws SQLException {
+    private CloseableIteration<Statement, SQLException> listTriplesInternal(KiWiResource subject, KiWiIriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, final boolean wildcardContext) throws SQLException {
         // if one of the database ids is null, there will not be any database results, so we can return an empty result
         if(subject != null && subject.getId() < 0) {
             return new EmptyIteration<>();
@@ -1633,7 +1680,7 @@ public class KiWiConnection implements AutoCloseable {
      * @param inferred   if true, the result will also contain triples inferred by the reasoner, if false not
      * @return an SQL query string representing the triple pattern
      */
-    protected String constructTripleQuery(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, boolean wildcardContext) {
+    protected String constructTripleQuery(KiWiResource subject, KiWiIriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, boolean wildcardContext) {
         StringBuilder builder = new StringBuilder();
         builder.append("SELECT id,subject,predicate,object,context,deleted,inferred,creator,createdAt,deletedAt FROM triples WHERE deleted = false");
         if(subject != null) {
@@ -1693,7 +1740,7 @@ public class KiWiConnection implements AutoCloseable {
 
         String ntype = row.getString(2);
         if("uri".equals(ntype)) {
-            KiWiUriResource result = new KiWiUriResource(row.getString(3),new Date(row.getTimestamp(11, calendarUTC).getTime()));
+            KiWiIriResource result = new KiWiIriResource(row.getString(3),new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
 
             cacheNode(result);
@@ -1714,7 +1761,7 @@ public class KiWiConnection implements AutoCloseable {
                 result.setLocale(getLocale(row.getString(9)));
             }
             if(row.getLong(10) != 0) {
-                result.setType((KiWiUriResource) loadNodeById(row.getLong(10)));
+                result.setType((KiWiIriResource) loadNodeById(row.getLong(10)));
             }
 
             cacheNode(result);
@@ -1724,7 +1771,7 @@ public class KiWiConnection implements AutoCloseable {
             KiWiIntLiteral result = new KiWiIntLiteral(row.getLong(4), null, new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
             if(row.getLong(10) != 0) {
-                result.setType((KiWiUriResource) loadNodeById(row.getLong(10)));
+                result.setType((KiWiIriResource) loadNodeById(row.getLong(10)));
             }
 
             cacheNode(result);
@@ -1734,7 +1781,7 @@ public class KiWiConnection implements AutoCloseable {
             KiWiDoubleLiteral result = new KiWiDoubleLiteral(row.getDouble(5), null, new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
             if(row.getLong(10) != 0) {
-                result.setType((KiWiUriResource) loadNodeById(row.getLong(10)));
+                result.setType((KiWiIriResource) loadNodeById(row.getLong(10)));
             }
 
             cacheNode(result);
@@ -1745,7 +1792,7 @@ public class KiWiConnection implements AutoCloseable {
             result.setId(id);
 
             if(row.getLong(10) != 0) {
-                result.setType((KiWiUriResource) loadNodeById(row.getLong(10)));
+                result.setType((KiWiIriResource) loadNodeById(row.getLong(10)));
             }
 
             cacheNode(result);
@@ -1757,7 +1804,7 @@ public class KiWiConnection implements AutoCloseable {
 
             DateTime dvalue = new DateTime(row.getTimestamp(6, calendarUTC).getTime(), DateTimeZone.forOffsetMillis(row.getInt(7)*1000));
             if(row.getLong(10) != 0) {
-                result.setType((KiWiUriResource) loadNodeById(row.getLong(10)));
+                result.setType((KiWiIriResource) loadNodeById(row.getLong(10)));
             }
             result.setId(id);
             result.setDateContent(dvalue);
@@ -1810,7 +1857,7 @@ public class KiWiConnection implements AutoCloseable {
 
         KiWiNode[] batch = loadNodesByIds(row.getLong(2), row.getLong(3), row.getLong(4), row.getLong(5));
         result.setSubject((KiWiResource) batch[0]);
-        result.setPredicate((KiWiUriResource) batch[1]);
+        result.setPredicate((KiWiIriResource) batch[1]);
         result.setObject(batch[2]);
         result.setContext((KiWiResource) batch[3]);
 
@@ -1913,7 +1960,7 @@ public class KiWiConnection implements AutoCloseable {
                 // need to set subject, predicate, object, context and creator
                 Long[] ids = tripleIds.get(t.getId());
                 t.setSubject((KiWiResource) nodeMap.get(ids[0]));
-                t.setPredicate((KiWiUriResource) nodeMap.get(ids[1]));
+                t.setPredicate((KiWiIriResource) nodeMap.get(ids[1]));
                 t.setObject(nodeMap.get(ids[2]));
 
                 if(ids[3] != 0) {
@@ -2022,8 +2069,8 @@ public class KiWiConnection implements AutoCloseable {
         if (node.getId() >= 0) {
             nodeCache.put(node.getId(), node);
         }
-        if (node instanceof KiWiUriResource) {
-            uriCache.put(node.stringValue(), (KiWiUriResource) node);
+        if (node instanceof KiWiIriResource) {
+            uriCache.put(node.stringValue(), (KiWiIriResource) node);
         } else if (node instanceof KiWiAnonResource) {
             bnodeCache.put(node.stringValue(), (KiWiAnonResource) node);
         } else if (node instanceof KiWiLiteral) {

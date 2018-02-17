@@ -18,10 +18,10 @@
 package org.apache.marmotta.kiwi.model.rdf;
 
 import com.google.common.base.Preconditions;
-import org.openrdf.model.Statement;
-
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
+import org.eclipse.rdf4j.model.Statement;
 
 /**
  * KiWiTriples are one of the core concepts of the KiWi system. They
@@ -58,7 +58,7 @@ public class KiWiTriple  implements Statement, Serializable {
 
     private KiWiResource    subject;
     
-    private KiWiUriResource predicate;
+    private KiWiIriResource predicate;
 	
     private KiWiNode        object;
 
@@ -90,12 +90,12 @@ public class KiWiTriple  implements Statement, Serializable {
     }
 
 
-	public KiWiTriple(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context) {
+	public KiWiTriple(KiWiResource subject, KiWiIriResource predicate, KiWiNode object, KiWiResource context) {
 		this(subject, predicate, object, context, new Date());
 	}
 
 
-    public KiWiTriple(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, Date created) {
+    public KiWiTriple(KiWiResource subject, KiWiIriResource predicate, KiWiNode object, KiWiResource context, Date created) {
         this(created);
 
         Preconditions.checkNotNull(subject);
@@ -127,18 +127,18 @@ public class KiWiTriple  implements Statement, Serializable {
     }
 
     /**
-     * Get the property of this extended triple. Always a KiWiUriResource.
+     * Get the property of this extended triple. Always a KiWiIriResource.
      * @return
      */
-    public KiWiUriResource getPredicate() {
+    public KiWiIriResource getPredicate() {
         return predicate;
     }
 
     /**
-     * Set the property of this extended triple. Always needs to be a KiWiUriResource
+     * Set the property of this extended triple. Always needs to be a KiWiIriResource
      * @param property
      */
-    public void setPredicate(KiWiUriResource property) {
+    public void setPredicate(KiWiIriResource property) {
         this.predicate = property;
     }
 
@@ -159,7 +159,7 @@ public class KiWiTriple  implements Statement, Serializable {
     }
 
     /**
-     * Get the unique triple identifier of this extended triple. Returns a KiWiUriResource identifying this triple.
+     * Get the unique triple identifier of this extended triple. Returns a KiWiIriResource identifying this triple.
      * @return
      */
     public KiWiResource getContext() {
@@ -167,7 +167,7 @@ public class KiWiTriple  implements Statement, Serializable {
     }
 
     /**
-     * Set the unique triple identifier of this extended triple to the provided KiWiUriResource. The caller needs
+     * Set the unique triple identifier of this extended triple to the provided KiWiIriResource. The caller needs
      * to ensure that the tripleId is unique over the KiWi system; otherwise, the system might not function correctly.
      * @param context
      */
@@ -271,16 +271,19 @@ public class KiWiTriple  implements Statement, Serializable {
 
         Statement triple = (Statement) o;
 //        changed according to https://openrdf.atlassian.net/browse/SES-1924
-//        if (!getContext().equals(triple.getContext())) return false;
-        if (!getObject().equals(triple.getObject())) return false;
-        if (!getPredicate().equals(triple.getPredicate())) return false;
-        return getSubject().equals(triple.getSubject());
+        return getObject().equals(triple.getObject())
+                && getSubject().equals(triple.getSubject())
+                && getPredicate().equals(triple.getPredicate())
+                && Objects.equals(getContext(), triple.getContext());
 
     }
 
     @Override
     public int hashCode() {
-        return 961 * getSubject().hashCode() + 31 * getPredicate().hashCode() + getObject().hashCode();
+        if (getContext() == null) {
+            return 961 * getSubject().hashCode() + 31 * getPredicate().hashCode() + getObject().hashCode();
+        }
+        return 961 * getSubject().hashCode() + 31 * getPredicate().hashCode() + getObject().hashCode() + getContext().hashCode();
     }
 
 

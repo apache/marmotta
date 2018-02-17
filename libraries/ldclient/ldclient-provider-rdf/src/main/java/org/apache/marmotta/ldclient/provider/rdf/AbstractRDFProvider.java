@@ -17,21 +17,20 @@
  */
 package org.apache.marmotta.ldclient.provider.rdf;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
 import javolution.util.function.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.services.provider.AbstractHttpProvider;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.RDFParserRegistry;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.List;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParserRegistry;
 
 /**
  * Abstract implementation for RDF-aware data providers.
@@ -68,7 +67,7 @@ public abstract class AbstractRDFProvider extends AbstractHttpProvider {
      */
     @Override
     public List<String> parseResponse(final String resourceUri, String requestUrl, Model triples, InputStream in, String contentType) throws DataRetrievalException {
-        RDFFormat format = RDFParserRegistry.getInstance().getFileFormatForMIMEType(contentType, RDFFormat.RDFXML);
+        RDFFormat format = RDFParserRegistry.getInstance().getFileFormatForMIMEType(contentType).orElse(RDFFormat.RDFXML);
 
         try {
             ModelCommons.add(triples, in, resourceUri, format, new Predicate<Statement>() {

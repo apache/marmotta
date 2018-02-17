@@ -17,27 +17,24 @@
 
 package org.apache.marmotta.commons.sesame.facading.builder;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.hasItem;
-
-
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.marmotta.commons.sesame.facading.AbstractFacadingTest;
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
 import org.apache.marmotta.commons.sesame.facading.api.Facading;
 import org.apache.marmotta.commons.sesame.facading.builder.model.ExampleFacade;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.hasItem;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFParseException;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 public class FacadingPredicateBuilderTest extends AbstractFacadingTest {
 
@@ -56,7 +53,7 @@ public class FacadingPredicateBuilderTest extends AbstractFacadingTest {
 
     @Test
     public void testPredicateBuilder() throws RepositoryException {
-        final URI u = connection.getValueFactory().createURI("http://localhost/repository/testResource1");
+        final IRI u = connection.getValueFactory().createIRI("http://localhost/repository/testResource1");
         ExampleFacade f = facading.createFacade(u, ExampleFacade.class);
 
         String title = "Example Title";
@@ -80,12 +77,12 @@ public class FacadingPredicateBuilderTest extends AbstractFacadingTest {
 
     }
 
-    private void checkStatement(URI s, String prop, String val) throws RepositoryException {
-        final URI propURI = connection.getValueFactory().createURI(prop);
+    private void checkStatement(IRI s, String prop, String val) throws RepositoryException {
+        final IRI propIRI = connection.getValueFactory().createIRI(prop);
         final Literal value = connection.getValueFactory().createLiteral(val);
 
         Assert.assertTrue(String.format("Did not find Statement '<%s> <%s> \"%s\"'", s.stringValue(), prop, val),
-                connection.hasStatement(s, propURI, value, true));
+                connection.hasStatement(s, propIRI, value, true));
     }
 
     @Override

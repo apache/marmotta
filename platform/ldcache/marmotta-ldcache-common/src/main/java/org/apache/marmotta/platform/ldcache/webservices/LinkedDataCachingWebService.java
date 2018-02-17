@@ -17,6 +17,27 @@
  */
 package org.apache.marmotta.platform.ldcache.webservices;
 
+import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.ldcache.api.LDCachingService;
@@ -27,20 +48,10 @@ import org.apache.marmotta.ldclient.provider.rdf.LinkedDataProvider;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.ldcache.api.endpoint.LinkedDataEndpointService;
 import org.apache.marmotta.platform.ldcache.api.ldcache.LDCacheSailProvider;
-import org.openrdf.model.URI;
-import org.openrdf.rio.RDFHandler;
-import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.rio.RDFHandler;
+import org.eclipse.rdf4j.rio.rdfxml.util.RDFXMLPrettyWriter;
 import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import java.io.ByteArrayOutputStream;
-import java.util.*;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * Add file description here!
@@ -90,7 +101,7 @@ public class LinkedDataCachingWebService {
     @Path("/cached")
     public Response retrieveCached(@QueryParam("uri") String uri) {
         if(cacheSailProvider.isEnabled()) {
-            URI resource = sesameService.getValueFactory().createURI(uri);
+            IRI resource = sesameService.getValueFactory().createIRI(uri);
 
 
             try {
@@ -112,7 +123,7 @@ public class LinkedDataCachingWebService {
     public Response refreshCached(@QueryParam("uri") String uri) {
 
         if(cacheSailProvider.isEnabled()) {
-            URI resource = sesameService.getValueFactory().createURI(uri);
+            IRI resource = sesameService.getValueFactory().createIRI(uri);
 
 
             try {
@@ -135,7 +146,7 @@ public class LinkedDataCachingWebService {
 
         if(cacheSailProvider.isEnabled()) {
             if (uri != null) {
-                URI resource = sesameService.getValueFactory().createURI(uri);
+                IRI resource = sesameService.getValueFactory().createIRI(uri);
                 cacheSailProvider.getLDCache().expire(resource);
             } else {
                 cacheSailProvider.getLDCache().clear();

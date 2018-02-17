@@ -18,18 +18,18 @@
 package org.apache.marmotta.platform.core.api.logging;
 
 import ch.qos.logback.classic.Level;
-import org.apache.marmotta.platform.core.model.logging.LoggingOutput;
-
 import java.util.Collection;
 import java.util.List;
+import org.apache.marmotta.platform.core.model.logging.LoggingOutput;
 
 /**
+ * <p>
  * An implementation of a LoggingModule provides information about a component for which to provide logging
  * facilities. It is an abstraction from the "logging by package" concept used by lower-level logging frameworks.
  * A user can select to change the logging configuration for a module, resulting in all packages managed by this
  * module to be logged according to the new configuration. This allows to group packages together that conceptually
  * belong together.
- * <p/>
+ * </p>
  * LoggingModule providers are injected by the LoggingService using CDI injection. As such they should be proper CDI
  * bearns and probably live in application scope.
  *

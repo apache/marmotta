@@ -17,6 +17,10 @@
  */
 package org.apache.marmotta.kiwi.versioning.sail;
 
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.marmotta.commons.sesame.filter.AlwaysTrueFilter;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionListener;
@@ -29,21 +33,16 @@ import org.apache.marmotta.kiwi.versioning.api.VersioningSail;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.kiwi.versioning.persistence.KiWiVersioningConnection;
 import org.apache.marmotta.kiwi.versioning.persistence.KiWiVersioningPersistence;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.sail.SailConnection;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.StackableSail;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.sail.SailConnection;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.StackableSail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * A KiWi Stackable Sail offering versioning support for transactional sails. The versioning sail create a new
@@ -390,7 +389,7 @@ public class KiWiVersioningSail extends TransactionalSailWrapper implements Tran
         try {
             final KiWiVersioningConnection connection = persistence.getConnection();
 
-            KiWiResource kr = (KiWiResource) ((r instanceof URI) ? getValueFactory().createURI(r.stringValue()) : getValueFactory().createBNode(r.stringValue()));
+            KiWiResource kr = (KiWiResource) ((r instanceof IRI) ? getValueFactory().createIRI(r.stringValue()) : getValueFactory().createBNode(r.stringValue()));
 
             try {
                 return connection.getLatestVersion(kr,date);
@@ -415,7 +414,7 @@ public class KiWiVersioningSail extends TransactionalSailWrapper implements Tran
         try {
             final KiWiVersioningConnection connection = persistence.getConnection();
 
-            KiWiResource kr = (KiWiResource) ((r instanceof URI) ? getValueFactory().createURI(r.stringValue()) : getValueFactory().createBNode(r.stringValue()));
+            KiWiResource kr = (KiWiResource) ((r instanceof IRI) ? getValueFactory().createIRI(r.stringValue()) : getValueFactory().createBNode(r.stringValue()));
 
             return new RepositoryResult<Version>(connection.listVersions(kr)) {
                 @Override
@@ -445,7 +444,7 @@ public class KiWiVersioningSail extends TransactionalSailWrapper implements Tran
         try {
             final KiWiVersioningConnection connection = persistence.getConnection();
 
-            KiWiResource kr = (KiWiResource) ((r instanceof URI) ? getValueFactory().createURI(r.stringValue()) : getValueFactory().createBNode(r.stringValue()));
+            KiWiResource kr = (KiWiResource) ((r instanceof IRI) ? getValueFactory().createIRI(r.stringValue()) : getValueFactory().createBNode(r.stringValue()));
 
             return new RepositoryResult<Version>(connection.listVersions(kr,from,to)) {
                 @Override

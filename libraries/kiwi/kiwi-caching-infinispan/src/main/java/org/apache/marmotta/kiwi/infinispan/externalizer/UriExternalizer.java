@@ -18,7 +18,7 @@
 package org.apache.marmotta.kiwi.infinispan.externalizer;
 
 import org.apache.marmotta.kiwi.io.KiWiIO;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.util.Util;
 
@@ -32,11 +32,11 @@ import java.util.Set;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class UriExternalizer extends BaseExternalizer<KiWiUriResource> implements AdvancedExternalizer<KiWiUriResource> {
+public class UriExternalizer extends BaseExternalizer<KiWiIriResource> implements AdvancedExternalizer<KiWiIriResource> {
 
     @Override
-    public Set<Class<? extends KiWiUriResource>> getTypeClasses() {
-        return Util.<Class<? extends KiWiUriResource>>asSet(KiWiUriResource.class);
+    public Set<Class<? extends KiWiIriResource>> getTypeClasses() {
+        return Util.<Class<? extends KiWiIriResource>>asSet(KiWiIriResource.class);
     }
 
     @Override
@@ -45,12 +45,12 @@ public class UriExternalizer extends BaseExternalizer<KiWiUriResource> implement
     }
 
     @Override
-    public void writeObject(ObjectOutput output, KiWiUriResource object) throws IOException {
+    public void writeObject(ObjectOutput output, KiWiIriResource object) throws IOException {
         KiWiIO.writeURI(output, object);
     }
 
     @Override
-    public KiWiUriResource readObject(ObjectInput input) throws IOException, ClassNotFoundException {
+    public KiWiIriResource readObject(ObjectInput input) throws IOException, ClassNotFoundException {
         return KiWiIO.readURI(input);
     }
 

@@ -19,14 +19,23 @@ package org.apache.marmotta.commons.sesame.rio.rss;
 
 import com.sun.syndication.feed.module.DCModule;
 import com.sun.syndication.feed.module.DCSubject;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.helpers.RDFParserBase;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.helpers.AbstractRDFParser;
 import org.rometools.feed.module.content.ContentModule;
 import org.rometools.feed.module.georss.GeoRSSModule;
 import org.rometools.feed.module.mediarss.MediaEntryModule;
@@ -36,21 +45,12 @@ import org.rometools.feed.module.mediarss.types.UrlReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
-
 /**
  * Common functionality for RSS and Atom feed parsing
  * <p/>
  * Author: Sebastian Schaffert
  */
-public abstract class FeedParserBase extends RDFParserBase {
+public abstract class FeedParserBase extends AbstractRDFParser {
     private static Logger log = LoggerFactory.getLogger(FeedParserBase.class);
 
 
@@ -72,15 +72,15 @@ public abstract class FeedParserBase extends RDFParserBase {
 
 
     /**
-     * Creates a new RDFParserBase that will use a {@link org.openrdf.model.impl.ValueFactoryImpl} to
+     * Creates a new AbstractRDFParser that will use a {@link org.eclipse.rdf4j.model.impl.ValueFactoryImpl} to
      * create RDF model objects.
      */
     protected FeedParserBase() {
-        this(new ValueFactoryImpl());
+        this(SimpleValueFactory.getInstance());
     }
 
     /**
-     * Creates a new RDFParserBase that will use the supplied ValueFactory to
+     * Creates a new AbstractRDFParser that will use the supplied ValueFactory to
      * create RDF model objects.
      *
      * @param valueFactory A ValueFactory.
@@ -91,9 +91,10 @@ public abstract class FeedParserBase extends RDFParserBase {
     }
 
     @Override
-    public void setValueFactory(ValueFactory valueFactory) {
+    public RDFParser setValueFactory(ValueFactory valueFactory) {
         super.setValueFactory(valueFactory);
         this.valueFactory = valueFactory;
+        return this;
     }
 
 
@@ -160,7 +161,7 @@ public abstract class FeedParserBase extends RDFParserBase {
         if(geoRSSModule.getPosition() != null) {
             Resource r_location = createBNode();
             Resource t_adr = createURI(NS_GEO + "Point");
-            URI p_type     = createURI(NS_RDF + "type");
+            IRI p_type     = createURI(NS_RDF + "type");
             rdfHandler.handleStatement(createStatement(r_location,p_type,t_adr));
 
             createDoubleProperty(r_location,NS_GEO+"latitude",geoRSSModule.getPosition().getLatitude());
@@ -175,7 +176,7 @@ public abstract class FeedParserBase extends RDFParserBase {
     protected void parseMediaModule(Resource resource, MediaEntryModule mediaEntryModule) throws RDFParseException, RDFHandlerException {
         for(MediaContent content : mediaEntryModule.getMediaContents()) {
             if(content.getReference() != null && content.getReference() instanceof UrlReference) {
-                URI r_media = createURI(((UrlReference) content.getReference()).getUrl().toString());
+                IRI r_media = createURI(((UrlReference) content.getReference()).getUrl().toString());
                 rdfHandler.handleStatement(createStatement(r_media, createURI(NS_RDF + "type"), createURI(NS_MA + "MediaResource")));
                 rdfHandler.handleStatement(createStatement(r_media, createURI(NS_MA + "locator"), r_media));
 
@@ -250,26 +251,26 @@ public abstract class FeedParserBase extends RDFParserBase {
 
     protected void createStringProperty(Resource resource, String rdfProperty, String value) throws RDFParseException, RDFHandlerException {
         if(value != null && !"".equals(value.trim())) {
-            URI p_description = createURI(rdfProperty);
+            IRI p_description = createURI(rdfProperty);
             Literal v_description = createLiteral(value, null, null);
             rdfHandler.handleStatement(createStatement(resource,p_description,v_description));
         }
     }
 
     protected void createIntProperty(Resource resource, String rdfProperty, int value) throws RDFParseException, RDFHandlerException {
-        URI p_description = createURI(rdfProperty);
+        IRI p_description = createURI(rdfProperty);
         Literal v_description = createLiteral(""+value, null, createURI("http://www.w3.org/2001/XMLSchema#int"));
         rdfHandler.handleStatement(createStatement(resource,p_description,v_description));
     }
 
     protected void createLongProperty(Resource resource, String rdfProperty, long value) throws RDFParseException, RDFHandlerException {
-        URI p_description = createURI(rdfProperty);
+        IRI p_description = createURI(rdfProperty);
         Literal v_description = createLiteral(""+value, null, createURI("http://www.w3.org/2001/XMLSchema#long"));
         rdfHandler.handleStatement(createStatement(resource,p_description,v_description));
     }
 
     protected void createDoubleProperty(Resource resource, String rdfProperty, double value) throws RDFParseException, RDFHandlerException {
-        URI p_description = createURI(rdfProperty);
+        IRI p_description = createURI(rdfProperty);
         Literal v_description = createLiteral(""+value, null, createURI("http://www.w3.org/2001/XMLSchema#double"));
         rdfHandler.handleStatement(createStatement(resource,p_description,v_description));
     }
@@ -277,7 +278,7 @@ public abstract class FeedParserBase extends RDFParserBase {
 
     protected void createDateProperty(Resource resource, String rdfProperty, Date value) throws RDFParseException, RDFHandlerException {
         if(value != null) {
-            URI p_dateprop = createURI(rdfProperty);
+            IRI p_dateprop = createURI(rdfProperty);
             Literal v_dateprop = valueFactory.createLiteral(getXMLCalendar(value,null));
             rdfHandler.handleStatement(createStatement(resource,p_dateprop,v_dateprop));
         }
@@ -286,15 +287,15 @@ public abstract class FeedParserBase extends RDFParserBase {
 
     protected void createUrlProperty(Resource resource, String rdfProperty, String value) throws RDFParseException, RDFHandlerException {
         if(value != null) {
-            URI p_description = createURI(rdfProperty);
-            URI v_description = createURI(value);
+            IRI p_description = createURI(rdfProperty);
+            IRI v_description = createURI(value);
             rdfHandler.handleStatement(createStatement(resource,p_description,v_description));
         }
     }
 
     protected void createUrlProperty(Resource resource, String rdfProperty, Resource value) throws RDFParseException, RDFHandlerException {
         if(value != null) {
-            URI p_description = createURI(rdfProperty);
+            IRI p_description = createURI(rdfProperty);
             rdfHandler.handleStatement(createStatement(resource,p_description,value));
         }
     }

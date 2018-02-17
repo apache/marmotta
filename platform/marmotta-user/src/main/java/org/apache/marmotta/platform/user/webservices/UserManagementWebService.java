@@ -17,6 +17,26 @@
  */
 package org.apache.marmotta.platform.user.webservices;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
@@ -24,27 +44,14 @@ import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.user.api.AccountService;
 import org.apache.marmotta.platform.user.model.UserAccount;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.slf4j.Logger;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Path("/users")
 public class UserManagementWebService {
@@ -148,7 +155,7 @@ public class UserManagementWebService {
                 UserWebService.AccountPoJo apj = new UserWebService.AccountPoJo(account.getLogin(), account.getWebId());
                 apj.setRoles(account.getRoles());
 
-                RepositoryResult<Statement> triples = conn.getStatements(conn.getValueFactory().createURI(account.getWebId()),null,null,true);
+                RepositoryResult<Statement> triples = conn.getStatements(conn.getValueFactory().createIRI(account.getWebId()),null,null,true);
 
                 while(triples.hasNext()) {
                     Statement t = triples.next();
@@ -156,7 +163,7 @@ public class UserManagementWebService {
                     String prop = t.getPredicate().stringValue();
                     if (prop.startsWith(Namespaces.NS_FOAF)) {
                         Value object = t.getObject();
-                        if (object instanceof URI) {
+                        if (object instanceof IRI) {
                             apj.setFoaf(prop, String.format("<%s>", object));
                         } else if (object instanceof Literal) {
                             apj.setFoaf(prop, object.toString());
@@ -193,7 +200,7 @@ public class UserManagementWebService {
             try {
                 if (delFoaf && account.getWebId() != null) {
                     // TODO: Remove only users foaf profile?
-                    conn.remove(conn.getValueFactory().createURI(account.getWebId()),null,null);
+                    conn.remove(conn.getValueFactory().createIRI(account.getWebId()),null,null);
                 }
 
                 accountService.deleteAccount(account);
@@ -280,14 +287,14 @@ public class UserManagementWebService {
                     }
 
                     String property = Namespaces.NS_FOAF + prop;
-                    URI p = conn.getValueFactory().createURI(property);
-                    URI u = conn.getValueFactory().createURI(currentUser);
+                    IRI p = conn.getValueFactory().createIRI(property);
+                    IRI u = conn.getValueFactory().createIRI(currentUser);
                     ResourceUtils.removeProperty(conn,u, property);
                     String val = formParams.getFirst(prop);
                     if (val != null && val.length() > 0) {
                         Matcher m = PROFILE_URI_PATTERN.matcher(val);
                         if (m.matches()) {
-                            URI o = conn.getValueFactory().createURI(m.group(1));
+                            IRI o = conn.getValueFactory().createIRI(m.group(1));
                             conn.add(u,p,o,u);
                         } else {
                             Literal o = conn.getValueFactory().createLiteral(val.trim());

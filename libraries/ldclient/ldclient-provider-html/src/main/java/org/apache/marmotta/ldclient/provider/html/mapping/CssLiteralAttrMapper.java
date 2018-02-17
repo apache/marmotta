@@ -17,15 +17,14 @@
  */
 package org.apache.marmotta.ldclient.provider.html.mapping;
 
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.apache.commons.lang3.StringUtils;
-import org.jsoup.nodes.Element;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.jsoup.nodes.Element;
 
 public class CssLiteralAttrMapper extends CssSelectorMapper {
 
@@ -82,7 +81,7 @@ public class CssLiteralAttrMapper extends CssSelectorMapper {
         if (language != null)
             return Collections.singletonList((Value) factory.createLiteral(value, language.toString()));
         if (datatype != null)
-            return Collections.singletonList((Value) factory.createLiteral(value, factory.createURI(Namespaces.NS_XSD + datatype)));
+            return Collections.singletonList((Value) factory.createLiteral(value, factory.createIRI(Namespaces.NS_XSD + datatype)));
         else
             return Collections.singletonList((Value) factory.createLiteral(value));
     }

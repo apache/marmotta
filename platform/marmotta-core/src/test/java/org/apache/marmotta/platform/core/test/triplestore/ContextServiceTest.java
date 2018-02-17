@@ -20,21 +20,20 @@ package org.apache.marmotta.platform.core.test.triplestore;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.jayway.restassured.RestAssured;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.util.List;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
+import org.eclipse.rdf4j.model.IRI;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openrdf.model.URI;
-
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.util.List;
 
 /**
  * Some basic test for context service
@@ -65,17 +64,17 @@ public class ContextServiceTest {
 
     @Test
     public void testEmpty() {
-        final List<URI> contexts = contextService.listContexts();
+        final List<IRI> contexts = contextService.listContexts();
         Assert.assertEquals(1, contexts.size());
     }
 
     @Test
     public void testMarmotta631() {
-        final List<URI> contexts = contextService.listContexts();
+        final List<IRI> contexts = contextService.listContexts();
         Assert.assertTrue(contexts.size() >= 1);
-        Assert.assertTrue(Collections2.transform(contexts, new Function<URI, String>() {
+        Assert.assertTrue(Collections2.transform(contexts, new Function<IRI, String>() {
             @Override
-            public String apply(URI input) {
+            public String apply(IRI input) {
                 return input.stringValue();
             }
         }).contains(configurationService.getDefaultContext()));
@@ -87,7 +86,7 @@ public class ContextServiceTest {
         final InputStream is = ContextServiceTest.class.getResourceAsStream("/org/apache/marmotta/platform/core/test/sesame/demo-data.foaf");
         importService.importData(is, "application/rdf+xml", marmotta.getService(UserService.class).getAnonymousUser(), contextService.getDefaultContext());
 
-        final List<URI> contexts = contextService.listContexts();
+        final List<IRI> contexts = contextService.listContexts();
         Assert.assertTrue(contexts.size() >= 1);
         Assert.assertTrue(contexts.contains(contextService.getDefaultContext()));
     }

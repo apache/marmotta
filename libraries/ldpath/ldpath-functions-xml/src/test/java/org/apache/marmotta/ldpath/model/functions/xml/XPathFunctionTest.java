@@ -21,11 +21,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.marmotta.ldpath.model.fields.FieldMapping;
-import org.apache.marmotta.ldpath.parser.ParseException;
 import org.apache.marmotta.ldpath.parser.LdPathParser;
+import org.apache.marmotta.ldpath.parser.ParseException;
 import org.apache.marmotta.ldpath.test.AbstractTestBase;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,11 +37,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
 
 
 @RunWith(Parameterized.class)
@@ -71,7 +70,7 @@ public class XPathFunctionTest extends AbstractTestBase {
 
     @Test
     public void testXpathFunction() throws ParseException {
-        final URI ctx = repository.getValueFactory().createURI(NSS.get("ex") + "Quiz");
+        final IRI ctx = repository.getValueFactory().createIRI(NSS.get("ex") + "Quiz");
 
         final LdPathParser<Value> parser = createParserFromString("fn:xpath(\"/quiz/question[" +
                 index +

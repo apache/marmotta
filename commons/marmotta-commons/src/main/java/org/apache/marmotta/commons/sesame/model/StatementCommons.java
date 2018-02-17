@@ -20,16 +20,15 @@ package org.apache.marmotta.commons.sesame.model;
 import com.google.common.base.Equivalence;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
+import java.util.Map;
+import java.util.Set;
 import javolution.util.FastMap;
 import javolution.util.FastSet;
 import javolution.util.function.Equality;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-
-import java.util.Map;
-import java.util.Set;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
 
 /**
  * Provide some utility functions for managing statements (e.g. different forms of equivalence)
@@ -202,8 +201,7 @@ public class StatementCommons {
                     return input.getSubject();
                 }
 
-                @Override
-                public URI getPredicate() {
+                public IRI getPredicate() {
                     return input.getPredicate();
                 }
 

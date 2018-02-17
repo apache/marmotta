@@ -17,16 +17,16 @@
  */
 package org.apache.marmotta.platform.core.api.content;
 
-import org.openrdf.model.Resource;
-
 import java.io.IOException;
 import java.io.InputStream;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
+ * <p>
  * API for plugins that can read content from some source. All implementing classes must provide
  * the getContentData method that returns the byte content for a resource.
  *
- * <p/>
+ * </p>
  * User: Sebastian Schaffert
  */
 public interface ContentReader {

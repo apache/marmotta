@@ -17,14 +17,13 @@
  */
 package org.apache.marmotta.kiwi.sail;
 
+import java.sql.SQLException;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.NotifyingSailBase;
-
-import java.sql.SQLException;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.AbstractNotifyingSail;
 
 /**
  * An implementation of a KiWi triple store without extended transaction support. The KiWiStore holds a reference to
@@ -36,7 +35,7 @@ import java.sql.SQLException;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class KiWiStore extends NotifyingSailBase {
+public class KiWiStore extends AbstractNotifyingSail {
 
 
     /**

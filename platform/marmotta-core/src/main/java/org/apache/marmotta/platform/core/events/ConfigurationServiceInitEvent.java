@@ -18,8 +18,9 @@
 package org.apache.marmotta.platform.core.events;
 
 /**
+ * <p>
  * Raised when the configuration service finishes its initialisation (but before the system has finished startup).
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 public class ConfigurationServiceInitEvent {

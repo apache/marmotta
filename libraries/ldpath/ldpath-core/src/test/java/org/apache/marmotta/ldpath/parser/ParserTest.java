@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -116,7 +117,7 @@ public class ParserTest {
         final URL resource = ParserTest.class.getResource("/parse/"+input);
         assertThat("Could not load test input data '" + input + "'", resource, CoreMatchers.notNullValue());
 
-        LdPathParser<String> rdfPathParser = new LdPathParser<String>(backend,new StringReader(IOUtils.toString(resource)));
+        LdPathParser<String> rdfPathParser = new LdPathParser<String>(backend,new StringReader(IOUtils.toString(resource, Charset.defaultCharset())));
         rdfPathParser.registerTransformer(NS_TEST + "type", new NodeTransformer<String, String>() {
             @Override
             public String transform(RDFBackend<String> backend, String node, Map<String,String> configuration)

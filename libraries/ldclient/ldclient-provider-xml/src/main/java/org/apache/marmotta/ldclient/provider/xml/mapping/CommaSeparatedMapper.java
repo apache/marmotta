@@ -17,13 +17,12 @@
  */
 package org.apache.marmotta.ldclient.provider.xml.mapping;
 
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
 
 /**
  * Takes a comma separated list and converts it into a list of literals
@@ -64,7 +63,7 @@ public class CommaSeparatedMapper extends XPathLiteralMapper {
         List<Value> result = new ArrayList<Value>(values.length);
         for(String value : values) {
             if(datatype != null) {
-                result.add(factory.createLiteral(value.trim(), factory.createURI(Namespaces.NS_XSD + datatype)));
+                result.add(factory.createLiteral(value.trim(), factory.createIRI(Namespaces.NS_XSD + datatype)));
             } else {
                 result.add(factory.createLiteral(value.trim()));
             }

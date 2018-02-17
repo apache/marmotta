@@ -19,31 +19,45 @@ package org.apache.marmotta.kiwi.loader.generic;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.IllformedLocaleException;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.tripletable.IntArray;
 import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
-import org.apache.marmotta.kiwi.model.rdf.*;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNamespace;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.registry.CacheTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.DBTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.KiWiTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.LocalTripleRegistry;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.rio.RDFHandler;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
-import org.openrdf.model.*;
-import org.openrdf.model.impl.URIImpl;
-import org.openrdf.rio.RDFHandler;
-import org.openrdf.rio.RDFHandlerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.IllformedLocaleException;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 /**
  * A fast-lane RDF import handler that allows bulk-importing triples into a KiWi triplestore. It directly accesses
@@ -164,7 +178,7 @@ public class KiWiHandler implements RDFHandler {
      * Signals the end of the RDF data. This method is called when all data has
      * been reported.
      *
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *          If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -187,7 +201,7 @@ public class KiWiHandler implements RDFHandler {
      * Signals the start of the RDF data. This method is called before any data
      * is reported.
      *
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *          If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -204,7 +218,7 @@ public class KiWiHandler implements RDFHandler {
 
         if(config.getContext() != null) {
             try {
-                this.overrideContext = (KiWiResource)convertNode(new URIImpl(config.getContext()));
+                this.overrideContext = (KiWiResource)convertNode(SimpleValueFactory.getInstance().createIRI(config.getContext()));
             } catch (ExecutionException e) {
                 log.error("could not create/load resource",e);
             }
@@ -222,7 +236,7 @@ public class KiWiHandler implements RDFHandler {
      * @param prefix The prefix for the namespace, or an empty string in case of a
      *               default namespace.
      * @param uri    The URI that the prefix maps to.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *          If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -248,14 +262,14 @@ public class KiWiHandler implements RDFHandler {
      * Handles a statement.
      *
      * @param st The statement.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *          If the RDF handler has encountered an unrecoverable error.
      */
     @Override
     public void handleStatement(Statement st) throws RDFHandlerException {
         try {
             KiWiResource subject = (KiWiResource)convertNode(st.getSubject());
-            KiWiUriResource predicate = (KiWiUriResource)convertNode(st.getPredicate());
+            KiWiIriResource predicate = (KiWiIriResource)convertNode(st.getPredicate());
             KiWiNode object = convertNode(st.getObject());
             KiWiResource context;
 
@@ -310,7 +324,7 @@ public class KiWiHandler implements RDFHandler {
             return null;
         } else if(value instanceof KiWiNode) {
             return (KiWiNode)value;
-        } else if(value instanceof URI) {
+        } else if(value instanceof IRI) {
             return createURI(value.stringValue());
         } else if(value instanceof BNode) {
             return createBNode(value.stringValue());
@@ -323,8 +337,8 @@ public class KiWiHandler implements RDFHandler {
 
     protected KiWiLiteral createLiteral(Literal l) throws ExecutionException {
         String value = l.getLabel();
-        String lang  = l.getLanguage() != null ? l.getLanguage().intern() : null;
-        URI    type  = l.getDatatype();
+        String lang  = l.getLanguage().orElse(null) != null ? l.getLanguage().orElse(null).intern() : null;
+        IRI    type  = l.getDatatype();
 
 
         Locale locale;
@@ -339,7 +353,7 @@ public class KiWiHandler implements RDFHandler {
 
 
         KiWiLiteral result;
-        final KiWiUriResource rtype = type==null ? null : (KiWiUriResource) convertNode(type);
+        final KiWiIriResource rtype = type==null ? null : (KiWiIriResource) convertNode(type);
 
         try {
 
@@ -407,7 +421,7 @@ public class KiWiHandler implements RDFHandler {
             } catch(IllegalArgumentException ex) {
                 // malformed number or date
                 log.warn("malformed argument for typed literal of type {}: {}", rtype, value);
-                KiWiUriResource mytype = createURI(Namespaces.NS_XSD+"string");
+                KiWiIriResource mytype = createURI(Namespaces.NS_XSD+"string");
 
                 result = connection.loadLiteral(sanitizeString(value), lang, mytype);
 
@@ -432,14 +446,14 @@ public class KiWiHandler implements RDFHandler {
         }
     }
 
-    protected KiWiUriResource createURI(String uri) {
+    protected KiWiIriResource createURI(String uri) {
         try {
             // first look in the registry for newly created resources if the resource has already been created and
             // is still volatile
-            KiWiUriResource result = connection.loadUriResource(uri);
+            KiWiIriResource result = connection.loadUriResource(uri);
 
             if(result == null) {
-                result = new KiWiUriResource(uri, importDate);
+                result = new KiWiIriResource(uri, importDate);
 
                 storeNode(result);
 
@@ -507,7 +521,7 @@ public class KiWiHandler implements RDFHandler {
      * Handles a comment.
      *
      * @param comment The comment.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *          If the RDF handler has encountered an unrecoverable error.
      */
     @Override

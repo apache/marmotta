@@ -17,7 +17,18 @@
  */
 package org.apache.marmotta.platform.ldp.services;
 
-import info.aduna.iteration.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.Link;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.commons.vocabulary.DCTERMS;
 import org.apache.marmotta.commons.vocabulary.LDP;
@@ -36,30 +47,31 @@ import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParserImpl;
 import org.apache.marmotta.platform.ldp.util.LdpUtils;
 import org.apache.marmotta.platform.ldp.util.ServerManagedPropertiesInterceptor;
 import org.apache.marmotta.platform.ldp.webservices.LdpWebService;
-import org.openrdf.model.*;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.repository.event.base.InterceptingRepositoryConnectionWrapper;
-import org.openrdf.rio.*;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.common.iteration.EmptyIteration;
+import org.eclipse.rdf4j.common.iteration.FilterIteration;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.common.iteration.UnionIteration;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.repository.event.base.InterceptingRepositoryConnectionWrapper;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.Rio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.Link;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 /**
  * LDP Service default implementation
@@ -78,16 +90,16 @@ public class LdpServiceImpl implements LdpService {
     @Inject
     private LdpBinaryStoreService binaryStore;
 
-    private final URI ldpContext, ldpInteractionModelProperty, ldpUsed;
+    private final IRI ldpContext, ldpInteractionModelProperty, ldpUsed;
 
     public LdpServiceImpl() {
-        ldpContext = ValueFactoryImpl.getInstance().createURI(LDP.NAMESPACE);
-        ldpInteractionModelProperty = ValueFactoryImpl.getInstance().createURI(LDP.NAMESPACE, "interactionModel");
-        ldpUsed = ValueFactoryImpl.getInstance().createURI(LDP.NAMESPACE, "used");
+        ldpContext = SimpleValueFactory.getInstance().createIRI(LDP.NAMESPACE);
+        ldpInteractionModelProperty = SimpleValueFactory.getInstance().createIRI(LDP.NAMESPACE, "interactionModel");
+        ldpUsed = SimpleValueFactory.getInstance().createIRI(LDP.NAMESPACE, "used");
     }
 
     @Override
-    public void init(RepositoryConnection connection, URI root) throws RepositoryException {
+    public void init(RepositoryConnection connection, IRI root) throws RepositoryException {
         final ValueFactory valueFactory = connection.getValueFactory();
         final Literal now = valueFactory.createLiteral(new Date());
         if (!exists(connection, root)) {
@@ -116,8 +128,8 @@ public class LdpServiceImpl implements LdpService {
     public UriBuilder getResourceUriBuilder(UriInfo uriInfo) {
         final UriBuilder uriBuilder;
         if (configurationService.getBooleanConfiguration("ldp.force_baseuri", false)) {
-            log.trace("UriBuilder is forced to configured baseuri <{}>", configurationService.getBaseUri());
-            uriBuilder = UriBuilder.fromUri(java.net.URI.create(configurationService.getBaseUri()));
+            log.trace("UriBuilder is forced to configured baseuri <{}>", configurationService.getBaseIri());
+            uriBuilder = UriBuilder.fromUri(java.net.URI.create(configurationService.getBaseIri()));
         } else {
             uriBuilder = uriInfo.getBaseUriBuilder();
         }
@@ -125,8 +137,8 @@ public class LdpServiceImpl implements LdpService {
         return uriBuilder;
     }
 
-    private URI buildURI(String resource) {
-        return ValueFactoryImpl.getInstance().createURI(resource);
+    private IRI buildURI(String resource) {
+        return SimpleValueFactory.getInstance().createIRI(resource);
     }
 
     @Override
@@ -135,7 +147,7 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public boolean exists(RepositoryConnection connection, URI resource) throws RepositoryException {
+    public boolean exists(RepositoryConnection connection, IRI resource) throws RepositoryException {
         return connection.hasStatement(resource, null, null, true, ldpContext);
     }
 
@@ -145,12 +157,12 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public boolean isReusedURI(RepositoryConnection connection, URI resource) throws RepositoryException {
+    public boolean isReusedURI(RepositoryConnection connection, IRI resource) throws RepositoryException {
         return connection.hasStatement(ldpContext, ldpUsed, resource, true, ldpContext);
     }
 
     @Override
-    public boolean hasType(RepositoryConnection connection, URI resource, URI type) throws RepositoryException {
+    public boolean hasType(RepositoryConnection connection, IRI resource, IRI type) throws RepositoryException {
         return connection.hasStatement(resource, RDF.TYPE, type, true, ldpContext);
     }
 
@@ -160,12 +172,12 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public List<Statement> getLdpTypes(RepositoryConnection connection, URI resource) throws RepositoryException {
+    public List<Statement> getLdpTypes(RepositoryConnection connection, IRI resource) throws RepositoryException {
         return Iterations.asList(new FilterIteration<Statement, RepositoryException>(connection.getStatements(resource, RDF.TYPE, null, false, ldpContext)) {
             @Override
             protected boolean accept(Statement statement) {
                 final Value object = statement.getObject();
-                return object instanceof URI && object.stringValue().startsWith(LDP.NAMESPACE);
+                return object instanceof IRI && object.stringValue().startsWith(LDP.NAMESPACE);
             }
         }); //FIXME
     }
@@ -176,7 +188,7 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public boolean isRdfSourceResource(RepositoryConnection connection, URI uri) throws RepositoryException {
+    public boolean isRdfSourceResource(RepositoryConnection connection, IRI uri) throws RepositoryException {
         return connection.hasStatement(uri, RDF.TYPE, LDP.RDFSource, true, ldpContext);
     }
 
@@ -186,24 +198,24 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public boolean isNonRdfSourceResource(RepositoryConnection connection, URI uri) throws RepositoryException {
+    public boolean isNonRdfSourceResource(RepositoryConnection connection, IRI uri) throws RepositoryException {
         return connection.hasStatement(uri, RDF.TYPE, LDP.NonRDFSource, true, ldpContext);
     }
 
 
     @Override
-    public URI getRdfSourceForNonRdfSource(final RepositoryConnection connection, URI uri) throws RepositoryException {
+    public IRI getRdfSourceForNonRdfSource(final RepositoryConnection connection, IRI uri) throws RepositoryException {
         final FilterIteration<Statement, RepositoryException> it =
                 new FilterIteration<Statement, RepositoryException>(connection.getStatements(uri, DCTERMS.isFormatOf, null, true, ldpContext)) {
                     @Override
                     protected boolean accept(Statement statement) throws RepositoryException {
-                        return statement.getObject() instanceof URI
-                                && connection.hasStatement((URI) statement.getObject(), RDF.TYPE, LDP.RDFSource, true, ldpContext);
+                        return statement.getObject() instanceof IRI
+                                && connection.hasStatement((IRI) statement.getObject(), RDF.TYPE, LDP.RDFSource, true, ldpContext);
                     }
                 };
         try {
             if (it.hasNext()) {
-                return (URI) it.next().getObject();
+                return (IRI) it.next().getObject();
             } else {
                 return null;
             }
@@ -213,28 +225,28 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public URI getRdfSourceForNonRdfSource(RepositoryConnection connection, String resource) throws RepositoryException {
+    public IRI getRdfSourceForNonRdfSource(RepositoryConnection connection, String resource) throws RepositoryException {
         return getRdfSourceForNonRdfSource(connection, buildURI(resource));
     }
 
     @Override
-    public URI getNonRdfSourceForRdfSource(RepositoryConnection connection, String resource) throws RepositoryException {
+    public IRI getNonRdfSourceForRdfSource(RepositoryConnection connection, String resource) throws RepositoryException {
         return getNonRdfSourceForRdfSource(connection, buildURI(resource));
     }
 
     @Override
-    public URI getNonRdfSourceForRdfSource(final RepositoryConnection connection, URI uri) throws RepositoryException {
+    public IRI getNonRdfSourceForRdfSource(final RepositoryConnection connection, IRI uri) throws RepositoryException {
         final FilterIteration<Statement, RepositoryException> it =
                 new FilterIteration<Statement, RepositoryException>(connection.getStatements(uri, DCTERMS.hasFormat, null, true, ldpContext)) {
                     @Override
                     protected boolean accept(Statement statement) throws RepositoryException {
-                        return statement.getObject() instanceof URI
-                                && connection.hasStatement((URI) statement.getObject(), RDF.TYPE, LDP.NonRDFSource, true, ldpContext);
+                        return statement.getObject() instanceof IRI
+                                && connection.hasStatement((IRI) statement.getObject(), RDF.TYPE, LDP.NonRDFSource, true, ldpContext);
                     }
                 };
         try {
             if (it.hasNext()) {
-                return (URI) it.next().getObject();
+                return (IRI) it.next().getObject();
             } else {
                 return null;
             }
@@ -249,7 +261,7 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public void exportResource(RepositoryConnection connection, URI resource, OutputStream output, RDFFormat format) throws RepositoryException, RDFHandlerException {
+    public void exportResource(RepositoryConnection connection, IRI resource, OutputStream output, RDFFormat format) throws RepositoryException, RDFHandlerException {
         exportResource(connection, resource, output, format, null);
     }
 
@@ -259,7 +271,7 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public void exportResource(RepositoryConnection connection, final URI resource, OutputStream output, RDFFormat format, final Preference preference) throws RepositoryException, RDFHandlerException {
+    public void exportResource(RepositoryConnection connection, final IRI resource, OutputStream output, RDFFormat format, final Preference preference) throws RepositoryException, RDFHandlerException {
         // TODO: this should be a little more sophisticated...
         // TODO: non-membership triples flag / Prefer-header
         final RDFWriter writer = Rio.createWriter(format, output);
@@ -273,11 +285,11 @@ public class LdpServiceImpl implements LdpService {
             CloseableIteration<Statement, RepositoryException> ldpStatements = connection.getStatements(resource, null, null, false, ldpContext);
             if (preference != null) {
                 // FIXME: Get the membership predicate from the container. See http://www.w3.org/TR/ldp/#h5_ldpdc-containtriples
-                final URI membershipPred = null;
+                final IRI membershipPred = null;
                 ldpStatements = new FilterIteration<Statement, RepositoryException>(ldpStatements) {
                     @Override
                     protected boolean accept(Statement stmt) throws RepositoryException {
-                        final URI p = stmt.getPredicate();
+                        final IRI p = stmt.getPredicate();
                         final Resource s = stmt.getSubject();
                         final Value o = stmt.getObject();
 
@@ -313,7 +325,7 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public void exportBinaryResource(RepositoryConnection connection, URI resource, OutputStream out) throws RepositoryException, IOException {
+    public void exportBinaryResource(RepositoryConnection connection, IRI resource, OutputStream out) throws RepositoryException, IOException {
         exportBinaryResource(connection, resource.stringValue(), out);
     }
 
@@ -323,7 +335,7 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public String getMimeType(RepositoryConnection connection, URI uri) throws RepositoryException {
+    public String getMimeType(RepositoryConnection connection, IRI uri) throws RepositoryException {
         final RepositoryResult<Statement> formats = connection.getStatements(uri, DCTERMS.format, null, false, ldpContext);
         try {
             if (formats.hasNext()) return formats.next().getObject().stringValue();
@@ -338,7 +350,7 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public String addResource(RepositoryConnection connection, URI container, URI resource, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
+    public String addResource(RepositoryConnection connection, IRI container, IRI resource, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
         return addResource(connection, container, resource, InteractionModel.LDPC, type, stream);
     }
 
@@ -348,7 +360,7 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public String addResource(RepositoryConnection connection, URI container, URI resource, InteractionModel interactionModel, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
+    public String addResource(RepositoryConnection connection, IRI container, IRI resource, InteractionModel interactionModel, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
         ValueFactory valueFactory = connection.getValueFactory();
 
         // Add container triples (Sec. 5.2.3.2)
@@ -383,7 +395,7 @@ public class LdpServiceImpl implements LdpService {
         if (rdfFormat == null) {
             log.debug("Creating new LDP-NR, because no suitable RDF parser found for type {}", type);
             final Literal format = valueFactory.createLiteral(type);
-            final URI binaryResource = valueFactory.createURI(resource.stringValue() + LdpUtils.getExtension(type));
+            final IRI binaryResource = valueFactory.createIRI(resource.stringValue() + LdpUtils.getExtension(type));
             log.debug("LDP-NR is <{}>", binaryResource);
             log.debug("Corresponding LDP-RS is <{}>", resource);
 
@@ -425,7 +437,7 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public String updateResource(final RepositoryConnection connection, final URI resource, InputStream stream, final String type) throws RepositoryException, IncompatibleResourceTypeException, IOException, RDFParseException, InvalidModificationException {
+    public String updateResource(final RepositoryConnection connection, final IRI resource, InputStream stream, final String type) throws RepositoryException, IncompatibleResourceTypeException, IOException, RDFParseException, InvalidModificationException {
         return updateResource(connection, resource, stream, type, false);
     }
 
@@ -435,11 +447,11 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public String updateResource(final RepositoryConnection connection, final URI resource, InputStream stream, final String type, final boolean overwrite) throws RepositoryException, IncompatibleResourceTypeException, RDFParseException, IOException, InvalidModificationException {
+    public String updateResource(final RepositoryConnection connection, final IRI resource, InputStream stream, final String type, final boolean overwrite) throws RepositoryException, IncompatibleResourceTypeException, RDFParseException, IOException, InvalidModificationException {
         final ValueFactory valueFactory = connection.getValueFactory();
         final Literal now = valueFactory.createLiteral(new Date());
 
-        final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type);
+        final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type).orElse(null);
         // Check submitted format vs. real resource type (RDF-S vs. Non-RDF)
         if (rdfFormat == null && isNonRdfSourceResource(connection, resource)) {
             log.debug("Updating <{}> as LDP-NR (binary) - {}", resource, type);
@@ -451,7 +463,7 @@ public class LdpServiceImpl implements LdpService {
             connection.remove(resource, DCTERMS.modified, null, ldpContext);
             connection.add(resource, DCTERMS.modified, now, ldpContext);
 
-            final URI ldp_rs = getRdfSourceForNonRdfSource(connection, resource);
+            final IRI ldp_rs = getRdfSourceForNonRdfSource(connection, resource);
             if (ldp_rs != null) {
                 connection.remove(ldp_rs, DCTERMS.modified, null, ldpContext);
                 connection.add(ldp_rs, DCTERMS.modified, now, ldpContext);
@@ -475,9 +487,9 @@ public class LdpServiceImpl implements LdpService {
 
             filtered.add(stream, resource.stringValue(), rdfFormat, resource);
 
-            final Set<URI> deniedProperties = managedPropertiesInterceptor.getDeniedProperties();
+            final Set<IRI> deniedProperties = managedPropertiesInterceptor.getDeniedProperties();
             if (!deniedProperties.isEmpty()) {
-                final URI prop = deniedProperties.iterator().next();
+                final IRI prop = deniedProperties.iterator().next();
                 log.debug("Invalid property modification in update: <{}> is a server controlled property", prop);
                 throw new InvalidModificationException(String.format("Must not update <%s> using PUT", prop));
             } else {
@@ -504,7 +516,7 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public EntityTag generateETag(RepositoryConnection connection, URI uri) throws RepositoryException {
+    public EntityTag generateETag(RepositoryConnection connection, IRI uri) throws RepositoryException {
         if (isNonRdfSourceResource(connection, uri)) {
             final String hash = binaryStore.getHash(uri.stringValue());
             if (hash != null) {
@@ -543,7 +555,7 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public Date getLastModified(RepositoryConnection connection, URI uri) throws RepositoryException {
+    public Date getLastModified(RepositoryConnection connection, IRI uri) throws RepositoryException {
         final RepositoryResult<Statement> stmts = connection.getStatements(uri, DCTERMS.modified, null, true, ldpContext);
         try {
             Date latest = null;
@@ -568,7 +580,7 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public void patchResource(RepositoryConnection connection, URI uri, InputStream patchData, boolean strict) throws RepositoryException, ParseException, InvalidModificationException, InvalidPatchDocumentException {
+    public void patchResource(RepositoryConnection connection, IRI uri, InputStream patchData, boolean strict) throws RepositoryException, ParseException, InvalidModificationException, InvalidPatchDocumentException {
         final Literal now = connection.getValueFactory().createLiteral(new Date());
 
         log.trace("parsing patch");
@@ -598,7 +610,7 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public boolean deleteResource(RepositoryConnection connection, URI resource) throws RepositoryException {
+    public boolean deleteResource(RepositoryConnection connection, IRI resource) throws RepositoryException {
         final Literal now = connection.getValueFactory().createLiteral(new Date());
 
         // Delete corresponding containment and membership triples (Sec. 5.2.5.1)
@@ -680,7 +692,7 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public InteractionModel getInteractionModel(RepositoryConnection connection, URI uri) throws RepositoryException {
+    public InteractionModel getInteractionModel(RepositoryConnection connection, IRI uri) throws RepositoryException {
         if (connection.hasStatement(uri, ldpInteractionModelProperty, InteractionModel.LDPC.getUri(), true, ldpContext)) {
             return InteractionModel.LDPC;
         } else if (connection.hasStatement(uri, ldpInteractionModelProperty, InteractionModel.LDPR.getUri(), true, ldpContext)) {

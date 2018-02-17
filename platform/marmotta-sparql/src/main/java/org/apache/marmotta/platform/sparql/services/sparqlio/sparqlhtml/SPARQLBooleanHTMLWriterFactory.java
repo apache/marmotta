@@ -18,10 +18,9 @@
 package org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml;
 
 import java.io.OutputStream;
-
-import org.openrdf.query.resultio.BooleanQueryResultFormat;
-import org.openrdf.query.resultio.BooleanQueryResultWriter;
-import org.openrdf.query.resultio.BooleanQueryResultWriterFactory;
+import org.eclipse.rdf4j.query.resultio.BooleanQueryResultFormat;
+import org.eclipse.rdf4j.query.resultio.BooleanQueryResultWriter;
+import org.eclipse.rdf4j.query.resultio.BooleanQueryResultWriterFactory;
 
 /**
  * A {@link BooleanQueryResultWriterFactory} for writers of SPARQL HTML query

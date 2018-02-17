@@ -17,13 +17,12 @@
 package org.apache.marmotta.commons.sesame.facading.api;
 
 
+import java.lang.reflect.Method;
 import org.apache.marmotta.commons.sesame.facading.impl.FacadingPredicate;
 import org.apache.marmotta.commons.sesame.facading.model.Facade;
 
-import java.lang.reflect.Method;
-
 /**
- * Dynamically create the RDF-property uri for facading.
+ * Dynamically create the RDF-property iri for facading.
  * <p>
  * <strong>NOTE: All implementations MUST provide either a public no-arg Constructor or a public
  * static no-arg <code>getInstance()</code>-method!</strong>

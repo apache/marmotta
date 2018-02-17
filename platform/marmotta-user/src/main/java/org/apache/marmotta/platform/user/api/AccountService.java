@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.platform.user.api;
 
-import org.apache.marmotta.platform.core.model.user.MarmottaUser;
-import org.apache.marmotta.platform.user.model.UserAccount;
-import org.openrdf.model.URI;
-
 import java.util.List;
 import java.util.Set;
+import org.apache.marmotta.platform.core.model.user.MarmottaUser;
+import org.apache.marmotta.platform.user.model.UserAccount;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  * Service to manage UserAccounts. {@link UserAccount}s are used to manage login and access to the
@@ -71,14 +70,14 @@ public interface AccountService {
      * @param userResource the user resource (foaf:person)
      * @return the corresponding {@link UserAccount}, or <code>null</code> if no account present.
      */
-    UserAccount getAccount(URI userResource);
+    UserAccount getAccount(IRI userResource);
 
     /**
      * Retrieve the user account for a given {@link org.apache.marmotta.platform.core.model.user.MarmottaUser} (facaded user resource)
      * 
      * @param user the {@link org.apache.marmotta.platform.core.model.user.MarmottaUser}
      * @return the corresponding {@link UserAccount}, of <code>null</code> if none present.
-     * @see #getAccount(org.openrdf.model.URI)
+     * @see #getAccount(org.eclipse.rdf4j.model.IRI)
      */
     UserAccount getAccount(MarmottaUser user);
 

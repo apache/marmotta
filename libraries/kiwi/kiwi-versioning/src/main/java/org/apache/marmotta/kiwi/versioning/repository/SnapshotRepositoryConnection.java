@@ -18,8 +18,8 @@
 package org.apache.marmotta.kiwi.versioning.repository;
 
 import org.apache.marmotta.kiwi.versioning.sail.KiWiSnapshotConnection;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.repository.sail.SailRepositoryConnection;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 
 /**
  * A wrapper class for snapshot repository connections.

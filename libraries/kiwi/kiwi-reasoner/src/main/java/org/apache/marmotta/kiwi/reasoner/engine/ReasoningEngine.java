@@ -20,10 +20,17 @@ package org.apache.marmotta.kiwi.reasoner.engine;
 import com.google.common.base.Equivalence;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.EmptyIteration;
-import info.aduna.iteration.Iterations;
-import info.aduna.iteration.SingletonIteration;
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.apache.marmotta.commons.sesame.model.StatementCommons;
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionListener;
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
@@ -32,29 +39,33 @@ import org.apache.marmotta.commons.sesame.tripletable.TripleTable;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.reasoner.model.exception.ReasoningException;
 import org.apache.marmotta.kiwi.reasoner.model.exception.UnjustifiedTripleException;
-import org.apache.marmotta.kiwi.reasoner.model.program.*;
+import org.apache.marmotta.kiwi.reasoner.model.program.Justification;
+import org.apache.marmotta.kiwi.reasoner.model.program.LiteralField;
+import org.apache.marmotta.kiwi.reasoner.model.program.Pattern;
+import org.apache.marmotta.kiwi.reasoner.model.program.Program;
+import org.apache.marmotta.kiwi.reasoner.model.program.ResourceField;
+import org.apache.marmotta.kiwi.reasoner.model.program.Rule;
+import org.apache.marmotta.kiwi.reasoner.model.program.VariableField;
 import org.apache.marmotta.kiwi.reasoner.model.query.QueryResult;
 import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningConnection;
 import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningPersistence;
 import org.apache.marmotta.kiwi.sail.KiWiSailConnection;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.sail.SailConnection;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.SailConnectionWrapper;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.common.iteration.EmptyIteration;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.common.iteration.SingletonIteration;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.sail.SailConnection;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.SailConnectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class implements the evaluation of reasoning programs on the triple store. It has two different modes:
@@ -605,7 +616,7 @@ public class ReasoningEngine implements TransactionListener {
                 Map<VariableField,KiWiNode> binding = row.getBindings();
 
                 Resource subject = null;
-                URI property = null;
+                IRI property = null;
                 Value object;
 
                 if(rule.getHead().getSubject() != null && rule.getHead().getSubject().isVariableField()) {
@@ -624,9 +635,9 @@ public class ReasoningEngine implements TransactionListener {
                         log.info("cannot use value {} as property, because it is not a URI resource",binding.get(rule.getHead().getProperty()));
                         continue;
                     }
-                    property = (KiWiUriResource)binding.get(rule.getHead().getProperty());
+                    property = (KiWiIriResource)binding.get(rule.getHead().getProperty());
                 } else if(rule.getHead().getProperty() != null && rule.getHead().getProperty().isResourceField()) {
-                    property = (KiWiUriResource)((ResourceField)rule.getHead().getProperty()).getResource();
+                    property = (KiWiIriResource)((ResourceField)rule.getHead().getProperty()).getResource();
                 } else
                     throw new IllegalArgumentException("Property of rule head may only be a variable or a resource; rule: "+rule);
 

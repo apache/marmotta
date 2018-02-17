@@ -17,16 +17,28 @@
  */
 package org.apache.marmotta.kiwi.sparql.optimizer;
 
-import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
-import org.openrdf.model.URI;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.Dataset;
-import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.evaluation.QueryOptimizer;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
-import org.openrdf.query.algebra.helpers.VarNameCollector;
-
 import java.util.Set;
+import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.Dataset;
+import org.eclipse.rdf4j.query.algebra.Difference;
+import org.eclipse.rdf4j.query.algebra.Distinct;
+import org.eclipse.rdf4j.query.algebra.EmptySet;
+import org.eclipse.rdf4j.query.algebra.Extension;
+import org.eclipse.rdf4j.query.algebra.Filter;
+import org.eclipse.rdf4j.query.algebra.FunctionCall;
+import org.eclipse.rdf4j.query.algebra.Intersection;
+import org.eclipse.rdf4j.query.algebra.Join;
+import org.eclipse.rdf4j.query.algebra.LeftJoin;
+import org.eclipse.rdf4j.query.algebra.Order;
+import org.eclipse.rdf4j.query.algebra.QueryModelNode;
+import org.eclipse.rdf4j.query.algebra.QueryRoot;
+import org.eclipse.rdf4j.query.algebra.Reduced;
+import org.eclipse.rdf4j.query.algebra.TupleExpr;
+import org.eclipse.rdf4j.query.algebra.Union;
+import org.eclipse.rdf4j.query.algebra.evaluation.QueryOptimizer;
+import org.eclipse.rdf4j.query.algebra.helpers.AbstractQueryModelVisitor;
+import org.eclipse.rdf4j.query.algebra.helpers.VarNameCollector;
 
 /**
  * @author Thomas Kurz (tkurz@apache.org)
@@ -44,7 +56,7 @@ public class NativeFilterOptimizer implements QueryOptimizer {
 	 * Inner class FilterFinder *
 	 *--------------------------*/
 
-    protected static class FilterFinder extends QueryModelVisitorBase<RuntimeException> {
+    protected static class FilterFinder extends AbstractQueryModelVisitor<RuntimeException> {
 
         protected final TupleExpr tupleExpr;
 
@@ -71,7 +83,7 @@ public class NativeFilterOptimizer implements QueryOptimizer {
 	 * Inner class FilterRelocator *
 	 *-----------------------------*/
 
-    protected static class FilterRelocator extends QueryModelVisitorBase<RuntimeException> {
+    protected static class FilterRelocator extends AbstractQueryModelVisitor<RuntimeException> {
 
         public static void relocate(Filter filter) {
             filter.visit(new FilterRelocator(filter));

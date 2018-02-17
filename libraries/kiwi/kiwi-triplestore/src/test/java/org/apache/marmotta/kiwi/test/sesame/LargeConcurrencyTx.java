@@ -14,31 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.apache.marmotta.commons.sesame.hashing;
-
-import com.google.common.hash.Funnel;
-import com.google.common.hash.PrimitiveSink;
-import org.openrdf.model.URI;
-
-import java.nio.charset.Charset;
+package org.apache.marmotta.kiwi.test.sesame;
 
 /**
- * Implementation of a Guava Funnel for Sesame URIs
+ * Category marker used to annotate large concurrent test transactions in
+ * {@link SailConcurrencyTest} suite.
  *
- * @author Sebastian Schaffert (sschaffert@apache.org)
+ * @author Xavier Sumba <cuent@apache.org>
  */
-public class URIFunnel implements Funnel<URI> {
+public interface LargeConcurrencyTx {
 
-    private static URIFunnel instance = new URIFunnel();
-
-
-    public static URIFunnel getInstance() {
-        return instance;
-    }
-
-    @Override
-    public void funnel(URI uri, PrimitiveSink primitiveSink) {
-        primitiveSink.putString(uri.stringValue(), Charset.defaultCharset());
-    }
 }

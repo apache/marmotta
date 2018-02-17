@@ -19,6 +19,18 @@ package org.apache.marmotta.kiwi.sparql.builder.eval;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
@@ -28,27 +40,55 @@ import org.apache.marmotta.kiwi.sparql.builder.collect.OPTypeFinder;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLVariable;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
-import org.openrdf.model.vocabulary.FN;
-import org.openrdf.model.vocabulary.XMLSchema;
-import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.vocabulary.FN;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.query.algebra.And;
+import org.eclipse.rdf4j.query.algebra.Avg;
+import org.eclipse.rdf4j.query.algebra.BNodeGenerator;
+import org.eclipse.rdf4j.query.algebra.Bound;
+import org.eclipse.rdf4j.query.algebra.Coalesce;
+import org.eclipse.rdf4j.query.algebra.Compare;
+import org.eclipse.rdf4j.query.algebra.Count;
+import org.eclipse.rdf4j.query.algebra.Exists;
+import org.eclipse.rdf4j.query.algebra.FunctionCall;
+import org.eclipse.rdf4j.query.algebra.GroupConcat;
+import org.eclipse.rdf4j.query.algebra.IRIFunction;
+import org.eclipse.rdf4j.query.algebra.If;
+import org.eclipse.rdf4j.query.algebra.IsBNode;
+import org.eclipse.rdf4j.query.algebra.IsLiteral;
+import org.eclipse.rdf4j.query.algebra.IsNumeric;
+import org.eclipse.rdf4j.query.algebra.IsResource;
+import org.eclipse.rdf4j.query.algebra.IsURI;
+import org.eclipse.rdf4j.query.algebra.Label;
+import org.eclipse.rdf4j.query.algebra.Lang;
+import org.eclipse.rdf4j.query.algebra.LangMatches;
+import org.eclipse.rdf4j.query.algebra.Like;
+import org.eclipse.rdf4j.query.algebra.LocalName;
+import org.eclipse.rdf4j.query.algebra.MathExpr;
+import org.eclipse.rdf4j.query.algebra.Max;
+import org.eclipse.rdf4j.query.algebra.Min;
+import org.eclipse.rdf4j.query.algebra.Not;
+import org.eclipse.rdf4j.query.algebra.Or;
+import org.eclipse.rdf4j.query.algebra.Regex;
+import org.eclipse.rdf4j.query.algebra.SameTerm;
+import org.eclipse.rdf4j.query.algebra.Str;
+import org.eclipse.rdf4j.query.algebra.Sum;
+import org.eclipse.rdf4j.query.algebra.ValueConstant;
+import org.eclipse.rdf4j.query.algebra.ValueExpr;
+import org.eclipse.rdf4j.query.algebra.Var;
+import org.eclipse.rdf4j.query.algebra.helpers.AbstractQueryModelVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * Evaluate a SPARQL ValueExpr by translating it into a SQL expression.
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeException> {
+public class ValueExpressionEvaluator extends AbstractQueryModelVisitor<RuntimeException> {
 
     private static Logger log = LoggerFactory.getLogger(ValueExpressionEvaluator.class);
 
@@ -160,7 +200,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
 
             String[] args = new String[fc.getArgs().size()];
 
-            NativeFunction nf = functionRegistry.get(fnUri);
+            NativeFunction nf = functionRegistry.get(fnUri).get();
 
             if (nf != null && nf.isSupported(parent.getDialect())) {
 
@@ -370,7 +410,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
 
         // operator must be a variable or a constant
         if(arg instanceof ValueConstant) {
-            builder.append(Boolean.toString(((ValueConstant) arg).getValue() instanceof URI || ((ValueConstant) arg).getValue() instanceof BNode));
+            builder.append(Boolean.toString(((ValueConstant) arg).getValue() instanceof IRI || ((ValueConstant) arg).getValue() instanceof BNode));
         } else if(arg instanceof Var) {
             String var = getVariableAlias((Var) arg);
 
@@ -390,7 +430,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
 
         // operator must be a variable or a constant
         if(arg instanceof ValueConstant) {
-            builder.append(Boolean.toString(((ValueConstant) arg).getValue() instanceof URI));
+            builder.append(Boolean.toString(((ValueConstant) arg).getValue() instanceof IRI));
         } else if(arg instanceof Var) {
             String var = getVariableAlias((Var) arg);
 
@@ -408,7 +448,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
 
             builder
                     .append("CASE WHEN position(':' IN ").append(ex).append(") > 0 THEN ").append(ex)
-                    .append(" ELSE ").append(functionRegistry.get(FN.CONCAT.stringValue()).getNative(parent.getDialect(), "'" + fun.getBaseURI() + "'", ex))
+                    .append(" ELSE ").append(functionRegistry.get(FN.CONCAT.stringValue()).get().getNative(parent.getDialect(), "'" + fun.getBaseURI() + "'", ex))
                     .append(" END ");
         } else {
             // get value of argument and express it as string
@@ -486,7 +526,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
 
         if(ot == ValueType.STRING) {
             if(expr.getOperator() == MathExpr.MathOp.PLUS) {
-                builder.append(functionRegistry.get(FN.CONCAT.stringValue()).getNative(parent.getDialect(),new ValueExpressionEvaluator(expr.getLeftArg(), parent, ot).build(), new ValueExpressionEvaluator(expr.getRightArg(), parent, ot).build()));
+                builder.append(functionRegistry.get(FN.CONCAT.stringValue()).get().getNative(parent.getDialect(),new ValueExpressionEvaluator(expr.getLeftArg(), parent, ot).build(), new ValueExpressionEvaluator(expr.getRightArg(), parent, ot).build()));
             } else {
                 throw new IllegalArgumentException("operation "+expr.getOperator()+" is not supported on strings");
             }

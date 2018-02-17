@@ -20,15 +20,14 @@ package org.apache.marmotta.commons.http;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
-import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-
 import java.nio.charset.Charset;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
 
 /**
  * HTTP ETag generator for Sesame
@@ -39,11 +38,11 @@ import java.nio.charset.Charset;
 public class ETagGenerator {
     
     public static String getETag(RepositoryConnection conn, String uri) throws RepositoryException {
-        URI resource = ResourceUtils.getUriResource(conn, uri);
+        IRI resource = ResourceUtils.getIriResource(conn, uri);
         return getETag(conn, resource);
     }
     
-    public static String getETag(RepositoryConnection conn, URI resource) throws RepositoryException {
+    public static String getETag(RepositoryConnection conn, IRI resource) throws RepositoryException {
     	if (resource == null) return "";
     	
         Hasher hasher = buildHasher();
@@ -76,7 +75,7 @@ public class ETagGenerator {
     
     public static String getWeakETag(RepositoryConnection conn, String resource) throws RepositoryException {
         if (resource.startsWith("http://")) {
-        	return getWeakETag(conn, ResourceUtils.getUriResource(conn, resource));
+        	return getWeakETag(conn, ResourceUtils.getIriResource(conn, resource));
         } else {
         	return getWeakETag(conn, ResourceUtils.getAnonResource(conn, resource));
         }

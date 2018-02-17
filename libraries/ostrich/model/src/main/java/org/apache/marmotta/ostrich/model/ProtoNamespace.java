@@ -18,7 +18,7 @@
 package org.apache.marmotta.ostrich.model;
 
 import org.apache.marmotta.ostrich.model.proto.Model;
-import org.openrdf.model.Namespace;
+import org.eclipse.rdf4j.model.Namespace;
 
 /**
  * An implementation of a Sesame Namespace backed by a protocol buffer.

@@ -17,17 +17,16 @@
  */
 package org.apache.marmotta.ldclient.provider.youtube.mapping;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.marmotta.ldclient.provider.xml.mapping.XPathValueMapper;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.marmotta.ldclient.provider.xml.mapping.XPathValueMapper;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
 
 /**
  * Add file description here!
@@ -57,12 +56,12 @@ public class YoutubeUriMapper extends XPathValueMapper {
     @Override
     public List<Value> map(String resourceUri, String selectedValue, ValueFactory factory) {
         if(selectedValue.startsWith("http://gdata.youtube.com/feeds/api/videos") && selectedValue.indexOf('?') >= 0) {
-            return Collections.singletonList((Value)factory.createURI(selectedValue.substring(0,selectedValue.indexOf('?'))));
+            return Collections.singletonList((Value)factory.createIRI(selectedValue.substring(0,selectedValue.indexOf('?'))));
         } else if(selectedValue.startsWith("http://www.youtube.com/v/")) {
             String[] p_components = selectedValue.split("/");
             String video_id = p_components[p_components.length-1];
 
-            return Collections.singletonList((Value)factory.createURI("http://gdata.youtube.com/feeds/api/videos/"+video_id));
+            return Collections.singletonList((Value)factory.createIRI("http://gdata.youtube.com/feeds/api/videos/"+video_id));
         } else if(selectedValue.startsWith("http://www.youtube.com/watch")) {
             try {
                 URI uri = new URI(selectedValue);
@@ -77,12 +76,12 @@ public class YoutubeUriMapper extends XPathValueMapper {
                 }
 
                 if(video_id != null) {
-                    return Collections.singletonList((Value)factory.createURI("http://gdata.youtube.com/feeds/api/videos/"+video_id));
+                    return Collections.singletonList((Value)factory.createIRI("http://gdata.youtube.com/feeds/api/videos/"+video_id));
                 }
             } catch (URISyntaxException e) {
-                return Collections.singletonList((Value)factory.createURI(selectedValue));
+                return Collections.singletonList((Value)factory.createIRI(selectedValue));
             }
         }
-        return Collections.singletonList((Value)factory.createURI(selectedValue));
+        return Collections.singletonList((Value)factory.createIRI(selectedValue));
     }
 }

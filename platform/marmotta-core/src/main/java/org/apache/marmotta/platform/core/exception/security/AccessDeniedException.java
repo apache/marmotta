@@ -18,9 +18,10 @@
 package org.apache.marmotta.platform.core.exception.security;
 
 /**
+ * <p>
  * Thrown by the filter chain in case the access to the resource is denied. Caught by LMFAuthenticationFilter to
  * send an authorization request.
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 public class AccessDeniedException extends RuntimeException {

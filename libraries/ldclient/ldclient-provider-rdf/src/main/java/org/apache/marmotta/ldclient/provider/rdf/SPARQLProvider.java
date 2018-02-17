@@ -21,17 +21,16 @@ import com.google.common.base.Preconditions;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.services.provider.AbstractHttpProvider;
-import org.openrdf.model.Model;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.QueryResultHandlerException;
-import org.openrdf.query.TupleQueryResultHandler;
-import org.openrdf.query.TupleQueryResultHandlerException;
-import org.openrdf.query.resultio.QueryResultIO;
-import org.openrdf.query.resultio.QueryResultParseException;
-import org.openrdf.query.resultio.TupleQueryResultFormat;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryResultHandlerException;
+import org.eclipse.rdf4j.query.TupleQueryResultHandler;
+import org.eclipse.rdf4j.query.TupleQueryResultHandlerException;
+import org.eclipse.rdf4j.query.resultio.QueryResultIO;
+import org.eclipse.rdf4j.query.resultio.QueryResultParseException;
+import org.eclipse.rdf4j.query.resultio.TupleQueryResultFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +40,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.List;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 /**
  * A data provider that allows accessing SPARQL endpoints for retrieving the data associated with a resource. The
@@ -127,19 +127,19 @@ public class SPARQLProvider extends AbstractHttpProvider {
      */
     @Override
     public List<String> parseResponse(final String resourceUri, String requestUrl, final Model triples, InputStream in, String contentType) throws DataRetrievalException {
-        TupleQueryResultFormat format = QueryResultIO.getParserFormatForMIMEType(contentType, TupleQueryResultFormat.SPARQL);
+        TupleQueryResultFormat format = (TupleQueryResultFormat)QueryResultIO.getParserFormatForMIMEType(contentType).orElse(TupleQueryResultFormat.SPARQL);
 
 
         try {
 
-            QueryResultIO.parse(in,format,
+            QueryResultIO.parseTuple(in,format,
                     new TupleQueryResultHandler() {
 
-                        URI subject;
+                        IRI subject;
 
                         @Override
                         public void startQueryResult(List<String> bindingNames) throws TupleQueryResultHandlerException {
-                            subject = ValueFactoryImpl.getInstance().createURI(resourceUri);
+                            subject = SimpleValueFactory.getInstance().createIRI(resourceUri);
                         }
 
                         @Override
@@ -152,8 +152,8 @@ public class SPARQLProvider extends AbstractHttpProvider {
                             Value predicate = bindingSet.getValue("p");
                             Value object    = bindingSet.getValue("o");
 
-                            if(predicate instanceof URI) {
-                                triples.add(ValueFactoryImpl.getInstance().createStatement(subject,(URI)predicate,object));
+                            if(predicate instanceof IRI) {
+                                triples.add(SimpleValueFactory.getInstance().createStatement(subject,(IRI)predicate,object));
                             } else {
                                 log.error("ignoring binding as predicate {} is not a URI",predicate);
                             }
@@ -172,7 +172,7 @@ public class SPARQLProvider extends AbstractHttpProvider {
                         }
 
                     },
-                    ValueFactoryImpl.getInstance());
+                    SimpleValueFactory.getInstance());
 
             return Collections.emptyList();
         } catch (QueryResultParseException e) {

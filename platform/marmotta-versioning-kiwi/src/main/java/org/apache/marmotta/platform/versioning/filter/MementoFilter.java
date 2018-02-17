@@ -91,10 +91,10 @@ public class MementoFilter implements MarmottaHttpFilter {
                 if(resource != null) {
                     response.addHeader("Link",
                             "<"+MementoUtils.timegateURI(
-                                   resource.toString(),configurationService.getBaseUri()
+                                   resource.toString(),configurationService.getBaseIri()
                             ) +">; rel=\"timegate\"," +
                             "<"+MementoUtils.timemapURI(
-                                    resource.toString(),configurationService.getBaseUri()
+                                    resource.toString(),configurationService.getBaseIri()
                             ) +">; rel=\"timemap\""
                     );
                 }
@@ -143,7 +143,7 @@ public class MementoFilter implements MarmottaHttpFilter {
      */
     private String restoreResource(String uri) throws MalformedURLException {
         Matcher m = URI_PATTERN.matcher(uri);
-        if (m.matches()) return configurationService.getBaseUri() + ConfigurationService.RESOURCE_PATH + "/" + m.group(2);
+        if (m.matches()) return configurationService.getBaseIri() + ConfigurationService.RESOURCE_PATH + "/" + m.group(2);
         throw new MalformedURLException("original url can not be restored");
     }
 

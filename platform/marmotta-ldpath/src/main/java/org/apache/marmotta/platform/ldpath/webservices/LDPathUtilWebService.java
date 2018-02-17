@@ -19,10 +19,34 @@ package org.apache.marmotta.platform.ldpath.webservices;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.inject.Inject;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.listOutgoing;
+import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.listResourcesByPrefix;
+import static org.apache.marmotta.commons.sesame.repository.ResultUtils.iterable;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 import org.apache.marmotta.ldpath.backend.sesame.SesameConnectionBackend;
 import org.apache.marmotta.ldpath.exception.LDPathParseException;
@@ -30,24 +54,14 @@ import org.apache.marmotta.platform.core.api.prefix.PrefixService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.services.prefix.PrefixCC;
 import org.apache.marmotta.platform.ldpath.api.LDPathService;
-import org.openrdf.model.*;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriInfo;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
-import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.listOutgoing;
-import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.listResourcesByPrefix;
-import static org.apache.marmotta.commons.sesame.repository.ResultUtils.iterable;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 
 @Path("/ldpath/util")
 public class LDPathUtilWebService {
@@ -222,7 +236,7 @@ public class LDPathUtilWebService {
             try {
                 RepositoryConnection con = sesameService.getConnection();
                 try {
-                    for (URI r : listResourcesByPrefix(con,uri, 0, limit)) {
+                    for (IRI r : listResourcesByPrefix(con,uri, 0, limit)) {
                         result.add(r.stringValue());
                     }
                 } finally {
@@ -259,7 +273,7 @@ public class LDPathUtilWebService {
             path = ".";
         }
         try {
-            HashSet<URI> pathCandidates = new HashSet<URI>();
+            HashSet<IRI> pathCandidates = new HashSet<IRI>();
             try {
                 RepositoryConnection con = sesameService.getConnection();
                 try {
@@ -269,10 +283,10 @@ public class LDPathUtilWebService {
                             continue;
                         }
 
-                        URI rsc = con.getValueFactory().createURI(rsc_uri);
+                        IRI rsc = con.getValueFactory().createIRI(rsc_uri);
                         Collection<Value> cPos = ldPathService.pathQuery(rsc, path, prefixService.getMappings());
                         for (Value cP : cPos) {
-                            if (cP instanceof URI || cP instanceof BNode) {
+                            if (cP instanceof IRI || cP instanceof BNode) {
                                 for (Statement t : listOutgoing(con, (Resource) cP)) {
                                     pathCandidates.add(t.getPredicate());
                                 }
@@ -287,7 +301,7 @@ public class LDPathUtilWebService {
                 handleRepositoryException(e,LDPathUtilWebService.class);
             }
             List<String> suggest = new ArrayList<String>();
-            for (URI r : pathCandidates) {
+            for (IRI r : pathCandidates) {
                 suggest.add(r.stringValue());
             }
             return suggest;

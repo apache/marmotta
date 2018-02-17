@@ -18,14 +18,13 @@
 package org.apache.marmotta.platform.ldpath.api;
 
 
-import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
-import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
-import org.apache.marmotta.ldpath.exception.LDPathParseException;
-import org.openrdf.model.Value;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
+import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
+import org.apache.marmotta.ldpath.exception.LDPathParseException;
+import org.eclipse.rdf4j.model.Value;
 
 /**
  * Add file description here!

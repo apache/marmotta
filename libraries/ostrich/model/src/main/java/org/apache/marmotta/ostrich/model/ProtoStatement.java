@@ -18,7 +18,12 @@
 package org.apache.marmotta.ostrich.model;
 
 import org.apache.marmotta.ostrich.model.proto.Model;
-import org.openrdf.model.*;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
 
 /**
  * Add file description here!
@@ -42,22 +47,22 @@ public class ProtoStatement implements Statement {
      * @param object
      * @param context
      */
-    public ProtoStatement(Resource subject, URI predicate, Value object, Resource context) {
+    public ProtoStatement(Resource subject, IRI predicate, Value object, Resource context) {
         // Build statement, mapping the Java inheritance structure to the Proto oneof structure.
         Model.Statement.Builder builder = Model.Statement.newBuilder();
-        if (subject instanceof ProtoURI) {
-            builder.getSubjectBuilder().setUri(((ProtoURI) subject).getMessage()).build();
+        if (subject instanceof ProtoIRI) {
+            builder.getSubjectBuilder().setUri(((ProtoIRI) subject).getMessage()).build();
         } else if (subject instanceof ProtoBNode) {
             builder.getSubjectBuilder().setBnode(((ProtoBNode) subject).getMessage()).build();
-        } else if (subject instanceof URI) {
+        } else if (subject instanceof IRI) {
             builder.getSubjectBuilder().getUriBuilder().setUri(subject.stringValue()).build();
         } else if (subject instanceof BNode) {
             builder.getSubjectBuilder().getBnodeBuilder().setId(subject.stringValue()).build();
         }
 
-        if (predicate instanceof ProtoURI) {
-            builder.setPredicate(((ProtoURI) predicate).getMessage()).build();
-        } else if (predicate instanceof URI){
+        if (predicate instanceof ProtoIRI) {
+            builder.setPredicate(((ProtoIRI) predicate).getMessage()).build();
+        } else if (predicate instanceof IRI){
             builder.getPredicateBuilder().setUri(predicate.stringValue()).build();
         }
 
@@ -77,20 +82,20 @@ public class ProtoStatement implements Statement {
             } else if(l.getLanguage() != null) {
                 builder.getObjectBuilder().getLiteralBuilder().getStringliteralBuilder()
                         .setContent(l.stringValue())
-                        .setLanguage(l.getLanguage())
+                        .setLanguage(l.getLanguage().orElse(null))
                         .build();
             } else {
                 builder.getObjectBuilder().getLiteralBuilder().getStringliteralBuilder()
                         .setContent(l.stringValue())
                         .build();
             }
-        } else if (object instanceof ProtoURI) {
+        } else if (object instanceof ProtoIRI) {
             builder.getObjectBuilder().getResourceBuilder().setUri(
-                    ((ProtoURI) object).getMessage()).build();
+                    ((ProtoIRI) object).getMessage()).build();
         } else if (object instanceof ProtoBNode) {
             builder.getObjectBuilder().getResourceBuilder().setBnode(
                     ((ProtoBNode) object).getMessage()).build();
-        } else if (object instanceof URI) {
+        } else if (object instanceof IRI) {
             builder.getObjectBuilder().getResourceBuilder().getUriBuilder().setUri(
                     object.stringValue()).build();
         } else if (object instanceof BNode) {
@@ -98,11 +103,11 @@ public class ProtoStatement implements Statement {
                     object.stringValue()).build();
         }
 
-        if (context instanceof ProtoURI) {
-            builder.getContextBuilder().setUri(((ProtoURI) context).getMessage()).build();
+        if (context instanceof ProtoIRI) {
+            builder.getContextBuilder().setUri(((ProtoIRI) context).getMessage()).build();
         } else if (context instanceof ProtoBNode) {
             builder.getContextBuilder().setBnode(((ProtoBNode) context).getMessage()).build();
-        } else if (context instanceof URI) {
+        } else if (context instanceof IRI) {
             builder.getContextBuilder().getUriBuilder().setUri(context.stringValue()).build();
         } else if (context instanceof BNode) {
             builder.getContextBuilder().getBnodeBuilder().setId(context.stringValue()).build();
@@ -128,7 +133,7 @@ public class ProtoStatement implements Statement {
         }
         switch(message.getContext().getResourcesCase()) {
             case URI:
-                return new ProtoURI(message.getContext().getUri());
+                return new ProtoIRI(message.getContext().getUri());
             case BNODE:
                 return new ProtoBNode(message.getContext().getBnode());
         }
@@ -147,7 +152,7 @@ public class ProtoStatement implements Statement {
         }
         switch(message.getSubject().getResourcesCase()) {
             case URI:
-                return new ProtoURI(message.getSubject().getUri());
+                return new ProtoIRI(message.getSubject().getUri());
             case BNODE:
                 return new ProtoBNode(message.getSubject().getBnode());
         }
@@ -160,12 +165,12 @@ public class ProtoStatement implements Statement {
      * @return The statement's predicate.
      */
     @Override
-    public URI getPredicate() {
+    public IRI getPredicate() {
         if (!message.hasPredicate()) {
             return null;
         }
 
-        return new ProtoURI(message.getPredicate());
+        return new ProtoIRI(message.getPredicate());
     }
 
     /**
@@ -184,7 +189,7 @@ public class ProtoStatement implements Statement {
             case RESOURCE:
                 switch(message.getObject().getResource().getResourcesCase()) {
                     case URI:
-                        return new ProtoURI(message.getObject().getResource().getUri());
+                        return new ProtoIRI(message.getObject().getResource().getUri());
                     case BNODE:
                         return new ProtoBNode(message.getObject().getResource().getBnode());
                 }

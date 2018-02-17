@@ -19,12 +19,13 @@ package org.apache.marmotta.kiwi.test.sesame.repository;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.eclipse.rdf4j.IsolationLevels;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnectionTest;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnectionTest;
-import org.openrdf.repository.sail.SailRepository;
 
 /**
  * Run the {@link RepositoryConnectionTest}s.
@@ -37,11 +38,12 @@ public class KiWiRepositoryConnectionTest extends RepositoryConnectionTest {
     private final KiWiConfiguration config;
 
     public KiWiRepositoryConnectionTest(KiWiConfiguration config) {
+        super(IsolationLevels.SNAPSHOT_READ);
         this.config = config;
     }
     
     /* (non-Javadoc)
-     * @see org.openrdf.repository.RepositoryConnectionTest#createRepository()
+     * @see org.eclipse.rdf4j.repository.RepositoryConnectionTest#createRepository()
      */
     @Override
     protected Repository createRepository() throws Exception {
@@ -55,18 +57,6 @@ public class KiWiRepositoryConnectionTest extends RepositoryConnectionTest {
     @Test
     @Override
     public void testOrderByQueriesAreInterruptable() throws Exception {
-    }
-
-    @Ignore("KiWi supports transaction isolation")
-    @Test
-    @Override
-    public void testReadOfAddedStatement1() throws Exception {
-    }
-
-    @Ignore("KiWi supports transaction isolation")
-    @Test
-    @Override
-    public void testReadOfAddedStatement2() throws Exception {
     }
 
 }

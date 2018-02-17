@@ -17,14 +17,14 @@
  */
 package org.apache.marmotta.commons.sesame.test.sparql;
 
+import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
 
 /**
  * Sparql ASK-Query Matcher
@@ -47,24 +47,24 @@ public class SparqlAskMatcher<T extends RepositoryConnection> extends SparqlMatc
     }
 
     /**
-     * Create a SparqlAskMatcher that evaluates a SPARQL ASK query against the {@link org.openrdf.repository.RepositoryConnection}
+     * Create a SparqlAskMatcher that evaluates a SPARQL ASK query against the {@link org.eclipse.rdf4j.repository.RepositoryConnection}
      * to test.
      *
      * @param baseUri  The base URI to resolve any relative URIs that are in the query against, can be null if the query does not contain any relative URIs.
      * @param askQuery the SPARQL ASK query.
-     * @see org.openrdf.query.BooleanQuery#evaluate()
+     * @see org.eclipse.rdf4j.query.BooleanQuery#evaluate()
      */
     public static <T extends RepositoryConnection> Matcher<T> sparqlAsk(String baseUri, String askQuery) {
         return new SparqlAskMatcher<>(baseUri, askQuery);
     }
 
     /**
-     * Create a SparqlAskMatcher that evaluates a SPARQL ASK query against the {@link org.openrdf.repository.RepositoryConnection}
+     * Create a SparqlAskMatcher that evaluates a SPARQL ASK query against the {@link org.eclipse.rdf4j.repository.RepositoryConnection}
      * to test. The baseUri of the SPARQL Query is assumed {@code null}.
      *
      * @param askQuery the SPARQL ASK query.
      * @see #sparqlAsk(String, String)
-     * @see org.openrdf.query.BooleanQuery#evaluate()
+     * @see org.eclipse.rdf4j.query.BooleanQuery#evaluate()
      */
     public static <T extends RepositoryConnection> Matcher<T> sparqlAsk(String askQuery) {
         return sparqlAsk(null, askQuery);

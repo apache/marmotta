@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.platform.core.events;
 
-import org.openrdf.model.Resource;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * User: Thomas Kurz

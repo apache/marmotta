@@ -16,23 +16,21 @@
  */
 package org.apache.marmotta.platform.backend.accumulograph;
 
-import com.tinkerpop.blueprints.oupls.sail.GraphSail;
 import edu.jhuapl.tinkerpop.AccumuloGraph;
+import java.util.List;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.api.triplestore.StoreProvider;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.NotifyingSail;
-import org.openrdf.sail.Sail;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.NotifyingSail;
+import org.eclipse.rdf4j.sail.Sail;
 import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import java.util.List;
 
 /**
  * Blueprints Implementation by Accumulo Graph
@@ -60,7 +58,10 @@ public class AccumuloGraphProvider implements StoreProvider {
     public NotifyingSail createStore() {
         log.info("Initializing Backend: AccumuloGraph Store");
         final AccumuloGraph graph = createAccumuloGraph();
-        return new GraphSail(graph);
+        return null;
+//        return new GraphSail(graph);
+        // Ignore GraphSail because TnkerPop is deprecated; it uses sesame 2.
+        // This experimental backend will be removed.
     }
 
     /**

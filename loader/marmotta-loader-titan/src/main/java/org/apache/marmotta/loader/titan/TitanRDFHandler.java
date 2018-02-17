@@ -22,12 +22,16 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.TransactionalGraph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.util.wrappers.batch.BatchGraph;
-import org.openrdf.model.*;
-import org.openrdf.rio.RDFHandler;
-import org.openrdf.rio.RDFHandlerException;
-
 import java.util.HashSet;
 import java.util.Set;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.rio.RDFHandler;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
 
 /**
  * An RDF handler for bulk loading RDF data into a Blueprints graph accessed through a Blueprints
@@ -101,7 +105,7 @@ public class TitanRDFHandler  implements RDFHandler {
      * Signals the start of the RDF data. This method is called before any data
      * is reported.
      *
-     * @throws org.openrdf.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
      */
     @Override
     public void startRDF() throws RDFHandlerException {
@@ -112,7 +116,7 @@ public class TitanRDFHandler  implements RDFHandler {
      * Signals the end of the RDF data. This method is called when all data has
      * been reported.
      *
-     * @throws org.openrdf.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
      */
     @Override
     public void endRDF() throws RDFHandlerException {
@@ -130,7 +134,7 @@ public class TitanRDFHandler  implements RDFHandler {
      * @param prefix The prefix for the namespace, or an empty string in case of a
      *               default namespace.
      * @param uri    The URI that the prefix maps to.
-     * @throws org.openrdf.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
      */
     @Override
     public void handleNamespace(String prefix, String uri) throws RDFHandlerException {
@@ -141,7 +145,7 @@ public class TitanRDFHandler  implements RDFHandler {
      * Handles a statement.
      *
      * @param st The statement.
-     * @throws org.openrdf.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
      */
     @Override
     public void handleStatement(Statement st) throws RDFHandlerException {
@@ -165,7 +169,7 @@ public class TitanRDFHandler  implements RDFHandler {
      * Handles a comment.
      *
      * @param comment The comment.
-     * @throws org.openrdf.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
      */
     @Override
     public void handleComment(String comment) throws RDFHandlerException {
@@ -176,7 +180,7 @@ public class TitanRDFHandler  implements RDFHandler {
     private Vertex addVertex(final Value value) {
         Vertex v = graph.addVertex(valueToNative(value));
 
-        if (value instanceof URI) {
+        if (value instanceof IRI) {
             v.setProperty(KIND, URI);
             v.setProperty(VALUE, value.stringValue());
         } else if (value instanceof Literal) {
@@ -186,8 +190,8 @@ public class TitanRDFHandler  implements RDFHandler {
             if (null != l.getDatatype()) {
                 v.setProperty(TYPE, l.getDatatype().stringValue());
             }
-            if (null != l.getLanguage()) {
-                v.setProperty(LANG, l.getLanguage());
+            if (null != l.getLanguage().orElse(null)) {
+                v.setProperty(LANG, l.getLanguage().orElse(null));
             }
         } else if (value instanceof BNode) {
             BNode b = (BNode) value;
@@ -227,8 +231,8 @@ public class TitanRDFHandler  implements RDFHandler {
     }
 
     public String resourceToNative(final Resource value) {
-        if (value instanceof URI) {
-            return uriToNative((URI) value);
+        if (value instanceof IRI) {
+            return uriToNative((IRI) value);
         } else if (value instanceof BNode) {
             return bnodeToNative((BNode) value);
         } else {
@@ -236,7 +240,7 @@ public class TitanRDFHandler  implements RDFHandler {
         }
     }
 
-    public String uriToNative(final URI value) {
+    public String uriToNative(final IRI value) {
         return URI_PREFIX + SEPARATOR + value.toString();
     }
 
@@ -245,10 +249,10 @@ public class TitanRDFHandler  implements RDFHandler {
     }
 
     public String literalToNative(final Literal literal) {
-        URI datatype = literal.getDatatype();
+        IRI datatype = literal.getDatatype();
 
         if (null == datatype) {
-            String language = literal.getLanguage();
+            String language = literal.getLanguage().orElse(null);
 
             if (null == language) {
                 return PLAIN_LITERAL_PREFIX + SEPARATOR + literal.getLabel();

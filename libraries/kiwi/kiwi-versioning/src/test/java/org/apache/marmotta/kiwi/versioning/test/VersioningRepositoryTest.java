@@ -17,8 +17,10 @@
  */
 package org.apache.marmotta.kiwi.versioning.test;
 
-import info.aduna.iteration.Iterations;
-
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
 import org.apache.marmotta.commons.sesame.transactions.sail.KiWiTransactionalSail;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
@@ -26,28 +28,23 @@ import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.kiwi.versioning.sail.KiWiVersioningSail;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import org.junit.After;
 import org.junit.Assert;
+import static org.junit.Assume.assumeThat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openrdf.model.URI;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assume.assumeThat;
 
 /**
  * This test checks if the versioning functionality itself works, i.e. the system properly creates versions on
@@ -221,8 +218,8 @@ public class VersioningRepositoryTest {
         List<Version> versions = asList(vsail.listVersions());
         Assert.assertEquals("expected 3 versions!", 3, versions.size());
 
-        URI subject = repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/R1");
-        URI predicate = repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/P2");
+        IRI subject = repository.getValueFactory().createIRI("http://marmotta.apache.org/testing/ns1/R1");
+        IRI predicate = repository.getValueFactory().createIRI("http://marmotta.apache.org/testing/ns1/P2");
 
         RepositoryConnection connectionBeforeRevert = repository.getConnection();
         try {

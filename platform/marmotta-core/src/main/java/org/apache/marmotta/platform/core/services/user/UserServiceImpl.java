@@ -17,7 +17,18 @@
  */
 package org.apache.marmotta.platform.core.services.user;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import javax.inject.Named;
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
+import static org.apache.marmotta.commons.sesame.model.Namespaces.ADMIN_LOGIN;
+import static org.apache.marmotta.commons.sesame.model.Namespaces.ANONYMOUS_LOGIN;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.api.user.UserService;
@@ -28,23 +39,10 @@ import org.apache.marmotta.platform.core.model.user.MarmottaUser;
 import org.apache.marmotta.platform.core.qualifiers.user.AdminUser;
 import org.apache.marmotta.platform.core.qualifiers.user.AnonymousUser;
 import org.apache.marmotta.platform.core.qualifiers.user.CurrentUser;
-import org.openrdf.model.URI;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.slf4j.Logger;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import static org.apache.marmotta.commons.sesame.model.Namespaces.ADMIN_LOGIN;
-import static org.apache.marmotta.commons.sesame.model.Namespaces.ANONYMOUS_LOGIN;
-import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
 /**
  * Add file description here!
@@ -68,7 +66,7 @@ public class UserServiceImpl implements UserService {
      * Each thread gets its own User. By using {@link InheritableThreadLocal}, the user is inherited
      * by from the parent thread unless it is explicitly set.
      */
-    private static InheritableThreadLocal<URI> currentUser = new InheritableThreadLocal<>();
+    private static InheritableThreadLocal<IRI> currentUser = new InheritableThreadLocal<>();
 
     // marker to ensure that no other thread interferes while setting up default users ...
     private boolean users_created = false;
@@ -76,8 +74,8 @@ public class UserServiceImpl implements UserService {
     private final Lock lock = new ReentrantLock();
 
 
-    private URI adminUser;
-    private URI anonUser;
+    private IRI adminUser;
+    private IRI anonUser;
 
 
     /**
@@ -157,7 +155,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Produces @CurrentUser
-    public URI getCurrentUser() {
+    public IRI getCurrentUser() {
         if(currentUser.get() == null)
             return getAnonymousUser();
         else
@@ -174,7 +172,7 @@ public class UserServiceImpl implements UserService {
      * @param user - the resource that represents the user
      */
     @Override
-    public void setCurrentUser(URI user) {
+    public void setCurrentUser(IRI user) {
         currentUser.set(user);
     }
 
@@ -196,7 +194,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Produces @AnonymousUser
-    public URI getAnonymousUser() {
+    public IRI getAnonymousUser() {
         while(anonUser == null && !users_created) {
             try {
                 Thread.sleep(1000);
@@ -208,13 +206,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean isAnonymous(URI user) {
+    public boolean isAnonymous(IRI user) {
         return getAnonymousUser().equals(user);
     }
 
     @Override
     @Produces @AdminUser
-    public URI getAdminUser() {
+    public IRI getAdminUser() {
         while(adminUser == null && !users_created) {
             try {
                 Thread.sleep(1000);
@@ -237,7 +235,7 @@ public class UserServiceImpl implements UserService {
      * @return the newly created user.
      */
     @Override
-    public URI createUser(String login) throws UserExistsException {
+    public IRI createUser(String login) throws UserExistsException {
         return createUser(login, null, null);
     }
 
@@ -256,11 +254,11 @@ public class UserServiceImpl implements UserService {
      * @return the newly created user.
      */
     @Override
-    public URI createUser(final String login, final String firstName, final String lastName) throws UserExistsException {
+    public IRI createUser(final String login, final String firstName, final String lastName) throws UserExistsException {
         lock.lock();
         try {
             if(!userExists(login)) {
-                String webId_str = buildUserUri(login);
+                String webId_str = buildUserIri(login);
 
                 log.info("creating user with webId: {} ", webId_str);
 
@@ -276,7 +274,7 @@ public class UserServiceImpl implements UserService {
                     RepositoryConnection conn = sesameService.getConnection();
                     try {
                         conn.begin();
-                        URI webId = conn.getValueFactory().createURI(webId_str);
+                        IRI webId = conn.getValueFactory().createIRI(webId_str);
 
                         if (!login.equals(ANONYMOUS_LOGIN) && !login.equals(ADMIN_LOGIN)) {
                             MarmottaUser u = FacadingFactory.createFacading(conn).createFacade(webId, MarmottaUser.class);
@@ -310,8 +308,8 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private String buildUserUri(final String login) {
-        return configurationService.getBaseUri() + "user/" + login;
+    private String buildUserIri(final String login) {
+        return configurationService.getBaseIri() + "user/" + login;
     }
 
 
@@ -325,7 +323,7 @@ public class UserServiceImpl implements UserService {
      * @return the user with the given login, or null if no such user exists
      */
     @Override
-    public URI getUser(String login) {
+    public IRI getUser(String login) {
         return getUserByLogin(login);
     }
 
@@ -339,11 +337,11 @@ public class UserServiceImpl implements UserService {
      * @param login the login to look for
      * @return the user with the given login, or null if no such user exists
      */
-    private URI getUserByLogin(String login) {
+    private IRI getUserByLogin(String login) {
         String webId = configurationService.getStringConfiguration(String.format("user.%s.webid", login));
 
         if(webId != null) {
-            return sesameService.getRepository().getValueFactory().createURI(webId);
+            return sesameService.getRepository().getValueFactory().createIRI(webId);
         } else {
             return null;
         }

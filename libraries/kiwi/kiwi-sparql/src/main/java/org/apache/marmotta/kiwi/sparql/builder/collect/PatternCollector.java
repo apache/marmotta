@@ -17,26 +17,32 @@
 
 package org.apache.marmotta.kiwi.sparql.builder.collect;
 
+import java.util.LinkedList;
+import java.util.Set;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.sparql.builder.ValueConverter;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLFragment;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLPattern;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLSubQuery;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLUnion;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.Dataset;
-import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
-
-import java.util.LinkedList;
-import java.util.Set;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.Dataset;
+import org.eclipse.rdf4j.query.algebra.Exists;
+import org.eclipse.rdf4j.query.algebra.Filter;
+import org.eclipse.rdf4j.query.algebra.Group;
+import org.eclipse.rdf4j.query.algebra.LeftJoin;
+import org.eclipse.rdf4j.query.algebra.Projection;
+import org.eclipse.rdf4j.query.algebra.StatementPattern;
+import org.eclipse.rdf4j.query.algebra.TupleExpr;
+import org.eclipse.rdf4j.query.algebra.Union;
+import org.eclipse.rdf4j.query.algebra.helpers.AbstractQueryModelVisitor;
 
 /**
 * Collect all statement patterns in a tuple expression.
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
+public class PatternCollector extends AbstractQueryModelVisitor<RuntimeException> {
 
     public LinkedList<SQLFragment> parts   = new LinkedList<>();
 

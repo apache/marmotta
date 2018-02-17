@@ -17,10 +17,17 @@
  */
 package org.apache.marmotta.ldclient.provider.phpbb;
 
-import org.apache.marmotta.commons.sesame.model.Namespaces;
 import com.google.common.collect.ImmutableList;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.provider.html.AbstractHTMLDataProvider;
 import org.apache.marmotta.ldclient.provider.html.mapping.CssSelectorMapper;
@@ -29,17 +36,10 @@ import org.apache.marmotta.ldclient.provider.html.mapping.JSoupMapper;
 import org.apache.marmotta.ldclient.provider.phpbb.mapping.PHPBBDateMapper;
 import org.apache.marmotta.ldclient.provider.phpbb.mapping.PHPBBForumHrefMapper;
 import org.apache.marmotta.ldclient.provider.phpbb.mapping.PHPBBPostIdMapper;
+import org.eclipse.rdf4j.model.IRI;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Retrieve and parse a whole PHPBB topic; will try to use paging to retrieve all relevant HTML pages. The
@@ -61,7 +61,7 @@ public class PHPBBTopicProvider extends AbstractHTMLDataProvider {
      * @param resource
      */
     @Override
-    protected List<String> getTypes(org.openrdf.model.URI resource) {
+    protected List<String> getTypes(IRI resource) {
         return ImmutableList.of(
                 Namespaces.NS_SIOC + "Thread",
                 Namespaces.NS_SIOC + "Collection",

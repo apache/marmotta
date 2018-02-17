@@ -18,13 +18,12 @@
 package org.apache.marmotta.kiwi.loader.mysql;
 
 import com.mysql.jdbc.Statement;
+import java.io.IOException;
+import java.sql.SQLException;
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
 import org.apache.marmotta.kiwi.loader.generic.KiWiBatchHandler;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.openrdf.rio.RDFHandler;
-
-import java.io.IOException;
-import java.sql.SQLException;
+import org.eclipse.rdf4j.rio.RDFHandler;
 
 /**
  * A fast-lane RDF import handler for MySQL backends. This importer takes advantage of the MySQL LOAD DATA command

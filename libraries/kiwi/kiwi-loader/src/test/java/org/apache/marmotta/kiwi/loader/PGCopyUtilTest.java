@@ -16,28 +16,6 @@
  */
 package org.apache.marmotta.kiwi.loader;
 
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.marmotta.commons.vocabulary.XSD;
-import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.kiwi.loader.pgsql.PGCopyUtil;
-import org.apache.marmotta.kiwi.model.rdf.*;
-import org.apache.marmotta.kiwi.persistence.KiWiConnection;
-import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
-import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
-import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
-import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.SailException;
-import org.postgresql.copy.PGCopyOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -46,8 +24,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
-
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.marmotta.commons.vocabulary.XSD;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.loader.pgsql.PGCopyUtil;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
+import org.apache.marmotta.kiwi.persistence.KiWiConnection;
+import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
+import org.apache.marmotta.kiwi.sail.KiWiStore;
+import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
+import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.SailException;
+import org.joda.time.DateTime;
+import org.junit.After;
+import org.junit.Assert;
 import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+import org.postgresql.copy.PGCopyOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Add file description here!
@@ -63,10 +68,10 @@ public class PGCopyUtilTest {
     protected static long id = 0;
 
 
-    final static KiWiUriResource TYPE_INT = createURI(XSD.Integer.stringValue());
-    final static KiWiUriResource TYPE_DBL = createURI(XSD.Double.stringValue());
-    final static KiWiUriResource TYPE_BOOL = createURI(XSD.Boolean.stringValue());
-    final static KiWiUriResource TYPE_DATE = createURI(XSD.DateTime.stringValue());
+    final static KiWiIriResource TYPE_INT = createURI(XSD.Integer.stringValue());
+    final static KiWiIriResource TYPE_DBL = createURI(XSD.Double.stringValue());
+    final static KiWiIriResource TYPE_BOOL = createURI(XSD.Boolean.stringValue());
+    final static KiWiIriResource TYPE_DATE = createURI(XSD.DateTime.stringValue());
     final static KiWiStringLiteral EMPTY = createLiteral("");
 
 
@@ -154,15 +159,15 @@ public class PGCopyUtilTest {
      * Return a random URI, with a 10% chance of returning a URI that has already been used.
      * @return
      */
-    protected static KiWiUriResource randomURI() {
-        KiWiUriResource r = new KiWiUriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+    protected static KiWiIriResource randomURI() {
+        KiWiIriResource r = new KiWiIriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
         r.setId(id++);
         return r;
     }
 
 
-    protected static KiWiUriResource createURI(String uri) {
-        KiWiUriResource r = new KiWiUriResource(uri);
+    protected static KiWiIriResource createURI(String uri) {
+        KiWiIriResource r = new KiWiIriResource(uri);
         r.setId(id++);
         return r;
     }
@@ -174,7 +179,7 @@ public class PGCopyUtilTest {
     protected static KiWiNode randomObject() {
         KiWiNode object;
         switch(rnd.nextInt(7)) {
-            case 0: object = new KiWiUriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+            case 0: object = new KiWiIriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
                 break;
             case 1: object = new KiWiAnonResource(UUID.randomUUID().toString());
                 break;
@@ -188,7 +193,7 @@ public class PGCopyUtilTest {
                 break;
             case 6: object = new KiWiDateLiteral(DateTime.now().withMillisOfSecond(0), TYPE_DATE);
                 break;
-            default: object = new KiWiUriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+            default: object = new KiWiIriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
                 break;
 
         }

@@ -23,17 +23,17 @@ import org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher;
 import org.apache.marmotta.commons.sesame.test.sparql.SparqlAskMatcher;
 import org.apache.marmotta.commons.sesame.test.sparql.SparqlGraphQueryMatcher;
 import org.apache.marmotta.commons.sesame.test.sparql.SparqlTupleQueryMatcher;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.query.BindingSet;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.UnsupportedRDFormatException;
 
 /**
  * Collection of useful Matchers for Sesame.
@@ -50,9 +50,9 @@ public class SesameMatchers {
      * @param object    the object of the statement, use {@code null} as wildcard.
      * @param contexts  the contexts in which to look for the statement, use an empty varargs array to look in all contexts available.
      * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
-     * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
+     * @see org.eclipse.rdf4j.repository.RepositoryConnection#hasStatement(org.eclipse.rdf4j.model.Resource, org.eclipse.rdf4j.model.URI, org.eclipse.rdf4j.model.Value, boolean, org.eclipse.rdf4j.model.Resource...)
      */
-    public static <T extends RepositoryConnection> Matcher<T> hasStatement(Resource subject, URI predicate, Value object, Resource... contexts) {
+    public static <T extends RepositoryConnection> Matcher<T> hasStatement(Resource subject, IRI predicate, Value object, Resource... contexts) {
         return HasStatementMatcher.hasStatement(subject, predicate, object, contexts);
     }
 
@@ -65,9 +65,9 @@ public class SesameMatchers {
      * @param contexts  the contexts in which to look for the statement, use an empty varargs array to look in all contexts available.
      * @see org.apache.marmotta.commons.sesame.test.base.RepositoryMatcher
      * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
-     * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
+     * @see org.eclipse.rdf4j.repository.RepositoryConnection#hasStatement(org.eclipse.rdf4j.model.Resource, org.eclipse.rdf4j.model.URI, org.eclipse.rdf4j.model.Value, boolean, org.eclipse.rdf4j.model.Resource...)
      */
-    public static <T extends Repository> Matcher<T> repositoryHasStatement(Resource subject, URI predicate, Value object, Resource... contexts) {
+    public static <T extends Repository> Matcher<T> repositoryHasStatement(Resource subject, IRI predicate, Value object, Resource... contexts) {
         return RepositoryMatcher.wrap(hasStatement(subject, predicate, object, contexts));
     }
 
@@ -83,7 +83,7 @@ public class SesameMatchers {
      * @see org.apache.marmotta.commons.sesame.test.base.RdfStringMatcher
      * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
      */
-    public static <T extends String> Matcher<T> rdfHasStatement(RDFFormat format, String baseUri, Resource subject, URI predicate, Value object, Resource... contexts) {
+    public static <T extends String> Matcher<T> rdfHasStatement(RDFFormat format, String baseUri, Resource subject, IRI predicate, Value object, Resource... contexts) {
         return RdfStringMatcher.wrap(format, baseUri, hasStatement(subject, predicate, object, contexts));
     }
 
@@ -92,7 +92,7 @@ public class SesameMatchers {
      *
      * @param askQuery the SPARQL ASK query to check, test will fail if the result is {@code false}
      * @see org.apache.marmotta.commons.sesame.test.sparql.SparqlAskMatcher
-     * @see org.openrdf.query.BooleanQuery#evaluate()
+     * @see org.eclipse.rdf4j.query.BooleanQuery#evaluate()
      */
     public static <T extends RepositoryConnection> Matcher<T> sparqlAsk(String askQuery) {
         return SparqlAskMatcher.sparqlAsk(askQuery);
@@ -104,7 +104,7 @@ public class SesameMatchers {
      * @param baseUri  The base URI to resolve any relative URIs that are in the query against, can be null if the query does not contain any relative URIs.
      * @param askQuery the SPARQL ASK query to check, test will fail if the result is {@code false}
      * @see org.apache.marmotta.commons.sesame.test.sparql.SparqlAskMatcher
-     * @see org.openrdf.query.BooleanQuery#evaluate()
+     * @see org.eclipse.rdf4j.query.BooleanQuery#evaluate()
      */
     public static <T extends RepositoryConnection> Matcher<T> sparqlAsk(String baseUri, String askQuery) {
         return SparqlAskMatcher.sparqlAsk(baseUri, askQuery);
@@ -115,7 +115,7 @@ public class SesameMatchers {
      *
      * @param askQuery the SPARQL ASK query to check, test will fail if the result is {@code false}
      * @see org.apache.marmotta.commons.sesame.test.sparql.SparqlAskMatcher
-     * @see org.openrdf.query.BooleanQuery#evaluate()
+     * @see org.eclipse.rdf4j.query.BooleanQuery#evaluate()
      * @see org.apache.marmotta.commons.sesame.test.base.RepositoryMatcher#wrap(org.hamcrest.Matcher)
      */
     public static <T extends Repository> Matcher<T> sparqlAskRepository(String askQuery) {
@@ -128,7 +128,7 @@ public class SesameMatchers {
      * @param baseUri  The base URI to resolve any relative URIs that are in the query against, can be null if the query does not contain any relative URIs.
      * @param askQuery the SPARQL ASK query to check, test will fail if the result is {@code false}
      * @see org.apache.marmotta.commons.sesame.test.sparql.SparqlAskMatcher
-     * @see org.openrdf.query.BooleanQuery#evaluate()
+     * @see org.eclipse.rdf4j.query.BooleanQuery#evaluate()
      * @see org.apache.marmotta.commons.sesame.test.base.RepositoryMatcher#wrap(org.hamcrest.Matcher)
      */
     public static <T extends Repository> Matcher<T> sparqlAskRepository(String baseUri, String askQuery) {
@@ -142,7 +142,7 @@ public class SesameMatchers {
      * @param baseUri  the baseUri used for de-serializing the RDF
      * @param askQuery the SPARQL ASK query to check, test will fail if the result is {@code false}
      * @see org.apache.marmotta.commons.sesame.test.sparql.SparqlAskMatcher
-     * @see org.openrdf.query.BooleanQuery#evaluate()
+     * @see org.eclipse.rdf4j.query.BooleanQuery#evaluate()
      */
     public static <T extends String> Matcher<T> sparqlAskRdf(RDFFormat format, String baseUri, String askQuery) {
         return RdfStringMatcher.wrap(format, baseUri, sparqlAsk(askQuery));
@@ -156,7 +156,7 @@ public class SesameMatchers {
      * @param queryBaseUri The base URI to resolve any relative URIs that are in the query against, can be null if the query does not contain any relative URIs.
      * @param askQuery     the SPARQL ASK query to check, test will fail if the result is {@code false}
      * @see org.apache.marmotta.commons.sesame.test.sparql.SparqlAskMatcher
-     * @see org.openrdf.query.BooleanQuery#evaluate()
+     * @see org.eclipse.rdf4j.query.BooleanQuery#evaluate()
      */
     public static <T extends String> Matcher<T> sparqlAskRdf(RDFFormat format, String baseUri, String queryBaseUri, String askQuery) {
         return RdfStringMatcher.wrap(format, baseUri, sparqlAsk(queryBaseUri, askQuery));
@@ -169,7 +169,7 @@ public class SesameMatchers {
      * @param sparqlQuery A SPARQL SELECT query to match the provided matcher against.
      * @param matcher     The Matcher to match
      * @see org.apache.marmotta.commons.sesame.test.sparql.SparqlTupleQueryMatcher
-     * @see org.openrdf.repository.sparql.query.SPARQLTupleQuery
+     * @see org.eclipse.rdf4j.repository.sparql.query.SPARQLTupleQuery
      */
     public static <T extends RepositoryConnection> Matcher<T> sparqlTupleQuery(String baseUri, String sparqlQuery, Matcher<Iterable<BindingSet>> matcher) {
         return SparqlTupleQueryMatcher.sparqlQuery(baseUri, sparqlQuery, matcher);
@@ -182,7 +182,7 @@ public class SesameMatchers {
      * @param sparqlQuery A SPARQL SELECT query to match the provided matcher against.
      * @param matchers    The Matchers to match
      * @see org.apache.marmotta.commons.sesame.test.sparql.SparqlTupleQueryMatcher
-     * @see org.openrdf.repository.sparql.query.SPARQLTupleQuery
+     * @see org.eclipse.rdf4j.repository.sparql.query.SPARQLTupleQuery
      */
     @SafeVarargs
     public static <T extends RepositoryConnection> Matcher<T> sparqlTupleQuery(String baseUri, String sparqlQuery, Matcher<Iterable<BindingSet>>... matchers) {
@@ -196,7 +196,7 @@ public class SesameMatchers {
      * @param sparqlQuery A SPARQL SELECT query to match the provided matcher against.
      * @param matcher     The Matcher to match
      * @see org.apache.marmotta.commons.sesame.test.sparql.SparqlTupleQueryMatcher
-     * @see org.openrdf.repository.sparql.query.SPARQLTupleQuery
+     * @see org.eclipse.rdf4j.repository.sparql.query.SPARQLTupleQuery
      */
     public static <T extends Repository> Matcher<T> sparqlTupleQueryRepository(String baseUri, String sparqlQuery, Matcher<Iterable<BindingSet>> matcher) {
         return RepositoryMatcher.wrap(SparqlTupleQueryMatcher.sparqlQuery(baseUri, sparqlQuery, matcher));
@@ -209,7 +209,7 @@ public class SesameMatchers {
      * @param sparqlQuery A SPARQL SELECT query to match the provided matcher against.
      * @param matchers    The Matchers to match
      * @see org.apache.marmotta.commons.sesame.test.sparql.SparqlTupleQueryMatcher
-     * @see org.openrdf.repository.sparql.query.SPARQLTupleQuery
+     * @see org.eclipse.rdf4j.repository.sparql.query.SPARQLTupleQuery
      */
     @SafeVarargs
     public static <T extends Repository> Matcher<T> sparqlTupleQueryRepository(String baseUri, String sparqlQuery, Matcher<Iterable<BindingSet>>... matchers) {
@@ -225,7 +225,7 @@ public class SesameMatchers {
      * @param sparqlQuery  A SPARQL SELECT query to match the provided matcher against.
      * @param matcher      The Matcher to match
      * @see org.apache.marmotta.commons.sesame.test.sparql.SparqlTupleQueryMatcher
-     * @see org.openrdf.repository.sparql.query.SPARQLTupleQuery
+     * @see org.eclipse.rdf4j.repository.sparql.query.SPARQLTupleQuery
      */
     public static <T extends String> Matcher<T> sparqlTupleQueryRdf(RDFFormat format, String baseUri, String queryBaseUri, String sparqlQuery, Matcher<Iterable<BindingSet>> matcher) {
         return RdfStringMatcher.wrap(format, baseUri, SparqlTupleQueryMatcher.sparqlQuery(queryBaseUri, sparqlQuery, matcher));
@@ -240,7 +240,7 @@ public class SesameMatchers {
      * @param sparqlQuery  A SPARQL SELECT query to match the provided matcher against.
      * @param matchers     The Matchers to match
      * @see org.apache.marmotta.commons.sesame.test.sparql.SparqlTupleQueryMatcher
-     * @see org.openrdf.repository.sparql.query.SPARQLTupleQuery
+     * @see org.eclipse.rdf4j.repository.sparql.query.SPARQLTupleQuery
      */
     @SafeVarargs
     public static <T extends String> Matcher<T> sparqlTupleQueryRdf(RDFFormat format, String baseUri, String queryBaseUri, String sparqlQuery, Matcher<Iterable<BindingSet>>... matchers) {
@@ -374,7 +374,7 @@ public class SesameMatchers {
      * @param format  the RDFFormat used for de-serializing the RDF
      * @param baseUri the baseUri used for de-serializing the RDF
      * @param matcher the Matcher to wrap
-     * @see org.apache.marmotta.commons.sesame.test.base.RdfStringMatcher#wrap(org.openrdf.rio.RDFFormat, String, org.hamcrest.Matcher)
+     * @see org.apache.marmotta.commons.sesame.test.base.RdfStringMatcher#wrap(org.eclipse.rdf4j.rio.RDFFormat, String, org.hamcrest.Matcher)
      */
     public static <T extends String, V extends RepositoryConnection> Matcher<T> rdfStringMatches(RDFFormat format, String baseUri, Matcher<V> matcher) {
         return RdfStringMatcher.wrap(format, baseUri, matcher);
@@ -388,7 +388,7 @@ public class SesameMatchers {
      * @param baseUri  the baseUri used for de-serializing the RDF
      * @param matcher1 the Matcher to wrap
      * @param matcher2 the Matcher to wrap
-     * @see org.apache.marmotta.commons.sesame.test.base.RdfStringMatcher#wrap(org.openrdf.rio.RDFFormat, String, org.hamcrest.Matcher)
+     * @see org.apache.marmotta.commons.sesame.test.base.RdfStringMatcher#wrap(org.eclipse.rdf4j.rio.RDFFormat, String, org.hamcrest.Matcher)
      */
     public static <T extends String, V extends RepositoryConnection> Matcher<T> rdfStringMatches(RDFFormat format, String baseUri, Matcher<V> matcher1, Matcher<V> matcher2) {
         return RdfStringMatcher.wrap(format, baseUri, CoreMatchers.allOf(matcher1, matcher2));
@@ -401,7 +401,7 @@ public class SesameMatchers {
      * @param format   the RDFFormat used for de-serializing the RDF
      * @param baseUri  the baseUri used for de-serializing the RDF
      * @param matchers the Matchers to wrap
-     * @see org.apache.marmotta.commons.sesame.test.base.RdfStringMatcher#wrap(org.openrdf.rio.RDFFormat, String, org.hamcrest.Matcher)
+     * @see org.apache.marmotta.commons.sesame.test.base.RdfStringMatcher#wrap(org.eclipse.rdf4j.rio.RDFFormat, String, org.hamcrest.Matcher)
      */
     @SafeVarargs
     public static <T extends String, V extends RepositoryConnection> Matcher<T> rdfStringMatches(RDFFormat format, String baseUri, Matcher<V>... matchers) {
@@ -416,10 +416,10 @@ public class SesameMatchers {
      * @param baseUri  the baseUri used for de-serializing the RDF
      * @param matcher  the Matcher to wrap
      * @see Rio#getParserFormatForMIMEType(String)
-     * @see org.apache.marmotta.commons.sesame.test.base.RdfStringMatcher#wrap(org.openrdf.rio.RDFFormat, String, org.hamcrest.Matcher)
+     * @see org.apache.marmotta.commons.sesame.test.base.RdfStringMatcher#wrap(org.eclipse.rdf4j.rio.RDFFormat, String, org.hamcrest.Matcher)
      */
     public static <T extends String, V extends RepositoryConnection> Matcher<T> rdfStringMatches(String mimeType, String baseUri, Matcher<V> matcher) {
-        final RDFFormat format = Rio.getParserFormatForMIMEType(mimeType);
+        final RDFFormat format = Rio.getParserFormatForMIMEType(mimeType).orElse(null);
         if (format == null) throw new UnsupportedRDFormatException(mimeType);
         return RdfStringMatcher.wrap(format, baseUri, matcher);
     }
@@ -433,10 +433,10 @@ public class SesameMatchers {
      * @param matcher1 the Matcher to wrap
      * @param matcher2 the Matcher to wrap
      * @see Rio#getParserFormatForMIMEType(String)
-     * @see org.apache.marmotta.commons.sesame.test.base.RdfStringMatcher#wrap(org.openrdf.rio.RDFFormat, String, org.hamcrest.Matcher)
+     * @see org.apache.marmotta.commons.sesame.test.base.RdfStringMatcher#wrap(org.eclipse.rdf4j.rio.RDFFormat, String, org.hamcrest.Matcher)
      */
     public static <T extends String, V extends RepositoryConnection> Matcher<T> rdfStringMatches(String mimeType, String baseUri, Matcher<V> matcher1, Matcher<V> matcher2) {
-        final RDFFormat format = Rio.getParserFormatForMIMEType(mimeType);
+        final RDFFormat format = Rio.getParserFormatForMIMEType(mimeType).orElse(null);
         if (format == null) throw new UnsupportedRDFormatException(mimeType);
         return RdfStringMatcher.wrap(format, baseUri, CoreMatchers.allOf(matcher1, matcher2));
     }
@@ -449,11 +449,11 @@ public class SesameMatchers {
      * @param baseUri  the baseUri used for de-serializing the RDF
      * @param matchers the Matchers to wrap
      * @see Rio#getParserFormatForMIMEType(String)
-     * @see org.apache.marmotta.commons.sesame.test.base.RdfStringMatcher#wrap(org.openrdf.rio.RDFFormat, String, org.hamcrest.Matcher)
+     * @see org.apache.marmotta.commons.sesame.test.base.RdfStringMatcher#wrap(org.eclipse.rdf4j.rio.RDFFormat, String, org.hamcrest.Matcher)
      */
     @SafeVarargs
     public static <T extends String, V extends RepositoryConnection> Matcher<T> rdfStringMatches(String mimeType, String baseUri, Matcher<V>... matchers) {
-        final RDFFormat format = Rio.getParserFormatForMIMEType(mimeType);
+        final RDFFormat format = Rio.getParserFormatForMIMEType(mimeType).orElse(null);
         if (format == null) throw new UnsupportedRDFormatException(mimeType);
         return RdfStringMatcher.wrap(format, baseUri, CoreMatchers.allOf(matchers));
     }

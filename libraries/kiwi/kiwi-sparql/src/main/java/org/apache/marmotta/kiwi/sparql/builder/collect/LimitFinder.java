@@ -17,18 +17,18 @@
 
 package org.apache.marmotta.kiwi.sparql.builder.collect;
 
-import org.openrdf.query.algebra.Projection;
-import org.openrdf.query.algebra.Slice;
-import org.openrdf.query.algebra.TupleExpr;
-import org.openrdf.query.algebra.Union;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
+import org.eclipse.rdf4j.query.algebra.Projection;
+import org.eclipse.rdf4j.query.algebra.Slice;
+import org.eclipse.rdf4j.query.algebra.TupleExpr;
+import org.eclipse.rdf4j.query.algebra.Union;
+import org.eclipse.rdf4j.query.algebra.helpers.AbstractQueryModelVisitor;
 
 /**
 * Find the offset and limit values in a tuple expression
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-public class LimitFinder extends QueryModelVisitorBase<RuntimeException> {
+public class LimitFinder extends AbstractQueryModelVisitor<RuntimeException> {
 
     public long limit = -1, offset = -1;
 

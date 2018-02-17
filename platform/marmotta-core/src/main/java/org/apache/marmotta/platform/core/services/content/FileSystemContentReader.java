@@ -19,25 +19,27 @@ package org.apache.marmotta.platform.core.services.content;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentReader;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.model.content.MediaContentItem;
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.metadata.Metadata;
-import org.openrdf.model.Resource;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.slf4j.Logger;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.io.*;
-import java.net.URI;
-
-import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
 /**
  * A content reader that reads the content of a resource from the file system.
@@ -128,7 +130,7 @@ public class FileSystemContentReader implements ContentReader {
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();
-                if(path == null && resource instanceof org.openrdf.model.URI && resource.stringValue().startsWith("file:")) {
+                if(path == null && resource instanceof org.eclipse.rdf4j.model.IRI && resource.stringValue().startsWith("file:")) {
                     try {
                         URI uri = new URI(resource.stringValue());
                         path = uri.getPath();
@@ -182,7 +184,7 @@ public class FileSystemContentReader implements ContentReader {
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();
-                if(path == null && resource instanceof org.openrdf.model.URI && resource.stringValue().startsWith("file:")) {
+                if(path == null && resource instanceof org.eclipse.rdf4j.model.IRI && resource.stringValue().startsWith("file:")) {
                     try {
                         URI uri = new URI(resource.stringValue());
                         path = uri.getPath();
@@ -225,7 +227,7 @@ public class FileSystemContentReader implements ContentReader {
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();
-                if(path == null && resource instanceof org.openrdf.model.URI && resource.stringValue().startsWith("file:")) {
+                if(path == null && resource instanceof org.eclipse.rdf4j.model.IRI && resource.stringValue().startsWith("file:")) {
                     try {
                         URI uri = new URI(resource.stringValue());
                         path = uri.getPath();
@@ -282,7 +284,7 @@ public class FileSystemContentReader implements ContentReader {
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();
-                if(path == null && resource instanceof org.openrdf.model.URI && resource.stringValue().startsWith("file:")) {
+                if(path == null && resource instanceof org.eclipse.rdf4j.model.IRI && resource.stringValue().startsWith("file:")) {
                     try {
                         URI uri = new URI(resource.stringValue());
                         path = uri.getPath();

@@ -17,17 +17,16 @@
 
 package org.apache.marmotta.platform.backend.sesame;
 
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.triplestore.StoreProvider;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.NotifyingSail;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.nativerdf.NativeStore;
-import org.slf4j.Logger;
-
+import java.io.File;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.io.File;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.triplestore.StoreProvider;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.NotifyingSail;
+import org.eclipse.rdf4j.sail.Sail;
+import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
+import org.slf4j.Logger;
 
 /**
  * A store implementation using a Sesame NativeStore as backend for Marmotta. The triples are stored in the

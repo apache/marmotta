@@ -17,8 +17,12 @@
  */
 package org.apache.marmotta.platform.ldp.util;
 
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.lang.FileFormat;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.commons.vocabulary.XSD;
@@ -27,22 +31,21 @@ import org.apache.marmotta.platform.ldp.api.Preference;
 import org.apache.marmotta.platform.ldp.webservices.PreferHeader;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.impl.URIImpl;
-import org.openrdf.model.vocabulary.DCTERMS;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.*;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.common.lang.FileFormat;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParserRegistry;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.RDFWriterRegistry;
 import org.slf4j.Logger;
-
-import javax.ws.rs.core.MediaType;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Various Util-Methods for the {@link org.apache.marmotta.platform.ldp.api.LdpService}.
@@ -115,7 +118,7 @@ public class LdpUtils {
      * @throws RDFHandlerException
      * @throws RepositoryException
      */
-    public static void exportIteration(RDFWriter writer, URI subject, CloseableIteration<Statement, RepositoryException> iteration) throws RDFHandlerException, RepositoryException {
+    public static void exportIteration(RDFWriter writer, IRI subject, CloseableIteration<Statement, RepositoryException> iteration) throws RDFHandlerException, RepositoryException {
         writer.startRDF();
 
         writer.handleNamespace(LDP.PREFIX, LDP.NAMESPACE);
@@ -202,8 +205,8 @@ public class LdpUtils {
         return resource.substring(0, resource.lastIndexOf('/', resource.length() - 1));
     }
 
-    public static URI getContainer(URI resource) throws MalformedURLException, URISyntaxException {
-        return new URIImpl(getContainer(resource.stringValue()));
+    public static IRI getContainer(IRI resource) throws MalformedURLException, URISyntaxException {
+        return SimpleValueFactory.getInstance().createIRI(getContainer(resource.stringValue()));
     }
 
     /**

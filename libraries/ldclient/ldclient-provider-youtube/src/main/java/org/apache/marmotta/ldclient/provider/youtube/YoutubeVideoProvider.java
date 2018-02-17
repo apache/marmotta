@@ -17,9 +17,13 @@
  */
 package org.apache.marmotta.ldclient.provider.youtube;
 
-import org.apache.marmotta.commons.sesame.model.Namespaces;
 import com.google.common.collect.ImmutableList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.provider.xml.AbstractXMLDataProvider;
@@ -30,14 +34,9 @@ import org.apache.marmotta.ldclient.provider.xml.mapping.XPathValueMapper;
 import org.apache.marmotta.ldclient.provider.youtube.mapping.YoutubeCategoryMapper;
 import org.apache.marmotta.ldclient.provider.youtube.mapping.YoutubeLatitudeMapper;
 import org.apache.marmotta.ldclient.provider.youtube.mapping.YoutubeLongitudeMapper;
-import org.openrdf.model.URI;
+import org.eclipse.rdf4j.model.IRI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A data provider that allows to wrap Youtube Videos. Video descriptions are mapped according to
@@ -151,7 +150,7 @@ public class YoutubeVideoProvider extends AbstractXMLDataProvider implements Dat
      * @param resource
      */
     @Override
-    protected List<String> getTypes(URI resource) {
+    protected List<String> getTypes(IRI resource) {
         return ImmutableList.of(NS_MEDIA + "MediaResource",NS_MEDIA + "VideoTrack", Namespaces.NS_LMF_TYPES + "YoutubeVideo");
     }
 

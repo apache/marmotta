@@ -17,20 +17,18 @@
 
 package org.apache.marmotta.ldcache.backend.infinispan.io;
 
-import org.infinispan.commons.marshall.AdvancedExternalizer;
-import org.infinispan.commons.util.Util;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.impl.ContextStatementImpl;
-import org.openrdf.model.impl.StatementImpl;
-import org.openrdf.model.impl.TreeModel;
-
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Set;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.impl.TreeModel;
+import org.infinispan.commons.marshall.AdvancedExternalizer;
+import org.infinispan.commons.util.Util;
 
 /**
  * Add file description here!
@@ -132,16 +130,16 @@ public class ModelExternalizer implements AdvancedExternalizer<TreeModel> {
         int size = input.readInt();
         for(int i=0; i<size; i++) {
             Resource subject = (Resource) input.readObject();
-            URI predicate = (URI) input.readObject();
+            IRI predicate = (IRI) input.readObject();
             Value object = (Value) input.readObject();
 
             boolean hasContext = input.readBoolean();
             if(hasContext) {
                 Resource context = (Resource) input.readObject();
 
-                model.add(new ContextStatementImpl(subject,predicate,object,context));
+                model.add(SimpleValueFactory.getInstance().createStatement(subject,predicate,object,context));
             } else {
-                model.add(new StatementImpl(subject,predicate,object));
+                model.add(SimpleValueFactory.getInstance().createStatement(subject,predicate,object));
             }
         }
 

@@ -17,13 +17,12 @@
  */
 package org.apache.marmotta.ldclient.provider.phpbb.mapping;
 
-import org.apache.marmotta.ldclient.provider.html.mapping.CssSelectorMapper;
-import org.jsoup.nodes.Element;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.util.Collections;
 import java.util.List;
+import org.apache.marmotta.ldclient.provider.html.mapping.CssSelectorMapper;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.jsoup.nodes.Element;
 
 /**
  * Maps a PHPBB Post ID (starting with p...., e.g. p105946, to a PHPBB URI, e.g.
@@ -60,7 +59,7 @@ public class PHPBBPostIdMapper extends CssSelectorMapper {
         if(!selectedValue.startsWith("p")) throw new RuntimeException("invalid value for PHPBB Post ID; must start with p... but was "+selectedValue);
         else
             return Collections.singletonList(
-                    (Value)factory.createURI(baseUri + "?p=" + selectedValue.substring(1))
+                    (Value)factory.createIRI(baseUri + "?p=" + selectedValue.substring(1))
                     );
     }
 }

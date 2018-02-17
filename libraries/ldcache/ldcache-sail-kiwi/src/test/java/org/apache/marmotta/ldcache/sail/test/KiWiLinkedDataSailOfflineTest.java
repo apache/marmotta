@@ -17,9 +17,11 @@
  */
 package org.apache.marmotta.ldcache.sail.test;
 
-import info.aduna.iteration.Iterations;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.marmotta.commons.sesame.filter.resource.IriPrefixFilter;
 import org.apache.marmotta.commons.sesame.filter.resource.ResourceFilter;
-import org.apache.marmotta.commons.sesame.filter.resource.UriPrefixFilter;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
@@ -28,26 +30,22 @@ import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.ldcache.sail.KiWiLinkedDataSail;
 import org.apache.marmotta.ldcache.services.test.dummy.DummyEndpoint;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.hamcrest.CoreMatchers;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.hasToString;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openrdf.model.Statement;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.hasToString;
 
 
 /**
@@ -144,7 +142,7 @@ public class KiWiLinkedDataSailOfflineTest {
 
     @Before
     public void initDatabase() throws RepositoryException {
-        cacheFilter = new UriPrefixFilter("http://localhost/");
+        cacheFilter = new IriPrefixFilter("http://localhost/");
 
         ClientConfiguration config = new ClientConfiguration();
         config.addEndpoint(new DummyEndpoint());
@@ -178,24 +176,24 @@ public class KiWiLinkedDataSailOfflineTest {
         try {
             con.begin();
 
-            List<Statement> list1 = Iterations.asList(con.getStatements(con.getValueFactory().createURI(uri1), null, null, true));
+            List<Statement> list1 = Iterations.asList(con.getStatements(con.getValueFactory().createIRI(uri1), null, null, true));
 
             Assert.assertEquals(3,list1.size());
             Assert.assertThat(list1, CoreMatchers.<Statement>hasItems(
-                    hasProperty("object", hasToString("\"Value 1\"")),
-                    hasProperty("object", hasToString("\"Value X\""))
+                    hasProperty("object", hasToString("\"Value 1\"^^xsd:string")),
+                    hasProperty("object", hasToString("\"Value X\"^^xsd:string"))
             ));
 
-
+            
             con.commit();
 
             con.begin();
 
-            List<Statement> list2 = Iterations.asList(con.getStatements(con.getValueFactory().createURI(uri2), null, null, true));
+            List<Statement> list2 = Iterations.asList(con.getStatements(con.getValueFactory().createIRI(uri2), null, null, true));
 
             Assert.assertEquals(2, list2.size());
             Assert.assertThat(list2, allOf(
-                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value 2\"")))
+                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value 2\"^^xsd:string")))
             ));
 
 
@@ -203,12 +201,12 @@ public class KiWiLinkedDataSailOfflineTest {
 
             con.begin();
 
-            List<Statement> list3 = Iterations.asList(con.getStatements(con.getValueFactory().createURI(uri3), null, null, true));
+            List<Statement> list3 = Iterations.asList(con.getStatements(con.getValueFactory().createIRI(uri3), null, null, true));
 
             Assert.assertEquals(2, list3.size());
             Assert.assertThat(list3, allOf(
-                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value 3\""))),
-                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value 4\"")))
+                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value 3\"^^xsd:string"))),
+                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value 4\"^^xsd:string")))
             ));
 
 

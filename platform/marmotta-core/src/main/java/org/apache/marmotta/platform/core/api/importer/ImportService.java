@@ -17,14 +17,13 @@
  */
 package org.apache.marmotta.platform.core.api.importer;
 
-import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.util.Set;
+import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * A service for importing and exporting different kinds of data into the KiWi system.
@@ -59,7 +58,7 @@ public interface ImportService {
      * @return the number of Content Items imported
 	 * @throws org.apache.marmotta.platform.core.exception.io.MarmottaImportException in case the import fails
 	 */
-    int importData(URL url, String format, Resource user, URI context) throws MarmottaImportException;
+    int importData(URL url, String format, Resource user, IRI context) throws MarmottaImportException;
 
 
 	/**
@@ -75,7 +74,7 @@ public interface ImportService {
      * @return the number of Content Items imported
 	 * @throws org.apache.marmotta.platform.core.exception.io.MarmottaImportException in case the import cannot execute
 	 */
-    int importData(InputStream is, String format, Resource user, URI context) throws MarmottaImportException;
+    int importData(InputStream is, String format, Resource user, IRI context) throws MarmottaImportException;
 
 	/**
 	 * Import data from the reader provided as argument into the KiWi database.
@@ -90,7 +89,7 @@ public interface ImportService {
      * @return the number of Content Items imported
 	 * @throws org.apache.marmotta.platform.core.exception.io.MarmottaImportException in case the import fails
 	 */
-    int importData(Reader reader, String format, Resource user, URI context) throws MarmottaImportException;
+    int importData(Reader reader, String format, Resource user, IRI context) throws MarmottaImportException;
 
 	
 	/**

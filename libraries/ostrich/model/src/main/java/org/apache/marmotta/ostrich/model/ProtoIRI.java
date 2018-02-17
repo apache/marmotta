@@ -18,29 +18,29 @@
 package org.apache.marmotta.ostrich.model;
 
 
-import org.apache.marmotta.commons.sesame.model.URICommons;
+import org.apache.marmotta.commons.sesame.model.IRICommons;
 import org.apache.marmotta.ostrich.model.proto.Model;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
 
 /**
  * An implementation of a Sesame URI backed by a protocol buffer.
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class ProtoURI implements URI {
+public class ProtoIRI implements IRI {
 
     private Model.URI message;
 
     private String namespace, localName;
 
 
-    public ProtoURI(String uri) {
+    public ProtoIRI(String uri) {
         message = Model.URI.newBuilder().setUri(uri).build();
     }
 
-    public ProtoURI(Model.URI message) {
+    public ProtoIRI(Model.URI message) {
         this.message = message;
     }
 
@@ -90,7 +90,7 @@ public class ProtoURI implements URI {
 
     private void initNamespace() {
         if(namespace == null || localName == null) {
-            String[] components = URICommons.splitNamespace(message.getUri());
+            String[] components = IRICommons.splitNamespace(message.getUri());
             namespace = components[0];
             localName = components[1];
         }
@@ -100,8 +100,8 @@ public class ProtoURI implements URI {
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if(o instanceof URI) {
-            return this.stringValue().equals(((URI)o).stringValue());
+        if(o instanceof IRI) {
+            return this.stringValue().equals(((IRI)o).stringValue());
         }
         return false;
     }

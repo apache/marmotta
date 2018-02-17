@@ -23,11 +23,11 @@ import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.model.CacheConfiguration;
 import org.apache.marmotta.ldcache.services.LDCache;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
-import org.openrdf.model.Resource;
-import org.openrdf.sail.NotifyingSail;
-import org.openrdf.sail.NotifyingSailConnection;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.NotifyingSailWrapper;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.sail.NotifyingSail;
+import org.eclipse.rdf4j.sail.NotifyingSailConnection;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.NotifyingSailWrapper;
 
 /**
  * A generic caching sail that can be used with any Sesame SAIL to integrate LDCache transparent Linked Data Caching.

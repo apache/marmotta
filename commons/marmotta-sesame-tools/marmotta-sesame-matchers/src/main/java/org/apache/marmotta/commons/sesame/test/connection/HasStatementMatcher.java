@@ -18,13 +18,13 @@
 package org.apache.marmotta.commons.sesame.test.connection;
 
 import org.apache.marmotta.commons.sesame.test.base.AbstractRepositoryConnectionMatcher;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
 
 /**
  * Has Statement Matcher
@@ -32,7 +32,7 @@ import org.openrdf.repository.RepositoryException;
 public class HasStatementMatcher<T extends RepositoryConnection> extends AbstractRepositoryConnectionMatcher<T> {
 
     private final Resource subject;
-    private final URI predicate;
+    private final IRI predicate;
     private final Value object;
     private final Resource[] contexts;
     private final boolean includeInferred;
@@ -45,9 +45,9 @@ public class HasStatementMatcher<T extends RepositoryConnection> extends Abstrac
      * @param object    the object of the statement, use {@code null} as wildcard.
      * @param contexts  the contexts in which to look for the statement, use an empty varargs array to look in all contexts available.
      * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
-     * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
+     * @see org.eclipse.rdf4j.repository.RepositoryConnection#hasStatement(org.eclipse.rdf4j.model.Resource, org.eclipse.rdf4j.model.URI, org.eclipse.rdf4j.model.Value, boolean, org.eclipse.rdf4j.model.Resource...)
      */
-    public HasStatementMatcher(Resource subject, URI predicate, Value object, Resource... contexts) {
+    public HasStatementMatcher(Resource subject, IRI predicate, Value object, Resource... contexts) {
         this(subject, predicate, object, true, contexts);
     }
 
@@ -60,9 +60,9 @@ public class HasStatementMatcher<T extends RepositoryConnection> extends Abstrac
      * @param includeInferrred if false, no inferred statements are considered; if true, inferred statements are considered if available
      * @param contexts         the contexts in which to look for the statement, use an empty varargs array to look in all contexts available.
      * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
-     * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
+     * @see org.eclipse.rdf4j.repository.RepositoryConnection#hasStatement(org.eclipse.rdf4j.model.Resource, org.eclipse.rdf4j.model.URI, org.eclipse.rdf4j.model.Value, boolean, org.eclipse.rdf4j.model.Resource...)
      */
-    public HasStatementMatcher(Resource subject, URI predicate, Value object, boolean includeInferrred, Resource... contexts) {
+    public HasStatementMatcher(Resource subject, IRI predicate, Value object, boolean includeInferrred, Resource... contexts) {
         super();
         this.subject = subject;
         this.predicate = predicate;
@@ -92,9 +92,9 @@ public class HasStatementMatcher<T extends RepositoryConnection> extends Abstrac
      * @param object    the object of the statement, use {@code null} as wildcard.
      * @param contexts  the contexts in which to look for the statement, use an empty varargs array to look in all contexts available.
      * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
-     * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
+     * @see org.eclipse.rdf4j.repository.RepositoryConnection#hasStatement(org.eclipse.rdf4j.model.Resource, org.eclipse.rdf4j.model.URI, org.eclipse.rdf4j.model.Value, boolean, org.eclipse.rdf4j.model.Resource...)
      */
-    public static <T extends RepositoryConnection> Matcher<T> hasStatement(Resource subject, URI predicate, Value object, Resource... contexts) {
+    public static <T extends RepositoryConnection> Matcher<T> hasStatement(Resource subject, IRI predicate, Value object, Resource... contexts) {
         return new HasStatementMatcher<>(subject, predicate, object, contexts);
     }
 }

@@ -1,4 +1,4 @@
-/*
+ /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,9 +18,9 @@
 package org.apache.marmotta.ldcache.api;
 
 import org.apache.marmotta.ldcache.model.CacheEntry;
-import org.openrdf.model.URI;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 
 /**
  * Add file description here!
@@ -37,7 +37,7 @@ public interface LDCachingConnection extends RepositoryConnection {
      * @param resource the resource to look for
      * @return the cache entry for the resource, or null if the resource has never been cached or is expired
      */
-    CacheEntry getCacheEntry(URI resource) throws RepositoryException;
+    CacheEntry getCacheEntry(IRI resource) throws RepositoryException;
 
     /**
      * Store a cache entry for the passed resource in the backend. Depending on the backend, this can be a
@@ -46,14 +46,14 @@ public interface LDCachingConnection extends RepositoryConnection {
      * @param resource
      * @param entry
      */
-    void addCacheEntry(URI resource, CacheEntry entry) throws RepositoryException;
+    void addCacheEntry(IRI resource, CacheEntry entry) throws RepositoryException;
 
 
     /**
      * Remove the currently stored cache entry for the passed resource from the backend.
      * @param resource
      */
-    void removeCacheEntry(URI resource) throws RepositoryException;
+    void removeCacheEntry(IRI resource) throws RepositoryException;
 
 
 }

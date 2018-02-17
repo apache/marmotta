@@ -19,31 +19,30 @@ package org.apache.marmotta.commons.sesame.facading.primitive;
 
 import java.util.Random;
 import java.util.UUID;
-
 import org.apache.marmotta.commons.sesame.facading.AbstractFacadingTest;
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
 import org.apache.marmotta.commons.sesame.facading.api.Facading;
 import org.apache.marmotta.commons.sesame.facading.primitive.model.Primitive;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.URI;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
 
 public class PrimitiveFacadingTest extends AbstractFacadingTest {
 
     private static final int ITERATIONS = 2500;
     
-    private URI subject;
+    private IRI subject;
     private Random random;
     private RepositoryConnection facadingConnection;
     private Primitive primitive;
 
     @Before
     public void before() throws Exception {
-        subject = repositoryRDF.getValueFactory().createURI("urn:", UUID.randomUUID().toString());
+        subject = repositoryRDF.getValueFactory().createIRI("urn:", UUID.randomUUID().toString());
         random = new Random();
 
         facadingConnection = repositoryRDF.getConnection();

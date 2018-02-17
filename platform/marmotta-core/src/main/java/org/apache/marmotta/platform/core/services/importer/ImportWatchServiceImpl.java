@@ -17,6 +17,8 @@
  */
 package org.apache.marmotta.platform.core.services.importer;
 
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,11 +42,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2Utils;
 import org.apache.commons.compress.compressors.gzip.GzipUtils;
@@ -60,13 +60,10 @@ import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
-import org.openrdf.model.URI;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.Rio;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.Rio;
 import org.slf4j.Logger;
-
-import com.ibm.icu.text.CharsetDetector;
-import com.ibm.icu.text.CharsetMatch;
 
 /**
  * Implementation for watching import directory.
@@ -187,7 +184,7 @@ public class ImportWatchServiceImpl implements ImportWatchService {
     @Override
     public boolean importFile(Path file) throws MarmottaImportException {
         try {
-            URI context;
+            IRI context;
             try {
                 context = getTargetContext(file);
             } catch (URISyntaxException e) {
@@ -196,7 +193,7 @@ public class ImportWatchServiceImpl implements ImportWatchService {
             }
             String format = detectFormat(file);
             InputStream is = openStream(file);
-            URI user = userService.getAdminUser();
+            IRI user = userService.getAdminUser();
             importService.importData(is, format, user, context);
             is.close();
             return true;
@@ -220,7 +217,7 @@ public class ImportWatchServiceImpl implements ImportWatchService {
             Properties prop = loadConfigFile(file);
             final String fmt = prop.getProperty("format");
             if (fmt != null) {
-                RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(fmt);
+                RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(fmt).orElse(null);
                 if (rdfFormat != null) {
                     format = rdfFormat.getDefaultMIMEType();
                     log.debug("Using format {} from config file {}", format, config);
@@ -235,7 +232,7 @@ public class ImportWatchServiceImpl implements ImportWatchService {
         // mimetype detection based on file-extension
         if (format == null) {
             // FIXME: Maybe use GzipUtils and BZip2Utils instead?
-            RDFFormat rdfFormat = Rio.getParserFormatForFileName(fileName.replaceFirst("\\.(gz|bz2)$",""));
+            RDFFormat rdfFormat = Rio.getParserFormatForFileName(fileName.replaceFirst("\\.(gz|bz2)$","")).orElse(null);
             if (rdfFormat != null) {
                 format = rdfFormat.getDefaultMIMEType();
                 log.trace("Using format {} based on file-name {}", format, fileName);
@@ -311,7 +308,7 @@ public class ImportWatchServiceImpl implements ImportWatchService {
      * @return the context URI
      * @throws URISyntaxException 
      */
-    private URI getTargetContext(Path file) throws URISyntaxException {
+    private IRI getTargetContext(Path file) throws URISyntaxException {
         // Check for a configFile
         final Path config = file.getParent().resolve(configurationService.getStringConfiguration(CONFIG_KEY_CONF_FILE, "config"));
         if (Files.isReadable(config)) {
@@ -319,7 +316,7 @@ public class ImportWatchServiceImpl implements ImportWatchService {
             final String _c = prop.getProperty("context");
             if (_c != null) {
                 try {
-                    URI context = contextService.createContext(_c);
+                    IRI context = contextService.createContext(_c);
                     log.debug("using context {} from config file {}", context, config);
                     return context;
                 } catch (URISyntaxException e) {
@@ -345,7 +342,7 @@ public class ImportWatchServiceImpl implements ImportWatchService {
             }
         } else {
             final String _c = String.format("%s/%s", configurationService.getBaseContext().replaceFirst("/$", ""), subDir);
-            final URI context = contextService.createContext(_c);
+            final IRI context = contextService.createContext(_c);
             log.debug("using context {} based on relative subdir {} for file {}", context, subDir, file);
             return context;
         }

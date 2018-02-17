@@ -21,19 +21,22 @@ import com.google.code.tempusfugit.concurrency.ConcurrentRule;
 import com.google.code.tempusfugit.concurrency.RepeatingRule;
 import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
 import com.google.code.tempusfugit.concurrency.annotations.Repeating;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
 import org.slf4j.Logger;
-
-import java.util.*;
 
 /**
  * Add file description here!
@@ -50,7 +53,7 @@ public abstract class ConcurrencyTestBase {
 
     protected static Logger logger;
 
-    private List<URI> resources = new ArrayList<>();
+    private List<IRI> resources = new ArrayList<>();
 
     private List<Value> objects = new ArrayList<>();
 
@@ -114,8 +117,8 @@ public abstract class ConcurrencyTestBase {
                     removed ++;
                     tripleRemoveCount++;
                 } else {
-                    URI subject = randomURI();
-                    URI predicate = randomURI();
+                    IRI subject = randomIRI();
+                    IRI predicate = randomIRI();
                     Value object = randomObject();
                     Statement stmt = con.getValueFactory().createStatement(subject,predicate,object);
                     con.add(stmt);
@@ -142,14 +145,14 @@ public abstract class ConcurrencyTestBase {
      * Return a random URI, with a 10% chance of returning a URI that has already been used.
      * @return
      */
-    protected URI randomURI() {
+    protected IRI randomIRI() {
         synchronized (resources) {
             if(resources.size() > 0 && rnd.nextInt(10) == 0) {
                 resourcesReused++;
                 // return a resource that was already used
                 return resources.get(rnd.nextInt(resources.size()));
             } else {
-                URI resource = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+                IRI resource = repository.getValueFactory().createIRI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
                 resources.add(resource);
                 return resource;
             }
@@ -168,7 +171,7 @@ public abstract class ConcurrencyTestBase {
             } else {
                 Value object;
                 switch(rnd.nextInt(6)) {
-                    case 0: object = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+                    case 0: object = repository.getValueFactory().createIRI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
                         break;
                     case 1: object = repository.getValueFactory().createBNode();
                         break;
@@ -180,7 +183,7 @@ public abstract class ConcurrencyTestBase {
                         break;
                     case 5: object = repository.getValueFactory().createLiteral(rnd.nextBoolean());
                         break;
-                    default: object = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+                    default: object = repository.getValueFactory().createIRI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
                         break;
 
                 }

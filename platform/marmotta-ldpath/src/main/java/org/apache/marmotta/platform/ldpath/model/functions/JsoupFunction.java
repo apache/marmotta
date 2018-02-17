@@ -17,18 +17,6 @@
  */
 package org.apache.marmotta.platform.ldpath.model.functions;
 
-import org.apache.marmotta.platform.ldpath.api.AutoRegisteredLDPathFunction;
-
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
-import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Selector.SelectorParseException;
-import org.openrdf.model.Value;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +26,16 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
+import org.apache.marmotta.platform.ldpath.api.AutoRegisteredLDPathFunction;
+import org.eclipse.rdf4j.model.Value;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Selector.SelectorParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JsoupFunction extends AutoRegisteredLDPathFunction {
 

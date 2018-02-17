@@ -17,10 +17,11 @@
 
 package org.apache.marmotta.ostrich.model;
 
+import java.util.Optional;
 import org.apache.marmotta.ostrich.model.proto.Model;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
 
 /**
  * Add file description here!
@@ -41,7 +42,7 @@ public class ProtoDatatypeLiteral extends ProtoLiteralBase implements Literal {
                 .build();
     }
 
-    public ProtoDatatypeLiteral(String content, URI datatype) {
+    public ProtoDatatypeLiteral(String content, IRI datatype) {
         this.message = Model.DatatypeLiteral.newBuilder()
                 .setContent(content)
                 .setDatatype(Model.URI.newBuilder().setUri(datatype.stringValue()).build())
@@ -76,8 +77,8 @@ public class ProtoDatatypeLiteral extends ProtoLiteralBase implements Literal {
      * doesn't have one.
      */
     @Override
-    public String getLanguage() {
-        return null;
+    public Optional<String> getLanguage() {
+        return Optional.empty();
     }
 
     /**
@@ -87,11 +88,11 @@ public class ProtoDatatypeLiteral extends ProtoLiteralBase implements Literal {
      * have one.
      */
     @Override
-    public URI getDatatype() {
+    public IRI getDatatype() {
         if (!message.hasDatatype()) {
             return null;
         }
-        return new ProtoURI(message.getDatatype());
+        return new ProtoIRI(message.getDatatype());
     }
 
 

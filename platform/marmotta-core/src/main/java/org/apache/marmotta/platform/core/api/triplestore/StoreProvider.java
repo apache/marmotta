@@ -17,9 +17,9 @@
 
 package org.apache.marmotta.platform.core.api.triplestore;
 
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.NotifyingSail;
-import org.openrdf.sail.Sail;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.NotifyingSail;
+import org.eclipse.rdf4j.sail.Sail;
 
 /**
  * A service providing backend triple stores. Used by the different Marmotta backend implementations.

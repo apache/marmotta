@@ -21,14 +21,14 @@ import org.apache.marmotta.kiwi.config.CachingBackends;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryTest;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryTest;
-import org.openrdf.repository.sail.SailRepository;
 
 /**
- * Run the {@link org.openrdf.repository.RepositoryTest}s.
+ * Run the {@link org.eclipse.rdf4j.repository.RepositoryTest}s.
  * @author Jakob Frank <jakob@apache.org>
  *
  */
@@ -55,7 +55,7 @@ public class HotRodRepositoryTest extends RepositoryTest {
 
 
     /* (non-Javadoc)
-     * @see org.openrdf.repository.RepositoryTest#createRepository()
+     * @see org.eclipse.rdf4j.repository.RepositoryTest#createRepository()
      */
     @Override
     protected Repository createRepository() throws Exception {

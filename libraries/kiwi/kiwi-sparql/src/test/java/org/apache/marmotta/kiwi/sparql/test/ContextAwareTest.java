@@ -16,34 +16,37 @@
  */
 package org.apache.marmotta.kiwi.sparql.test;
 
-import info.aduna.iteration.Iterations;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
-import org.junit.*;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.impl.SimpleDataset;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.contextaware.ContextAwareConnection;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.impl.DatasetImpl;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.contextaware.ContextAwareConnection;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
 
 /**
  * This test tests a complex situation where there is data in two contexts, and the query is carried out
@@ -60,11 +63,11 @@ public class ContextAwareTest {
 
     private Repository repository;
 
-    private URI context1, context2;
+    private IRI context1, context2;
 
-    private URI subject, object11, object21;
+    private IRI subject, object11, object21;
 
-    private URI predicate1, predicate2;
+    private IRI predicate1, predicate2;
 
     private final KiWiConfiguration dbConfig;
 
@@ -79,14 +82,14 @@ public class ContextAwareTest {
         repository = new SailRepository(ssail);
         repository.initialize();
 
-        context1 = repository.getValueFactory().createURI("http://localhost/test/" + RandomStringUtils.randomAlphanumeric(8));
-        context2 = repository.getValueFactory().createURI("http://localhost/test/" + RandomStringUtils.randomAlphanumeric(8));
-        subject  = repository.getValueFactory().createURI("http://localhost/test/" + RandomStringUtils.randomAlphanumeric(8));
-        object11 = repository.getValueFactory().createURI("http://localhost/test/" + RandomStringUtils.randomAlphanumeric(8));
-        object21 = repository.getValueFactory().createURI("http://localhost/test/" + RandomStringUtils.randomAlphanumeric(8));
+        context1 = repository.getValueFactory().createIRI("http://localhost/test/" + RandomStringUtils.randomAlphanumeric(8));
+        context2 = repository.getValueFactory().createIRI("http://localhost/test/" + RandomStringUtils.randomAlphanumeric(8));
+        subject  = repository.getValueFactory().createIRI("http://localhost/test/" + RandomStringUtils.randomAlphanumeric(8));
+        object11 = repository.getValueFactory().createIRI("http://localhost/test/" + RandomStringUtils.randomAlphanumeric(8));
+        object21 = repository.getValueFactory().createIRI("http://localhost/test/" + RandomStringUtils.randomAlphanumeric(8));
 
-        predicate1 =  repository.getValueFactory().createURI("http://localhost/test/P1");
-        predicate2 =  repository.getValueFactory().createURI("http://localhost/test/P1");
+        predicate1 =  repository.getValueFactory().createIRI("http://localhost/test/P1");
+        predicate2 =  repository.getValueFactory().createIRI("http://localhost/test/P1");
 
         Literal object12  = repository.getValueFactory().createLiteral("this object should be linked only in context1");
         Literal object22  = repository.getValueFactory().createLiteral("this object should be linked only in context2");
@@ -192,7 +195,7 @@ public class ContextAwareTest {
             TupleQuery query1 = con.prepareTupleQuery(QueryLanguage.SPARQL, queryStr1);
 
             // workaround for a bug in sesame
-            DatasetImpl ds = new DatasetImpl();
+            SimpleDataset ds = new SimpleDataset();
             ds.addDefaultGraph(context1);
             ds.addNamedGraph(context1);
             ds.addDefaultRemoveGraph(context1);

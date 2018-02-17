@@ -17,21 +17,24 @@
 
 package org.apache.marmotta.kiwi.sparql.builder.collect;
 
-import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import org.eclipse.rdf4j.query.algebra.Extension;
+import org.eclipse.rdf4j.query.algebra.ExtensionElem;
+import org.eclipse.rdf4j.query.algebra.Projection;
+import org.eclipse.rdf4j.query.algebra.TupleExpr;
+import org.eclipse.rdf4j.query.algebra.Union;
+import org.eclipse.rdf4j.query.algebra.Var;
+import org.eclipse.rdf4j.query.algebra.helpers.AbstractQueryModelVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
 * Find the offset and limit values in a tuple expression
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-public class ExtensionFinder extends QueryModelVisitorBase<RuntimeException> {
+public class ExtensionFinder extends AbstractQueryModelVisitor<RuntimeException> {
 
     private static Logger log = LoggerFactory.getLogger(ExtensionFinder.class);
 

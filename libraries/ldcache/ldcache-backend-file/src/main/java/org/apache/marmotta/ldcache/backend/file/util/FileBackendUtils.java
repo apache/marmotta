@@ -17,15 +17,20 @@
 
 package org.apache.marmotta.ldcache.backend.file.util;
 
-import org.apache.marmotta.commons.util.HashUtils;
-import org.apache.marmotta.ldcache.model.CacheEntry;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import org.apache.marmotta.commons.util.HashUtils;
+import org.apache.marmotta.ldcache.model.CacheEntry;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.ValueFactory;
 
 public class FileBackendUtils {
 
@@ -36,7 +41,7 @@ public class FileBackendUtils {
 		// static access only
 	}
 
-	public static File getMetaFile(URI resource, File baseDir) {
+	public static File getMetaFile(IRI resource, File baseDir) {
 		return getMetaFile(resource.stringValue(), baseDir);
 	}
 
@@ -89,7 +94,7 @@ public class FileBackendUtils {
 			try {
 				final CacheEntry ce = new CacheEntry();
 				
-				ce.setResource(valueFactory.createURI(br.readLine()));
+				ce.setResource(valueFactory.createIRI(br.readLine()));
 				ce.setLastRetrieved(new Date(Long.parseLong(br.readLine().replaceFirst("#.*$", "").trim())));
 				ce.setExpiryDate(new Date(Long.parseLong(br.readLine().replaceFirst("#.*$", "").trim())));
 				ce.setUpdateCount(Integer.parseInt(br.readLine().replaceFirst("#.*$", "").trim()));

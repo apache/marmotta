@@ -17,14 +17,12 @@
  */
 package org.apache.marmotta.commons.sesame.repository;
 
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
 
 /**
  * Some static utility methods for working with RepositoryResults

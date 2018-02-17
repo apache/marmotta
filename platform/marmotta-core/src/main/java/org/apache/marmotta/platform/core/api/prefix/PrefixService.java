@@ -39,7 +39,7 @@ public interface PrefixService {
     /**
      * Check if there is registered any prefix for such namespace
      * 
-     * @param namespace uri
+     * @param namespace iri
      * @return mapping exists
      */
     boolean containsNamespace(String namespace);
@@ -55,7 +55,7 @@ public interface PrefixService {
     /**
      * Get prefix which identifies this namespace
      * 
-     * @param namespace uri
+     * @param namespace iri
      * @return prefix
      */
     String getPrefix(String namespace);
@@ -64,7 +64,7 @@ public interface PrefixService {
      * Add a new prefix mapping
      * 
      * @param prefix prefix
-     * @param namespace uri
+     * @param namespace iri
      * @throws IllegalArgumentException when one of both is already mapped
      * @throws URISyntaxException 
      */
@@ -74,7 +74,7 @@ public interface PrefixService {
      * Force addition of a new prefix mapping, even if it already exists
      * 
      * @param prefix prefix
-     * @param namespace uri
+     * @param namespace iri
      */
     void forceAdd(String prefix, String namespace);
 
@@ -94,12 +94,12 @@ public interface PrefixService {
     boolean remove(String prefix);
 
     /**
-     * Get the CURIE for this URI if possible
+     * Get the CURIE for this IRI if possible
      * 
-     * @param uri uri
+     * @param iri iri
      * @return curie
      */
-    String getCurie(String uri);
+    String getCurie(String iri);
 
     /**
      * Serializes the current mapping to the the syntax requited by vocab in HTML

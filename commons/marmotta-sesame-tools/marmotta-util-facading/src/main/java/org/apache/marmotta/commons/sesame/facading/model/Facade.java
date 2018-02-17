@@ -16,7 +16,7 @@
  */
 package org.apache.marmotta.commons.sesame.facading.model;
 
-import org.openrdf.model.Resource;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * Interface that must be the base interface of all KiWi facades. It defines no methods but has an underlying KiWiResource

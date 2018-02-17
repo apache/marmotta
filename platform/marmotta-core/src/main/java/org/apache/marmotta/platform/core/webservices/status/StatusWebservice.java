@@ -19,37 +19,44 @@ package org.apache.marmotta.platform.core.webservices.status;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.modules.ModuleService;
-import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.marmotta.platform.core.api.user.UserService;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
-import org.openrdf.model.URI;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.MessageBodyWriter;
-import javax.ws.rs.ext.Provider;
+import static com.google.common.base.Preconditions.checkNotNull;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.*;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.Provider;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.modules.ModuleService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.api.user.UserService;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Webservice for checking the current state of the Marmotta platform.
@@ -95,7 +102,7 @@ public class StatusWebservice {
                 // More checking of the ConfigurationService
                 if (StringUtils.isNoneBlank(
                         configurationService.getHome(),
-                        configurationService.getBaseUri()
+                        configurationService.getBaseIri()
                 )) {
                     response.setConfigStatus(configurationService);
                 } else {
@@ -141,7 +148,7 @@ public class StatusWebservice {
 
         public PingResponse(String message, int requestedDetailLevle, UserService userService) {
             this.message = message;
-            final URI u = checkNotNull(userService.getCurrentUser(), "no user available");
+            final IRI u = checkNotNull(userService.getCurrentUser(), "no user available");
 
             int allowedDetailLevel;
             if (userService.isAnonymous(u)) {
@@ -156,7 +163,7 @@ public class StatusWebservice {
         }
 
         public void setUserStatus(UserService userService) {
-            final URI u = userService.getCurrentUser();
+            final IRI u = userService.getCurrentUser();
 
             user.clear();
             switch (detailLevel) {
@@ -179,8 +186,8 @@ public class StatusWebservice {
                     config.put("context.enhanced", configurationService.getEnhancerContex());
                     config.put("context.inferred", configurationService.getInferredContext());
                 case 1:
-                    config.put("baseUri", configurationService.getBaseUri());
-                    config.put("serverUrl", configurationService.getServerUri());
+                    config.put("baseUri", configurationService.getBaseIri());
+                    config.put("serverUrl", configurationService.getServerIri());
                     break;
                 case 0:
                 default:

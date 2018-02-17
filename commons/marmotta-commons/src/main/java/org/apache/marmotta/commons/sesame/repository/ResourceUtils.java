@@ -21,20 +21,30 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.openrdf.model.*;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.repository.sail.SailRepositoryConnection;
-import org.openrdf.sail.SailConnection;
-import org.openrdf.sail.helpers.SailConnectionWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
+import org.eclipse.rdf4j.sail.SailConnection;
+import org.eclipse.rdf4j.sail.helpers.SailConnectionWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility methods for simplifying certain common tasks. All methods are static and take as first argument a
@@ -53,7 +63,7 @@ public class ResourceUtils {
 
     /**
      * Check whenever the uri actually exists. 
-     * Existence of a URI (Resource) is bound to the existence of a
+     * Existence of a IRI (Resource) is bound to the existence of a
      * Statement referencing the Resource, so this method simply delegates to {@link #isUsed(RepositoryConnection, Resource)}.
      *
      * @param conn connection with the repository
@@ -63,7 +73,7 @@ public class ResourceUtils {
      */
     @Deprecated
     public static boolean existsResource(RepositoryConnection conn, String uri) {
-        return isUsed(conn, conn.getValueFactory().createURI(uri));
+        return isUsed(conn, conn.getValueFactory().createIRI(uri));
     }
 
     /**
@@ -73,7 +83,7 @@ public class ResourceUtils {
      * @return true if the uri is ever used as subject.
      */
     public static boolean isSubject(RepositoryConnection conn, String uri) {
-        return isSubject(conn, conn.getValueFactory().createURI(uri));
+        return isSubject(conn, conn.getValueFactory().createIRI(uri));
     }
 
     /**
@@ -93,16 +103,16 @@ public class ResourceUtils {
      * @return true if the uri is ever used as predicate.
      */
     public static boolean isPredicate(RepositoryConnection conn, final String uri) {
-        return isPredicate(conn, conn.getValueFactory().createURI(uri));
+        return isPredicate(conn, conn.getValueFactory().createIRI(uri));
     }
 
     /**
-     * Check whether the {@link URI} is ever used as predicate. 
+     * Check whether the {@link IRI} is ever used as predicate. 
      * @param conn connection with the repository
-     * @param uri the {@link URI} to check
-     * @return true if the {@link URI} is ever used as predicate.
+     * @param uri the {@link IRI} to check
+     * @return true if the {@link IRI} is ever used as predicate.
      */
-    public static boolean isPredicate(RepositoryConnection conn, final URI uri) {
+    public static boolean isPredicate(RepositoryConnection conn, final IRI uri) {
         return existsStatement(conn, null, uri, null);
     }
 
@@ -113,7 +123,7 @@ public class ResourceUtils {
      * @return true if the uri is ever used as predicate.
      */
     public static boolean isObject(RepositoryConnection conn, final String uri) {
-        return isObject(conn, conn.getValueFactory().createURI(uri));
+        return isObject(conn, conn.getValueFactory().createIRI(uri));
     }
 
     /**
@@ -134,7 +144,7 @@ public class ResourceUtils {
      * @return true if the uri is ever used as context.
      */
     public static boolean isContext(RepositoryConnection conn, String uri) {
-        return isContext(conn, conn.getValueFactory().createURI(uri));
+        return isContext(conn, conn.getValueFactory().createIRI(uri));
     }
 
     /**
@@ -154,7 +164,7 @@ public class ResourceUtils {
      * <li>subject
      * <li>context
      * <li>object
-     * <li>predicate (if the resource is a {@link URI})
+     * <li>predicate (if the resource is a {@link IRI})
      * </ol>
      * @param conn {@link ResourceConnection} to check on
      * @param rsc the {@link Resource} to check
@@ -162,7 +172,7 @@ public class ResourceUtils {
      */
     public static boolean isUsed(RepositoryConnection conn, Resource rsc) {
         if (isSubject(conn, rsc) || isContext(conn, rsc) || isObject(conn, rsc)) return true;
-        return rsc instanceof URI && isPredicate(conn, (URI) rsc);
+        return rsc instanceof IRI && isPredicate(conn, (IRI) rsc);
     }
 
     /**
@@ -170,12 +180,12 @@ public class ResourceUtils {
      * <br>This is a convenience method and does not really fit whith <em>Resource</em>Utils.
      *
      * @param conn the {@link org.apache.marmotta.commons.sesame.repository.ResourceConnection} to check on
-     * @param subj the subject of the {@link org.openrdf.model.Statement} or <code>null</code> for a wildcard.
-     * @param pred the predicate of the {@link org.openrdf.model.Statement} or <code>null</code> for a wildcard.
-     * @param object the object of the {@link org.openrdf.model.Statement} or <code>null</code> for a wildcard.
+     * @param subj the subject of the {@link org.eclipse.rdf4j.model.Statement} or <code>null</code> for a wildcard.
+     * @param pred the predicate of the {@link org.eclipse.rdf4j.model.Statement} or <code>null</code> for a wildcard.
+     * @param object the object of the {@link org.eclipse.rdf4j.model.Statement} or <code>null</code> for a wildcard.
      * @return true if a {@link Statement} with the provided constraints exists.
      */
-    public static boolean existsStatement(RepositoryConnection conn, Resource subj, URI pred, Value object, Resource ... context) {
+    public static boolean existsStatement(RepositoryConnection conn, Resource subj, IRI pred, Value object, Resource ... context) {
         try {
             return conn.hasStatement(subj,pred,object,true,context);
         } catch (RepositoryException e) {
@@ -185,17 +195,17 @@ public class ResourceUtils {
     }
 
     /**
-     * Retrieve the KiWiUriResource with the given URI if it exists, or return null if it doesn't exist.
+     * Retrieve the KiWiIriResource with the given IRI if it exists, or return null if it doesn't exist.
      * A Resource exists if and only if it is used in a Statement, i.e. it is uses either as Subject, Context, Predicate or Object.
-     * @param uri
-     * @return the URI or null if the Resource is not used.
+     * @param iri
+     * @return the IRI or null if the Resource is not used.
      * @deprecated this method is easy to misinterpret. Use {@link #isUsed(RepositoryConnection, Resource)}, 
      * {@link #isSubject(RepositoryConnection, String)}, {@link #isPredicate(RepositoryConnection, String)}, 
      * {@link #isObject(RepositoryConnection, String)} or {@link #isContext(RepositoryConnection, String)} according to your usecase. 
      */
     @Deprecated
-    public static URI getUriResource(RepositoryConnection con, String uri) {
-        URI rsc = con.getValueFactory().createURI(uri);
+    public static IRI getIriResource(RepositoryConnection con, String iri) {
+        IRI rsc = con.getValueFactory().createIRI(iri);
         if (isUsed(con, rsc)) {
             return rsc;
         } else {
@@ -226,8 +236,8 @@ public class ResourceUtils {
      */
     public static void removeResource(RepositoryConnection con, Resource resource) throws RepositoryException {
         con.remove(resource,null,null);
-        if(resource instanceof URI) {
-            con.remove((Resource)null,(URI)resource,null);
+        if(resource instanceof IRI) {
+            con.remove((Resource)null,(IRI)resource,null);
         }
         con.remove((Resource)null,null,resource);
         con.remove((Resource)null,null,null,resource);
@@ -291,28 +301,28 @@ public class ResourceUtils {
      * @param type the type of the resources to list
      * @return
      */
-    public static Iterable<Resource> listResources(final RepositoryConnection con, final Resource type, final URI context) {
-        URI rdf_type = con.getValueFactory().createURI(Namespaces.NS_RDF + "type");
+    public static Iterable<Resource> listResources(final RepositoryConnection con, final Resource type, final IRI context) {
+        IRI rdf_type = con.getValueFactory().createIRI(Namespaces.NS_RDF + "type");
 
         return listSubjectsInternal(con, rdf_type, type, context);
     }
 
     /**
-     * List resources with the given prefix
+     * List resources with the given prefix 
      *
      * @param prefix the prefix
      * @param offset
      * @param limit
      */
-    public static Iterable<URI> listResourcesByPrefix(final RepositoryConnection con, final String prefix, final int offset, final int limit) {
+    public static Iterable<IRI> listResourcesByPrefix(final RepositoryConnection con, final String prefix, final int offset, final int limit) {
         final ResourceConnection rcon = getWrappedResourceConnection(con);
 
         if(rcon != null) {
-            return new Iterable<URI>() {
+            return new Iterable<IRI>() {
                 @Override
-                public Iterator<URI> iterator() {
+                public Iterator<IRI> iterator() {
                     try {
-                        Iterator<URI> result = ResultUtils.unwrap(rcon.getResources(prefix));
+                        Iterator<IRI> result = ResultUtils.unwrap(rcon.getResources(prefix));
 
                         Iterators.advance(result,offset);
 
@@ -330,23 +340,23 @@ public class ResourceUtils {
             };
         } else {
             // no direct prefix listing support, need to filter the listResources result
-            return new Iterable<URI>() {
+            return new Iterable<IRI>() {
                 @Override
-                public Iterator<URI> iterator() {
-                    Iterator<URI> result = Iterators.transform(
+                public Iterator<IRI> iterator() {
+                    Iterator<IRI> result = Iterators.transform(
                             Iterators.filter(
                                     listResources(con).iterator(),
                                     new Predicate<Resource>() {
                                         @Override
                                         public boolean apply(Resource input) {
-                                            return input instanceof URI && input.stringValue().startsWith(prefix);
+                                            return input instanceof IRI && input.stringValue().startsWith(prefix);
                                         }
                                     }
                             ),
-                            new Function<Resource, URI>() {
+                            new Function<Resource, IRI>() {
                                 @Override
-                                public URI apply(Resource input) {
-                                    return (URI)input;
+                                public IRI apply(Resource input) {
+                                    return (IRI)input;
                                 }
                             }
                     );
@@ -368,11 +378,11 @@ public class ResourceUtils {
      *
      * @param prefix the prefix
      */
-    public static Iterable<URI> listResourcesByPrefix(final RepositoryConnection con, String prefix) {
+    public static Iterable<IRI> listResourcesByPrefix(final RepositoryConnection con, String prefix) {
         return listResourcesByPrefix(con,prefix,0,0);
     }
 
-    private static Iterable<Resource> listSubjectsInternal(final RepositoryConnection con, final URI property, final Value value, final URI context) {
+    private static Iterable<Resource> listSubjectsInternal(final RepositoryConnection con, final IRI property, final Value value, final IRI context) {
         final Resource[] contexts;
         if(context != null) {
             contexts = new Resource[] { context };
@@ -444,7 +454,7 @@ public class ResourceUtils {
      * @param context
      * @return
      */
-    public static String getProperty(RepositoryConnection con, Resource r, String propLabel, URI context) throws RepositoryException {
+    public static String getProperty(RepositoryConnection con, Resource r, String propLabel, IRI context) throws RepositoryException {
         return getProperty(con, r, propLabel, null, context);
     }
 
@@ -468,7 +478,7 @@ public class ResourceUtils {
      * @param loc
      * @return
      */
-    public static String getProperty(RepositoryConnection con, Resource r, String propLabel, Locale loc, URI context) throws RepositoryException {
+    public static String getProperty(RepositoryConnection con, Resource r, String propLabel, Locale loc, IRI context) throws RepositoryException {
         Literal l = getLiteral(con, r,propLabel,loc, context);
         if (l == null) {
             return null;
@@ -485,12 +495,12 @@ public class ResourceUtils {
      * @param loc
      * @return
      */
-    private static Literal getLiteral(RepositoryConnection con, Resource r, String propLabel, Locale loc, URI context) throws RepositoryException {
+    private static Literal getLiteral(RepositoryConnection con, Resource r, String propLabel, Locale loc, IRI context) throws RepositoryException {
         for(Value node : listOutgoingNodes(con,r,propLabel,context)) {
             if(node instanceof Literal) {
-                if(loc == null && ((Literal)node).getLanguage() == null) {
+                if(loc == null && ((Literal)node).getLanguage().orElse(null) == null) {
                     return (Literal)node;
-                } else if(loc != null && ((Literal)node).getLanguage() != null && ((Literal)node).getLanguage().equals(loc.getLanguage().toLowerCase()) ) {
+                } else if(loc != null && ((Literal)node).getLanguage().orElse(null) != null && ((Literal)node).getLanguage().orElse(null).equals(loc.getLanguage().toLowerCase()) ) {
                     return (Literal)node;
                 }
             }
@@ -520,7 +530,7 @@ public class ResourceUtils {
      * @param loc
      * @return
      */
-    public static Iterable<String> getProperties(RepositoryConnection con, Resource r, String propLabel, Locale loc, URI context) throws RepositoryException {
+    public static Iterable<String> getProperties(RepositoryConnection con, Resource r, String propLabel, Locale loc, IRI context) throws RepositoryException {
         return Iterables.transform(listLiterals(con, r,propLabel, loc,context), new Function<Literal, String>() {
             @Override
             public String apply(Literal input) {
@@ -537,14 +547,14 @@ public class ResourceUtils {
      * @param loc
      * @return
      */
-    private static Iterable<Literal> listLiterals(RepositoryConnection con, Resource r, String propLabel, final Locale loc, URI context) throws RepositoryException {
+    private static Iterable<Literal> listLiterals(RepositoryConnection con, Resource r, String propLabel, final Locale loc, IRI context) throws RepositoryException {
         return Iterables.filter(
                 Iterables.filter(listOutgoingNodes(con, r, propLabel, context), Literal.class),
                 new Predicate<Literal>() {
                     @Override
                     public boolean apply(Literal input) {
-                        return input.getLanguage() == null && loc == null ||
-                                input.getLanguage() != null && input.getLanguage().equals(loc.getLanguage().toLowerCase());
+                        return input.getLanguage().orElse(null) == null && loc == null ||
+                                input.getLanguage().orElse(null) != null && input.getLanguage().orElse(null).equals(loc.getLanguage().toLowerCase());
                     }
                 }
         );
@@ -568,7 +578,7 @@ public class ResourceUtils {
      * @param propValue the String value of this property
      */
     public static void setProperty(RepositoryConnection con, Resource r, String propLabel, String propValue) throws RepositoryException {
-        setProperty(con,r,propLabel,propValue,(URI)null);
+        setProperty(con,r,propLabel,propValue,(IRI)null);
     }
 
     /**
@@ -579,7 +589,7 @@ public class ResourceUtils {
      * @param propValue the String value of this property
      * @param context   a context
      */
-    public static <T> void setProperty(RepositoryConnection con, Resource r, String propLabel, String propValue, URI context) throws RepositoryException {
+    public static <T> void setProperty(RepositoryConnection con, Resource r, String propLabel, String propValue, IRI context) throws RepositoryException {
         setProperty(con,r,propLabel,propValue,null, context);
     }
 
@@ -606,7 +616,7 @@ public class ResourceUtils {
      * @param context   context in which this property will set
      * @return
      */
-    public static <T> void setProperty(RepositoryConnection con, Resource r, String propLabel, String propValue, Locale loc, URI context) throws RepositoryException {
+    public static <T> void setProperty(RepositoryConnection con, Resource r, String propLabel, String propValue, Locale loc, IRI context) throws RepositoryException {
         if(propValue != null) {
             Resource[] contexts;
             if(context != null) {
@@ -621,8 +631,11 @@ public class ResourceUtils {
             String prop_uri = resolvePropLabel(con, propLabel);
 
             // then set the new property value
-            Literal value = con.getValueFactory().createLiteral(propValue, loc != null ? loc.getLanguage().toLowerCase() : null);
-            URI     prop  = con.getValueFactory().createURI(prop_uri);
+            // Since sesame 2.8, MemValueFactory does not allow null language tags in the method createLiteral(String label,String language)
+            // If the language tag is null the method createLiteral(String label) should be used instead.
+            Literal value = loc == null ? con.getValueFactory().createLiteral(propValue):
+                     con.getValueFactory().createLiteral(propValue, loc.getLanguage().toLowerCase());
+            IRI     prop  = con.getValueFactory().createIRI(prop_uri);
             con.add(r, prop, value, contexts);
 
         } else {
@@ -647,7 +660,7 @@ public class ResourceUtils {
      * @param propLabel the property label in SeRQL syntax to remove
      * @return true if the property existed and was removed
      */
-    public static boolean removeProperty(RepositoryConnection con, Resource r, String propLabel, URI context) throws RepositoryException {
+    public static boolean removeProperty(RepositoryConnection con, Resource r, String propLabel, IRI context) throws RepositoryException {
         return removeProperty(con,r,propLabel, null, context);
     }
 
@@ -668,10 +681,10 @@ public class ResourceUtils {
      * @param propLabel the property label in SeRQL syntax to remove
      * @return true if the property existed and was removed
      */
-    public static boolean removeProperty(RepositoryConnection con, Resource r, String propLabel, Locale loc, URI context) throws RepositoryException {
+    public static boolean removeProperty(RepositoryConnection con, Resource r, String propLabel, Locale loc, IRI context) throws RepositoryException {
         String uri = resolvePropLabel(con, propLabel);
 
-        URI property = con.getValueFactory().createURI(uri);
+        IRI property = con.getValueFactory().createIRI(uri);
 
         if(property != null) {
 
@@ -680,7 +693,7 @@ public class ResourceUtils {
             for(RepositoryResult<Statement> triples = con.getStatements(r,property,null,false,context); triples.hasNext(); ) {
                 Statement t = triples.next();
                 if(t.getObject() instanceof Literal) {
-                    if(loc == null || ((Literal)t.getObject()).getLanguage().equals(loc.getLanguage().toLowerCase())) {
+                    if(loc == null || ((Literal)t.getObject()).getLanguage().orElse(null).equals(loc.getLanguage().toLowerCase())) {
                         remove.add(t);
                     }
                 }
@@ -706,7 +719,7 @@ public class ResourceUtils {
      * @return all outgoing edges from this resource
      */
     public static Iterable<? extends Statement> listOutgoing(RepositoryConnection con, Resource r) throws RepositoryException {
-        return listOutgoing(con, r, (URI) null);
+        return listOutgoing(con, r, (IRI) null);
     }
 
     /**
@@ -715,7 +728,7 @@ public class ResourceUtils {
      *
      * @return all outgoing edges from this resource
      */
-    public static Iterable<? extends Statement> listOutgoing(RepositoryConnection con, Resource r, URI context) throws RepositoryException {
+    public static Iterable<? extends Statement> listOutgoing(RepositoryConnection con, Resource r, IRI context) throws RepositoryException {
         return listOutgoing(con, r,null,context);
     }
 
@@ -727,7 +740,7 @@ public class ResourceUtils {
      * The parameter propLabel is in the form of a SeRQL or SPARQL id. It can take one of the following
      * values:
      * <ul>
-     * <li>a URI enclosed in &lt; &gt, e.g. &lt;http://www.example.com/myProp&gt;</li>
+     * <li>a IRI enclosed in &lt; &gt, e.g. &lt;http://www.example.com/myProp&gt;</li>
      * <li>a uri prefix, followed by a colon and the property name, e.g. ex:myProp</li>
      * <li>the value "null", in which case all outgoing edges are listed regardless of their label
      * (wildcard)</li>
@@ -749,7 +762,7 @@ public class ResourceUtils {
      * The parameter propLabel is in the form of a SeRQL or SPARQL id. It can take one of the following
      * values:
      * <ul>
-     * <li>a URI enclosed in &lt; &gt, e.g. &lt;http://www.example.com/myProp&gt;</li>
+     * <li>a IRI enclosed in &lt; &gt, e.g. &lt;http://www.example.com/myProp&gt;</li>
      * <li>a uri prefix, followed by a colon and the property name, e.g. ex:myProp</li>
      * <li>the value "null", in which case all outgoing edges are listed regardless of their label
      * (wildcard)</li>
@@ -761,14 +774,14 @@ public class ResourceUtils {
      * @param context   outgoing triples just for the given space
      * @return an iterable over the Statements that are outgoing edges of this resource
      */
-    public static Iterable<? extends Statement> listOutgoing(final RepositoryConnection con, final Resource r, final String propLabel, final URI context) throws RepositoryException {
-        final URI property;
+    public static Iterable<? extends Statement> listOutgoing(final RepositoryConnection con, final Resource r, final String propLabel, final IRI context) throws RepositoryException {
+        final IRI property;
         if(propLabel != null) {
             String prop_uri = resolvePropLabel(con, propLabel);
             if(prop_uri == null) {
                 return Collections.emptySet();
             } else {
-                property = con.getValueFactory().createURI(prop_uri);
+                property = con.getValueFactory().createIRI(prop_uri);
             }
         } else {
             property = null;
@@ -808,7 +821,7 @@ public class ResourceUtils {
      *
      * @return a list of all outgoingnodes dependent of a space
      */
-    public static Iterable<? extends Value> listOutgoingNodes(RepositoryConnection con, Resource r, String propLabel, URI context) throws RepositoryException {
+    public static Iterable<? extends Value> listOutgoingNodes(RepositoryConnection con, Resource r, String propLabel, IRI context) throws RepositoryException {
         return Iterables.transform(
                 listOutgoing(con,r,propLabel,context),
                 new Function<Statement, Value>() {
@@ -821,7 +834,7 @@ public class ResourceUtils {
     }
 
 
-    public static void addOutgoingNode(RepositoryConnection con, Resource r, String propLabel, Value target, URI context) throws RepositoryException {
+    public static void addOutgoingNode(RepositoryConnection con, Resource r, String propLabel, Value target, IRI context) throws RepositoryException {
         final Resource[] contexts;
         if(context != null) {
             contexts = new Resource[] { context };
@@ -831,7 +844,7 @@ public class ResourceUtils {
 
 
         String property_uri = resolvePropLabel(con,propLabel);
-        URI prop = con.getValueFactory().createURI(property_uri);
+        IRI prop = con.getValueFactory().createIRI(property_uri);
         con.add(r,prop,target,contexts);
     }
 
@@ -846,7 +859,7 @@ public class ResourceUtils {
      * @deprecated use con.add directly instead
      */
     @Deprecated
-    public static void addOutgoingNode(RepositoryConnection con, Resource r, URI prop, Value target, URI context) throws RepositoryException {
+    public static void addOutgoingNode(RepositoryConnection con, Resource r, IRI prop, Value target, IRI context) throws RepositoryException {
         final Resource[] contexts;
         if(context != null) {
             contexts = new Resource[] { context };
@@ -867,7 +880,7 @@ public class ResourceUtils {
      * @param context
      * @throws RepositoryException
      */
-    public static void removeOutgoingNode(RepositoryConnection con, Resource r, String propLabel, Resource target, URI context) throws RepositoryException {
+    public static void removeOutgoingNode(RepositoryConnection con, Resource r, String propLabel, Resource target, IRI context) throws RepositoryException {
         final Resource[] contexts;
         if(context != null) {
             contexts = new Resource[] { context };
@@ -877,7 +890,7 @@ public class ResourceUtils {
 
 
         String property_uri = resolvePropLabel(con,propLabel);
-        URI prop = con.getValueFactory().createURI(property_uri);
+        IRI prop = con.getValueFactory().createIRI(property_uri);
         con.remove(r, prop, target, contexts);
     }
 
@@ -887,7 +900,7 @@ public class ResourceUtils {
      * @return
      */
     public static Iterable<? extends Statement> listIncoming(RepositoryConnection con, Resource r) throws RepositoryException {
-        return listIncoming(con, r, (URI) null);
+        return listIncoming(con, r, (IRI) null);
     }
 
     /**
@@ -895,7 +908,7 @@ public class ResourceUtils {
      *
      * @return
      */
-    public static Iterable<? extends Statement> listIncoming(RepositoryConnection con, Resource r, URI context) throws RepositoryException {
+    public static Iterable<? extends Statement> listIncoming(RepositoryConnection con, Resource r, IRI context) throws RepositoryException {
         return listIncoming(con, r, null, context);
     }
 
@@ -908,7 +921,7 @@ public class ResourceUtils {
      * The parameter propLabel is in the form of a SeRQL or SPARQL id. It can take one of the following
      * values:
      * <ul>
-     * <li>a URI enclosed in &lt; &gt, e.g. &lt;http://www.example.com/myProp&gt;</li>
+     * <li>a IRI enclosed in &lt; &gt, e.g. &lt;http://www.example.com/myProp&gt;</li>
      * <li>a uri prefix, followed by a colon and the property name, e.g. ex:myProp</li>
      * <li>the value "null", in which case all outgoing edges are listed regardless of their label
      * (wildcard)</li>
@@ -932,7 +945,7 @@ public class ResourceUtils {
      * The parameter propLabel is in the form of a SeRQL or SPARQL id. It can take one of the following
      * values:
      * <ul>
-     * <li>a URI enclosed in &lt; &gt, e.g. &lt;http://www.example.com/myProp&gt;</li>
+     * <li>a IRI enclosed in &lt; &gt, e.g. &lt;http://www.example.com/myProp&gt;</li>
      * <li>a uri prefix, followed by a colon and the property name, e.g. ex:myProp</li>
      * <li>the value "null", in which case all outgoing edges are listed regardless of their label
      * (wildcard)</li>
@@ -944,14 +957,14 @@ public class ResourceUtils {
      * @param context   incoming resources just for the given context/space
      * @return an iterable over the Statements that are incoming edges of this resource
      */
-    public static Iterable<? extends Statement> listIncoming(final RepositoryConnection con, final Resource r, final String propLabel, final URI context) throws RepositoryException {
-        final URI property;
+    public static Iterable<? extends Statement> listIncoming(final RepositoryConnection con, final Resource r, final String propLabel, final IRI context) throws RepositoryException {
+        final IRI property;
         if(propLabel != null) {
             String prop_uri = resolvePropLabel(con, propLabel);
             if(prop_uri == null) {
                 return Collections.emptySet();
             } else {
-                property = con.getValueFactory().createURI(prop_uri);
+                property = con.getValueFactory().createIRI(prop_uri);
             }
         } else {
             property = null;
@@ -996,7 +1009,7 @@ public class ResourceUtils {
      * @param context   the context of the incoming nodes
      * @return a list of resources that are sources of edges that have this resource as endpoint
      */
-    public static Iterable<? extends Resource> listIncomingNodes(RepositoryConnection con, Resource r, String propLabel, URI context) throws RepositoryException {
+    public static Iterable<? extends Resource> listIncomingNodes(RepositoryConnection con, Resource r, String propLabel, IRI context) throws RepositoryException {
         return Iterables.transform(
                 listIncoming(con, r, propLabel, context),
                 new Function<Statement, Resource>() {
@@ -1030,7 +1043,7 @@ public class ResourceUtils {
      * @param context the space of the label
      * @return
      */
-    public static String getLabel(RepositoryConnection con, Resource r, URI context) throws RepositoryException {
+    public static String getLabel(RepositoryConnection con, Resource r, IRI context) throws RepositoryException {
         return getLabel(con, r, null,context);
     }
 
@@ -1059,7 +1072,7 @@ public class ResourceUtils {
      * @param loc
      * @return
      */
-    public static String getLabel(RepositoryConnection con, Resource r, Locale loc, URI context) throws RepositoryException {
+    public static String getLabel(RepositoryConnection con, Resource r, Locale loc, IRI context) throws RepositoryException {
         String label = null;
         // check rdfs:label, dct:title, dc:title, skos:prefLabel in this order ...
         String[] properties = { Namespaces.NS_RDFS+"label", Namespaces.NS_DC_TERMS+"title", Namespaces.NS_DC+"title", Namespaces.NS_SKOS+"prefLabel" };
@@ -1084,7 +1097,7 @@ public class ResourceUtils {
         }
 
         // still no label available, try to get last part from uri
-        if(label == null && r instanceof URI) {
+        if(label == null && r instanceof IRI) {
             String uri = r.stringValue();
             if(uri.lastIndexOf("#") > 0) {
                 label = uri.substring(uri.lastIndexOf("#")+1);
@@ -1114,7 +1127,7 @@ public class ResourceUtils {
      *
      * @param label
      */
-    public static void setLabel(RepositoryConnection con, Resource r, String label, URI context) throws RepositoryException {
+    public static void setLabel(RepositoryConnection con, Resource r, String label, IRI context) throws RepositoryException {
         setLabel(con, r,null,label,context);
     }
 
@@ -1137,7 +1150,7 @@ public class ResourceUtils {
      * @param label
      * @param context
      */
-    public static void setLabel(RepositoryConnection con, Resource r, Locale loc, String label, URI context) throws RepositoryException {
+    public static void setLabel(RepositoryConnection con, Resource r, Locale loc, String label, IRI context) throws RepositoryException {
         setProperty(con, r,"<"+ Namespaces.NS_RDFS+"label>", label, loc,context);
     }
 
@@ -1159,7 +1172,7 @@ public class ResourceUtils {
      * @return an iterable of Resource instances that represent the RDF types of this resource
      */
     public static Iterable<? extends Resource> getTypes(final RepositoryConnection con, final Resource r, Resource context) throws RepositoryException {
-        final URI rdf_type = con.getValueFactory().createURI(Namespaces.NS_RDF+"type");
+        final IRI rdf_type = con.getValueFactory().createIRI(Namespaces.NS_RDF+"type");
 
         if(rdf_type != null) {
             final Resource[] contexts;
@@ -1205,10 +1218,10 @@ public class ResourceUtils {
     /**
      * Remove one of the RDF types of this Resource. For all spaces/context
      *
-     * @param typeUri a URI resource representing the type of this Resource
+     * @param typeUri a IRI resource representing the type of this Resource
      */
     public static boolean hasType(RepositoryConnection con, Resource r, String typeUri) throws RepositoryException {
-        return hasType(con,r,con.getValueFactory().createURI(typeUri));
+        return hasType(con,r,con.getValueFactory().createIRI(typeUri));
     }
 
 
@@ -1218,7 +1231,7 @@ public class ResourceUtils {
      * @param type the resource representing the type to check for
      * @return true if the type is in the list of RDF types of this resource, false otherwise
      */
-    public static boolean hasType(RepositoryConnection con, Resource r, URI type) throws RepositoryException {
+    public static boolean hasType(RepositoryConnection con, Resource r, IRI type) throws RepositoryException {
         return hasType(con,r,type,null);
     }
 
@@ -1228,9 +1241,9 @@ public class ResourceUtils {
      * @param type the resource representing the type to check for
      * @return true if the type is in the list of RDF types of this resource, false otherwise
      */
-    public static boolean hasType(RepositoryConnection con, Resource r, URI type, URI context) throws RepositoryException {
+    public static boolean hasType(RepositoryConnection con, Resource r, IRI type, IRI context) throws RepositoryException {
         if(type != null) {
-            URI rdf_type = con.getValueFactory().createURI(Namespaces.NS_RDF + "type");
+            IRI rdf_type = con.getValueFactory().createIRI(Namespaces.NS_RDF + "type");
 
             if(rdf_type != null) {
                 if(context != null) {
@@ -1257,9 +1270,9 @@ public class ResourceUtils {
      * @param type the Type (the Object of the triple)
      * @param context the contexts to store in
      */
-    public static void addType(RepositoryConnection con, Resource r, URI type, URI... context) throws RepositoryException {
+    public static void addType(RepositoryConnection con, Resource r, IRI type, IRI... context) throws RepositoryException {
         if (type != null) {
-            URI rdf_type = con.getValueFactory().createURI(Namespaces.NS_RDF + "type");
+            IRI rdf_type = con.getValueFactory().createIRI(Namespaces.NS_RDF + "type");
 
             if (rdf_type != null) {
                 con.add(r, rdf_type, type, context);
@@ -1297,7 +1310,7 @@ public class ResourceUtils {
     }
 
     /**
-     * Check whether the provided argument is a Resource (an URI or BNode).
+     * Check whether the provided argument is a Resource (an IRI or BNode).
      * <p/>
      * Equivalent to <code>(v instanceof Resource)</code>.
      *
@@ -1310,16 +1323,16 @@ public class ResourceUtils {
     }
 
     /**
-     * Check whether the provided argument is an URI.
+     * Check whether the provided argument is an IRI.
      * <p/>
-     * Equivalent to <code>(v instanceof URI)</code>.
+     * Equivalent to <code>(v instanceof IRI)</code>.
      *
      * @param v
      *            the Value to check.
-     * @return <code>true</code> if it is a {@link URI}
+     * @return <code>true</code> if it is a {@link IRI}
      */
-    public static boolean isURI(Value v) {
-        return v instanceof URI;
+    public static boolean isIRI(Value v) {
+        return v instanceof IRI;
     }
 
     /**
@@ -1390,7 +1403,7 @@ public class ResourceUtils {
      * Get the last modification of the set of triples passed as argument.
      *
      * @return date
-     * @throws org.openrdf.repository.RepositoryException
+     * @throws org.eclipse.rdf4j.repository.RepositoryException
      */
     public static Date getLastModified(RepositoryConnection conn, Resource resource) throws RepositoryException {
         Date last_modified = new Date(0);

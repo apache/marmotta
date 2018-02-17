@@ -18,14 +18,12 @@
 package org.apache.marmotta.platform.core.exception;
 
 import com.google.common.collect.ImmutableMap;
+import static com.google.common.net.HttpHeaders.ACCEPT;
 import edu.emory.mathcs.backport.java.util.Collections;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.google.common.net.HttpHeaders.ACCEPT;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
 
 /**
  * HTTP Error Exception
@@ -47,11 +45,11 @@ public class HttpErrorException extends Exception {
      *
      * @param status http status code
      * @param reason reason phrase
-     * @param uri resource uri
+     * @param iri resource iri
      * @param msg message
      */
-    public HttpErrorException(int status, String reason, String uri, String msg) {
-        this(status, reason, uri, msg, new HashMap<String,String>());
+    public HttpErrorException(int status, String reason, String iri, String msg) {
+        this(status, reason, iri, msg, new HashMap<String,String>());
     }
 
     /**

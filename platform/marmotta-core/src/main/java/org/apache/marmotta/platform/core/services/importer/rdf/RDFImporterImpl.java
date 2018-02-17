@@ -17,29 +17,32 @@
  */
 package org.apache.marmotta.platform.core.services.importer.rdf;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.importer.Importer;
 import org.apache.marmotta.platform.core.api.task.Task;
 import org.apache.marmotta.platform.core.api.task.TaskManagerService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.RDFParserRegistry;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParserRegistry;
 import org.slf4j.Logger;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.net.URL;
-import java.util.*;
 
 /**
  * An io for importing RDF sources in RDF/XML or other RDF formats. Currently uses
@@ -111,7 +114,7 @@ public class RDFImporterImpl implements Importer {
      */
     @Override
     //@RaiseEvent("ontologyChanged")
-    public int importData(URL url, String format, Resource user, URI context) throws MarmottaImportException {
+    public int importData(URL url, String format, Resource user, IRI context) throws MarmottaImportException {
         try {
             return importData(url.openStream(), format, user,context, url.toString());
         } catch (IOException ex) {
@@ -134,9 +137,9 @@ public class RDFImporterImpl implements Importer {
      */
     @Override
     //@RaiseEvent("ontologyChanged")
-    public int importData(InputStream is, String format, Resource user, URI context) throws MarmottaImportException {
-        String baseUri = configurationService.getBaseUri() + "resource/";
-        return importData(is,format,user,context,baseUri);
+    public int importData(InputStream is, String format, Resource user, IRI context) throws MarmottaImportException {
+        String baseIri = configurationService.getBaseIri() + "resource/";
+        return importData(is,format,user,context,baseIri);
     }
 
     /**
@@ -151,7 +154,7 @@ public class RDFImporterImpl implements Importer {
      * @param user the user to use as author of all imported data
      */
     //@RaiseEvent("ontologyChanged")
-    private int importData(InputStream is, String format, Resource user, URI context, String baseUri) throws MarmottaImportException {
+    private int importData(InputStream is, String format, Resource user, IRI context, String baseUri) throws MarmottaImportException {
 
         // TODO: need to figure out format automatically!
         RDFFormat f = getFormat(format);
@@ -215,17 +218,17 @@ public class RDFImporterImpl implements Importer {
      * @param user the user to use as author of all imported data
      */
     @Override
-    public int importData(Reader reader, String format, Resource user, URI context) throws MarmottaImportException {
+    public int importData(Reader reader, String format, Resource user, IRI context) throws MarmottaImportException {
 
         // TODO: need to figure out format automatically!
         RDFFormat f = getFormat(format);
 
-        String baseUri = configurationService.getBaseUri() + "resource/";
+        String baseIri = configurationService.getBaseIri() + "resource/";
         final String taskName = String.format("RDF Importer Task %d (%s)", ++taskCounter, f.getName());
         Task task = taskManagerService.createSubTask(taskName, "Importer");
         task.updateMessage("importing data into Apache Marmotta repository");
         task.updateDetailMessage("format", f.getDefaultMIMEType());
-        task.updateDetailMessage("baseURI", baseUri);
+        task.updateDetailMessage("baseURI", baseIri);
 
         int count = 0;
 
@@ -236,7 +239,7 @@ public class RDFImporterImpl implements Importer {
 
                 RepositoryConnection c_import = sesameService.getConnection();
                 try {
-                    c_import.add(reader, baseUri, f, context);
+                    c_import.add(reader, baseIri, f, context);
                 } catch (RepositoryException ex) {
                     log.error("error while importing Sesame data:", ex);
                     c_import.rollback();
@@ -286,6 +289,6 @@ public class RDFImporterImpl implements Importer {
 
 
     private static RDFFormat getFormat(String format) {
-        return RDFParserRegistry.getInstance().getFileFormatForMIMEType(format);
+        return RDFParserRegistry.getInstance().getFileFormatForMIMEType(format).orElse(null);
     }
 }

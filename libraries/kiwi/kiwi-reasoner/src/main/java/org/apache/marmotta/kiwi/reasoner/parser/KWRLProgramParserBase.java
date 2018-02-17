@@ -17,19 +17,18 @@
  */
 package org.apache.marmotta.kiwi.reasoner.parser;
 
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import org.apache.marmotta.kiwi.reasoner.model.program.Program;
 import org.apache.marmotta.kiwi.reasoner.model.program.ResourceField;
 import org.apache.marmotta.kiwi.reasoner.model.program.Rule;
 import org.apache.marmotta.kiwi.reasoner.model.program.VariableField;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.ValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * Base class for the JavaCC parser with support methods
@@ -124,13 +123,13 @@ public abstract class KWRLProgramParserBase {
         return Rule();
     }
 
-    protected   URI resolveResource(String uri) {
-        return valueFactory.createURI(uri);
+    protected   IRI resolveResource(String uri) {
+        return valueFactory.createIRI(uri);
     }
 
     protected Literal resolveLiteral(Object content, Locale loc, String typeUri) {
         if(typeUri != null) {
-            return valueFactory.createLiteral(content.toString(),valueFactory.createURI(typeUri));
+            return valueFactory.createLiteral(content.toString(),valueFactory.createIRI(typeUri));
         } else if(loc != null) {
             return valueFactory.createLiteral(content.toString(), loc.getLanguage());
         } else {

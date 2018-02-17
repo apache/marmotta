@@ -16,6 +16,9 @@
  */
 package org.apache.marmotta.commons.sesame.facading.impl;
 
+import java.lang.reflect.Proxy;
+import java.util.Collection;
+import java.util.LinkedList;
 import org.apache.marmotta.commons.sesame.facading.annotations.RDF;
 import org.apache.marmotta.commons.sesame.facading.annotations.RDFContext;
 import org.apache.marmotta.commons.sesame.facading.annotations.RDFFilter;
@@ -23,16 +26,12 @@ import org.apache.marmotta.commons.sesame.facading.annotations.RDFType;
 import org.apache.marmotta.commons.sesame.facading.api.Facading;
 import org.apache.marmotta.commons.sesame.facading.model.Facade;
 import org.apache.marmotta.commons.sesame.facading.util.FacadeUtils;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Proxy;
-import java.util.Collection;
-import java.util.LinkedList;
 
 
 /**
@@ -47,7 +46,7 @@ import java.util.LinkedList;
  */
 public class FacadingImpl implements Facading {
 
-    private static final URI RDF_TYPE = org.openrdf.model.vocabulary.RDF.TYPE;
+    private static final IRI RDF_TYPE = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
 
 
     private static Logger log = LoggerFactory.getLogger(FacadingImpl.class);
@@ -72,10 +71,10 @@ public class FacadingImpl implements Facading {
     @Override
     public <C extends Facade> C createFacade(Resource r, Class<C> type) {
         // support @RDFContext annotation in facade
-        URI context = null;
+        IRI context = null;
         if(FacadeUtils.isFacadeAnnotationPresent(type, RDFContext.class)) {
             String s_context = FacadeUtils.getFacadeAnnotation(type,RDFContext.class).value();
-            context = connection.getValueFactory().createURI(s_context);
+            context = connection.getValueFactory().createIRI(s_context);
             log.debug("applying context {} for facade {} of {}", context, type.getSimpleName(), r);
         }
         return createFacade(r, type, context);
@@ -94,7 +93,7 @@ public class FacadingImpl implements Facading {
      * @return a facading proxy of type {@code C}
      */
     @Override
-    public <C extends Facade> C createFacade(Resource r, Class<C> type, URI context) {
+    public <C extends Facade> C createFacade(Resource r, Class<C> type, IRI context) {
         if(r == null) {
             log.trace("null facade for null resouce");
             return null;
@@ -110,7 +109,7 @@ public class FacadingImpl implements Facading {
 
                         String[] a_type = FacadeUtils.getFacadeAnnotation(type, RDFType.class).value();
                         for(String s_type : a_type) {
-                            final URI r_type = connection.getValueFactory().createURI(s_type);
+                            final IRI r_type = connection.getValueFactory().createIRI(s_type);
                             connection.add(r, RDF_TYPE, r_type, context);
                             log.trace("added type {} to {} because of RDFType-Annotation", r_type, r);
                             if(!connection.hasStatement(r, RDF_TYPE, r_type,true,context)) {
@@ -149,10 +148,10 @@ public class FacadingImpl implements Facading {
      */
     @Override
     public <C extends Facade> Collection<C> createFacade(Collection<? extends Resource> list, Class<C> type) {
-        URI context = null;
+        IRI context = null;
         if(FacadeUtils.isFacadeAnnotationPresent(type, RDFContext.class)) {
             String s_context = FacadeUtils.getFacadeAnnotation(type,RDFContext.class).value();
-            context = connection.getValueFactory().createURI(s_context);
+            context = connection.getValueFactory().createIRI(s_context);
             log.debug("applying context {} for facade {} of {}", context, type.getSimpleName(), list);
         }
         return createFacade(list, type, context);
@@ -169,7 +168,7 @@ public class FacadingImpl implements Facading {
      * @return
      */
     @Override
-    public <C extends Facade> Collection<C> createFacade(Collection<? extends Resource> list, Class<C> type, URI context) {
+    public <C extends Facade> Collection<C> createFacade(Collection<? extends Resource> list, Class<C> type, IRI context) {
         log.trace("createFacadeList: creating {} facade over {} content items",type.getName(),list.size());
         LinkedList<C> result = new LinkedList<>();
         if(type.isAnnotationPresent(RDFFilter.class)) {
@@ -178,11 +177,11 @@ public class FacadingImpl implements Facading {
                 if (!connection.isActive()) { throw new IllegalStateException("no active transaction, cannot access triple-store."); }
 
                 // if the RDFType annotation is present, filter out content items that are of the wrong type
-                LinkedList<URI> acceptable_types = new LinkedList<>();
+                LinkedList<IRI> acceptable_types = new LinkedList<>();
                 if(FacadeUtils.isFacadeAnnotationPresent(type,RDFFilter.class)) {
                     String[]        a_type = FacadeUtils.getFacadeAnnotation(type,RDFFilter.class).value();
                     for(String s_type : a_type) {
-                        URI r_type = connection.getValueFactory().createURI(s_type);
+                        IRI r_type = connection.getValueFactory().createIRI(s_type);
                         acceptable_types.add(r_type);
                     }
                 }
@@ -190,7 +189,7 @@ public class FacadingImpl implements Facading {
                 // add facades for all content items to the result list
                 for(Resource item : list) {
                     boolean accept = acceptable_types.size() == 0; // true for empty filter
-                    for(URI rdf_type : acceptable_types) {
+                    for(IRI rdf_type : acceptable_types) {
                         if(connection.hasStatement(item, RDF_TYPE, rdf_type, true)) {
                             accept = true;
                             log.trace("accepting resource {} because type matches ({})",item.toString(),rdf_type.stringValue());
@@ -216,18 +215,18 @@ public class FacadingImpl implements Facading {
 
 
     /**
-     * Create an instance of C that facades the resource identified by the uri given as argument, using the {@link RDF}
+     * Create an instance of C that facades the resource identified by the iri given as argument, using the {@link RDF}
      * annotations provided to the getter or setter methods of C to map to properties of the resource in the triple
      * store.
      *
-     * @param uri  the uri of the resource to facade
+     * @param iri  the iri of the resource to facade
      * @param type the facade type as a class
      * @param <C>  the facade type as a generic parameter
      * @return
      */
     @Override
-    public <C extends Facade> C createFacade(String uri, Class<C> type) {
-        return createFacade(connection.getValueFactory().createURI(uri), type);
+    public <C extends Facade> C createFacade(String iri, Class<C> type) {
+        return createFacade(connection.getValueFactory().createIRI(iri), type);
     }
 
     /**
@@ -255,7 +254,7 @@ public class FacadingImpl implements Facading {
      *         {@link RDFFilter} requirements of <code>type</code>
      */
     @Override
-    public <C extends Facade> boolean isFacadeable(Resource r, Class<C> type, URI context) {
+    public <C extends Facade> boolean isFacadeable(Resource r, Class<C> type, IRI context) {
         if (FacadeUtils.isFacadeAnnotationPresent(type, RDFType.class)) {
             try {
                 if (!connection.isOpen()) { throw new IllegalStateException("the connection is already closed, cannot access triple store."); }
@@ -265,9 +264,9 @@ public class FacadingImpl implements Facading {
                 boolean facadeable = true;
                 for (String s_type : rdfTypes) {
                     if(context != null) {
-                        facadeable &= connection.hasStatement(r, RDF_TYPE, connection.getValueFactory().createURI(s_type), true, context);
+                        facadeable &= connection.hasStatement(r, RDF_TYPE, connection.getValueFactory().createIRI(s_type), true, context);
                     } else {
-                        facadeable &= connection.hasStatement(r, RDF_TYPE, connection.getValueFactory().createURI(s_type), true);
+                        facadeable &= connection.hasStatement(r, RDF_TYPE, connection.getValueFactory().createIRI(s_type), true);
                     }
                 }
                 // also check for @RDFFilter
@@ -275,9 +274,9 @@ public class FacadingImpl implements Facading {
                     String[] filterTypes = FacadeUtils.getFacadeAnnotation(type, RDFFilter.class).value();
                     for (String s_type : filterTypes) {
                         if(context != null) {
-                            facadeable &= connection.hasStatement(r, RDF_TYPE, connection.getValueFactory().createURI(s_type), true, context);
+                            facadeable &= connection.hasStatement(r, RDF_TYPE, connection.getValueFactory().createIRI(s_type), true, context);
                         } else {
-                            facadeable &= connection.hasStatement(r, RDF_TYPE, connection.getValueFactory().createURI(s_type), true);
+                            facadeable &= connection.hasStatement(r, RDF_TYPE, connection.getValueFactory().createIRI(s_type), true);
                         }
                     }
                 }

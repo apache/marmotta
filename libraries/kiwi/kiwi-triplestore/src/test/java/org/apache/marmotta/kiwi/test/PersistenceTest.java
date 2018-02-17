@@ -16,31 +16,44 @@
  */
 package org.apache.marmotta.kiwi.test;
 
-import info.aduna.iteration.Iterations;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+import java.util.TimeZone;
 import org.apache.commons.lang3.RandomStringUtils;
+import static org.apache.marmotta.commons.sesame.model.LiteralCommons.getRDFLangStringType;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.kiwi.model.rdf.*;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNamespace;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.model.Statement;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openrdf.model.Statement;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-
-import static org.apache.marmotta.commons.sesame.model.LiteralCommons.getRDFLangStringType;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
 
 /**
  * This test verifies the persistence functionality of the KiWi triple store. 
@@ -101,7 +114,7 @@ public class PersistenceTest {
         KiWiConnection connection = persistence.getConnection();
         try {
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
-            KiWiUriResource uri = new KiWiUriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource uri = new KiWiIriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
             connection.storeNode(uri);
 
             // check if it then has a database ID
@@ -253,7 +266,7 @@ public class PersistenceTest {
     public void testStoreStringLiteralNoType() throws SQLException {
         KiWiConnection connection = persistence.getConnection();
         try {
-            KiWiUriResource   stype   = new KiWiUriResource(Namespaces.NS_XSD+"string");
+            KiWiIriResource   stype   = new KiWiIriResource(Namespaces.NS_XSD+"string");
             connection.storeNode(stype);
 
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
@@ -332,7 +345,7 @@ public class PersistenceTest {
     public void testStoreStringLiteralLanguage() throws SQLException {
         KiWiConnection connection = persistence.getConnection();
         try {
-            KiWiUriResource   stype   = new KiWiUriResource(getRDFLangStringType());
+            KiWiIriResource   stype   = new KiWiIriResource(getRDFLangStringType());
             connection.storeNode(stype);
 
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
@@ -411,7 +424,7 @@ public class PersistenceTest {
     public void testStoreStringLiteralType() throws SQLException {
         KiWiConnection connection = persistence.getConnection();
         try {
-            KiWiUriResource uri = new KiWiUriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource uri = new KiWiIriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
 
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiStringLiteral literal = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(8), null, uri);
@@ -493,7 +506,7 @@ public class PersistenceTest {
     public void testStoreBigStringLiteral() throws SQLException {
         KiWiConnection connection = persistence.getConnection();
         try {
-            KiWiUriResource uri = new KiWiUriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+            KiWiIriResource uri = new KiWiIriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
 
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiStringLiteral literal = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(16384), null, uri);
@@ -576,7 +589,7 @@ public class PersistenceTest {
     public void testStoreIntLiteral() throws SQLException {
         KiWiConnection connection = persistence.getConnection();
         try {
-            KiWiUriResource uri = new KiWiUriResource(Namespaces.NS_XSD + "integer");
+            KiWiIriResource uri = new KiWiIriResource(Namespaces.NS_XSD + "integer");
 
 
             Random rnd = new Random();
@@ -681,7 +694,7 @@ public class PersistenceTest {
     public void testStoreDoubleLiteral() throws SQLException {
         KiWiConnection connection = persistence.getConnection();
         try {
-            KiWiUriResource uri = new KiWiUriResource(Namespaces.NS_XSD + "double");
+            KiWiIriResource uri = new KiWiIriResource(Namespaces.NS_XSD + "double");
 
 
             Random rnd = new Random();
@@ -786,7 +799,7 @@ public class PersistenceTest {
     public void testStoreBooleanLiteral() throws SQLException {
         KiWiConnection connection = persistence.getConnection();
         try {
-            KiWiUriResource uri = new KiWiUriResource(Namespaces.NS_XSD + "boolean");
+            KiWiIriResource uri = new KiWiIriResource(Namespaces.NS_XSD + "boolean");
 
 
             Random rnd = new Random();
@@ -890,7 +903,7 @@ public class PersistenceTest {
     public void testStoreDateLiteral() throws SQLException {
         KiWiConnection connection = persistence.getConnection();
         try {
-            KiWiUriResource uri = new KiWiUriResource(Namespaces.NS_XSD + "dateTime");
+            KiWiIriResource uri = new KiWiIriResource(Namespaces.NS_XSD + "dateTime");
 
 
             DateTime value = DateTime.now().withMillisOfSecond(0);
@@ -993,13 +1006,13 @@ public class PersistenceTest {
     public void testStoreTriples() throws Exception {
             KiWiConnection connection = persistence.getConnection();
             try {
-                KiWiUriResource stype    = new KiWiUriResource(Namespaces.NS_XSD+"string");
-                KiWiUriResource subject  = new KiWiUriResource("http://localhost/resource/"+RandomStringUtils.randomAlphanumeric(8));
-                KiWiUriResource pred_1   = new KiWiUriResource("http://localhost/predicate/P1");
-                KiWiUriResource pred_2   = new KiWiUriResource("http://localhost/predicate/P2");
-                KiWiUriResource object_1 = new KiWiUriResource("http://localhost/resource/"+RandomStringUtils.randomAlphanumeric(8));
+                KiWiIriResource stype    = new KiWiIriResource(Namespaces.NS_XSD+"string");
+                KiWiIriResource subject  = new KiWiIriResource("http://localhost/resource/"+RandomStringUtils.randomAlphanumeric(8));
+                KiWiIriResource pred_1   = new KiWiIriResource("http://localhost/predicate/P1");
+                KiWiIriResource pred_2   = new KiWiIriResource("http://localhost/predicate/P2");
+                KiWiIriResource object_1 = new KiWiIriResource("http://localhost/resource/"+RandomStringUtils.randomAlphanumeric(8));
                 KiWiStringLiteral object_2 = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(32),null,stype);
-                KiWiUriResource context  = new KiWiUriResource("http://localhost/context/"+RandomStringUtils.randomAlphanumeric(8));
+                KiWiIriResource context  = new KiWiIriResource("http://localhost/context/"+RandomStringUtils.randomAlphanumeric(8));
 
                 connection.storeNode(stype);
                 connection.storeNode(subject);
@@ -1086,7 +1099,8 @@ public class PersistenceTest {
             Assert.assertEquals(ns1, connection.loadNamespaceByUri("http://localhost/ns1/"));
             Assert.assertEquals(ns2, connection.loadNamespaceByPrefix("ns2"));
             Assert.assertEquals(ns2, connection.loadNamespaceByUri("http://localhost/ns2/"));
-            Assert.assertThat(Iterations.asList(connection.listNamespaces()),hasItems(ns1,ns2));
+            List<KiWiNamespace> namespaces = Iterations.asList(connection.listNamespaces());
+            Assert.assertThat(namespaces, hasItems(ns1,ns2));
 
             connection.commit();
 
@@ -1095,7 +1109,8 @@ public class PersistenceTest {
             Assert.assertEquals(ns1, connection.loadNamespaceByUri("http://localhost/ns1/"));
             Assert.assertEquals(ns2, connection.loadNamespaceByPrefix("ns2"));
             Assert.assertEquals(ns2, connection.loadNamespaceByUri("http://localhost/ns2/"));
-            Assert.assertThat(Iterations.asList(connection.listNamespaces()),hasItems(ns1,ns2));
+            namespaces = Iterations.asList(connection.listNamespaces());
+            Assert.assertThat(namespaces, hasItems(ns1,ns2));
 
             // clear cache and check again
             persistence.clearCache();
@@ -1104,7 +1119,8 @@ public class PersistenceTest {
             Assert.assertEquals(ns1, connection.loadNamespaceByUri("http://localhost/ns1/"));
             Assert.assertEquals(ns2, connection.loadNamespaceByPrefix("ns2"));
             Assert.assertEquals(ns2, connection.loadNamespaceByUri("http://localhost/ns2/"));
-            Assert.assertThat(Iterations.asList(connection.listNamespaces()),hasItems(ns1,ns2));
+            namespaces = Iterations.asList(connection.listNamespaces());
+            Assert.assertThat(namespaces, hasItems(ns1,ns2));
 
 
             PreparedStatement stmt = connection.getJDBCConnection().prepareStatement("SELECT * FROM namespaces");

@@ -17,22 +17,25 @@
 
 package org.apache.marmotta.kiwi.loader.generic;
 
-import org.apache.marmotta.commons.sesame.model.LiteralCommons;
-import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
-import org.apache.marmotta.kiwi.model.rdf.*;
-import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.openrdf.model.Literal;
-import org.openrdf.rio.RDFHandler;
-import org.openrdf.rio.RDFHandlerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import org.apache.marmotta.commons.sesame.model.LiteralCommons;
+import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
+import org.apache.marmotta.kiwi.sail.KiWiStore;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.rio.RDFHandler;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Generic superclass for batch-mode KiWi import handlers (PostgreSQL and MySQL).
@@ -48,7 +51,7 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
     protected List<KiWiTriple> tripleBacklog;
 
     protected Map<String,KiWiLiteral> literalBacklogLookup;
-    protected Map<String,KiWiUriResource> uriBacklogLookup;
+    protected Map<String,KiWiIriResource> uriBacklogLookup;
     protected Map<String,KiWiAnonResource> bnodeBacklogLookup;
 
 
@@ -107,7 +110,7 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
      * Signals the start of the RDF data. This method is called before any data
      * is reported.
      *
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *          If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -129,7 +132,7 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
      * Signals the end of the RDF data. This method is called when all data has
      * been reported.
      *
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *          If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -167,8 +170,8 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
     }
 
     @Override
-    protected KiWiUriResource createURI(String uri) {
-        KiWiUriResource result = uriBacklogLookup.get(uri);
+    protected KiWiIriResource createURI(String uri) {
+        KiWiIriResource result = uriBacklogLookup.get(uri);
         if(result == null) {
             result = super.createURI(uri);
         }
@@ -183,8 +186,8 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
 
         nodeBacklog.add(node);
 
-        if(node instanceof KiWiUriResource) {
-            uriBacklogLookup.put(node.stringValue(),(KiWiUriResource)node);
+        if(node instanceof KiWiIriResource) {
+            uriBacklogLookup.put(node.stringValue(),(KiWiIriResource)node);
         } else if(node instanceof KiWiAnonResource) {
             bnodeBacklogLookup.put(node.stringValue(), (KiWiAnonResource)node);
         } else if(node instanceof KiWiLiteral) {

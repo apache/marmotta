@@ -18,7 +18,7 @@
 package org.apache.marmotta.commons.sesame.filter.resource;
 
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
-import org.openrdf.model.Resource;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * A common interface for enhancement filters on resources. Specifies a single method, "accept", which should

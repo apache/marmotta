@@ -17,10 +17,9 @@
  */
 package org.apache.marmotta.commons.sesame.rio.vcard;
 
-import org.apache.marmotta.commons.sesame.rio.vcard.VCardFormat;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.RDFParserFactory;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.RDFParserFactory;
 
 /**
  * Add file description here!

@@ -17,11 +17,12 @@
  */
 package org.apache.marmotta.platform.ldp.patch.model;
 
+import java.util.Objects;
 import org.apache.commons.lang3.ObjectUtils;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
 
 /**
  * The Statement in a RdfPatch.
@@ -31,10 +32,10 @@ public class WildcardStatement implements Statement {
 
 
     private final Value object;
-    private final URI predicate;
+    private final IRI predicate;
     private final Resource subject;
 
-    public WildcardStatement(Resource subject, URI predicate, Value object) {
+    public WildcardStatement(Resource subject, IRI predicate, Value object) {
         this.object = object;
         this.predicate = predicate;
         this.subject = subject;
@@ -46,7 +47,7 @@ public class WildcardStatement implements Statement {
     }
 
     @Override
-    public URI getPredicate() {
+    public IRI getPredicate() {
         return predicate;
     }
 
@@ -80,8 +81,8 @@ public class WildcardStatement implements Statement {
             // In general the number of different predicates in sets of
             // statements is the smallest, so predicate equality is checked
             // last.
-            return ObjectUtils.equals(object, otherSt.getObject()) && ObjectUtils.equals(subject, otherSt.getSubject())
-                    && ObjectUtils.equals(predicate, otherSt.getPredicate());
+            return Objects.equals(object, otherSt.getObject()) && Objects.equals(subject, otherSt.getSubject())
+                    && Objects.equals(predicate, otherSt.getPredicate());
         }
 
         return false;

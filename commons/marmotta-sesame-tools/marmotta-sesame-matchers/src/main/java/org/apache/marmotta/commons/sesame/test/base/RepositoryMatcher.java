@@ -17,10 +17,10 @@
  */
 package org.apache.marmotta.commons.sesame.test.base;
 
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
 
 /**
  * Wrapper for a {@link AbstractRepositoryConnectionMatcher} to accept a {@link Repository}

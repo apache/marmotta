@@ -14,26 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.commons.sesame.facading.annotations;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package org.apache.marmotta.commons.sesame.hashing;
 
+import com.google.common.hash.Funnel;
+import com.google.common.hash.PrimitiveSink;
+import java.nio.charset.Charset;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
- * This annotation specifies the RDF-type of an object-class
- * 
- * @author Stephanie Stroka
+ * Implementation of a Guava Funnel for Sesame IRIs
  *
+ * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target( { ElementType.TYPE } )
-public @interface RDFType {
-	/**
-	 * The IRI of the RDF type to use for the class
-	 * @return
-	 */
-	String[] value();
+public class IRIFunnel implements Funnel<IRI> {
+
+    private static IRIFunnel instance = new IRIFunnel();
+
+
+    public static IRIFunnel getInstance() {
+        return instance;
+    }
+
+    @Override
+    public void funnel(IRI uri, PrimitiveSink primitiveSink) {
+        primitiveSink.putString(uri.stringValue(), Charset.defaultCharset());
+    }
 }

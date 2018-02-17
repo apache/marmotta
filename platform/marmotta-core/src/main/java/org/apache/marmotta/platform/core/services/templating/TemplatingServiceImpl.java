@@ -69,8 +69,8 @@ public class TemplatingServiceImpl implements TemplatingService {
         String project = configurationService.getStringConfiguration("kiwi.pages.project", DEFAULT_PROJECT);
         common.put("PROJECT", project);
         common.put("DEFAULT_STYLE", configurationService.getStringConfiguration("kiwi.pages.style_path", DEFAULT_STYLE));
-        common.put("SERVER_URL", configurationService.getServerUri());
-        common.put("BASIC_URL", configurationService.getBaseUri());
+        common.put("SERVER_URL", configurationService.getServerIri());
+        common.put("BASIC_URL", configurationService.getBaseIri());
         common.put("LOGO", configurationService.getStringConfiguration("kiwi.pages.project." + project + ".logo", project + ".png"));
         common.put("FOOTER", configurationService.getStringConfiguration("kiwi.pages.project." + project + ".footer", "(footer not properly configured for project " + project + ")"));
 

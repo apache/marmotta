@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.platform.core.api.io;
 
-import org.openrdf.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.RDFWriter;
 
 /**
  * User: Thomas Kurz

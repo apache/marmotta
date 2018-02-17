@@ -17,17 +17,17 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.apache.marmotta.commons.util.DateUtils;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
-import org.openrdf.model.datatypes.XMLDatatypeUtil;
-
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Optional;
+import javax.xml.datatype.XMLGregorianCalendar;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.commons.util.DateUtils;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.datatypes.XMLDatatypeUtil;
 
 /**
  * KiWiLiterals store literal information from the knowledge base. They directly
@@ -50,7 +50,7 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
 
     private Locale locale;
 
-    private KiWiUriResource type;
+    private KiWiIriResource type;
 
     public KiWiLiteral() {
         super();
@@ -61,13 +61,13 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
     }
 
 
-    protected KiWiLiteral(Locale locale, KiWiUriResource type) {
+    protected KiWiLiteral(Locale locale, KiWiIriResource type) {
         this();
         this.locale = locale;
         this.type = type;
     }
 
-    protected KiWiLiteral(Locale locale, KiWiUriResource type, Date created) {
+    protected KiWiLiteral(Locale locale, KiWiIriResource type, Date created) {
         super(created);
         this.locale = locale;
         this.type = type;
@@ -108,7 +108,7 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
      * Return the RDF/XSD type of this literal.
      * @return
      */
-    public KiWiUriResource getType() {
+    public KiWiIriResource getType() {
         return type;
     }
 
@@ -116,7 +116,7 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
      * Set the RDF/XSD type of this literal.
      * @param type
      */
-    public void setType(KiWiUriResource type) {
+    public void setType(KiWiIriResource type) {
         this.type = type;
     }
 
@@ -160,7 +160,7 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
 
             if(!this.getLabel().equals(that.getLabel())) return false;
 
-            if(this.getLanguage() != null && !(this.getLanguage().equals(that.getLanguage()))) return false;
+            if(this.getLanguage().orElse(null) != null && !(this.getLanguage().orElse(null).equals(that.getLanguage().orElse(null)))) return false;
 
             // getDatatype should never be null, this is only for legacy support
             if(this.getDatatype()==null && that.getDatatype()!=null) return false;
@@ -174,14 +174,21 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
 
     @Override
     public int hashCode() {
-        // not compatible with Sesame:
-        /*
-        int result =  this.getClass().hashCode();
-        result = 31 * result + (locale != null ? locale.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + this.getLabel().hashCode();
-        return result;
-        */
+        //In sesame 2.8 the hashCode of literals includes language and datatype, compatibility is back!!!
+         //New hashCode implementation:
+         //https://bitbucket.org/openrdf/sesame/src/11f1f0e681cea47e167bd79929873370e199a19f/core/model/src/main/java/org/openrdf/model/impl/LiteralImpl.java?at=2.7.x&fileviewer=file-view-default
+         //https://bitbucket.org/openrdf/sesame/src/aa292b3bee427c1a549b89a099a58d7edbe22d5a/core/model/src/main/java/org/openrdf/model/impl/LiteralImpl.java?at=2.8.x&fileviewer=file-view-default
+        
+        // This is changed again in Sesame 4 
+//            int hashCode = getLabel().hashCode();
+//             if (getLanguage() != null) {
+//                 hashCode = 31 * hashCode + getLanguage().hashCode();
+//             }
+//             if (getDatatype() != null) {
+//                 hashCode = 31 * hashCode + getDatatype().hashCode();
+//     
+//            }
+//             return hashCode;
         return getLabel().hashCode();
     }
 
@@ -229,11 +236,11 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
      *         doesn't have one.
      */
     @Override
-    public String getLanguage() {
+    public Optional<String> getLanguage() {
         if(getLocale() != null) {
-            return getLocale().getLanguage().toLowerCase();
+            return Optional.ofNullable(getLocale().getLanguage().toLowerCase());
         }
-        return null;
+        return Optional.ofNullable(null);
     }
 
     /**
@@ -243,7 +250,7 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
      *         have one.
      */
     @Override
-    public URI getDatatype() {
+    public IRI getDatatype() {
         return type;
     }
 
@@ -360,7 +367,7 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
 
     /**
      * Returns the String-value of a <tt>Value</tt> object. This returns either
-     * a {@link org.openrdf.model.Literal}'s label, a {@link org.openrdf.model.URI}'s URI or a {@link org.openrdf.model.BNode}'s ID.
+     * a {@link org.eclipse.rdf4j.model.Literal}'s label, a {@link org.eclipse.rdf4j.model.IRI}'s URI or a {@link org.eclipse.rdf4j.model.BNode}'s ID.
      */
     @Override
     public String stringValue() {

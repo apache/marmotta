@@ -17,10 +17,7 @@
  */
 package org.apache.marmotta.platform.core.filters;
 
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
-import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
-
+import java.io.IOException;
 import javax.inject.Inject;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -28,11 +25,14 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
+import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
 
 /**
+ * <p>
  * Adds the LMF Server Version header to each response
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 public class MarmottaServerNameFilter implements MarmottaHttpFilter {
@@ -44,7 +44,7 @@ public class MarmottaServerNameFilter implements MarmottaHttpFilter {
     private ModuleConfiguration moduleConfiguration;
 
     /**
-     * Return the pattern (regular expression) that a request URI (relative to the LMF base URI) has to match
+     * Return the pattern (regular expression) that a request IRI (relative to the LMF base IRI) has to match
      * before triggering this filter.
      *
      * @return

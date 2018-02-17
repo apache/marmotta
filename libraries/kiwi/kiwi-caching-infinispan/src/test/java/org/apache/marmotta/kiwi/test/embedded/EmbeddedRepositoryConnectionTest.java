@@ -22,12 +22,13 @@ import org.apache.marmotta.kiwi.config.CachingBackends;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.eclipse.rdf4j.IsolationLevels;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnectionTest;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnectionTest;
-import org.openrdf.repository.sail.SailRepository;
 
 /**
  * Run the {@link RepositoryConnectionTest}s.
@@ -40,6 +41,7 @@ public class EmbeddedRepositoryConnectionTest extends RepositoryConnectionTest {
     private final KiWiConfiguration config;
 
     public EmbeddedRepositoryConnectionTest(KiWiConfiguration config) {
+        super(IsolationLevels.SNAPSHOT_READ);
         this.config = config;
         config.setClustered(true);
         config.setClusterPort(61222);
@@ -49,7 +51,7 @@ public class EmbeddedRepositoryConnectionTest extends RepositoryConnectionTest {
     }
     
     /* (non-Javadoc)
-     * @see org.openrdf.repository.RepositoryConnectionTest#createRepository()
+     * @see org.eclipse.rdf4j.repository.RepositoryConnectionTest#createRepository()
      */
     @Override
     protected Repository createRepository() throws Exception {
@@ -63,18 +65,6 @@ public class EmbeddedRepositoryConnectionTest extends RepositoryConnectionTest {
     @Test
     @Override
     public void testOrderByQueriesAreInterruptable() throws Exception {
-    }
-
-    @Ignore("KiWi supports transaction isolation")
-    @Test
-    @Override
-    public void testReadOfAddedStatement1() throws Exception {
-    }
-
-    @Ignore("KiWi supports transaction isolation")
-    @Test
-    @Override
-    public void testReadOfAddedStatement2() throws Exception {
     }
 
     @Ignore("KiWi supports transaction isolation")

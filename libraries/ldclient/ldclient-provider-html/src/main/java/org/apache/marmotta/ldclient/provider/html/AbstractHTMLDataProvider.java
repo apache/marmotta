@@ -17,18 +17,6 @@
  */
 package org.apache.marmotta.ldclient.provider.html;
 
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.apache.marmotta.ldclient.api.provider.DataProvider;
-import org.apache.marmotta.ldclient.exception.DataRetrievalException;
-import org.apache.marmotta.ldclient.provider.html.mapping.JSoupMapper;
-import org.apache.marmotta.ldclient.services.provider.AbstractHttpProvider;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.openrdf.model.*;
-import org.openrdf.model.impl.ValueFactoryImpl;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
@@ -36,6 +24,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.ldclient.api.provider.DataProvider;
+import org.apache.marmotta.ldclient.exception.DataRetrievalException;
+import org.apache.marmotta.ldclient.provider.html.mapping.JSoupMapper;
+import org.apache.marmotta.ldclient.services.provider.AbstractHttpProvider;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  * Generic implementation of an HTML data provider capable of mapping XPath expressions from HTML documents to
@@ -52,7 +56,7 @@ public abstract class AbstractHTMLDataProvider extends AbstractHttpProvider impl
      * @return
      * @param resource
      */
-    protected abstract List<String> getTypes(URI resource);
+    protected abstract List<String> getTypes(IRI resource);
 
     /**
      * Try to find further URLs in the document that need to be requested to complete the resource
@@ -96,11 +100,11 @@ public abstract class AbstractHTMLDataProvider extends AbstractHttpProvider impl
         try {
             Document htmlDoc = Jsoup.parse(in,charset,requestUrl);
 
-            ValueFactory vf = ValueFactoryImpl.getInstance();
-            URI subject = vf.createURI(resource);
+            ValueFactory vf = SimpleValueFactory.getInstance();
+            IRI subject = vf.createIRI(resource);
 
             for (Map.Entry<String, JSoupMapper> mapping : getMappings(resource, requestUrl).entrySet()) {
-                URI predicate = vf.createURI(mapping.getKey());
+                IRI predicate = vf.createIRI(mapping.getKey());
 
                 final Elements values = mapping.getValue().select(htmlDoc);
                 for(Element value : values) {
@@ -112,10 +116,10 @@ public abstract class AbstractHTMLDataProvider extends AbstractHttpProvider impl
                 }
             }
 
-            org.openrdf.model.URI ptype = vf.createURI(Namespaces.NS_RDF + "type");
+            IRI ptype = vf.createIRI(Namespaces.NS_RDF + "type");
 
             for(String typeUri : getTypes(subject)) {
-                Resource type_resource = vf.createURI(typeUri);
+                Resource type_resource = vf.createIRI(typeUri);
                 triples.add(vf.createStatement(subject, ptype, type_resource));
             }
 

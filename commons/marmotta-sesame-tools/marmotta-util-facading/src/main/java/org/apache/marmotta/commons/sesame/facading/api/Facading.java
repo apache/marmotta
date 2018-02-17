@@ -16,11 +16,10 @@
  */
 package org.apache.marmotta.commons.sesame.facading.api;
 
-import org.apache.marmotta.commons.sesame.facading.model.Facade;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-
 import java.util.Collection;
+import org.apache.marmotta.commons.sesame.facading.model.Facade;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * Offers methods for loading and proxying KiWiFacades. A KiWi Facade is an interface that defines a Java
@@ -60,7 +59,7 @@ public interface Facading {
      * @param context the context into which the facade should be put
      * @return
      */
-    <C extends Facade> C createFacade(Resource r, Class<C> type, URI context);
+    <C extends Facade> C createFacade(Resource r, Class<C> type, IRI context);
 
     /**
      * Create a collection of instances of C that facade the resources given in the collection passed as argument.
@@ -75,16 +74,16 @@ public interface Facading {
     <C extends Facade> Collection<C> createFacade(Collection<? extends Resource> list, Class<C> type);
 
     /**
-     * Create an instance of C that facades the resource identified by the uri given as argument, using the @RDF
+     * Create an instance of C that facades the resource identified by the iri given as argument, using the @RDF
      * annotations provided to the getter or setter methods of C to map to properties of the resource in the triple
      * store.
      *
-     * @param uri the uri of the resource to facade
+     * @param iri the iri of the resource to facade
      * @param type the facade type as a class
      * @param <C> the facade type as a generic parameter
      * @return
      */
-    <C extends Facade> C createFacade(String uri, Class<C> type);
+    <C extends Facade> C createFacade(String iri, Class<C> type);
 
     /**
      * Check whether the resource fits into the facade.
@@ -96,7 +95,7 @@ public interface Facading {
      * @return <code>true</code> if the resource <code>r</code> fulfills all {@link org.apache.marmotta.commons.sesame.facading.annotations.RDFType} and
      *         {@link org.apache.marmotta.commons.sesame.facading.annotations.RDFFilter} requirements of <code>type</code>
      */
-    <C extends Facade> boolean isFacadeable(Resource r, Class<C> type, URI context);
+    <C extends Facade> boolean isFacadeable(Resource r, Class<C> type, IRI context);
 
     /**
      * Check whether the resource fits into the facade.
@@ -119,5 +118,5 @@ public interface Facading {
      * @param type the facade type as a class
      * @return
      */
-    <C extends Facade> Collection<C> createFacade(Collection<? extends Resource> list, Class<C> type, URI context);
+    <C extends Facade> Collection<C> createFacade(Collection<? extends Resource> list, Class<C> type, IRI context);
 }

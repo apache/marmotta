@@ -18,8 +18,7 @@
 package org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml;
 
 import java.nio.charset.Charset;
-
-import org.openrdf.query.resultio.BooleanQueryResultFormat;
+import org.eclipse.rdf4j.query.resultio.BooleanQueryResultFormat;
 
 /**
  * Results format for Marmotta HTML Rendering of SPARQL Boolean Results.

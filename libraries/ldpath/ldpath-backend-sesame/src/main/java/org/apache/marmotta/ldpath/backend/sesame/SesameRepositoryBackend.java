@@ -20,17 +20,16 @@ package org.apache.marmotta.ldpath.backend.sesame;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Locale;
-
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Value;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 
 /**
  * Generic implementation of a Sesame backend for LDPath. A Sesame repository is passed as argument to the
- * constructor.
+ * constructor. 
  * <p/>
  * <strong>ATTENTION:</strong> This backend is creating an independent (new) transaction for each invocation of {@link #listObjects(Value, Value)} or {@link #listSubjects(Value, Value)}.
  * Consider using the {@link SesameConnectionBackend} for inproved performance!
@@ -116,7 +115,7 @@ public class SesameRepositoryBackend extends AbstractSesameBackend {
      * @return a URI node using the model used by this backend
      */
     @Override
-    public org.openrdf.model.URI createURI(String uri) {
+    public org.eclipse.rdf4j.model.IRI createIRI(String uri) {
         return createURIInternal(repository.getValueFactory(), uri);
     }
 
@@ -135,7 +134,7 @@ public class SesameRepositoryBackend extends AbstractSesameBackend {
 
             try {
                 connection.begin();
-                return listObjectsInternal(connection, (Resource) subject, (org.openrdf.model.URI) property, includeInferred, contexts);
+                return listObjectsInternal(connection, (Resource) subject, (org.eclipse.rdf4j.model.IRI) property, includeInferred, contexts);
             } finally {
                 connection.commit();
                 connection.close();
@@ -167,7 +166,7 @@ public class SesameRepositoryBackend extends AbstractSesameBackend {
 
             try {
                 connection.begin();
-                return listSubjectsInternal(connection, (org.openrdf.model.URI) property, object, includeInferred, contexts);
+                return listSubjectsInternal(connection, (org.eclipse.rdf4j.model.IRI) property, object, includeInferred, contexts);
             } finally {
                 connection.commit();
                 connection.close();

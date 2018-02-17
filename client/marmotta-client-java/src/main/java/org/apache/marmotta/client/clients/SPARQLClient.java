@@ -17,6 +17,14 @@
  */
 package org.apache.marmotta.client.clients;
 
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -28,25 +36,24 @@ import org.apache.marmotta.client.model.rdf.RDFNode;
 import org.apache.marmotta.client.model.rdf.URI;
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.apache.marmotta.client.util.HTTPUtil;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.query.*;
-import org.openrdf.query.resultio.*;
-import org.openrdf.query.resultio.helpers.QueryResultCollector;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.query.Binding;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryResultHandler;
+import org.eclipse.rdf4j.query.QueryResultHandlerException;
+import org.eclipse.rdf4j.query.TupleQueryResultHandlerException;
+import org.eclipse.rdf4j.query.resultio.BooleanQueryResultFormat;
+import static org.eclipse.rdf4j.query.resultio.BooleanQueryResultFormat.JSON;
+import org.eclipse.rdf4j.query.resultio.QueryResultIO;
+import org.eclipse.rdf4j.query.resultio.QueryResultParseException;
+import org.eclipse.rdf4j.query.resultio.QueryResultParser;
+import org.eclipse.rdf4j.query.resultio.TupleQueryResultFormat;
+import org.eclipse.rdf4j.query.resultio.UnsupportedQueryResultFormatException;
+import org.eclipse.rdf4j.query.resultio.helpers.QueryResultCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-
-import static com.google.common.net.HttpHeaders.ACCEPT;
-import static org.openrdf.query.resultio.TupleQueryResultFormat.JSON;
 
 /**
  * Add file description here!
@@ -91,7 +98,7 @@ public class SPARQLClient {
                     log.debug("SPARQL Query {} evaluated successfully",query);
                     QueryResultCollector results = new QueryResultCollector();
                     
-                    parse(response.getEntity().getContent(), TupleQueryResultFormat.JSON, results, ValueFactoryImpl.getInstance());
+                    parse(response.getEntity().getContent(), TupleQueryResultFormat.JSON, results, SimpleValueFactory.getInstance());
 
                     if(!results.getHandledTuple() || results.getBindingSets().isEmpty()) {
                         return null;
@@ -110,14 +117,14 @@ public class SPARQLClient {
                                     //Map<String,String> nodeDef = (Map<String,String>) entry.getValue();
                                     Value nodeDef = nextBinding.getValue();
                                     RDFNode node = null;
-                                    if(nodeDef instanceof org.openrdf.model.URI) {
+                                    if(nodeDef instanceof org.eclipse.rdf4j.model.IRI) {
                                         node = new URI(nodeDef.stringValue());
-                                    } else if(nodeDef instanceof org.openrdf.model.BNode) {
-                                        node = new BNode(((org.openrdf.model.BNode)nodeDef).getID());
-                                    } else if(nodeDef instanceof org.openrdf.model.Literal) {
-                                        org.openrdf.model.Literal nodeLiteral = (org.openrdf.model.Literal)nodeDef;
-                                        if(nodeLiteral.getLanguage() != null) {
-                                            node = new Literal(nodeLiteral.getLabel(), nodeLiteral.getLanguage());
+                                    } else if(nodeDef instanceof org.eclipse.rdf4j.model.BNode) {
+                                        node = new BNode(((org.eclipse.rdf4j.model.BNode)nodeDef).getID());
+                                    } else if(nodeDef instanceof org.eclipse.rdf4j.model.Literal) {
+                                        org.eclipse.rdf4j.model.Literal nodeLiteral = (org.eclipse.rdf4j.model.Literal)nodeDef;
+                                        if(nodeLiteral.getLanguage().orElse(null) != null) {
+                                            node = new Literal(nodeLiteral.getLabel(), nodeLiteral.getLanguage().orElse(null));
                                         } else if(nodeLiteral.getDatatype() != null) {
                                             node = new Literal(nodeLiteral.getLabel(), new URI(nodeLiteral.getDatatype().stringValue()));
                                         } else {
@@ -181,7 +188,7 @@ public class SPARQLClient {
                     log.debug("SPARQL ASK Query {} evaluated successfully",askQuery);
                     QueryResultCollector results = new QueryResultCollector();
                     
-                    parse(response.getEntity().getContent(), BooleanQueryResultFormat.JSON, results, ValueFactoryImpl.getInstance());
+                    parse(response.getEntity().getContent(), BooleanQueryResultFormat.JSON, results, SimpleValueFactory.getInstance());
 
                     if(!results.getHandledBoolean()) {
                         return false;
@@ -259,7 +266,7 @@ public class SPARQLClient {
         throws IOException, QueryResultParseException, QueryResultHandlerException,
         UnsupportedQueryResultFormatException
     {
-        QueryResultParser parser = QueryResultIO.createParser(format);
+        QueryResultParser parser = QueryResultIO.createTupleParser(format);
         parser.setValueFactory(valueFactory);
         parser.setQueryResultHandler(handler);
         parser.parseQueryResult(in);
@@ -282,7 +289,7 @@ public class SPARQLClient {
         throws IOException, QueryResultParseException, QueryResultHandlerException,
         UnsupportedQueryResultFormatException
     {
-        QueryResultParser parser = QueryResultIO.createParser(format);
+        QueryResultParser parser = QueryResultIO.createBooleanParser(format);
         parser.setValueFactory(valueFactory);
         parser.setQueryResultHandler(handler);
         parser.parseQueryResult(in);

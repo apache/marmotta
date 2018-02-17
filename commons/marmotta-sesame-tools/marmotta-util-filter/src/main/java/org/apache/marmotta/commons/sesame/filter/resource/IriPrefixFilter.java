@@ -17,32 +17,32 @@
  */
 package org.apache.marmotta.commons.sesame.filter.resource;
 
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Pattern;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
- * A filter only accepting URI resources where the URI matches one of the configured patterns.
+ * A filter only accepting resources starting with a given prefix.
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class UriRegexFilter implements ResourceFilter {
-
-    private Set<Pattern> patterns;
+public class IriPrefixFilter implements ResourceFilter {
 
 
-    public UriRegexFilter(Collection<String> regexps) {
-        patterns = new HashSet<>();
+    private Set<String> prefixes;
 
-        for(String s : regexps) {
-            Pattern p = Pattern.compile(s);
-            patterns.add(p);
-        }
+    public IriPrefixFilter(String... prefixes) {
+        this(new HashSet<>(Arrays.asList(prefixes)));
+    }
 
+    public IriPrefixFilter(Set<String> prefixes) {
+        this.prefixes = prefixes;
+    }
+
+    public Set<String> getPrefixes() {
+        return prefixes;
     }
 
     /**
@@ -54,14 +54,14 @@ public class UriRegexFilter implements ResourceFilter {
      */
     @Override
     public boolean accept(Resource resource) {
-        if(! (resource instanceof URI)) {
+        if(! (resource instanceof IRI)) {
             return false;
         }
 
-        URI uri = (URI) resource;
+        IRI uri = (IRI) resource;
 
-        for(Pattern p : patterns) {
-            if(p.matcher(uri.stringValue()).matches()) {
+        for(String prefix : prefixes) {
+            if(uri.stringValue().startsWith(prefix)) {
                 return true;
             }
         }
@@ -69,4 +69,5 @@ public class UriRegexFilter implements ResourceFilter {
 
         return false;
     }
+
 }

@@ -17,24 +17,28 @@
 
 package org.apache.marmotta.commons.sesame.model;
 
-import info.aduna.iteration.CloseableIteration;
-import javolution.util.function.Predicate;
-import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
-import org.openrdf.model.impl.TreeModel;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.*;
-import org.openrdf.rio.helpers.RDFHandlerBase;
-import org.openrdf.sail.memory.MemoryStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import javolution.util.function.Predicate;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.impl.TreeModel;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandler;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.AbstractRDFHandler;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utilities for working with Sesame Models
@@ -52,7 +56,7 @@ public class ModelCommons {
      * @return
      */
     public static RDFHandler createModelHandler(final Model model, final Predicate<Statement>... filters) {
-        return new RDFHandlerBase() {
+        return new AbstractRDFHandler() {
             @Override
             public void handleStatement(Statement st) throws RDFHandlerException {
                 for(Predicate<Statement> f : filters) {
@@ -71,18 +75,18 @@ public class ModelCommons {
      *
      * @param model   the model to add the statements to
      * @param in      input stream to read the statements from
-     * @param baseURI base URI to resolve relative URIs
+     * @param baseIRI base IRI to resolve relative IRIs
      * @param format  RDF format of the data in the input stream
      * @param filters an optional list of filters; if any of the filters rejects the statement it is not added
      * @throws IOException
      * @throws RDFParseException
      */
-    public static void add(Model model, InputStream in, String baseURI, RDFFormat format, Predicate<Statement>... filters) throws IOException, RDFParseException {
+    public static void add(Model model, InputStream in, String baseIRI, RDFFormat format, Predicate<Statement>... filters) throws IOException, RDFParseException {
         try {
 
             RDFParser parser = Rio.createParser(format);
             parser.setRDFHandler(createModelHandler(model, filters));
-            parser.parse(in, baseURI);
+            parser.parse(in, baseIRI);
 
         } catch (RDFHandlerException e) {
             log.error("RepositoryException:", e);
@@ -97,18 +101,18 @@ public class ModelCommons {
      *
      * @param model   the model to add the statements to
      * @param in      reader to read the statements from
-     * @param baseURI base URI to resolve relative URIs
+     * @param baseIRI base IRI to resolve relative IRIs
      * @param format  RDF format of the data in the reader
      * @param filters an optional list of filters; if any of the filters rejects the statement it is not added
      * @throws IOException
      * @throws RDFParseException
      */
-    public static void add(Model model, Reader in, String baseURI, RDFFormat format, Predicate<Statement>... filters) throws IOException, RDFParseException {
+    public static void add(Model model, Reader in, String baseIRI, RDFFormat format, Predicate<Statement>... filters) throws IOException, RDFParseException {
         try {
 
             RDFParser parser = Rio.createParser(format);
             parser.setRDFHandler(createModelHandler(model, filters));
-            parser.parse(in, baseURI);
+            parser.parse(in, baseIRI);
 
         } catch (RDFHandlerException e) {
             log.error("RepositoryException:", e);

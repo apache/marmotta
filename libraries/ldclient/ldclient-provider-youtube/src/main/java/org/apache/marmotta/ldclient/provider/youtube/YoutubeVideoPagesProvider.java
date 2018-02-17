@@ -17,6 +17,10 @@
  */
 package org.apache.marmotta.ldclient.provider.youtube;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.http.NameValuePair;
@@ -26,17 +30,12 @@ import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.impl.TreeModel;
-import org.openrdf.model.impl.URIImpl;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.impl.TreeModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Date;
-import java.util.List;
 
 /**
  * A data provider that allows to wrap the different Youtube Videos pages, linking with the actual
@@ -101,7 +100,7 @@ public class YoutubeVideoPagesProvider implements DataProvider {
             log.error(msg);
             throw new DataRetrievalException(msg);
         } else {
-            model.add(new URIImpl(uri), new URIImpl(FOAF_PRIMARY_TOPIC), new URIImpl(YoutubeVideoProvider.YOUTUBE_BASE_URI + video_id), (Resource)null);
+            model.add(SimpleValueFactory.getInstance().createIRI(uri), SimpleValueFactory.getInstance().createIRI(FOAF_PRIMARY_TOPIC), SimpleValueFactory.getInstance().createIRI(YoutubeVideoProvider.YOUTUBE_BASE_URI + video_id), (Resource)null);
             // FIXME: add inverse triple, but maybe at the YoutubeVideoProvider
 
             ClientResponse clientResponse = new ClientResponse(200, model);

@@ -17,10 +17,9 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
-import org.openrdf.model.Value;
-
 import java.io.Serializable;
 import java.util.Date;
+import org.eclipse.rdf4j.model.Value;
 
 
 /**

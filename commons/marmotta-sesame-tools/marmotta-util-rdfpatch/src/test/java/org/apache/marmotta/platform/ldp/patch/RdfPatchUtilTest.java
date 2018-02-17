@@ -17,25 +17,24 @@
  */
 package org.apache.marmotta.platform.ldp.patch;
 
+import java.util.List;
 import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
 import org.apache.marmotta.platform.ldp.patch.model.WildcardStatement;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.vocabulary.FOAF;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
-import org.openrdf.model.vocabulary.FOAF;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.sail.memory.MemoryStore;
-
-import java.util.List;
 
 /**
  * Testing RdfPatchUtil
@@ -47,7 +46,7 @@ public class RdfPatchUtilTest {
     public static final String BASE_URI = "http://example/";
 
     private Repository repository;
-    private URI alice, bob, charlie;
+    private IRI alice, bob, charlie;
     private Literal lcBob, ucBob;
 
     @Before
@@ -55,9 +54,9 @@ public class RdfPatchUtilTest {
         repository = new SailRepository(new MemoryStore());
         repository.initialize();
 
-        alice = repository.getValueFactory().createURI("http://example/alice");
-        bob = repository.getValueFactory().createURI("http://example/bob");
-        charlie = repository.getValueFactory().createURI("http://example/charlie");
+        alice = repository.getValueFactory().createIRI("http://example/alice");
+        bob = repository.getValueFactory().createIRI("http://example/bob");
+        charlie = repository.getValueFactory().createIRI("http://example/charlie");
 
         lcBob = repository.getValueFactory().createLiteral("bob");
         ucBob = repository.getValueFactory().createLiteral("Bob");
@@ -123,7 +122,7 @@ public class RdfPatchUtilTest {
     @Test
     public void testDiff() throws Exception {
         final RepositoryConnection con1 = repository.getConnection();
-        final URI mbox = con1.getValueFactory().createURI("mailto:charlie@example.com");
+        final IRI mbox = con1.getValueFactory().createIRI("mailto:charlie@example.com");
         try {
             con1.begin();
             con1.remove(bob, FOAF.KNOWS, charlie);

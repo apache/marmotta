@@ -16,25 +16,24 @@
  */
 package org.apache.marmotta.ldpath.model.functions.json;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.apache.marmotta.ldpath.model.fields.FieldMapping;
 import org.apache.marmotta.ldpath.parser.LdPathParser;
 import org.apache.marmotta.ldpath.parser.ParseException;
 import org.apache.marmotta.ldpath.test.AbstractTestBase;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 
 @RunWith(Parameterized.class)
@@ -64,11 +63,11 @@ public class JsonPathFunctionTest extends AbstractTestBase {
     @Test
     public void testJsonPathFunction() throws ParseException {
 
-        final URI ctx = repository.getValueFactory().createURI(NSS.get("ex") + "Quiz");
+        final IRI ctx = repository.getValueFactory().createIRI(NSS.get("ex") + "Quiz");
 
         final LdPathParser<Value> parser = createParserFromString("fn:jsonpath(\"" + path + "\", <http://www.w3.org/2011/content#chars>) :: xsd:string");
         final FieldMapping<Object, Value> rule = parser.parseRule(NSS);
-        final Collection<Object> values = rule.getValues(backend, ctx);
+        final Collection<?> values = rule.getValues(backend, ctx);
 
         Assert.assertEquals(1, values.size());
         Assert.assertEquals(answer, values.iterator().next());

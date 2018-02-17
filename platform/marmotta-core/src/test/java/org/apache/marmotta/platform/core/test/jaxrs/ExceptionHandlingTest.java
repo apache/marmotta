@@ -19,17 +19,12 @@ package org.apache.marmotta.platform.core.test.jaxrs;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.ResponseBody;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.core.webservices.resource.ResourceWebService;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFParseException;
-
-import java.io.IOException;
 
 import static com.jayway.restassured.RestAssured.expect;
 
@@ -78,9 +73,8 @@ public class ExceptionHandlingTest {
             get(ConfigurationService.RESOURCE_PATH + "/foo").
             getBody();
         responseJson.print();
-        Assert.assertEquals(404, responseJson.jsonPath().get("status"));
+        Assert.assertEquals(404, (int) responseJson.jsonPath().get("status"));
         Assert.assertEquals("Not Found", responseJson.jsonPath().get("reason"));
 
     }
-
 }

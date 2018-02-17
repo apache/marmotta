@@ -19,7 +19,7 @@ package org.apache.marmotta.commons.sesame.transactions.wrapper;
 
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionListener;
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
-import org.openrdf.sail.helpers.NotifyingSailWrapper;
+import org.eclipse.rdf4j.sail.helpers.NotifyingSailWrapper;
 
 /**
  * A Sail Wrapper allowing to pass through transaction functionality to other sails.

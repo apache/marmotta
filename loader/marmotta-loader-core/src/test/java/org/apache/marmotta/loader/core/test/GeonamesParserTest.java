@@ -17,14 +17,17 @@
 
 package org.apache.marmotta.loader.core.test;
 
+import java.io.IOException;
 import org.apache.marmotta.loader.rio.GeonamesFormat;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.AbstractRDFHandler;
 import org.junit.Assert;
 import org.junit.Test;
-import org.openrdf.model.Statement;
-import org.openrdf.rio.*;
-import org.openrdf.rio.helpers.RDFHandlerBase;
-
-import java.io.IOException;
 
 /**
  * Add file description here!
@@ -50,12 +53,12 @@ public class GeonamesParserTest {
     public void testFormat() throws ClassNotFoundException {
         Class.forName("org.apache.marmotta.loader.rio.GeonamesFormat");
 
-        RDFFormat f = Rio.getParserFormatForMIMEType("text/vnd.geonames.rdf");
+        RDFFormat f = Rio.getParserFormatForMIMEType("text/vnd.geonames.rdf").orElse(null);
 
         Assert.assertEquals(GeonamesFormat.FORMAT, f);
     }
 
-    private static class MockHandler extends RDFHandlerBase {
+    private static class MockHandler extends AbstractRDFHandler {
         boolean hasStatements = false;
 
         @Override

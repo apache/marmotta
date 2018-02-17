@@ -17,25 +17,24 @@
 
 package org.apache.marmotta.ldcache.backend.file;
 
+import java.io.File;
+import java.io.IOException;
 import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.backend.file.util.FileBackendUtils;
 import org.apache.marmotta.ldcache.model.CacheEntry;
-import org.openrdf.model.Model;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.TreeModel;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.nativerdf.NativeStore;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.impl.TreeModel;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * File-based implementation of the next generation LDCaching Backend API
@@ -65,7 +64,7 @@ public class LDCachingFileBackend implements LDCachingBackend {
      * @return
      */
     @Override
-    public CacheEntry getEntry(URI resource) {
+    public CacheEntry getEntry(IRI resource) {
         try {
             // load metadata from disk
             final File dataFile = FileBackendUtils.getMetaFile(resource, storageDir);
@@ -105,7 +104,7 @@ public class LDCachingFileBackend implements LDCachingBackend {
      * @param entry    the entry for the resource
      */
     @Override
-    public void putEntry(URI resource, CacheEntry entry) {
+    public void putEntry(IRI resource, CacheEntry entry) {
         try {
             FileBackendUtils.writeCacheEntry(entry, storageDir);
 
@@ -135,7 +134,7 @@ public class LDCachingFileBackend implements LDCachingBackend {
      * @param resource the resource to remove the entry for
      */
     @Override
-    public void removeEntry(URI resource) {
+    public void removeEntry(IRI resource) {
         try {
             final File metaFile = FileBackendUtils.getMetaFile(resource, storageDir);
             if (metaFile.exists()) metaFile.delete();
@@ -221,7 +220,7 @@ public class LDCachingFileBackend implements LDCachingBackend {
 
 
     private ValueFactory getValueFactory() {
-        return ValueFactoryImpl.getInstance();
+        return SimpleValueFactory.getInstance();
     }
 
 }

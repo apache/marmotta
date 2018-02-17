@@ -17,14 +17,13 @@
  */
 package org.apache.marmotta.kiwi.versioning.api;
 
+import java.util.Date;
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
 import org.apache.marmotta.kiwi.versioning.model.Version;
-import org.openrdf.model.Resource;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.sail.SailConnection;
-import org.openrdf.sail.SailException;
-
-import java.util.Date;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.sail.SailConnection;
+import org.eclipse.rdf4j.sail.SailException;
 
 /**
  * A Sesame SAIL with support for versioning of transaction data. Allows querying for the versions of a

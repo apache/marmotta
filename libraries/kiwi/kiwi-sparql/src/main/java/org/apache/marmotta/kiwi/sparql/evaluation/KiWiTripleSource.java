@@ -17,17 +17,20 @@
 
 package org.apache.marmotta.kiwi.sparql.evaluation;
 
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.ExceptionConvertingIteration;
-import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSailConnection;
-import org.openrdf.model.*;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryInterruptedException;
-import org.openrdf.query.algebra.evaluation.TripleSource;
-import org.openrdf.sail.SailException;
-
 import java.io.IOException;
 import java.nio.channels.ClosedByInterruptException;
+import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSailConnection;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.common.iteration.ExceptionConvertingIteration;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryInterruptedException;
+import org.eclipse.rdf4j.query.algebra.evaluation.TripleSource;
+import org.eclipse.rdf4j.sail.SailException;
 
 /**
  * TripleSource implementation based on a KiWi triple store.
@@ -59,11 +62,11 @@ public class KiWiTripleSource implements TripleSource {
      *                 is a vararg and as such is optional. If no contexts are supplied
      *                 the method operates on the entire repository.
      * @return An iterator over the relevant statements.
-     * @throws org.openrdf.query.QueryEvaluationException
+     * @throws org.eclipse.rdf4j.query.QueryEvaluationException
      *          If the triple source failed to get the statements.
      */
     @Override
-    public CloseableIteration<? extends Statement, QueryEvaluationException> getStatements(Resource subj, URI pred, Value obj, Resource... contexts) throws QueryEvaluationException {
+    public CloseableIteration<? extends Statement, QueryEvaluationException> getStatements(Resource subj, IRI pred, Value obj, Resource... contexts) throws QueryEvaluationException {
         try {
             return new ExceptionConvertingIteration<Statement, QueryEvaluationException>(
                     connection.getStatements(subj, pred, obj, inferred, contexts)

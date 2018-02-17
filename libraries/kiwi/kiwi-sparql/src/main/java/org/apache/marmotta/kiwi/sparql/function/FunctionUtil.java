@@ -18,9 +18,9 @@
 package org.apache.marmotta.kiwi.sparql.function;
 
 import org.apache.marmotta.kiwi.vocabulary.FN_MARMOTTA;
-import org.openrdf.model.URI;
-import org.openrdf.model.impl.URIImpl;
-import org.openrdf.model.vocabulary.FN;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.FN;
 
 /**
  * Add file description here!
@@ -31,55 +31,55 @@ public class FunctionUtil {
 
     /**
      * Map function call (internal or proper URI) to the proper SPARQL function URI
-     * @param uri
+     * @param iri
      * @return
      */
-    public static URI getFunctionUri(String uri) {
-        if(uri.equalsIgnoreCase("RAND")) {
+    public static IRI getFunctionUri(String iri) {
+        if(iri.equalsIgnoreCase("RAND")) {
             return FN_MARMOTTA.RAND;
-        } else if(uri.equalsIgnoreCase("UUID")) {
+        } else if(iri.equalsIgnoreCase("UUID")) {
             return FN_MARMOTTA.UUID;
-        } else if(uri.equalsIgnoreCase("STRUUID")) {
+        } else if(iri.equalsIgnoreCase("STRUUID")) {
             return FN_MARMOTTA.STRUUID;
-        } else if(uri.equalsIgnoreCase("MD5")) {
+        } else if(iri.equalsIgnoreCase("MD5")) {
             return FN_MARMOTTA.MD5;
-        } else if(uri.equalsIgnoreCase("SHA1")) {
+        } else if(iri.equalsIgnoreCase("SHA1")) {
             return FN_MARMOTTA.SHA1;
-        } else if(uri.equalsIgnoreCase("SHA256")) {
+        } else if(iri.equalsIgnoreCase("SHA256")) {
             return FN_MARMOTTA.SHA256;
-        } else if(uri.equalsIgnoreCase("SHA384")) {
+        } else if(iri.equalsIgnoreCase("SHA384")) {
             return FN_MARMOTTA.SHA384;
-        } else if(uri.equalsIgnoreCase("SHA512")) {
+        } else if(iri.equalsIgnoreCase("SHA512")) {
             return FN_MARMOTTA.SHA512;
-        } else if(uri.equalsIgnoreCase("NOW")) {
+        } else if(iri.equalsIgnoreCase("NOW")) {
             return FN_MARMOTTA.NOW;
-        } else if(uri.equalsIgnoreCase("YEAR")) {
+        } else if(iri.equalsIgnoreCase("YEAR")) {
             return FN_MARMOTTA.YEAR;
-        } else if(uri.equalsIgnoreCase("MONTH")) {
+        } else if(iri.equalsIgnoreCase("MONTH")) {
             return FN_MARMOTTA.MONTH;
-        } else if(uri.equalsIgnoreCase("DAY")) {
+        } else if(iri.equalsIgnoreCase("DAY")) {
             return FN_MARMOTTA.DAY;
-        } else if(uri.equalsIgnoreCase("HOURS")) {
+        } else if(iri.equalsIgnoreCase("HOURS")) {
             return FN_MARMOTTA.HOURS;
-        } else if(uri.equalsIgnoreCase("MINUTES")) {
+        } else if(iri.equalsIgnoreCase("MINUTES")) {
             return FN_MARMOTTA.MINUTES;
-        } else if(uri.equalsIgnoreCase("SECONDS")) {
+        } else if(iri.equalsIgnoreCase("SECONDS")) {
             return FN_MARMOTTA.SECONDS;
-        } else if(uri.equalsIgnoreCase("TIMEZONE")) {
+        } else if(iri.equalsIgnoreCase("TIMEZONE")) {
             return FN_MARMOTTA.TIMEZONE;
-        } else if(uri.equalsIgnoreCase("TZ")) {
+        } else if(iri.equalsIgnoreCase("TZ")) {
             return FN_MARMOTTA.TZ;
-        } else if(uri.equalsIgnoreCase("ABS")) {
+        } else if(iri.equalsIgnoreCase("ABS")) {
             return FN.NUMERIC_ABS;
-        } else if(uri.equalsIgnoreCase("CEIL")) {
+        } else if(iri.equalsIgnoreCase("CEIL")) {
             return FN.NUMERIC_CEIL;
-        } else if(uri.equalsIgnoreCase("FLOOR")) {
+        } else if(iri.equalsIgnoreCase("FLOOR")) {
             return FN.NUMERIC_FLOOR;
-        } else if(uri.equalsIgnoreCase("ROUND")) {
+        } else if(iri.equalsIgnoreCase("ROUND")) {
             return FN.NUMERIC_ROUND;
         }
 
-        return new URIImpl(uri);
+        return SimpleValueFactory.getInstance().createIRI(iri);
     }
 
 }

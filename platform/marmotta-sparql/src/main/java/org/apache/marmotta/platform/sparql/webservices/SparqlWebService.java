@@ -19,6 +19,40 @@ package org.apache.marmotta.platform.sparql.webservices;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import static javax.ws.rs.core.HttpHeaders.ACCEPT;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriBuilder;
 import org.apache.commons.collections.EnumerationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
@@ -31,41 +65,20 @@ import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.core.util.WebServiceUtil;
 import org.apache.marmotta.platform.sparql.api.sparql.QueryType;
 import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.UpdateExecutionException;
+import org.eclipse.rdf4j.query.resultio.BooleanQueryResultWriterRegistry;
+import org.eclipse.rdf4j.query.resultio.QueryResultIO;
+import org.eclipse.rdf4j.query.resultio.TupleQueryResultFormat;
+import org.eclipse.rdf4j.query.resultio.TupleQueryResultWriterRegistry;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import static org.eclipse.rdf4j.rio.RDFFormat.RDFXML;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.Rio;
 import org.jboss.resteasy.spi.NoLogWebApplicationException;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.UpdateExecutionException;
-import org.openrdf.query.resultio.BooleanQueryResultWriterRegistry;
-import org.openrdf.query.resultio.QueryResultIO;
-import org.openrdf.query.resultio.TupleQueryResultFormat;
-import org.openrdf.query.resultio.TupleQueryResultWriterRegistry;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.rio.Rio;
 import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.Response.Status;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.util.*;
-import java.util.concurrent.TimeoutException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static javax.ws.rs.core.HttpHeaders.ACCEPT;
-import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
-import static org.openrdf.rio.RDFFormat.RDFXML;
 
 /**
  * Execute SPARQL query (both query and update) on the LMF triple store
@@ -245,7 +258,7 @@ public class SparqlWebService {
             if (StringUtils.isBlank(query)) { //empty query
                 for(String acceptHeader : acceptHeaders) {
                     if (acceptHeader.contains("html")) {
-                        return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/squebi.html")).build();
+                        return Response.seeOther(new URI(configurationService.getServerIri() + "sparql/admin/squebi.html")).build();
                     }
                 }
 
@@ -408,7 +421,7 @@ public class SparqlWebService {
                     }
                 }
                 if (parseSubType(resultType).equals("html"))
-                    return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/update.html")).build();
+                    return Response.seeOther(new URI(configurationService.getServerIri() + "sparql/admin/update.html")).build();
                 else
                     return Response.status(Status.ACCEPTED).entity("no SPARQL query specified").build();
             }
@@ -481,7 +494,7 @@ public class SparqlWebService {
         ContentType _bestType = null;
         RDFFormat _format = null;
         for (ContentType ct : acceptedTypes) {
-            final RDFFormat f = Rio.getWriterFormatForMIMEType(ct.getMime());
+            final RDFFormat f = Rio.getWriterFormatForMIMEType(ct.getMime()).orElse(null);
             if (f != null) {
                 _bestType = ct;
                 _format = f;
@@ -528,7 +541,7 @@ public class SparqlWebService {
         };
         
         final ResponseBuilder responseBuilder = Response.ok().entity(entity).header(CONTENT_TYPE, format.getMime());
-        final TupleQueryResultFormat fmt = QueryResultIO.getWriterFormatForMIMEType(format.getMime());
+        final TupleQueryResultFormat fmt = (TupleQueryResultFormat)QueryResultIO.getWriterFormatForMIMEType(format.getMime()).orElse(null);
         if (fmt != null && !"html".equals(fmt.getDefaultFileExtension())) {
             responseBuilder.header("Content-Disposition", String.format("attachment; filename=\"%s.%s\"", queryType.toString().toLowerCase(), fmt.getDefaultFileExtension()));
         }

@@ -20,9 +20,10 @@ package org.apache.marmotta.platform.core.api.modules;
 import java.net.URL;
 
 /**
+ * <p>
  * A service for resolving and accessing resources contained in the LMF modules. The resource service takes care
  * of retrieving, caching and refreshing resources from the appropriate locations.
- * <p/>
+ * </p>
  * Note that the resource service is not to be confused with the RDF resources maintained by the server. It is
  * purely meant to retrieve static non-Java resources contained in the modules and web application.
  *

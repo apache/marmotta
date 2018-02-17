@@ -17,20 +17,7 @@
  */
 package org.apache.marmotta.ldclient.provider.phpbb;
 
-import org.apache.marmotta.commons.sesame.model.Namespaces;
 import com.google.common.collect.ImmutableList;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
-import org.apache.marmotta.ldclient.api.provider.DataProvider;
-import org.apache.marmotta.ldclient.provider.html.AbstractHTMLDataProvider;
-import org.apache.marmotta.ldclient.provider.html.mapping.CssTextLiteralMapper;
-import org.apache.marmotta.ldclient.provider.html.mapping.JSoupMapper;
-import org.apache.marmotta.ldclient.provider.phpbb.mapping.PHPBBForumHrefMapper;
-import org.apache.marmotta.ldclient.provider.phpbb.mapping.PHPBBTopicHrefMapper;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
@@ -38,6 +25,19 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
+import org.apache.marmotta.ldclient.api.provider.DataProvider;
+import org.apache.marmotta.ldclient.provider.html.AbstractHTMLDataProvider;
+import org.apache.marmotta.ldclient.provider.html.mapping.CssTextLiteralMapper;
+import org.apache.marmotta.ldclient.provider.html.mapping.JSoupMapper;
+import org.apache.marmotta.ldclient.provider.phpbb.mapping.PHPBBForumHrefMapper;
+import org.apache.marmotta.ldclient.provider.phpbb.mapping.PHPBBTopicHrefMapper;
+import org.eclipse.rdf4j.model.IRI;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 /**
  * A wrapper that allows wrapping a whole PHPBB Forum, linking to all its topics. The resource will
@@ -58,7 +58,7 @@ public class PHPBBForumProvider extends AbstractHTMLDataProvider implements Data
      * @param resource
      */
     @Override
-    protected List<String> getTypes(org.openrdf.model.URI resource) {
+    protected List<String> getTypes(IRI resource) {
         return ImmutableList.of(
                 Namespaces.NS_SIOC + "Forum",
                 Namespaces.NS_SIOC + "Collection",

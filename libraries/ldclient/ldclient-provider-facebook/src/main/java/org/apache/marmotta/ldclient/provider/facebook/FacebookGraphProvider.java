@@ -21,6 +21,18 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import static com.google.common.net.HttpHeaders.ACCEPT_LANGUAGE;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -37,25 +49,16 @@ import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
-import org.openrdf.model.Model;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.TreeModel;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.SKOS;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.impl.TreeModel;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.SKOS;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static com.google.common.net.HttpHeaders.ACCEPT;
-import static com.google.common.net.HttpHeaders.ACCEPT_LANGUAGE;
 
 /**
  * A provider that accesses objects exposed by the Facebook Graph API (in JSON format). The provider will map the
@@ -77,7 +80,7 @@ public class FacebookGraphProvider implements DataProvider {
 
     private static String[] defaultLanguages = new String[] {"en", "de", "fr", "es", "it"};
 
-    private static Map<String,URI> facebookCategories = new HashMap<String, URI>();
+    private static Map<String,IRI> facebookCategories = new HashMap<String, IRI>();
     static {
         // see http://www.marketinggum.com/types-of-facebook-pages-for-business/
 
@@ -195,9 +198,9 @@ public class FacebookGraphProvider implements DataProvider {
         try {
             Map<String,Object> data = mapper.readValue(in, new TypeReference<Map<String,Object>>() { });
 
-            ValueFactory vf = ValueFactoryImpl.getInstance();
+            ValueFactory vf = SimpleValueFactory.getInstance();
 
-            URI subject = vf.createURI(resourceUri);
+            IRI subject = vf.createIRI(resourceUri);
 
             // add the type based on the facebook category
             if(data.get("category") != null) {
@@ -246,17 +249,17 @@ public class FacebookGraphProvider implements DataProvider {
             }
 
             if(data.get("cover") != null && data.get("cover") instanceof Map && ((Map<?,?>)data.get("cover")).get("source") != null) {
-                model.add(subject,FOAF.thumbnail, vf.createURI(((Map<?,?>) data.get("cover")).get("source").toString()));
+                model.add(subject,FOAF.thumbnail, vf.createIRI(((Map<?,?>) data.get("cover")).get("source").toString()));
             }
 
 
 
             // website
             if(data.get("website") != null && UriUtil.validate(data.get("website").toString())) {
-                model.add(subject, FOAF.homepage, vf.createURI(data.get("website").toString()));
+                model.add(subject, FOAF.homepage, vf.createIRI(data.get("website").toString()));
             }
             if(data.get("link") != null) {
-                model.add(subject, FOAF.homepage, vf.createURI(data.get("link").toString()));
+                model.add(subject, FOAF.homepage, vf.createIRI(data.get("link").toString()));
             }
 
         } catch (JsonMappingException e) {
@@ -278,7 +281,7 @@ public class FacebookGraphProvider implements DataProvider {
      * @return
      */
 
-    private URI getType(String facebookCategory) {
+    private IRI getType(String facebookCategory) {
         if(facebookCategories.get(facebookCategory.toLowerCase()) != null) {
             return facebookCategories.get(facebookCategory.toLowerCase());
         } else {

@@ -16,10 +16,6 @@
  */
 package org.apache.marmotta.commons.sesame.facading.impl;
 
-import org.apache.marmotta.commons.sesame.facading.util.FacadeUtils;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Value;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -27,6 +23,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Locale;
+import org.apache.marmotta.commons.sesame.facading.util.FacadeUtils;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Value;
 
 class FacadingInvocationHelper {
     private FacadingInvocationHelper() {
@@ -103,8 +102,8 @@ class FacadingInvocationHelper {
 
     static boolean isMultiValue(Method method) {
         final FacadingInvocationHandler.OPERATOR oper = FacadingInvocationHandler.OPERATOR.getOperator(method);
-        return oper.writeOp && method.getParameterTypes().length == 0 ||
-                FacadeUtils.isCollection(oper.writeOp && oper.numArgs > 0 ? method.getParameterTypes()[0] : method.getReturnType());
+        Class<? extends Object> type = oper.writeOp && oper.numArgs > 0 ? method.getParameterTypes()[0] : method.getReturnType();
+		return oper.writeOp && method.getParameterTypes().length == 0 || FacadeUtils.isCollection(type);
     }
 
     static boolean checkLocale(final Locale loc, final Value object) {
@@ -114,7 +113,7 @@ class FacadingInvocationHelper {
         // Empty locale always matches
         if (loc == null) { return true; }
 
-        return loc.getLanguage().equals(((Literal) object).getLanguage());
+        return loc.getLanguage().equals(((Literal) object).getLanguage().orElse(null));
     }
 
     static <C extends Collection<?>, E> Collection<E> createCollection(Class<C> collectionType, Collection<? extends E> elements)

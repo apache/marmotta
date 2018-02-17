@@ -17,10 +17,9 @@
  */
 package org.apache.marmotta.commons.sesame.rio.rss;
 
-import org.apache.marmotta.commons.sesame.rio.rss.AtomFormat;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.RDFParserFactory;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.RDFParserFactory;
 
 /**
  * Add file description here!

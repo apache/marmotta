@@ -17,8 +17,8 @@
 
 package org.apache.marmotta.kiwi.sparql.function;
 
-import info.aduna.lang.service.ServiceRegistry;
-import org.openrdf.model.URI;
+import org.eclipse.rdf4j.common.lang.service.ServiceRegistry;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  * Registry for natively supported functions
@@ -52,7 +52,7 @@ public class NativeFunctionRegistry extends ServiceRegistry<String,NativeFunctio
         return function.getURI();
     }
 
-    public NativeFunction get(URI uri) {
-        return get(uri.stringValue());
+    public NativeFunction get(IRI uri) {
+        return get(uri.stringValue()).get();
     }
 }

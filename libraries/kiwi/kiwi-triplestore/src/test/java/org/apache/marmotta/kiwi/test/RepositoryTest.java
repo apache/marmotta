@@ -19,45 +19,48 @@ package org.apache.marmotta.kiwi.test;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import info.aduna.iteration.Iterations;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
-import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
-import org.hamcrest.CoreMatchers;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openrdf.model.*;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.Update;
-import org.openrdf.query.UpdateExecutionException;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ConcurrentModificationException;
 import java.util.List;
-
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.sail.KiWiStore;
+import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.Update;
+import org.eclipse.rdf4j.query.UpdateExecutionException;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.hamcrest.CoreMatchers;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import org.junit.After;
+import org.junit.Assert;
 import static org.junit.Assume.assumeThat;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test the Sesame repository functionality backed by the KiWi triple store. 
@@ -175,9 +178,10 @@ public class RepositoryTest {
 
         Assert.assertEquals("http://localhost/ns1/", connection.getNamespace("ns1"));
         Assert.assertEquals("http://localhost/ns2/", connection.getNamespace("ns2"));
-        Assert.assertEquals(2, Iterations.asList(connection.getNamespaces()).size());
+        List<Namespace> namespaces = Iterations.asList(connection.getNamespaces());
+		Assert.assertEquals(2, namespaces.size());
         Assert.assertThat(
-                Iterations.asList(connection.getNamespaces()),
+                namespaces,
                 CoreMatchers.<Namespace>hasItems(
                         hasProperty("name", is("http://localhost/ns1/")),
                         hasProperty("name", is("http://localhost/ns2/"))
@@ -190,8 +194,9 @@ public class RepositoryTest {
         connection.commit();
 
         Assert.assertEquals("http://localhost/ns3/", connection.getNamespace("ns1"));
+        namespaces = Iterations.asList(connection.getNamespaces());
         Assert.assertThat(
-                Iterations.asList(connection.getNamespaces()),
+                namespaces,
                 CoreMatchers.<Namespace>hasItems(
                         hasProperty("name", is("http://localhost/ns3/")),
                         hasProperty("name", is("http://localhost/ns2/"))
@@ -205,7 +210,8 @@ public class RepositoryTest {
         connection.commit();
 
         connection.begin();
-        Assert.assertEquals(1, Iterations.asList(connection.getNamespaces()).size());
+        namespaces = Iterations.asList(connection.getNamespaces());
+        Assert.assertEquals(1, namespaces.size());
 
 
         connection.commit();
@@ -245,9 +251,7 @@ public class RepositoryTest {
             );
 
             // test if the result has the expected size
-            // FIXME: MARMOTTA-39 (no xsd:string, so one resource is "missing")
-            // Assert.assertEquals(31, resources.size());
-            Assert.assertEquals(30, resources.size());
+             Assert.assertEquals(31, resources.size());
 
             // test if the result contains all resources that have been used as subject
             Assert.assertThat(resources, hasItems(
@@ -261,7 +265,7 @@ public class RepositoryTest {
 
             // remove a resource and all its triples
             connection.begin();
-            ResourceUtils.removeResource(connection, connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/hans_meier"));
+            ResourceUtils.removeResource(connection, connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/hans_meier"));
             connection.commit();
 
             connection.begin();
@@ -352,8 +356,8 @@ public class RepositoryTest {
     public void testRepeatedAddRemove() throws Exception {
         String value = RandomStringUtils.randomAlphanumeric(8);
 
-        URI subject = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
-        URI predicate = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        IRI subject = repository.getValueFactory().createIRI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        IRI predicate = repository.getValueFactory().createIRI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
         Literal object1 = repository.getValueFactory().createLiteral(value);
 
         RepositoryConnection connection1 = repository.getConnection();
@@ -420,8 +424,8 @@ public class RepositoryTest {
     public void testRepeatedAddRemoveTransaction() throws Exception {
         String value = RandomStringUtils.randomAlphanumeric(8);
 
-        URI subject = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
-        URI predicate = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        IRI subject = repository.getValueFactory().createIRI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        IRI predicate = repository.getValueFactory().createIRI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
         Literal object1 = repository.getValueFactory().createLiteral(value);
 
         RepositoryConnection connection1 = repository.getConnection();
@@ -497,8 +501,8 @@ public class RepositoryTest {
     public void testRepeatedAddRemoveCrossTransaction() throws RepositoryException {
         String value = RandomStringUtils.randomAlphanumeric(8);
 
-        URI subject = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
-        URI predicate = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        IRI subject = repository.getValueFactory().createIRI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        IRI predicate = repository.getValueFactory().createIRI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
         Literal object1 = repository.getValueFactory().createLiteral(value);
 
         RepositoryConnection connection1 = repository.getConnection();
@@ -539,8 +543,8 @@ public class RepositoryTest {
     public void testRepeatedAddRemoveSPARQL() throws RepositoryException, MalformedQueryException, UpdateExecutionException {
         String value = RandomStringUtils.randomAlphanumeric(8);
 
-        URI subject = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
-        URI predicate = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        IRI subject = repository.getValueFactory().createIRI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        IRI predicate = repository.getValueFactory().createIRI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
         Literal object1 = repository.getValueFactory().createLiteral(value);
 
         RepositoryConnection connection1 = repository.getConnection();
@@ -586,8 +590,8 @@ public class RepositoryTest {
     public void testRollback() throws Exception {
         String value = RandomStringUtils.randomAlphanumeric(8);
 
-        URI subject = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
-        URI predicate = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        IRI subject = repository.getValueFactory().createIRI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        IRI predicate = repository.getValueFactory().createIRI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
         Literal object = repository.getValueFactory().createLiteral(value);
 
         RepositoryConnection connection1 = repository.getConnection();
@@ -634,8 +638,7 @@ public class RepositoryTest {
         } finally {
             connectionRDF.close();
         }
-
-
+        
         String update = "DELETE { ?s ?p ?o } INSERT { <http://localhost:8080/LMF/resource/hans_meier> <http://xmlns.com/foaf/0.1/name> \"Hans Meier\" . <http://localhost:8080/LMF/resource/hans_meier> <http://xmlns.com/foaf/0.1/based_near> <http://dbpedia.org/resource/Traunstein> . <http://localhost:8080/LMF/resource/hans_meier> <http://xmlns.com/foaf/0.1/interest> <http://rdf.freebase.com/ns/en.linux> } WHERE { ?s ?p ?o . FILTER ( ?s = <http://localhost:8080/LMF/resource/hans_meier> ) }";
 
         RepositoryConnection connectionUpdate = repository.getConnection();
@@ -650,12 +653,12 @@ public class RepositoryTest {
         // now there should be two triples
         RepositoryConnection connectionVerify = repository.getConnection();
         try {
-            URI hans_meier = repository.getValueFactory().createURI("http://localhost:8080/LMF/resource/hans_meier");
-            URI foaf_name  = repository.getValueFactory().createURI("http://xmlns.com/foaf/0.1/name");
-            URI foaf_based_near = repository.getValueFactory().createURI("http://xmlns.com/foaf/0.1/based_near");
-            URI foaf_interest = repository.getValueFactory().createURI("http://xmlns.com/foaf/0.1/interest");
-            URI freebase_linux = repository.getValueFactory().createURI("http://rdf.freebase.com/ns/en.linux");
-            URI traunstein = repository.getValueFactory().createURI("http://dbpedia.org/resource/Traunstein");
+            IRI hans_meier = repository.getValueFactory().createIRI("http://localhost:8080/LMF/resource/hans_meier");
+            IRI foaf_name  = repository.getValueFactory().createIRI("http://xmlns.com/foaf/0.1/name");
+            IRI foaf_based_near = repository.getValueFactory().createIRI("http://xmlns.com/foaf/0.1/based_near");
+            IRI foaf_interest = repository.getValueFactory().createIRI("http://xmlns.com/foaf/0.1/interest");
+            IRI freebase_linux = repository.getValueFactory().createIRI("http://rdf.freebase.com/ns/en.linux");
+            IRI traunstein = repository.getValueFactory().createIRI("http://dbpedia.org/resource/Traunstein");
 
             Assert.assertTrue(connectionVerify.hasStatement(hans_meier,foaf_name,null, true));
             Assert.assertTrue(connectionVerify.hasStatement(hans_meier,foaf_based_near,traunstein, true));
@@ -693,7 +696,7 @@ public class RepositoryTest {
         } finally {
             connectionInsert.close();
         }
-
+        
         //update quadruples
         String update =
                 "WITH <http://resource.org/video>" +
@@ -727,14 +730,14 @@ public class RepositoryTest {
         //check quadruples
         RepositoryConnection connectionVerify = repository.getConnection();
         try {
-            URI video = repository.getValueFactory().createURI("http://resource.org/video");
-            URI hasFragment  = repository.getValueFactory().createURI("http://ontology.org#hasFragment");
-            URI fragment = repository.getValueFactory().createURI("http://resource.org/fragment1");
-            URI annotation = repository.getValueFactory().createURI("http://resource.org/annotation1");
-            URI hasTarget = repository.getValueFactory().createURI("http://ontology.org#hasTarget");
-            URI hasBody = repository.getValueFactory().createURI("http://ontology.org#hasBody");
-            URI subject = repository.getValueFactory().createURI("http://resource.org/subject1");
-            URI shows = repository.getValueFactory().createURI("http://ontology.org#shows");
+            IRI video = repository.getValueFactory().createIRI("http://resource.org/video");
+            IRI hasFragment  = repository.getValueFactory().createIRI("http://ontology.org#hasFragment");
+            IRI fragment = repository.getValueFactory().createIRI("http://resource.org/fragment1");
+            IRI annotation = repository.getValueFactory().createIRI("http://resource.org/annotation1");
+            IRI hasTarget = repository.getValueFactory().createIRI("http://ontology.org#hasTarget");
+            IRI hasBody = repository.getValueFactory().createIRI("http://ontology.org#hasBody");
+            IRI subject = repository.getValueFactory().createIRI("http://resource.org/subject1");
+            IRI shows = repository.getValueFactory().createIRI("http://ontology.org#shows");
 
             Assert.assertTrue(connectionVerify.hasStatement(video,hasFragment,fragment,true,video));
             Assert.assertTrue(connectionVerify.hasStatement(annotation,hasTarget,fragment,true,video));
@@ -761,9 +764,9 @@ public class RepositoryTest {
         RepositoryConnection con2 = repository.getConnection();
 
         try {
-            URI r1 = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
-            URI r2 = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
-            URI r3 = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+            IRI r1 = repository.getValueFactory().createIRI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+            IRI r2 = repository.getValueFactory().createIRI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+            IRI r3 = repository.getValueFactory().createIRI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
 
             con1.begin();
             con1.add(r1,r2,r3);
@@ -800,8 +803,8 @@ public class RepositoryTest {
     public void testFastClearDifferentTransactions() throws Exception {
         String value = RandomStringUtils.randomAlphanumeric(8);
 
-        URI subject = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
-        URI predicate = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        IRI subject = repository.getValueFactory().createIRI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        IRI predicate = repository.getValueFactory().createIRI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
         Literal object1 = repository.getValueFactory().createLiteral(value);
 
         RepositoryConnection connection1 = repository.getConnection();
@@ -854,8 +857,8 @@ public class RepositoryTest {
     public void testFastClearSameTransaction() throws Exception {
         String value = RandomStringUtils.randomAlphanumeric(8);
 
-        URI subject = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
-        URI predicate = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        IRI subject = repository.getValueFactory().createIRI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        IRI predicate = repository.getValueFactory().createIRI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
         Literal object1 = repository.getValueFactory().createLiteral(value);
 
         RepositoryConnection connection1 = repository.getConnection();

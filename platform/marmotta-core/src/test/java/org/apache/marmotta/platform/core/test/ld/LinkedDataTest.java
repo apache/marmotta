@@ -19,6 +19,13 @@ package org.apache.marmotta.platform.core.test.ld;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
+import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.given;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.nio.charset.Charset;
+import java.util.Random;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
@@ -27,26 +34,22 @@ import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.core.webservices.resource.ContentWebService;
 import org.apache.marmotta.platform.core.webservices.resource.MetaWebService;
 import org.apache.marmotta.platform.core.webservices.resource.ResourceWebService;
-import org.junit.*;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.Rio;
-import org.openrdf.sail.memory.MemoryStore;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.Random;
-
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.given;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * This test verifies the functionality of the Linked Data endpoint
@@ -77,7 +80,7 @@ public class LinkedDataTest {
         // import some test data
 
         // 1. read into string
-        String data = IOUtils.toString(LinkedDataTest.class.getResourceAsStream("/org/apache/marmotta/platform/core/test/sesame/demo-data.foaf"));
+        String data = IOUtils.toString(LinkedDataTest.class.getResourceAsStream("/org/apache/marmotta/platform/core/test/sesame/demo-data.foaf"),Charset.defaultCharset());
         StringReader in = new StringReader(data.replaceAll("http://localhost:8080/LMF", RestAssured.baseURI + ":" + RestAssured.port + RestAssured.basePath));
 
 
@@ -85,7 +88,7 @@ public class LinkedDataTest {
         try {
             connection.add(in,  RestAssured.baseURI + ":" + RestAssured.port + RestAssured.basePath, RDFFormat.RDFXML);
 
-            URI sepp = createResourceURI("sepp_huber");
+            IRI sepp = createResourceIRI("sepp_huber");
 
             Assert.assertTrue(connection.hasStatement(sepp,null,null,true));
         } finally {
@@ -132,7 +135,7 @@ public class LinkedDataTest {
 
 
     private void testGetBase(RDFFormat format) throws Exception {
-        String data = given().header("Accept",format.getDefaultMIMEType()).expect().statusCode(200).when().get(createResourceURI("sepp_huber").stringValue()).asString();
+        String data = given().header("Accept",format.getDefaultMIMEType()).expect().statusCode(200).when().get(createResourceIRI("sepp_huber").stringValue()).asString();
 
         Repository mem = new SailRepository(new MemoryStore());
         mem.initialize();
@@ -144,9 +147,9 @@ public class LinkedDataTest {
 
             con.add(new StringReader(data), RestAssured.baseURI + ":" + RestAssured.port + RestAssured.basePath, format);
 
-            Assert.assertTrue(con.hasStatement(createResourceURI("sepp_huber"),null,null,true));
+            Assert.assertTrue(con.hasStatement(createResourceIRI("sepp_huber"),null,null,true));
 
-            RepositoryResult<Statement> statements = icon.getStatements(createResourceURI("sepp_huber"), null,null,true);
+            RepositoryResult<Statement> statements = icon.getStatements(createResourceIRI("sepp_huber"), null,null,true);
             while(statements.hasNext()) {
                 Statement stmt = statements.next();
                 Assert.assertTrue("statement "+stmt+" not found in results",con.hasStatement(stmt,true));
@@ -160,7 +163,7 @@ public class LinkedDataTest {
         }
 
 
-        String invalid = given().header("Accept",format.getDefaultMIMEType()).expect().statusCode(404).when().get(createResourceURI("xyz").stringValue()).asString();
+        String invalid = given().header("Accept",format.getDefaultMIMEType()).expect().statusCode(404).when().get(createResourceIRI("xyz").stringValue()).asString();
     }
 
 
@@ -197,7 +200,7 @@ public class LinkedDataTest {
 
 
     private void testPostPutDeleteBase(RDFFormat format) throws Exception {
-        URI resource1 = randomResource();
+        IRI resource1 = randomResource();
 
         // create resource 1 with empty body and expect that we can afterwards retrieve it (even if empty triples)
         expect().statusCode(201).when().post(resource1.stringValue());
@@ -263,16 +266,16 @@ public class LinkedDataTest {
     }
 
 
-    private static URI createResourceURI(String id) {
-        return sesameService.getRepository().getValueFactory().createURI(RestAssured.baseURI + ":" + RestAssured.port + RestAssured.basePath + "/resource/" + id);
+    private static IRI createResourceIRI(String id) {
+        return sesameService.getRepository().getValueFactory().createIRI(RestAssured.baseURI + ":" + RestAssured.port + RestAssured.basePath + "/resource/" + id);
     }
 
-    private static URI createURI(String id) {
-        return sesameService.getRepository().getValueFactory().createURI(id);
+    private static IRI createIRI(String id) {
+        return sesameService.getRepository().getValueFactory().createIRI(id);
     }
 
-    private static URI randomResource() {
-        return sesameService.getRepository().getValueFactory().createURI(RestAssured.baseURI + ":" + RestAssured.port + RestAssured.basePath + "/resource/" + RandomStringUtils.randomAlphanumeric(8));
+    private static IRI randomResource() {
+        return sesameService.getRepository().getValueFactory().createIRI(RestAssured.baseURI + ":" + RestAssured.port + RestAssured.basePath + "/resource/" + RandomStringUtils.randomAlphanumeric(8));
     }
 
 }

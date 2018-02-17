@@ -17,14 +17,13 @@
  */
 package org.apache.marmotta.ldclient.model;
 
+import java.util.Date;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.marmotta.commons.sesame.model.ModelCommons;
-import org.openrdf.model.Model;
-import org.openrdf.model.impl.TreeModel;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryException;
-
-import java.util.Date;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.impl.TreeModel;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryException;
 
 /**
  * LDCache Client Response

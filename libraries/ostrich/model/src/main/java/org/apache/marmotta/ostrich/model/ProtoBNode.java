@@ -18,9 +18,8 @@
 package org.apache.marmotta.ostrich.model;
 
 import org.apache.marmotta.ostrich.model.proto.Model;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.Literal;
 
 /**
  * An implementation of a Sesame BNode backed by a protocol buffer.

@@ -19,8 +19,20 @@ package org.apache.marmotta.platform.core.services.triplestore;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import javax.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.UriUtil;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
@@ -32,31 +44,21 @@ import org.apache.marmotta.platform.core.qualifiers.kspace.ActiveKnowledgeSpaces
 import org.apache.marmotta.platform.core.qualifiers.kspace.DefaultKnowledgeSpace;
 import org.apache.marmotta.platform.core.qualifiers.kspace.InferredKnowledgeSpace;
 import org.apache.marmotta.platform.core.qualifiers.kspace.SystemKnowledgeSpace;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.util.Literals;
-import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.query.*;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.util.Literals;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
 /**
  * The context (named graphs in Apache Marmotta, formerly "knowledge space" in KiWi) service offers convenience
@@ -107,23 +109,23 @@ public class ContextServiceImpl implements ContextService {
 //    }
 
     @Override
-    public List<URI> listContexts() {
+    public List<IRI> listContexts() {
         return listContexts(false);
     }
 
     @Override
-    public List<URI> listContexts(boolean filter) {
+    public List<IRI> listContexts(boolean filter) {
         //TODO: configuration
-        final Set<URI> contexts =  listContextsSesame();
+        final Set<IRI> contexts =  listContextsSesame();
 
         if (!filter) {
             return new ArrayList<>(contexts);
         }
 
-        return new ArrayList<>(Collections2.filter(contexts, new Predicate<URI>() {
+        return new ArrayList<>(Collections2.filter(contexts, new Predicate<IRI>() {
             @Override
-            public boolean apply(URI uri) {
-                return uri.stringValue().startsWith(configurationService.getBaseContext());
+            public boolean apply(IRI iri) {
+                return iri.stringValue().startsWith(configurationService.getBaseContext());
             }
         }));
     }
@@ -133,8 +135,8 @@ public class ContextServiceImpl implements ContextService {
      *
      * @return
      */
-    private Set<URI> listContextsSesame() {
-        Set<URI> contexts = new HashSet<>();
+    private Set<IRI> listContextsSesame() {
+        Set<IRI> contexts = new HashSet<>();
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
@@ -142,8 +144,8 @@ public class ContextServiceImpl implements ContextService {
                 RepositoryResult<Resource> result = conn.getContextIDs();
                 while(result.hasNext()) {
                     Resource next = result.next();
-                    if(next instanceof URI) {
-                        contexts.add((URI)next);
+                    if(next instanceof IRI) {
+                        contexts.add((IRI)next);
                     }
                 }
                 result.close();
@@ -168,20 +170,20 @@ public class ContextServiceImpl implements ContextService {
      *
      * @return
      */
-    private Set<URI> listContextsSparql() {
-        Set<URI> contexts = new HashSet<>();
+    private Set<IRI> listContextsSparql() {
+        Set<IRI> contexts = new HashSet<>();
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
                 final String query = "SELECT DISTINCT ?graph WHERE { GRAPH ?graph { ?s ?p ?o } }";
-                final TupleQuery sparqlQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, query, configurationService.getBaseUri());
+                final TupleQuery sparqlQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, query, configurationService.getBaseIri());
                 final TupleQueryResult results = sparqlQuery.evaluate();
                 try {
                     while (results.hasNext()) {
                         final Value next = results.next().getValue("graph");
-                        if(next instanceof URI) {
-                            contexts.add((URI)next);
+                        if(next instanceof IRI) {
+                            contexts.add((IRI)next);
                         }
                     }
                 } finally {
@@ -222,21 +224,21 @@ public class ContextServiceImpl implements ContextService {
     //****************************************
 
     /**
-     * Create a new context with the given URI or return the already existing context. Essentially
+     * Create a new context with the given IRI or return the already existing context. Essentially
      * just calls resourceService.createUriResource, but sets some resource parameters correctly.
      *
      *
-     * @param uri the uri of the context to create
-     * @return a URI representing the created context, or null if the URI could not be created
+     * @param iri the iri of the context to create
+     * @return a IRI representing the created context, or null if the IRI could not be created
      * @throws URISyntaxException 
      */
     @Override
-    public URI createContext(String uri) throws URISyntaxException {
-        return createContext(uri, null);
+    public IRI createContext(String iri) throws URISyntaxException {
+        return createContext(iri, null);
     }
 
     @Override
-    public URI createContext(String uri, String label) throws URISyntaxException {
+    public IRI createContext(String uri, String label) throws URISyntaxException {
         if(uri == null) {
             return null;
         }
@@ -252,7 +254,7 @@ public class ContextServiceImpl implements ContextService {
                 conn.begin();
                 checkConnectionNamespace(conn);
                 ValueFactory valueFactory = conn.getValueFactory();
-				URI ctx = valueFactory.createURI(uri);
+				IRI ctx = valueFactory.createIRI(uri);
                 if (StringUtils.isNotBlank(label)) {
                     conn.add(ctx, RDFS.LABEL, Literals.createLiteral(valueFactory, label), ctx);
                 }
@@ -268,13 +270,13 @@ public class ContextServiceImpl implements ContextService {
     }
 
     @Override
-    public URI getContext(String context_uri) {
+    public IRI getContext(String context_uri) {
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
                 checkConnectionNamespace(conn);
-                if (ResourceUtils.isContext(conn, context_uri)) return conn.getValueFactory().createURI(context_uri);
+                if (ResourceUtils.isContext(conn, context_uri)) return conn.getValueFactory().createIRI(context_uri);
             } finally {
                 conn.commit();
                 conn.close();
@@ -293,7 +295,7 @@ public class ContextServiceImpl implements ContextService {
      */
     @Override
     @Produces @RequestScoped @SystemKnowledgeSpace
-    public URI getSystemContext() throws URISyntaxException {
+    public IRI getSystemContext() throws URISyntaxException {
         return createContext(configurationService.getSystemContext());
     }
 
@@ -305,12 +307,12 @@ public class ContextServiceImpl implements ContextService {
      */
     @Override
     @Produces @RequestScoped @ActiveKnowledgeSpaces
-    public Set<URI> getActiveContext() {
+    public Set<IRI> getActiveContext() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /**
-     * Get the base context URI
+     * Get the base context IRI
      * 
      * @return base context
      */
@@ -320,49 +322,49 @@ public class ContextServiceImpl implements ContextService {
     }
 
     /**
-     * Get the uri of the inferred context
+     * Get the iri of the inferred context
      *
-     * @return uri of this inferred context
+     * @return iri of this inferred context
      * @throws URISyntaxException 
      */
     @Override
     @Produces @RequestScoped @InferredKnowledgeSpace
-    public URI getInferredContext() throws URISyntaxException {
+    public IRI getInferredContext() throws URISyntaxException {
         return createContext(configurationService.getInferredContext());
     }
 
     /**
-     * Get the uri of the default context
+     * Get the iri of the default context
      *
      * @return
      * @throws URISyntaxException 
      */
     @Override
     @Produces @RequestScoped @DefaultKnowledgeSpace
-    public URI getDefaultContext() throws URISyntaxException {
+    public IRI getDefaultContext() throws URISyntaxException {
         return createContext(configurationService.getDefaultContext());
     }
 
     /**
-     * Get the uri of the context used for caching linked data
+     * Get the iri of the context used for caching linked data
      *
      * @return
      * @throws URISyntaxException 
      */
     @Override
-    public URI getCacheContext() throws URISyntaxException {
+    public IRI getCacheContext() throws URISyntaxException {
         return createContext(configurationService.getCacheContext());
     }
 
     /**
-     * Return a human-readable label for the context, either the rdfs:label or the last part of the URI.
+     * Return a human-readable label for the context, either the rdfs:label or the last part of the IRI.
      *
      *
      * @param context
      * @return
      */
     @Override
-    public String getContextLabel(URI context) {
+    public String getContextLabel(IRI context) {
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
@@ -383,7 +385,7 @@ public class ContextServiceImpl implements ContextService {
      * @param context
      */
     @Override
-    public long getContextSize(URI context) {
+    public long getContextSize(IRI context) {
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
@@ -414,7 +416,7 @@ public class ContextServiceImpl implements ContextService {
             try {
                 conn.begin();
                 checkConnectionNamespace(conn);
-                URI ctx = conn.getValueFactory().createURI(context);
+                IRI ctx = conn.getValueFactory().createIRI(context);
                 int imported = importService.importData(is, format, userService.getCurrentUser(), ctx);
                 return imported > 0;
             } catch (MarmottaImportException e) {
@@ -430,18 +432,18 @@ public class ContextServiceImpl implements ContextService {
     }
 
     /**
-     * Remove (clean whole content) the context represented by this URI
+     * Remove (clean whole content) the context represented by this IRI
      *
-     * @param context_uri uri of the context to remove
+     * @param context_iri iri of the context to remove
      * @return operation result, false if context does not exist
      */
     @Override
-    public boolean removeContext(String context_uri) {
+    public boolean removeContext(String context_iri) {
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                URI context = conn.getValueFactory().createURI(context_uri);
+                IRI context = conn.getValueFactory().createIRI(context_iri);
                 conn.remove((Resource)null, null, null, context);
                 return true;
             } finally {
@@ -462,7 +464,7 @@ public class ContextServiceImpl implements ContextService {
      * @return operation result, false if context does not exist
      */
     @Override
-    public boolean removeContext(URI context) {
+    public boolean removeContext(IRI context) {
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {

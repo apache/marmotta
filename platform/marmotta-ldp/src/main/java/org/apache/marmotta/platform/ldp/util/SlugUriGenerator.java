@@ -18,7 +18,7 @@
 package org.apache.marmotta.platform.ldp.util;
 
 import org.apache.marmotta.platform.ldp.api.LdpService;
-import org.openrdf.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 
 /**
  * Slug-Header based Generator for resource URIs.

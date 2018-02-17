@@ -17,7 +17,24 @@
 
 package org.apache.marmotta.kiwi.sparql.evaluation;
 
-import info.aduna.iteration.*;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.common.iteration.CloseableIteratorIteration;
+import org.eclipse.rdf4j.common.iteration.EmptyIteration;
+import org.eclipse.rdf4j.common.iteration.ExceptionConvertingIteration;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
@@ -29,26 +46,30 @@ import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.builder.collect.SupportedFinder;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLVariable;
 import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
-import org.openrdf.model.URI;
-import org.openrdf.model.impl.BNodeImpl;
-import org.openrdf.model.impl.LiteralImpl;
-import org.openrdf.model.impl.URIImpl;
-import org.openrdf.query.*;
-import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.evaluation.TripleSource;
-import org.openrdf.query.algebra.evaluation.impl.EvaluationStrategyImpl;
-import org.openrdf.query.impl.MapBindingSet;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.query.Binding;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.Dataset;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryInterruptedException;
+import org.eclipse.rdf4j.query.algebra.Distinct;
+import org.eclipse.rdf4j.query.algebra.Extension;
+import org.eclipse.rdf4j.query.algebra.Filter;
+import org.eclipse.rdf4j.query.algebra.Join;
+import org.eclipse.rdf4j.query.algebra.LeftJoin;
+import org.eclipse.rdf4j.query.algebra.Order;
+import org.eclipse.rdf4j.query.algebra.Projection;
+import org.eclipse.rdf4j.query.algebra.ProjectionElem;
+import org.eclipse.rdf4j.query.algebra.Reduced;
+import org.eclipse.rdf4j.query.algebra.Slice;
+import org.eclipse.rdf4j.query.algebra.TupleExpr;
+import org.eclipse.rdf4j.query.algebra.Union;
+import org.eclipse.rdf4j.query.algebra.evaluation.TripleSource;
+import org.eclipse.rdf4j.query.algebra.evaluation.federation.FederatedServiceResolverImpl;
+import org.eclipse.rdf4j.query.algebra.evaluation.impl.StrictEvaluationStrategy;
+import org.eclipse.rdf4j.query.impl.MapBindingSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.*;
 
 /**
  * An implementation of the SPARQL query evaluation strategy with specific extensions and optimizations. The KiWi
@@ -64,7 +85,7 @@ import java.util.concurrent.*;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
+public class KiWiEvaluationStrategy extends StrictEvaluationStrategy{
 
     private static Logger log = LoggerFactory.getLogger(KiWiEvaluationStrategy.class);
 
@@ -79,7 +100,7 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
     private Set<String> projectedVars = new HashSet<>();
 
     public KiWiEvaluationStrategy(TripleSource tripleSource, KiWiConnection connection, KiWiValueFactory valueFactory) {
-        super(tripleSource);
+        super(tripleSource, new FederatedServiceResolverImpl());
         this.connection = connection;
         this.valueFactory = valueFactory;
 
@@ -88,7 +109,7 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
     }
 
     public KiWiEvaluationStrategy(TripleSource tripleSource, Dataset dataset, KiWiConnection connection, KiWiValueFactory valueFactory) {
-        super(tripleSource, dataset);
+        super(tripleSource, dataset, new FederatedServiceResolverImpl());
         this.connection = connection;
         this.valueFactory = valueFactory;
 
@@ -261,61 +282,61 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
                                         svalue = row.getString(sv.getName());
                                         if (svalue != null)
                                             try {
-                                                resultRow.addBinding(sv.getSparqlName(), new URIImpl(svalue));
+                                                resultRow.addBinding(sv.getSparqlName(), valueFactory.createIRI(svalue));
                                             } catch (IllegalArgumentException ex) {
                                             } // illegal URI unbound
                                         break;
                                     case BNODE:
                                         svalue = row.getString(sv.getName());
                                         if (svalue != null)
-                                            resultRow.addBinding(sv.getSparqlName(), new BNodeImpl(svalue));
+                                            resultRow.addBinding(sv.getSparqlName(), valueFactory.createBNode(svalue));
                                         break;
                                     case INT:
                                         if (row.getObject(sv.getName()) != null) {
                                             svalue = Integer.toString(row.getInt(sv.getName()));
-                                            URI type = XSD.Integer;
+                                            IRI type = XSD.Integer;
                                             try {
                                                 long typeId = row.getLong(sv.getName() + "_TYPE");
                                                 if (typeId > 0)
-                                                    type = (URI) connection.loadNodeById(typeId);
+                                                    type = (IRI) connection.loadNodeById(typeId);
                                             } catch (SQLException ex) {
                                             }
 
-                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, type));
+                                            resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(svalue, type));
                                         }
                                         break;
                                     case DOUBLE:
                                         if (row.getObject(sv.getName()) != null) {
                                             svalue = Double.toString(row.getDouble(sv.getName()));
-                                            URI type = XSD.Double;
+                                            IRI type = XSD.Double;
                                             try {
                                                 long typeId = row.getLong(sv.getName() + "_TYPE");
                                                 if (typeId > 0)
-                                                    type = (URI) connection.loadNodeById(typeId);
+                                                    type = (IRI) connection.loadNodeById(typeId);
                                             } catch (SQLException ex) {
                                             }
 
-                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, type));
+                                            resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(svalue, type));
                                         }
                                         break;
                                     case DECIMAL:
                                         if (row.getObject(sv.getName()) != null) {
                                             svalue = row.getBigDecimal(sv.getName()).toString();
-                                            URI type = XSD.Decimal;
+                                            IRI type = XSD.Decimal;
                                             try {
                                                 long typeId = row.getLong(sv.getName() + "_TYPE");
                                                 if (typeId > 0)
-                                                    type = (URI) connection.loadNodeById(typeId);
+                                                    type = (IRI) connection.loadNodeById(typeId);
                                             } catch (SQLException ex) {
                                             }
 
-                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, type));
+                                            resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(svalue, type));
                                         }
                                         break;
                                     case BOOL:
                                         if (row.getObject(sv.getName()) != null) {
                                             svalue = Boolean.toString(row.getBoolean(sv.getName()));
-                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue.toLowerCase(), XSD.Boolean));
+                                            resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(svalue.toLowerCase(), XSD.Boolean));
                                         }
                                         break;
                                     case STRING:
@@ -332,33 +353,33 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
                                             } catch (SQLException ex) {
                                             }
 
-                                            URI type = null;
+                                            IRI type = null;
                                             try {
                                                 long typeId = row.getLong(sv.getName() + "_TYPE");
                                                 if (typeId > 0)
-                                                    type = (URI) connection.loadNodeById(typeId);
+                                                    type = (IRI) connection.loadNodeById(typeId);
                                             } catch (SQLException ex) {
                                             }
 
                                             if (lang != null) {
                                                 if (svalue.length() > 0) {
-                                                    resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, lang));
+                                                    resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(svalue, lang));
                                                 } else {
                                                     // string functions that return empty literal should yield no type or language
-                                                    resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(""));
+                                                    resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(""));
                                                 }
                                             } else if (type != null) {
                                                 if (type.stringValue().equals(XSD.String.stringValue())) {
                                                     // string functions on other datatypes than string should yield no binding
                                                     if (svalue.length() > 0) {
-                                                        resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, type));
+                                                        resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(svalue, type));
                                                     } else {
                                                         // string functions that return empty literal should yield no type or language
-                                                        resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(""));
+                                                        resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(""));
                                                     }
                                                 }
                                             } else {
-                                                resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue));
+                                                resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(svalue));
                                             }
 
                                         }

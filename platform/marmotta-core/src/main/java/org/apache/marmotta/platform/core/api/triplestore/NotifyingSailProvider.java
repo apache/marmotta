@@ -17,8 +17,8 @@
  */
 package org.apache.marmotta.platform.core.api.triplestore;
 
-import org.openrdf.sail.NotifyingSail;
-import org.openrdf.sail.helpers.NotifyingSailWrapper;
+import org.eclipse.rdf4j.sail.NotifyingSail;
+import org.eclipse.rdf4j.sail.helpers.NotifyingSailWrapper;
 
 /**
  * An interface implemented by all modules that provide notifying sail wrappers for the sesame sail stack.

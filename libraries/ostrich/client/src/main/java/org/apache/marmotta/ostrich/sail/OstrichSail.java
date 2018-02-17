@@ -17,11 +17,11 @@
 
 package org.apache.marmotta.ostrich.sail;
 
-import org.openrdf.model.ValueFactory;
-import org.openrdf.sail.NotifyingSailConnection;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.NotifyingSailBase;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.sail.NotifyingSailConnection;
+import org.eclipse.rdf4j.sail.Sail;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.AbstractNotifyingSail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class OstrichSail extends NotifyingSailBase implements Sail {
+public class OstrichSail extends AbstractNotifyingSail implements Sail {
     private static Logger log = LoggerFactory.getLogger(OstrichSail.class);
 
     private OstrichValueFactory valueFactory = new OstrichValueFactory();

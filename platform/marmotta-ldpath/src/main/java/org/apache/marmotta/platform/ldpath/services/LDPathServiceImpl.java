@@ -17,34 +17,36 @@
  */
 package org.apache.marmotta.platform.ldpath.services;
 
+import java.io.StringReader;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
-import org.apache.marmotta.ldpath.model.fields.FieldMapping;
-import org.apache.marmotta.ldpath.model.programs.Program;
-import org.apache.marmotta.platform.ldpath.api.LDPathService;
-import org.apache.marmotta.platform.ldpath.api.AutoRegisteredLDPathFunction;
-import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-
 import org.apache.marmotta.ldpath.LDPath;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 import org.apache.marmotta.ldpath.backend.sesame.SesameConnectionBackend;
 import org.apache.marmotta.ldpath.exception.LDPathParseException;
 import org.apache.marmotta.ldpath.model.Constants;
+import org.apache.marmotta.ldpath.model.fields.FieldMapping;
+import org.apache.marmotta.ldpath.model.programs.Program;
 import org.apache.marmotta.ldpath.parser.Configuration;
 import org.apache.marmotta.ldpath.parser.DefaultConfiguration;
-import org.openrdf.model.Value;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.ldpath.api.AutoRegisteredLDPathFunction;
+import org.apache.marmotta.platform.ldpath.api.LDPathService;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.slf4j.Logger;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-
-import java.io.StringReader;
-import java.util.*;
 
 /**
  * Add file description here!

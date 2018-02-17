@@ -17,22 +17,19 @@
  */
 package org.apache.marmotta.ldpath.backend.file;
 
-import static org.hamcrest.Matchers.hasItem;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.marmotta.ldpath.LDPath;
-import org.apache.marmotta.ldpath.backend.file.FileBackend;
 import org.apache.marmotta.ldpath.backend.sesame.SesameRepositoryBackend;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.hamcrest.CoreMatchers;
+import static org.hamcrest.Matchers.hasItem;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openrdf.model.Value;
-import org.openrdf.repository.RepositoryException;
 
 
 /**
@@ -56,13 +53,13 @@ public class PathTest {
     public void simpleResourcePath() throws Exception {
 
         Map<Value, List<Value>> paths = new HashMap<Value, List<Value>>();
-        Collection<Value> values = ldPath.pathQuery(backend.createURI("http://localhost:8080/LMF/resource/hans_meier"), "foaf:interest", null, paths);
+        Collection<Value> values = ldPath.pathQuery(backend.createIRI("http://localhost:8080/LMF/resource/hans_meier"), "foaf:interest", null, paths);
         Assert.assertEquals(4,values.size());
         Assert.assertThat(values,CoreMatchers.<Value>hasItems(
-                    backend.createURI("http://rdf.freebase.com/ns/en.software_engineering"),
-                    backend.createURI("http://rdf.freebase.com/ns/en.linux"),
-                    backend.createURI("http://dbpedia.org/resource/Java"),
-                    backend.createURI("http://dbpedia.org/resource/Climbing")
+                    backend.createIRI("http://rdf.freebase.com/ns/en.software_engineering"),
+                    backend.createIRI("http://rdf.freebase.com/ns/en.linux"),
+                    backend.createIRI("http://dbpedia.org/resource/Java"),
+                    backend.createIRI("http://dbpedia.org/resource/Climbing")
                 ));
 
     }
@@ -70,7 +67,7 @@ public class PathTest {
     @Test
     public void simpleValuePath() throws Exception {
 
-        Collection<String> values = ldPath.pathTransform(backend.createURI("http://localhost:8080/LMF/resource/hans_meier"), "foaf:name :: xsd:string", null);
+        Collection<String> values = ldPath.pathTransform(backend.createIRI("http://localhost:8080/LMF/resource/hans_meier"), "foaf:name :: xsd:string", null);
         Assert.assertEquals(1,values.size());
         Assert.assertThat(values,hasItem("Hans Meier"));
     }

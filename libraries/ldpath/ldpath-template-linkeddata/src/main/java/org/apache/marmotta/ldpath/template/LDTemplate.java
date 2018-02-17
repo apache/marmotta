@@ -19,16 +19,27 @@ package org.apache.marmotta.ldpath.template;
 
 import ch.qos.logback.classic.Level;
 import freemarker.template.TemplateException;
-import org.apache.commons.cli.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
 import org.apache.marmotta.ldpath.backend.linkeddata.LDCacheBackend;
 import org.apache.marmotta.ldpath.template.engine.TemplateEngine;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
 
 /**
  * Add file description here!
@@ -84,7 +95,7 @@ public class LDTemplate {
 
             Resource context = null;
             if(cmd.hasOption("context")) {
-                context = backend.createURI(cmd.getOptionValue("context"));
+                context = backend.createIRI(cmd.getOptionValue("context"));
             }
 
             BufferedWriter out = null;

@@ -17,11 +17,22 @@
 
 package org.apache.marmotta.kiwi.sparql.optimizer;
 
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.Dataset;
-import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.evaluation.QueryOptimizer;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.Dataset;
+import org.eclipse.rdf4j.query.algebra.Distinct;
+import org.eclipse.rdf4j.query.algebra.Filter;
+import org.eclipse.rdf4j.query.algebra.Group;
+import org.eclipse.rdf4j.query.algebra.Join;
+import org.eclipse.rdf4j.query.algebra.LeftJoin;
+import org.eclipse.rdf4j.query.algebra.Order;
+import org.eclipse.rdf4j.query.algebra.Reduced;
+import org.eclipse.rdf4j.query.algebra.Slice;
+import org.eclipse.rdf4j.query.algebra.StatementPattern;
+import org.eclipse.rdf4j.query.algebra.TupleExpr;
+import org.eclipse.rdf4j.query.algebra.UnaryTupleOperator;
+import org.eclipse.rdf4j.query.algebra.Union;
+import org.eclipse.rdf4j.query.algebra.evaluation.QueryOptimizer;
+import org.eclipse.rdf4j.query.algebra.helpers.AbstractQueryModelVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +61,7 @@ public class DistinctLimitOptimizer implements QueryOptimizer {
      * We can only safely push down a distinct or limit to the outermost JOIN, Filter, or Statement Pattern in case the
      * query does not contain an ORDER BY or one of the other constructs that affect the number of results
      */
-    private static class LimitPreconditions extends QueryModelVisitorBase<RuntimeException> {
+    private static class LimitPreconditions extends AbstractQueryModelVisitor<RuntimeException> {
 
         private boolean allowed = true;
 
@@ -105,7 +116,7 @@ public class DistinctLimitOptimizer implements QueryOptimizer {
     /**
      * Move down the Slide node so its parent its children are the Join, Filter or Statement pattern nodes.
      */
-    private static class LimitRelocator extends QueryModelVisitorBase<RuntimeException> {
+    private static class LimitRelocator extends AbstractQueryModelVisitor<RuntimeException> {
 
         private LimitRelocator() {
         }
@@ -146,7 +157,7 @@ public class DistinctLimitOptimizer implements QueryOptimizer {
         }
     }
 
-    private static class DistinctRelocator extends QueryModelVisitorBase<RuntimeException> {
+    private static class DistinctRelocator extends AbstractQueryModelVisitor<RuntimeException> {
 
         private DistinctRelocator() {
         }
@@ -190,7 +201,7 @@ public class DistinctLimitOptimizer implements QueryOptimizer {
         }
     }
 
-    private static class ReducedRelocator extends QueryModelVisitorBase<RuntimeException> {
+    private static class ReducedRelocator extends AbstractQueryModelVisitor<RuntimeException> {
 
         private ReducedRelocator() {
         }

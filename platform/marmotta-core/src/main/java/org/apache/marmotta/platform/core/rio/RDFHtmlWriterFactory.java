@@ -17,16 +17,15 @@
  */
 package org.apache.marmotta.platform.core.rio;
 
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.rio.RDFWriterFactory;
-
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.List;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.RDFWriterFactory;
 
 /**
- * OpenRDF RIO RDFWriterFactory Implementation
+ * RDF4J RIO RDFWriterFactory Implementation
  * (injected by the ServiceLoader)
  * 
  * @author Sebastian Schaffert
@@ -41,6 +40,7 @@ public class RDFHtmlWriterFactory implements RDFWriterFactory {
 	
     /**
      * Returns the RDF format for this factory.
+     * @return 
      */
     @Override
     public RDFFormat getRDFFormat() {
@@ -52,6 +52,7 @@ public class RDFHtmlWriterFactory implements RDFWriterFactory {
      * stream.
      *
      * @param out The OutputStream to write the RDF to.
+     * @return 
      */
     @Override
     public RDFWriter getWriter(OutputStream out) {
@@ -62,6 +63,7 @@ public class RDFHtmlWriterFactory implements RDFWriterFactory {
      * Returns an RDFWriter instance that will write to the supplied writer.
      *
      * @param writer The Writer to write the RDF to.
+     * @return 
      */
     @Override
     public RDFWriter getWriter(Writer writer) {

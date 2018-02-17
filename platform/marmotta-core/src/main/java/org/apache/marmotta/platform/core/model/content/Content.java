@@ -18,11 +18,12 @@
 package org.apache.marmotta.platform.core.model.content;
 
 /**
+ * <p>
  * A non-entity class used to represent in-memory media content in KiWi. The actual content is stored in
  * KiWiMediaContentLiteral.
  *
  *
- * <p/>
+ * </p>
  * User: sschaffe
  */
 public class Content {

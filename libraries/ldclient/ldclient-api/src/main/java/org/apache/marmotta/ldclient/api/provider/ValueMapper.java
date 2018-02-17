@@ -17,10 +17,9 @@
  */
 package org.apache.marmotta.ldclient.api.provider;
 
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.util.List;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
 
 /**
  * Map the value returned by a selection in a different data format (e.g. an XPath expression( into a list of Sesame

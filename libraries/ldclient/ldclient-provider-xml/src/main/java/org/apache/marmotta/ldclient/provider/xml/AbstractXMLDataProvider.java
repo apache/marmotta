@@ -17,21 +17,35 @@
  */
 package org.apache.marmotta.ldclient.provider.xml;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.provider.xml.mapping.XPathValueMapper;
 import org.apache.marmotta.ldclient.services.provider.AbstractHttpProvider;
-import org.jdom2.*;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.jdom2.Attribute;
+import org.jdom2.CDATA;
+import org.jdom2.Comment;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
+import org.jdom2.Text;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.input.sax.XMLReaders;
 import org.jdom2.xpath.XPathExpression;
-import org.openrdf.model.*;
-import org.openrdf.model.impl.ValueFactoryImpl;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
 
 /**
  * Abstract implementation of a data provider based on XML documents. Implementing classes need to provide
@@ -54,16 +68,16 @@ public abstract class AbstractXMLDataProvider extends AbstractHttpProvider {
 
 
     /**
-     * Return a list of URIs that should be added as types for each processed resource.
+     * Return a list of IRIs that should be added as types for each processed resource.
      *
      * @return
      * @param resource
      */
-    protected abstract List<String> getTypes(URI resource);
+    protected abstract List<String> getTypes(IRI resource);
 
 
     /**
-     * Provide namespace mappings for the XPath expressions from namespace prefix to namespace URI. May be overridden
+     * Provide namespace mappings for the XPath expressions from namespace prefix to namespace IRI. May be overridden
      * by subclasses as appropriate, the default implementation returns an empty map.
      *
      * @return
@@ -100,14 +114,14 @@ public abstract class AbstractXMLDataProvider extends AbstractHttpProvider {
             }
 
 
-            ValueFactory vf = new ValueFactoryImpl();
+            ValueFactory vf = SimpleValueFactory.getInstance();
 
-            Resource subject = vf.createURI(resource);
+            Resource subject = vf.createIRI(resource);
 
             for(Map.Entry<String,XPathValueMapper> mapping : getXPathMappings(requestUrl).entrySet()) {
                 XPathExpression<Object> xpath = mapping.getValue().getCompiled();
 
-                org.openrdf.model.URI predicate = triples.getValueFactory().createURI(mapping.getKey());
+                IRI predicate = vf.createIRI(mapping.getKey());
                 for(Object value : xpath.evaluate(doc)) {
                     String str_value;
                     if(value instanceof Element) {
@@ -123,18 +137,18 @@ public abstract class AbstractXMLDataProvider extends AbstractHttpProvider {
                     } else {
                         str_value = value.toString();
                     }
-                    List<Value> objects = mapping.getValue().map(resource, str_value,triples.getValueFactory());
+                    List<Value> objects = mapping.getValue().map(resource, str_value,vf);
                     for(Value object : objects) {
-                        Statement stmt = triples.getValueFactory().createStatement(subject,predicate,object);
+                        Statement stmt = vf.createStatement(subject,predicate,object);
                         triples.add(stmt);
                     }
                 }
             }
 
-            org.openrdf.model.URI ptype = triples.getValueFactory().createURI(Namespaces.NS_RDF + "type");
+            IRI ptype = vf.createIRI(Namespaces.NS_RDF + "type");
 
-            for(String typeUri : getTypes(vf.createURI(resource))) {
-                Resource type_resource = vf.createURI(typeUri);
+            for(String typeUri : getTypes(vf.createIRI(resource))) {
+                Resource type_resource = vf.createIRI(typeUri);
                 triples.add(vf.createStatement(subject, ptype, type_resource));
             }
 

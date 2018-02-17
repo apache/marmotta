@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Set;
@@ -108,7 +109,7 @@ public abstract class KiWiDialect {
      */
     protected String getScript(String scriptName) {
         try {
-            return IOUtils.toString(this.getClass().getResourceAsStream(scriptName));
+            return IOUtils.toString(this.getClass().getResourceAsStream(scriptName), Charset.defaultCharset());
         } catch (Exception e) {
             return "";
         }
@@ -130,7 +131,7 @@ public abstract class KiWiDialect {
             try {
                 String script = String.format("upgrade_"+name+"_%03d_%03d.sql",i-1,i);
 
-                builder.append(IOUtils.toString(this.getClass().getResourceAsStream(script)));
+                builder.append(IOUtils.toString(this.getClass().getResourceAsStream(script),Charset.defaultCharset()));
             } catch (Exception e) {
                 log.warn("upgrade script {} -> {} not found or not readable!", i-1, i);
             }

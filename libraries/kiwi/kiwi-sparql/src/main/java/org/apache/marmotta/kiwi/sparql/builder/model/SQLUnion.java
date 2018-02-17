@@ -22,12 +22,12 @@ import org.apache.marmotta.kiwi.sparql.builder.SQLBuilder;
 import org.apache.marmotta.kiwi.sparql.builder.ValueConverter;
 import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.Dataset;
-import org.openrdf.query.algebra.Projection;
-import org.openrdf.query.algebra.ProjectionElem;
-import org.openrdf.query.algebra.TupleExpr;
-import org.openrdf.query.algebra.Union;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.Dataset;
+import org.eclipse.rdf4j.query.algebra.Projection;
+import org.eclipse.rdf4j.query.algebra.ProjectionElem;
+import org.eclipse.rdf4j.query.algebra.TupleExpr;
+import org.eclipse.rdf4j.query.algebra.Union;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

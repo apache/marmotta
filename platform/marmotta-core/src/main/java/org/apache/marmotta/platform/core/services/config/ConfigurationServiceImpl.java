@@ -415,11 +415,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      * Get the base URI out of the current request. The base URI
      * is used e.g. to generate URIs of internal content items
      *
-     * @see org.apache.marmotta.platform.core.api.config.ConfigurationService#getBaseUri()
+     * @see org.apache.marmotta.platform.core.api.config.ConfigurationService#getBaseIri()
      */
 
     @Override
-    public String getBaseUri() {
+    public String getBaseIri() {
         return getStringConfiguration(CoreOptions.BASE_URI);
     }
 
@@ -439,10 +439,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      * server that runs the KiWi (and SOLR) applications. Can be used to compute the paths of
      * other applications relative to the current application. Computed like the base uri.
      *
-     * @see ConfigurationService#getServerUri()
+     * @see ConfigurationService#getServerIri()
      */
     @Override
-    public String getServerUri() {
+    public String getServerIri() {
         String serverUrl = getStringConfiguration(CoreOptions.SERVER_URI);
 
         if (serverUrl.endsWith("/"))
@@ -1283,7 +1283,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      */
     @Override
     public String getBaseContext() {
-        return getBaseUri() + CONTEXT_PATH + "/";
+        return getBaseIri() + CONTEXT_PATH + "/";
     }
 
     /**
@@ -1293,7 +1293,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      */
     @Override
     public String getSystemContext() {
-        return getBaseUri() + CONTEXT_PATH + CONTEXT_SYSTEM;
+        return getBaseIri() + CONTEXT_PATH + CONTEXT_SYSTEM;
     }
 
     /**
@@ -1331,12 +1331,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      */
     @Override
     public String getCacheContext() {
-        return getBaseUri() + CONTEXT_PATH + "/" + CONTEXT_CACHE;
+        return getBaseIri() + CONTEXT_PATH + "/" + CONTEXT_CACHE;
     }
 
     @Override
     public String getEnhancerContex() {
-        return getBaseUri() + CONTEXT_PATH + "/" + CONTEXT_ENHANCEMENT;
+        return getBaseIri() + CONTEXT_PATH + "/" + CONTEXT_ENHANCEMENT;
     }
 
     /**

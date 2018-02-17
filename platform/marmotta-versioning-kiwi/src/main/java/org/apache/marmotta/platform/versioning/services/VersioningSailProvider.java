@@ -17,6 +17,15 @@
  */
 package org.apache.marmotta.platform.versioning.services;
 
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import javax.inject.Named;
 import org.apache.marmotta.commons.sesame.filter.AllOfFilter;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
 import org.apache.marmotta.commons.sesame.filter.statement.StatementFilter;
@@ -29,22 +38,12 @@ import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.api.triplestore.TransactionalSailProvider;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.sail.SailException;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.sail.SailException;
 import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 /**
  * A SAIL provider wrapping a versioning component around the repository
@@ -220,7 +219,7 @@ public class VersioningSailProvider implements TransactionalSailProvider {
      * Remove the version with the id passed as argument, including all references to added and removed triples. The
      * triples themselves are not deleted immediately, we let the garbage collector carry this out periodically.
      * @param id  the database ID of the version (see {@link org.apache.marmotta.kiwi.versioning.model.Version#getId()})
-     * @throws org.openrdf.sail.SailException
+     * @throws org.eclipse.rdf4j.sail.SailException
      */
     public void removeVersion(Long id) throws SailException {
         sail.removeVersion(id);
@@ -232,7 +231,7 @@ public class VersioningSailProvider implements TransactionalSailProvider {
      * without version will later be cleaned up by the garbage collector
      * @param from date after which versions will be deleted
      * @param to   date before which versions will be deleted
-     * @throws org.openrdf.sail.SailException
+     * @throws org.eclipse.rdf4j.sail.SailException
      */
     public void removeVersions(Date from, Date to) throws SailException {
         sail.removeVersions(from, to);
@@ -243,7 +242,7 @@ public class VersioningSailProvider implements TransactionalSailProvider {
      * Entries in join tables (added/removed triples) are also deleted, the triples themselves not. Deleted triples
      * without version will later be cleaned up by the garbage collector
      * @param until date until when to delete versions
-     * @throws org.openrdf.sail.SailException
+     * @throws org.eclipse.rdf4j.sail.SailException
      */
     public void removeVersions(Date until) throws SailException {
         sail.removeVersions(until);
@@ -255,7 +254,7 @@ public class VersioningSailProvider implements TransactionalSailProvider {
      * the transaction, effectively creating a new (reverted) version.
      *
      * @param version    the version to revert
-     * @throws org.openrdf.sail.SailException in case reverting the version failed
+     * @throws org.eclipse.rdf4j.sail.SailException in case reverting the version failed
      */
     public void revertVersion(Version version) throws SailException {
         sail.revertVersion(version);

@@ -17,17 +17,21 @@
 
 package org.apache.marmotta.ldcache.sail;
 
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.CloseableIteratorIteration;
-import info.aduna.iteration.UnionIteration;
 import org.apache.marmotta.commons.sesame.filter.AlwaysTrueFilter;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.ldcache.services.LDCache;
-import org.openrdf.model.*;
-import org.openrdf.sail.NotifyingSailConnection;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.NotifyingSailConnectionWrapper;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.common.iteration.CloseableIteratorIteration;
+import org.eclipse.rdf4j.common.iteration.UnionIteration;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.sail.NotifyingSailConnection;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.NotifyingSailConnectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,11 +75,11 @@ public class GenericLinkedDataSailConnection extends NotifyingSailConnectionWrap
      * @throws SailException
      */
     @Override
-    public CloseableIteration<? extends Statement, SailException> getStatements(Resource subj, URI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
+    public CloseableIteration<? extends Statement, SailException> getStatements(Resource subj, IRI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
 
         if (accept(subj)) {
             log.debug("Refreshing resource: {}", subj.stringValue());
-            final Model cached = ldcache.get((URI)subj);
+            final Model cached = ldcache.get((IRI)subj);
 
             // join the results of the cache connection and the wrapped connection in a single result
             return new UnionIteration<>(
@@ -89,7 +93,7 @@ public class GenericLinkedDataSailConnection extends NotifyingSailConnectionWrap
 
 
     private boolean accept(Resource subj) {
-        return subj != null && ResourceUtils.isURI(subj) && acceptForCaching.accept(subj);
+        return subj != null && ResourceUtils.isIRI(subj) && acceptForCaching.accept(subj);
     }
 
 }

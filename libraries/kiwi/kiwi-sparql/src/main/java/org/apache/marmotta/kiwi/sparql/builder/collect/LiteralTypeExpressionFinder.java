@@ -20,11 +20,11 @@ package org.apache.marmotta.kiwi.sparql.builder.collect;
 import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
-import org.openrdf.query.algebra.FunctionCall;
-import org.openrdf.query.algebra.QueryModelNode;
-import org.openrdf.query.algebra.ValueExpr;
-import org.openrdf.query.algebra.Var;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
+import org.eclipse.rdf4j.query.algebra.FunctionCall;
+import org.eclipse.rdf4j.query.algebra.QueryModelNode;
+import org.eclipse.rdf4j.query.algebra.ValueExpr;
+import org.eclipse.rdf4j.query.algebra.Var;
+import org.eclipse.rdf4j.query.algebra.helpers.AbstractQueryModelVisitor;
 
 /**
  * Functions that return a string literal do so with the string literal of the same kind as the first
@@ -33,7 +33,7 @@ import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class LiteralTypeExpressionFinder  extends QueryModelVisitorBase<RuntimeException> {
+public class LiteralTypeExpressionFinder  extends AbstractQueryModelVisitor<RuntimeException> {
 
     public Var expr = null;
 
@@ -43,7 +43,7 @@ public class LiteralTypeExpressionFinder  extends QueryModelVisitorBase<RuntimeE
 
     @Override
     public void meet(FunctionCall node) throws RuntimeException {
-        NativeFunction nf = NativeFunctionRegistry.getInstance().get(node.getURI());
+        NativeFunction nf = NativeFunctionRegistry.getInstance().get(node.getURI()).get();
         if(node.getArgs().size() > 0 && nf.getReturnType() == ValueType.STRING) {
             node.getArgs().get(0).visit(this);
         }

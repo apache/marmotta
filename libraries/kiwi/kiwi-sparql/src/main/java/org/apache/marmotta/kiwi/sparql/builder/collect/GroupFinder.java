@@ -17,20 +17,23 @@
 
 package org.apache.marmotta.kiwi.sparql.builder.collect;
 
-import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.eclipse.rdf4j.query.algebra.Group;
+import org.eclipse.rdf4j.query.algebra.GroupElem;
+import org.eclipse.rdf4j.query.algebra.Projection;
+import org.eclipse.rdf4j.query.algebra.TupleExpr;
+import org.eclipse.rdf4j.query.algebra.Union;
+import org.eclipse.rdf4j.query.algebra.helpers.AbstractQueryModelVisitor;
 
 /**
 * Find the offset and limit values in a tuple expression
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-public class GroupFinder extends QueryModelVisitorBase<RuntimeException> {
+public class GroupFinder extends AbstractQueryModelVisitor<RuntimeException> {
 
     private Set<String>     bindings = new HashSet<>();
     private List<GroupElem> elements = new ArrayList<>();

@@ -18,6 +18,20 @@
 package org.apache.marmotta.platform.core.rio;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
@@ -27,17 +41,19 @@ import org.apache.marmotta.platform.core.api.io.RDFWriterPriority;
 import org.apache.marmotta.platform.core.api.prefix.PrefixService;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.util.CDIContext;
-import org.openrdf.model.*;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RioSetting;
-import org.openrdf.rio.WriterConfig;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.RioSetting;
+import org.eclipse.rdf4j.rio.WriterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.net.URLEncoder;
-import java.util.*;
 
 /**
  * RDF to HTML Writer
@@ -94,7 +110,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
      * Signals the start of the RDF data. This method is called before any data
      * is reported.
      * 
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *             If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -106,7 +122,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
      * Signals the end of the RDF data. This method is called when all data has
      * been reported.
      * 
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *             If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -151,7 +167,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
                 Map<String, String> object = new HashMap<>();
                 Value value = t.getObject();
                 String objectValue = value.stringValue();
-                if (value instanceof URI) { //http uri
+                if (value instanceof IRI) { //http uri
                     object.put("uri", objectValue);
                     String objectCurie = prefixService.getCurie(objectValue);
                     object.put("curie", StringUtils.isNotBlank(objectCurie) ? objectCurie : objectValue);
@@ -166,7 +182,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
                     }                 
                 } else if (value instanceof Literal) { //literal
                     Literal literal = (Literal) t.getObject();
-                    String lang = literal.getLanguage();
+                    String lang = literal.getLanguage().orElse(null);
                     if (StringUtils.isNotBlank(lang)) {
                         object.put("lang", lang);
                         objectValue = "\"" + objectValue + "\"@" + lang;
@@ -214,7 +230,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
 
         try {
             Map<String, Object> data = new HashMap<>();
-            data.put("baseUri", configurationService.getServerUri());
+            data.put("baseUri", configurationService.getServerIri());
             data.put("resources", resources);
             data.put("prefixMappings", prefixService.serializePrefixMapping());
 
@@ -233,22 +249,22 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
 
     /**
      * Handles a namespace declaration/definition. A namespace declaration
-     * associates a (short) prefix string with the namespace's URI. The prefix
+     * associates a (short) prefix string with the namespace's IRI. The prefix
      * for default namespaces, which do not have an associated prefix, are
      * represented as empty strings.
      * 
      * @param prefix
      *            The prefix for the namespace, or an empty string in case of a
      *            default namespace.
-     * @param uri
-     *            The URI that the prefix maps to.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @param iri
+     *            The IRI that the prefix maps to.
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *             If the RDF handler has encountered an unrecoverable error.
      */
     @Override
-    public void handleNamespace(String prefix, String uri)
+    public void handleNamespace(String prefix, String iri)
             throws RDFHandlerException {
-        namespaceMap.put(uri, prefix);
+        namespaceMap.put(iri, prefix);
     }
 
     /**
@@ -256,7 +272,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
      * 
      * @param st
      *            The statement.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *             If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -286,7 +302,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
      * 
      * @param comment
      *            The comment.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *             If the RDF handler has encountered an unrecoverable error.
      */
     @Override
@@ -304,7 +320,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
                 + "' src='' style='border:none;width:100%'></iframe>";
         sb.append("<a href='#' onclick='document.getElementById(\"iframe")
                 .append(id).append("\").src=\"")
-                .append(configurationService.getServerUri())
+                .append(configurationService.getServerIri())
                 .append("core/public/html/reasoning.html#").append(id)
                 .append("\";document.getElementById(\"info").append(id)
                 .append("\").style.display = \"block\";'>info</a>");
@@ -339,19 +355,19 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
      */
     @Override
     public WriterConfig getWriterConfig() {
-		return config;
-	}
+        return config;
+    }
 
-    /**
-     * Sets all supplied writer configuration options.
-     * 
-     * @param config
-     *        a writer configuration object.
-     * @since 2.7.0
-     */
     @Override
-    public void setWriterConfig(WriterConfig config) {
-		this.config = config;
-	}    
+    public RDFWriter setWriterConfig(WriterConfig config) {
+        this.config = config;
+        return this;
+    }
+
+    @Override
+    public <T> RDFWriter set(RioSetting<T> setting, T value) {
+        this.getWriterConfig().set(setting, value);
+        return this;
+    }
 
 }

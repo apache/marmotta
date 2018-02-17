@@ -19,6 +19,26 @@ package org.apache.marmotta.platform.versioning.webservices;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
+import static com.google.common.net.HttpHeaders.LINK;
+import static com.google.common.net.HttpHeaders.VARY;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.MarmottaHttpUtils;
 import org.apache.marmotta.commons.util.DateUtils;
@@ -33,31 +53,16 @@ import org.apache.marmotta.platform.versioning.io.VersionSerializer;
 import org.apache.marmotta.platform.versioning.model.MementoVersionSet;
 import org.apache.marmotta.platform.versioning.services.VersioningSailProvider;
 import org.apache.marmotta.platform.versioning.utils.MementoUtils;
-import org.openrdf.model.URI;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.rio.Rio;
-import org.openrdf.sail.SailException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.sail.SailException;
 import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static com.google.common.net.HttpHeaders.*;
 
 /**
  * Webservice manages memento related services, namely:
@@ -112,21 +117,21 @@ public class MementoWebService {
             try {
                 Date date = DateUtils.parseDate(date_string);
 
-                URI resource = conn.getValueFactory().createURI(resource_string);
+                IRI resource = conn.getValueFactory().createIRI(resource_string);
 
                 //get versions
                 MementoVersionSet versions = mementoService.getVersionSet(resource, date);
 
                 //build version links
-                Set<String> links = versions.buildLinks(configurationService.getBaseUri());
+                Set<String> links = versions.buildLinks(configurationService.getBaseIri());
 
                 //add timemap link
-                links.add("<" + MementoUtils.timemapURI(resource_string, configurationService.getBaseUri()) + ">;rel=timemap");
+                links.add("<" + MementoUtils.timemapURI(resource_string, configurationService.getBaseIri()) + ">;rel=timemap");
 
                 //return permalink
                 return Response
                         .status(301)
-                        .location(MementoUtils.resourceURI(resource_string, versions.getCurrent().getCommitTime(), configurationService.getBaseUri()))
+                        .location(MementoUtils.resourceURI(resource_string, versions.getCurrent().getCommitTime(), configurationService.getBaseIri()))
                         .header(VARY, "negotiate, accept-datetime, accept")
                         .header("Memento-Datetime", versions.getCurrent().getCommitTime().toString())
                         .header(LINK, Joiner.on(", ").join(links))
@@ -148,9 +153,9 @@ public class MementoWebService {
     }
 
     /**
-     * returns a serialisation for a given memento resource uri
+     * returns a serialisation for a given memento resource iri
      * @param date_string the date of the version
-     * @param resource_string the original resource uri
+     * @param resource_string the original resource iri
      * @param types_string the accepted content types
      * @return a HTTP response
      * @HTTP 200 return resource in requested format
@@ -166,7 +171,7 @@ public class MementoWebService {
 
         try {
             //check preconditions
-            Preconditions.checkNotNull(resource_string,"Resource URI may not null");
+            Preconditions.checkNotNull(resource_string,"Resource IRI may not null");
             Preconditions.checkNotNull(date_string, "Date may not be null");
             Preconditions.checkNotNull(types_string, "Accept Header may not be null");
 
@@ -175,7 +180,7 @@ public class MementoWebService {
             try {
                 final Date date = MementoUtils.MEMENTO_DATE_FORMAT.parse(date_string);
 
-                final URI resource = conn.getValueFactory().createURI(resource_string);
+                final IRI resource = conn.getValueFactory().createIRI(resource_string);
 
                 final ContentType type = getContentType(types_string);
 
@@ -189,7 +194,7 @@ public class MementoWebService {
                         RDFWriter writer = Rio.createWriter(serializer, output);
                         try {
                             RepositoryConnection con = versioningService.getSnapshot(date);
-                            URI subject = con.getValueFactory().createURI(resource.stringValue());
+                            IRI subject = con.getValueFactory().createIRI(resource.stringValue());
                             try {
                                 con.exportStatements(subject,null,null,true,writer);
                             } catch (RepositoryException e) {
@@ -210,13 +215,13 @@ public class MementoWebService {
                 MementoVersionSet versions = mementoService.getVersionSet(resource, date);
 
                 //build version links
-                Set<String> links = versions.buildLinks(configurationService.getBaseUri());
+                Set<String> links = versions.buildLinks(configurationService.getBaseIri());
 
                 //add timegate link
-                links.add("<" + MementoUtils.timegateURI(resource_string, configurationService.getBaseUri()) + ">;rel=timegate");
+                links.add("<" + MementoUtils.timegateURI(resource_string, configurationService.getBaseIri()) + ">;rel=timegate");
 
                 //add timemap link
-                links.add("<" + MementoUtils.timemapURI(resource_string, configurationService.getBaseUri()) + ">;rel=timemap");
+                links.add("<" + MementoUtils.timemapURI(resource_string, configurationService.getBaseIri()) + ">;rel=timemap");
 
                 //create response
                 return Response
@@ -253,14 +258,14 @@ public class MementoWebService {
 
         try {
             //check preconditions
-            Preconditions.checkNotNull(resource_string,"Resource URI may not null");
+            Preconditions.checkNotNull(resource_string,"Resource IRI may not null");
             Preconditions.checkNotNull(types_string, "Accept Header may not be null");
 
             RepositoryConnection conn = sesameService.getConnection();
 
             try {
 
-                final URI resource = conn.getValueFactory().createURI(resource_string);
+                final IRI resource = conn.getValueFactory().createIRI(resource_string);
 
                 List<ContentType> types = MarmottaHttpUtils.parseAcceptHeader(types_string);
 
@@ -280,7 +285,7 @@ public class MementoWebService {
 
                 //create Header Links
                 Set<String> links = new HashSet<String>();
-                links.add("<" + MementoUtils.timegateURI(resource_string, configurationService.getBaseUri()) + ">;rel=timegate");
+                links.add("<" + MementoUtils.timegateURI(resource_string, configurationService.getBaseIri()) + ">;rel=timegate");
 
                 links.add("<" + resource_string + ">;rel=original");
 

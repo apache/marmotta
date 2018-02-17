@@ -17,24 +17,33 @@
  */
 package org.apache.marmotta.platform.ldp.patch;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
 import org.apache.marmotta.platform.ldp.patch.model.WildcardStatement;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParser;
 import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParserImpl;
-import org.openrdf.model.*;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
 
 /**
- * RdfPatchUtil - Util-Class to apply and create rdf-patches on a {@link Repository} or {@link org.openrdf.repository.RepositoryConnection}
+ * RdfPatchUtil - Util-Class to apply and create rdf-patches on a {@link Repository} or {@link org.eclipse.rdf4j.repository.RepositoryConnection}
  *
  * @author Jakob Frank
  */
@@ -42,7 +51,7 @@ public class RdfPatchUtil {
 
     /**
      * Apply the provided patch to the repository
-     * @param repository the {@link org.openrdf.repository.Repository} to patch
+     * @param repository the {@link org.eclipse.rdf4j.repository.Repository} to patch
      * @param patch the patch to apply
      * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
      * @throws ParseException if the patch could not be parsed
@@ -54,7 +63,7 @@ public class RdfPatchUtil {
 
     /**
      * Apply the provided patch to the repository
-     * @param repository the {@link org.openrdf.repository.Repository} to patch
+     * @param repository the {@link org.eclipse.rdf4j.repository.Repository} to patch
      * @param patchSource the patch to apply
      * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
      * @throws ParseException if the patch could not be parsed
@@ -66,7 +75,7 @@ public class RdfPatchUtil {
 
     /**
      * Apply the provided patch to the repository
-     * @param connection the {@link org.openrdf.repository.RepositoryConnection} to patch
+     * @param connection the {@link org.eclipse.rdf4j.repository.RepositoryConnection} to patch
      * @param patch the patch to apply
      * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
      * @throws ParseException if the patch could not be parsed
@@ -78,7 +87,7 @@ public class RdfPatchUtil {
 
     /**
      * Apply the provided patch to the repository
-     * @param connection the {@link org.openrdf.repository.RepositoryConnection} to patch
+     * @param connection the {@link org.eclipse.rdf4j.repository.RepositoryConnection} to patch
      * @param patchSource the patch to apply
      * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
      * @throws ParseException if the patch could not be parsed
@@ -90,7 +99,7 @@ public class RdfPatchUtil {
 
     /**
      * Apply the provided patch to the repository
-     * @param repository the {@link org.openrdf.repository.Repository} to patch
+     * @param repository the {@link org.eclipse.rdf4j.repository.Repository} to patch
      * @param patch the patch to apply
      * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
      * @throws InvalidPatchDocumentException if the patch is invalid
@@ -111,14 +120,14 @@ public class RdfPatchUtil {
 
     /**
      * Apply the provided patch to the repository
-     * @param connection the {@link org.openrdf.repository.RepositoryConnection} to patch
+     * @param connection the {@link org.eclipse.rdf4j.repository.RepositoryConnection} to patch
      * @param patch the patch to apply
      * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
      * @throws InvalidPatchDocumentException if the patch is invalid
      */
     public static void applyPatch(RepositoryConnection connection, List<PatchLine> patch, Resource... contexts) throws RepositoryException, InvalidPatchDocumentException {
         Resource subject = null;
-        URI predicate = null;
+        IRI predicate = null;
         Value object = null;
 
         for (PatchLine patchLine : patch) {
@@ -159,7 +168,7 @@ public class RdfPatchUtil {
     }
 
     private static List<PatchLine> getPatch(ValueFactory valueFactory, String patch) throws ParseException {
-        try (InputStream is = IOUtils.toInputStream(patch)) {
+        try (InputStream is = IOUtils.toInputStream(patch, Charset.defaultCharset())) {
             return getPatch(valueFactory, is);
         } catch (IOException e) {
             // You can always close an InputStream on a String
@@ -238,7 +247,7 @@ public class RdfPatchUtil {
         }
 
         Resource pS = null;
-        URI pP = null;
+        IRI pP = null;
         Value pO = null;
         ArrayList<PatchLine> patch = new ArrayList<>(removals.size()+additions.size());
         for (Statement s : removals) {

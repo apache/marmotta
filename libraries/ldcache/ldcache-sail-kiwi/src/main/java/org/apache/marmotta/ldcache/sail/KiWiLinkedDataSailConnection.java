@@ -17,13 +17,17 @@
  */
 package org.apache.marmotta.ldcache.sail;
 
-import info.aduna.iteration.CloseableIteration;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
 import org.apache.marmotta.ldcache.services.LDCache;
-import org.openrdf.model.*;
-import org.openrdf.sail.NotifyingSailConnection;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.NotifyingSailConnectionWrapper;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.sail.NotifyingSailConnection;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.NotifyingSailConnectionWrapper;
 
 /**
  * Add file description here!
@@ -52,9 +56,9 @@ public class KiWiLinkedDataSailConnection extends NotifyingSailConnectionWrapper
      * 3, if the subject of the query is null, refresh all non-local resources in the triple store
      */
     @Override
-    public CloseableIteration<? extends Statement, SailException> getStatements(Resource subj, URI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
+    public CloseableIteration<? extends Statement, SailException> getStatements(Resource subj, IRI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
         if(subj != null && isAcceptable(subj)) {
-            ldcache.refresh((URI) subj);
+            ldcache.refresh((IRI) subj);
         }
 
         // the refreshed resources will anyways be stored in the same triple store, so we can simply delegate the query

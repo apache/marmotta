@@ -33,13 +33,13 @@ public class KiWiBooleanLiteral extends KiWiStringLiteral {
     public KiWiBooleanLiteral() {
     }
 
-    public KiWiBooleanLiteral(boolean value, KiWiUriResource type) {
+    public KiWiBooleanLiteral(boolean value, KiWiIriResource type) {
         super();
         setValue(value);
         setType(type);
     }
 
-    public KiWiBooleanLiteral(boolean value, KiWiUriResource type, Date created) {
+    public KiWiBooleanLiteral(boolean value, KiWiIriResource type, Date created) {
         super(created);
         setValue(value);
         setType(type);

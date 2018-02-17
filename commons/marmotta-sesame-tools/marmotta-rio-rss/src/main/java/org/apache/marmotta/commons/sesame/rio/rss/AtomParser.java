@@ -19,33 +19,35 @@ package org.apache.marmotta.commons.sesame.rio.rss;
 
 import com.google.common.base.Preconditions;
 import com.sun.syndication.feed.WireFeed;
-import com.sun.syndication.feed.atom.*;
+import com.sun.syndication.feed.atom.Category;
+import com.sun.syndication.feed.atom.Content;
+import com.sun.syndication.feed.atom.Entry;
+import com.sun.syndication.feed.atom.Feed;
+import com.sun.syndication.feed.atom.Link;
+import com.sun.syndication.feed.atom.Person;
 import com.sun.syndication.feed.module.DCModule;
 import com.sun.syndication.feed.module.Module;
 import com.sun.syndication.feed.module.SyModule;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.WireFeedInput;
-
-import org.apache.marmotta.commons.sesame.rio.rss.AtomFormat;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
 import org.rometools.feed.module.content.ContentModule;
 import org.rometools.feed.module.georss.GeoRSSModule;
 import org.rometools.feed.module.mediarss.MediaEntryModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 /**
  * Parse Atom feed into RDF. Uses the following vocabularies:
@@ -66,11 +68,11 @@ public class AtomParser extends FeedParserBase {
 
 
     /**
-     * Creates a new RDFParserBase that will use a {@link org.openrdf.model.impl.ValueFactoryImpl} to
+     * Creates a new RDFParserBase that will use a {@link org.eclipse.rdf4j.model.impl.ValueFactoryImpl} to
      * create RDF model objects.
      */
     public AtomParser() {
-        this(new ValueFactoryImpl());
+        this(SimpleValueFactory.getInstance());
     }
 
     /**
@@ -102,9 +104,9 @@ public class AtomParser extends FeedParserBase {
      * @param in      The InputStream from which to read the data.
      * @param baseURI The URI associated with the data in the InputStream.
      * @throws java.io.IOException If an I/O error occurred while data was read from the InputStream.
-     * @throws org.openrdf.rio.RDFParseException
+     * @throws org.eclipse.rdf4j.rio.RDFParseException
      *                             If the parser has found an unrecoverable parse error.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *                             If the configured statement handler has encountered an
      *                             unrecoverable error.
      */
@@ -134,9 +136,9 @@ public class AtomParser extends FeedParserBase {
      * @param reader  The Reader from which to read the data.
      * @param baseURI The URI associated with the data in the InputStream.
      * @throws java.io.IOException If an I/O error occurred while data was read from the InputStream.
-     * @throws org.openrdf.rio.RDFParseException
+     * @throws org.eclipse.rdf4j.rio.RDFParseException
      *                             If the parser has found an unrecoverable parse error.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *                             If the configured statement handler has encountered an
      *                             unrecoverable error.
      */
@@ -165,8 +167,8 @@ public class AtomParser extends FeedParserBase {
 
         final String entryURI = entry.getId();
 
-        URI r_entry = createURI(entryURI);
-        URI rdf_type = createURI(NS_RDF + "type");
+        IRI r_entry = createURI(entryURI);
+        IRI rdf_type = createURI(NS_RDF + "type");
 
 
         // add type sioc:Post
@@ -275,8 +277,8 @@ public class AtomParser extends FeedParserBase {
         setNamespace(NS_RSS_CONTENT,"content");
         setNamespace(NS_SIOC,"sioc");
 
-        URI r_feed = createURI(feedUri);
-        URI rdf_type = createURI(NS_RDF + "type");
+        IRI r_feed = createURI(feedUri);
+        IRI rdf_type = createURI(NS_RDF + "type");
 
         // add type sioc:Forum
         rdfHandler.handleStatement(createStatement(r_feed, rdf_type, createURI(NS_SIOC + "Forum")));

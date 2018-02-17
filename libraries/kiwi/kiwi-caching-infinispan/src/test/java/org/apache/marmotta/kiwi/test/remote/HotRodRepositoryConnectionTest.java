@@ -21,16 +21,17 @@ import org.apache.marmotta.kiwi.config.CachingBackends;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.eclipse.rdf4j.IsolationLevels;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnectionTest;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnectionTest;
-import org.openrdf.repository.sail.SailRepository;
 
 /**
- * Run the {@link org.openrdf.repository.RepositoryConnectionTest}s.
+ * Run the {@link org.eclipse.rdf4j.repository.RepositoryConnectionTest}s.
  * @author Jakob Frank <jakob@apache.org>
  *
  */
@@ -43,6 +44,7 @@ public class HotRodRepositoryConnectionTest extends RepositoryConnectionTest {
     private final KiWiConfiguration config;
 
     public HotRodRepositoryConnectionTest(KiWiConfiguration config) {
+        super(IsolationLevels.SNAPSHOT_READ);
         this.config = config;
         config.setClusterAddress("127.0.0.1");
         config.setClustered(true);
@@ -53,7 +55,7 @@ public class HotRodRepositoryConnectionTest extends RepositoryConnectionTest {
 
 
     /* (non-Javadoc)
-     * @see org.openrdf.repository.RepositoryConnectionTest#createRepository()
+     * @see org.eclipse.rdf4j.repository.RepositoryConnectionTest#createRepository()
      */
     @Override
     protected Repository createRepository() throws Exception {
@@ -70,17 +72,4 @@ public class HotRodRepositoryConnectionTest extends RepositoryConnectionTest {
     @Override
     public void testOrderByQueriesAreInterruptable() throws Exception {
     }
-
-    @Ignore("KiWi supports transaction isolation")
-    @Test
-    @Override
-    public void testReadOfAddedStatement1() throws Exception {
-    }
-
-    @Ignore("KiWi supports transaction isolation")
-    @Test
-    @Override
-    public void testReadOfAddedStatement2() throws Exception {
-    }
-
 }

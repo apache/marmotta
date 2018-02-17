@@ -17,31 +17,29 @@
  */
 package org.apache.marmotta.ldpath.model.functions;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
-import org.apache.marmotta.ldpath.parser.ParseException;
 import org.apache.marmotta.ldpath.parser.LdPathParser;
+import org.apache.marmotta.ldpath.parser.ParseException;
 import org.apache.marmotta.ldpath.test.AbstractTestBase;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
 
 
 @RunWith(Parameterized.class)
@@ -84,15 +82,15 @@ public class BinaryNumericTestFunctionsTest extends AbstractTestBase {
     }
 
     private void runTest(String fkt, String pos, String neg) throws ParseException {
-        final URI start = repository.getValueFactory().createURI("http://www.example.com/Compare");
+        final IRI start = repository.getValueFactory().createIRI("http://www.example.com/Compare");
 
         ArrayList<Value> yes = new ArrayList<Value>();
         for (String p : pos.split(",")) {
-            yes.add(repository.getValueFactory().createURI(NSS.get("ex") + p.trim()));
+            yes.add(repository.getValueFactory().createIRI(NSS.get("ex") + p.trim()));
         }
         ArrayList<Value> no = new ArrayList<Value>();
         for (String p : neg.split(",")) {
-            no.add(repository.getValueFactory().createURI(NSS.get("ex") + p.trim()));
+            no.add(repository.getValueFactory().createIRI(NSS.get("ex") + p.trim()));
         }
 
 

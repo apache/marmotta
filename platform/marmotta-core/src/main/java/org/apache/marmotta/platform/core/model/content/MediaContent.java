@@ -21,11 +21,12 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 /**
+ * <p>
  * A non-entity class used to represent in-memory media content in KiWi. The actual content is stored in
  * KiWiMediaContentLiteral.
  *
  *
- * <p/>
+ * </p>
  * User: sschaffe
  */
 public class MediaContent implements Serializable  {

@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.ldclient.provider.youtube.mapping;
 
-import org.apache.marmotta.ldclient.provider.xml.mapping.XPathLiteralMapper;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.util.List;
 import java.util.Map;
+import org.apache.marmotta.ldclient.provider.xml.mapping.XPathLiteralMapper;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
 
 /**
  * Add file description here!

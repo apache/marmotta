@@ -19,16 +19,18 @@ package org.apache.marmotta.kiwi.test.sesame;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.eclipse.rdf4j.sail.Sail;
+import org.eclipse.rdf4j.sail.SailConcurrencyTest;
+import org.eclipse.rdf4j.sail.SailException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.SailConcurrencyTest;
-import org.openrdf.sail.SailException;
 
 /**
  * Run the Sesame {@link SailConcurrencyTest} suite.
+ *
  * @author Jakob Frank <jakob@apache.org>
  */
 @RunWith(KiWiDatabaseRunner.class)
@@ -37,10 +39,9 @@ public class KiWiSailConcurrencyTest extends SailConcurrencyTest {
     private final KiWiConfiguration kiwiConfig;
 
     public KiWiSailConcurrencyTest(KiWiConfiguration kiwiConfig) {
-        super(String.format("%s (%S)", KiWiSailConcurrencyTest.class.getSimpleName(), kiwiConfig.getName()));
         this.kiwiConfig = kiwiConfig;
     }
-    
+
     @Override
     protected Sail createSail() throws SailException {
         KiWiStore store = new KiWiStore(kiwiConfig);
@@ -53,16 +54,31 @@ public class KiWiSailConcurrencyTest extends SailConcurrencyTest {
     public void setUp() throws Exception {
         super.setUp();
     }
-    
+
     @Override
     @After
     public void tearDown() throws Exception {
         super.tearDown();
     }
-    
+
     @Override
     @Test
     public void testGetContextIDs() throws Exception {
         super.testGetContextIDs();
     }
+
+    @Override
+    @Test
+    @Category(LargeConcurrencyTx.class)
+    public void testConcurrentAddLargeTxn() throws Exception {
+        super.testConcurrentAddLargeTxn();
+    }
+
+    @Override
+    @Test
+    @Category(LargeConcurrencyTx.class)
+    public void testConcurrentAddLargeTxnRollback() throws Exception {
+        super.testConcurrentAddLargeTxnRollback();
+    }
+
 }

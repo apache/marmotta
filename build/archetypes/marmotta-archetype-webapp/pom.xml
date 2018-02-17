@@ -33,7 +33,7 @@
 
     <properties>
         <marmottaVersion>${project.version}</marmottaVersion>
-        <sesameVersion>${sesame.version}</sesameVersion>
+        <rdf4jVersion>${rdf4j.version}</rdf4jVersion>
 
         <junitVersion>${junit.version}</junitVersion>
         <servletApiVersion>${servlet.api.version}</servletApiVersion>

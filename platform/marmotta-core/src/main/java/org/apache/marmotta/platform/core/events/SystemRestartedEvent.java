@@ -18,8 +18,9 @@
 package org.apache.marmotta.platform.core.events;
 
 /**
+ * <p>
  * Thrown when system restart has completed and the database is ready again
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 public class SystemRestartedEvent {

@@ -17,29 +17,33 @@
  */
 package org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml;
 
-import org.apache.marmotta.platform.core.api.templating.TemplatingService;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.QueryResultHandlerException;
-import org.openrdf.query.TupleQueryResultHandlerBase;
-import org.openrdf.query.TupleQueryResultHandlerException;
-import org.openrdf.query.resultio.QueryResultFormat;
-import org.openrdf.query.resultio.TupleQueryResultFormat;
-import org.openrdf.query.resultio.TupleQueryResultWriter;
-import org.openrdf.rio.RioSetting;
-import org.openrdf.rio.WriterConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import org.apache.marmotta.platform.core.api.templating.TemplatingService;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryResultHandlerException;
+import org.eclipse.rdf4j.query.AbstractTupleQueryResultHandler;
+import org.eclipse.rdf4j.query.TupleQueryResultHandlerException;
+import org.eclipse.rdf4j.query.resultio.QueryResultFormat;
+import org.eclipse.rdf4j.query.resultio.TupleQueryResultFormat;
+import org.eclipse.rdf4j.query.resultio.TupleQueryResultWriter;
+import org.eclipse.rdf4j.rio.RioSetting;
+import org.eclipse.rdf4j.rio.WriterConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * SPARQL results to HTML writer using Freemarker
  * 
  * @author Sergio Fernández
  */
-public class SPARQLResultsHTMLWriter extends TupleQueryResultHandlerBase implements TupleQueryResultWriter {
+public class SPARQLResultsHTMLWriter extends AbstractTupleQueryResultHandler implements TupleQueryResultWriter {
 
 	private static final Logger log = LoggerFactory.getLogger(SPARQLResultsHTMLWriter.class);
     

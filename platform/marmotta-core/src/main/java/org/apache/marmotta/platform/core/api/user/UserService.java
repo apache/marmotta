@@ -18,7 +18,7 @@
 package org.apache.marmotta.platform.core.api.user;
 
 import org.apache.marmotta.platform.core.exception.UserExistsException;
-import org.openrdf.model.URI;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  * Manages the user-resources (BASE_URL/users/*)
@@ -42,11 +42,11 @@ public interface UserService {
      * Child-Threads will inherit the current user from it's parent thread unless the current user
      * was explicitly set.
      * 
-     * @see #setCurrentUser(org.openrdf.model.URI)
+     * @see #setCurrentUser(org.eclipse.rdf4j.model.IRI)
      * 
      * @return the resource for the current user.
      */
-    URI getCurrentUser();
+    IRI getCurrentUser();
 
     /**
      * Check whether the given resource is the anonyous user resource
@@ -56,7 +56,7 @@ public interface UserService {
      * @return <code>true</code> if the given resource equals the anonymous user resource.
      * @see #getAnonymousUser()
      */
-    boolean isAnonymous(URI user);
+    boolean isAnonymous(IRI user);
 
     /**
      * Set the current user to the user passed as argument. The current user should be associated
@@ -65,7 +65,7 @@ public interface UserService {
      *
      * @param user
      */
-    void setCurrentUser(URI user);
+    void setCurrentUser(IRI user);
 
     /**
      * Clear a current user setting for the current thread. Clears the thread local variable set for
@@ -86,7 +86,7 @@ public interface UserService {
      * @param login login of the user to create
      * @return the newly created user.
      */
-    URI createUser(String login) throws UserExistsException;
+    IRI createUser(String login) throws UserExistsException;
 
     /**
      * Create a new user with the provided login, first name and last name. The method first
@@ -98,7 +98,7 @@ public interface UserService {
      * @param lastName last name of the user to create
      * @return the newly created user.
      */
-    URI createUser(final String login, final String firstName, final String lastName) throws UserExistsException;
+    IRI createUser(final String login, final String firstName, final String lastName) throws UserExistsException;
 
     /**
      * Return the anonymous user. If it does not exist yet, it is created in the database and
@@ -106,7 +106,7 @@ public interface UserService {
      * 
      * @return the {@link org.apache.marmotta.kiwi.model.rdf.KiWiUriResource} representing the anonymous user.
      */
-    URI getAnonymousUser();
+    IRI getAnonymousUser();
 
     /**
      * Return the (default) admin user. If it does not exist yet, it is created in the database and
@@ -114,7 +114,7 @@ public interface UserService {
      * 
      * @return the {@link org.apache.marmotta.kiwi.model.rdf.KiWiUriResource} representing the user "admin".
      */
-    URI getAdminUser();
+    IRI getAdminUser();
 
     /**
      * Return a user by login. The user is looked up in the database and returned. In case
@@ -124,7 +124,7 @@ public interface UserService {
      * @param login the login to look for
      * @return the user with the given login, or null if no such user exists
      */
-    URI getUser(String login);
+    IRI getUser(String login);
 
     /**
      * Check whether the user with the given login name already exists.

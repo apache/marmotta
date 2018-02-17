@@ -43,15 +43,15 @@ public interface MediaContentItem  extends Facade {
     void setContentPath(String path);
 
     /**
-     * Return the URI location of the content for this resource
+     * Return the IRI location of the content for this resource
      * @return
      */
     @RDF(Namespaces.NS_KIWI_CORE+"hasContentLocation")
     String getContentLocation();
 
     /**
-     * Set the URI location of the content for this resource
-     * @return
+     * Set the IRI location of the content for this resource
+     * @param location
      */
     void setContentLocation(String location);
 }

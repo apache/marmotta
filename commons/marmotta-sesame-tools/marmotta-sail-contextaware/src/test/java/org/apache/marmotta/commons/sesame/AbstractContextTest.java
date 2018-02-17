@@ -17,29 +17,27 @@
  */
 package org.apache.marmotta.commons.sesame;
 
-import info.aduna.iteration.CloseableIteration;
-
 import java.util.UUID;
-
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.sail.Sail;
+import org.eclipse.rdf4j.sail.SailConnection;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.After;
 import org.junit.Before;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.SailConnection;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.memory.MemoryStore;
 
 public abstract class AbstractContextTest {
 
     protected static final String NS = "http://test.marmotta.apache.org/resource/";
     
     protected static boolean hasStatement(SailConnection con, Resource subj,
-            URI pred, Value object, Resource... contexts) throws SailException {
+            IRI pred, Value object, Resource... contexts) throws SailException {
                 final CloseableIteration<? extends Statement, SailException> stmts = con.getStatements(subj, pred, object, true, contexts);
                 try {
                     return stmts.hasNext();
@@ -50,8 +48,8 @@ public abstract class AbstractContextTest {
 
     protected Sail sail;
 
-    protected URI u1, u2, u3, u4;
-    protected URI p1, p2, p3, p4;
+    protected IRI u1, u2, u3, u4;
+    protected IRI p1, p2, p3, p4;
     protected Resource c1, c2;
     protected Literal l1, l2, l3, l4;
     
@@ -61,17 +59,17 @@ public abstract class AbstractContextTest {
         sail.initialize();
 
         final ValueFactory vf = sail.getValueFactory();
-        u1 = vf.createURI(NS, UUID.randomUUID().toString());
-        u2 = vf.createURI(NS, UUID.randomUUID().toString());
-        u3 = vf.createURI(NS, UUID.randomUUID().toString());
-        u4 = vf.createURI(NS, UUID.randomUUID().toString());
+        u1 = vf.createIRI(NS, UUID.randomUUID().toString());
+        u2 = vf.createIRI(NS, UUID.randomUUID().toString());
+        u3 = vf.createIRI(NS, UUID.randomUUID().toString());
+        u4 = vf.createIRI(NS, UUID.randomUUID().toString());
         
-        p1 = vf.createURI(NS, UUID.randomUUID().toString());
-        p2 = vf.createURI(NS, UUID.randomUUID().toString());
-        p3 = vf.createURI(NS, UUID.randomUUID().toString());
-        p4 = vf.createURI(NS, UUID.randomUUID().toString());
+        p1 = vf.createIRI(NS, UUID.randomUUID().toString());
+        p2 = vf.createIRI(NS, UUID.randomUUID().toString());
+        p3 = vf.createIRI(NS, UUID.randomUUID().toString());
+        p4 = vf.createIRI(NS, UUID.randomUUID().toString());
         
-        c1 = vf.createURI(NS, UUID.randomUUID().toString());
+        c1 = vf.createIRI(NS, UUID.randomUUID().toString());
         c2 = vf.createBNode();
         
         l1 = vf.createLiteral(UUID.randomUUID().toString());

@@ -28,24 +28,24 @@ import com.sun.syndication.feed.rss.Enclosure;
 import com.sun.syndication.feed.rss.Item;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.WireFeedInput;
-
-import org.apache.marmotta.commons.sesame.rio.rss.RSSFormat;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
 import org.rometools.feed.module.content.ContentModule;
 import org.rometools.feed.module.georss.GeoRSSModule;
 import org.rometools.feed.module.mediarss.MediaEntryModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
-
-import java.io.*;
-import java.net.URLEncoder;
 
 /**
  * Parse RSS feed into RDF. Uses the following vocabularies:
@@ -66,11 +66,11 @@ public final class RSSParser extends FeedParserBase {
 
 
     /**
-     * Creates a new RDFParserBase that will use a {@link org.openrdf.model.impl.ValueFactoryImpl} to
+     * Creates a new RDFParserBase that will use a {@link org.eclipse.rdf4j.model.impl.ValueFactoryImpl} to
      * create RDF model objects.
      */
     public RSSParser() {
-        this(new ValueFactoryImpl());
+        this(SimpleValueFactory.getInstance());
     }
 
     /**
@@ -96,23 +96,23 @@ public final class RSSParser extends FeedParserBase {
 
 
     /**
-     * Parses the data from the supplied InputStream, using the supplied baseURI
-     * to resolve any relative URI references.
+     * Parses the data from the supplied InputStream, using the supplied baseIRI
+     * to resolve any relative IRI references.
      *
      * @param in      The InputStream from which to read the data.
-     * @param baseURI The URI associated with the data in the InputStream.
+     * @param baseIRI The IRI associated with the data in the InputStream.
      * @throws java.io.IOException If an I/O error occurred while data was read from the InputStream.
-     * @throws org.openrdf.rio.RDFParseException
+     * @throws org.eclipse.rdf4j.rio.RDFParseException
      *                             If the parser has found an unrecoverable parse error.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *                             If the configured statement handler has encountered an
      *                             unrecoverable error.
      */
     @Override
-    public void parse(InputStream in, String baseURI) throws IOException, RDFParseException, RDFHandlerException {
-        Preconditions.checkNotNull(baseURI);
+    public void parse(InputStream in, String baseIRI) throws IOException, RDFParseException, RDFHandlerException {
+        Preconditions.checkNotNull(baseIRI);
 
-        setBaseURI(baseURI);
+        setBaseURI(baseIRI);
 
         WireFeedInput input = new WireFeedInput();
         try {
@@ -128,23 +128,23 @@ public final class RSSParser extends FeedParserBase {
     }
 
     /**
-     * Parses the data from the supplied Reader, using the supplied baseURI to
-     * resolve any relative URI references.
+     * Parses the data from the supplied Reader, using the supplied baseIRI to
+     * resolve any relative IRI references.
      *
      * @param reader  The Reader from which to read the data.
-     * @param baseURI The URI associated with the data in the InputStream.
+     * @param baseIRI The IRI associated with the data in the InputStream.
      * @throws java.io.IOException If an I/O error occurred while data was read from the InputStream.
-     * @throws org.openrdf.rio.RDFParseException
+     * @throws org.eclipse.rdf4j.rio.RDFParseException
      *                             If the parser has found an unrecoverable parse error.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *                             If the configured statement handler has encountered an
      *                             unrecoverable error.
      */
     @Override
-    public void parse(Reader reader, String baseURI) throws IOException, RDFParseException, RDFHandlerException {
-        Preconditions.checkNotNull(baseURI);
+    public void parse(Reader reader, String baseIRI) throws IOException, RDFParseException, RDFHandlerException {
+        Preconditions.checkNotNull(baseIRI);
 
-        setBaseURI(baseURI);
+        setBaseURI(baseIRI);
 
         WireFeedInput input = new WireFeedInput();
         try {
@@ -163,10 +163,10 @@ public final class RSSParser extends FeedParserBase {
 
     private void parseFeedEntry(final Item entry, final Resource r_feed) throws RDFParseException, RDFHandlerException {
 
-        final String entryURI = entry.getUri() != null ? entry.getUri() : entry.getLink();
+        final String entryIRI = entry.getUri() != null ? entry.getUri() : entry.getLink();
 
-        URI r_entry = createURI(entryURI);
-        URI rdf_type = createURI(NS_RDF + "type");
+        IRI r_entry = createURI(entryIRI);
+        IRI rdf_type = createURI(NS_RDF + "type");
 
 
         // add type sioc:Post
@@ -259,8 +259,8 @@ public final class RSSParser extends FeedParserBase {
         setNamespace(NS_RSS_CONTENT,"content");
         setNamespace(NS_SIOC,"sioc");
 
-        URI r_feed = createURI(feedUri);
-        URI rdf_type = createURI(NS_RDF + "type");
+        IRI r_feed = createURI(feedUri);
+        IRI rdf_type = createURI(NS_RDF + "type");
 
         // add type sioc:Forum
         rdfHandler.handleStatement(createStatement(r_feed, rdf_type, createURI(NS_SIOC + "Forum")));

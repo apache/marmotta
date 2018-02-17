@@ -17,11 +17,15 @@
 
 package org.apache.marmotta.ldcache.backend.infinispan;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.backend.infinispan.io.ModelExternalizer;
 import org.apache.marmotta.ldcache.backend.infinispan.io.ValueExternalizer;
 import org.apache.marmotta.ldcache.model.CacheEntry;
+import org.eclipse.rdf4j.model.IRI;
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
@@ -33,12 +37,8 @@ import org.infinispan.distribution.ch.SyncConsistentHashFactory;
 import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
-import org.openrdf.model.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Add file description here!
@@ -101,7 +101,7 @@ public class LDCachingInfinispanBackend implements LDCachingBackend {
      */
     public LDCachingInfinispanBackend(String clusterName, String machineName, int clusterPort) {
         try {
-            String jgroupsXml = IOUtils.toString(LDCachingInfinispanBackend.class.getResourceAsStream("/jgroups-ldcache.xml"));
+            String jgroupsXml = IOUtils.toString(LDCachingInfinispanBackend.class.getResourceAsStream("/jgroups-ldcache.xml"),Charset.defaultCharset());
 
             jgroupsXml = jgroupsXml.replaceAll("mcast_port=\"[0-9]+\"", String.format("mcast_port=\"%d\"", clusterPort));
 
@@ -182,7 +182,7 @@ public class LDCachingInfinispanBackend implements LDCachingBackend {
      * @return
      */
     @Override
-    public CacheEntry getEntry(URI resource) {
+    public CacheEntry getEntry(IRI resource) {
         CacheEntry entry = getEntryCache().get(resource.stringValue());
 
         log.debug("retrieved entry for resource {}: {}", resource.stringValue(), entry);
@@ -197,7 +197,7 @@ public class LDCachingInfinispanBackend implements LDCachingBackend {
      * @param entry    the entry for the resource
      */
     @Override
-    public void putEntry(URI resource, CacheEntry entry) {
+    public void putEntry(IRI resource, CacheEntry entry) {
         log.debug("updating entry for resource {} to {}", resource.stringValue(), entry);
 
         getEntryCache().put(resource.stringValue(), entry);
@@ -209,7 +209,7 @@ public class LDCachingInfinispanBackend implements LDCachingBackend {
      * @param resource the resource to remove the entry for
      */
     @Override
-    public void removeEntry(URI resource) {
+    public void removeEntry(IRI resource) {
         log.debug("removing entry for resource {}", resource.stringValue());
 
         getEntryCache().remove(resource.stringValue());

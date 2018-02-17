@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation indicates that a certain field should be
- * persisted to the KiWi triple store using the property URI
+ * persisted to the KiWi triple store using the property IRI
  * passed as annotation parameter.<br>
  * The TripleStore class checks for <b>RDF</b> annotations
  * during persist and load. <br>
@@ -45,10 +45,10 @@ import java.lang.annotation.Target;
 public @interface RDF {
 
     /**
-     * Return the URI of the RDF predicate to use for the field
+     * Return the IRI of the RDF predicate to use for the field
      * or method.
      *
-     * @returns URI of the RDF predicate to use for the field or
+     * @returns IRI of the RDF predicate to use for the field or
      *          method.
      */
 	String[] value();

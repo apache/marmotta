@@ -21,8 +21,9 @@ import java.io.Serializable;
 import java.net.URL;
 
 /**
+ * <p>
  * Internal representation of a resource contained in one of the modules.
- * <p/>
+ * </p>
  * User: sschaffe
  */
 public class ResourceEntry implements Serializable {

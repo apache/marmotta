@@ -21,15 +21,15 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.marmotta.kiwi.reasoner.model.program.LiteralField;
 import org.apache.marmotta.kiwi.reasoner.model.program.Rule;
 import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParser;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,7 +105,7 @@ public class KWRLRuleParserTest {
         Assert.assertTrue(r.getHead().getProperty().isVariableField());
         Assert.assertTrue(r.getHead().getObject().isLiteralField());
         Assert.assertEquals("Hello", ((LiteralField) r.getHead().getObject()).getLiteral().getLabel());
-        Assert.assertEquals("en", ((LiteralField) r.getHead().getObject()).getLiteral().getLanguage());
+        Assert.assertEquals("en", ((LiteralField) r.getHead().getObject()).getLiteral().getLanguage().orElse(null));
     }
 
     @Test
@@ -122,7 +122,7 @@ public class KWRLRuleParserTest {
         Assert.assertTrue(r.getHead().getProperty().isVariableField());
         Assert.assertTrue(r.getHead().getObject().isLiteralField());
         Assert.assertEquals("Bonjour", ((LiteralField)r.getHead().getObject()).getLiteral().getLabel());
-        Assert.assertEquals("fr", ((LiteralField) r.getHead().getObject()).getLiteral().getLanguage());
+        Assert.assertEquals("fr", ((LiteralField) r.getHead().getObject()).getLiteral().getLanguage().orElse(null));
     }
 
 }

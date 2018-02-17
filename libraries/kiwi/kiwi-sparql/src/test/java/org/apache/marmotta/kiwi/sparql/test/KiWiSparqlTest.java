@@ -19,7 +19,6 @@ package org.apache.marmotta.kiwi.sparql.test;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import info.aduna.iteration.Iterations;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -31,6 +30,25 @@ import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.query.Binding;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.GraphQuery;
+import org.eclipse.rdf4j.query.GraphQueryResult;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -40,24 +58,6 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.query.Binding;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.GraphQuery;
-import org.openrdf.query.GraphQueryResult;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,7 +146,7 @@ public class KiWiSparqlTest {
 
     /**
      * Tests if evaluation of query executes. Solves MARMOTTA-657.
-     * @throws Exception 
+     * @throws Exception
      */
     @Test
     public void testMarmotta657() throws Exception{
@@ -371,7 +371,7 @@ public class KiWiSparqlTest {
             conn.close();
         }
     }
-	
+
     @Test
     public void testMarmotta640_1() throws Exception {
         final String queryString = IOUtils.toString(this.getClass().getResourceAsStream("MARMOTTA-640_1.sparql"), "UTF-8");
@@ -389,7 +389,7 @@ public class KiWiSparqlTest {
         final String queryString = IOUtils.toString(this.getClass().getResourceAsStream("MARMOTTA-651_1.sparql"), "UTF-8");
         testConstructEvaluation(queryString); //TODO: if we could get data, we could also test the result
     }
-	
+
     @Test
     public void testMarmotta640Regresion() throws Exception {
         final String queryString = "SELECT * WHERE { { ?x ?y ?z } UNION { ?x ?y2 ?z2 } }";

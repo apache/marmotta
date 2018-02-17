@@ -18,8 +18,9 @@
 package org.apache.marmotta.platform.core.exception;
 
 /**
+ * <p>
  * Add file description here!
- * <p/>
+ * </p>
  * User: sschaffe
  */
 public class ResolvingException extends Exception {

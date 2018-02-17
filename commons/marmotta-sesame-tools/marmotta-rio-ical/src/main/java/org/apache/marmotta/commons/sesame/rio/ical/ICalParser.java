@@ -18,35 +18,53 @@
 package org.apache.marmotta.commons.sesame.rio.ical;
 
 import com.google.common.base.Preconditions;
-import net.fortuna.ical4j.data.CalendarBuilder;
-import net.fortuna.ical4j.data.ParserException;
-import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.Property;
-import net.fortuna.ical4j.model.component.*;
-import net.fortuna.ical4j.model.property.*;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.helpers.RDFParserBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
-import java.util.*;
-
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.TimeZone;
+import java.util.UUID;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import net.fortuna.ical4j.data.CalendarBuilder;
+import net.fortuna.ical4j.data.ParserException;
+import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.component.CalendarComponent;
+import net.fortuna.ical4j.model.component.VAlarm;
+import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.component.VFreeBusy;
+import net.fortuna.ical4j.model.component.VJournal;
+import net.fortuna.ical4j.model.component.VToDo;
+import net.fortuna.ical4j.model.property.Attach;
+import net.fortuna.ical4j.model.property.Attendee;
+import net.fortuna.ical4j.model.property.Categories;
+import net.fortuna.ical4j.model.property.DateListProperty;
+import net.fortuna.ical4j.model.property.DateProperty;
+import net.fortuna.ical4j.model.property.Duration;
+import net.fortuna.ical4j.model.property.Geo;
+import net.fortuna.ical4j.model.property.Organizer;
+import net.fortuna.ical4j.model.property.Resources;
+import net.fortuna.ical4j.model.property.Trigger;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.helpers.AbstractRDFParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+ 
 /**
  * A parser for parsing iCalendar (http://de.wikipedia.org/wiki/ICalendar) files into RDF format. Represents
  * data using the iCal vocabulary (http://www.w3.org/2002/12/cal/icaltzd,
@@ -56,7 +74,7 @@ import java.util.*;
  * @see http://wiki.modularity.net.au/ical4j/index.php
  * @see http://wiki.modularity.net.au/ical4j/index.php?title=Compatibility
  */
-public class ICalParser extends RDFParserBase {
+public class ICalParser extends AbstractRDFParser {
     private static Logger log = LoggerFactory.getLogger(ICalParser.class);
 
     private final static SimpleDateFormat DF_DIGITS = new SimpleDateFormat("yyyyMMdd-hhmmss");
@@ -69,15 +87,15 @@ public class ICalParser extends RDFParserBase {
     private ValueFactory valueFactory;
 
     /**
-     * Creates a new RDFParserBase that will use a {@link org.openrdf.model.impl.ValueFactoryImpl} to
+     * Creates a new AbstractRDFParser that will use a {@link org.eclipse.rdf4j.model.impl.ValueFactoryImpl} to
      * create RDF model objects.
      */
     public ICalParser() {
-        this(new ValueFactoryImpl());
+        this(SimpleValueFactory.getInstance());
     }
 
     /**
-     * Creates a new RDFParserBase that will use the supplied ValueFactory to
+     * Creates a new AbstractRDFParser that will use the supplied ValueFactory to
      * create RDF model objects.
      *
      * @param valueFactory A ValueFactory.
@@ -89,9 +107,10 @@ public class ICalParser extends RDFParserBase {
 
 
     @Override
-    public void setValueFactory(ValueFactory valueFactory) {
+    public RDFParser setValueFactory(ValueFactory valueFactory) {
         super.setValueFactory(valueFactory);
         this.valueFactory = valueFactory;
+        return this;
     }
 
     /**
@@ -103,23 +122,23 @@ public class ICalParser extends RDFParserBase {
     }
 
     /**
-     * Parses the data from the supplied InputStream, using the supplied baseURI
-     * to resolve any relative URI references.
+     * Parses the data from the supplied InputStream, using the supplied baseIRI
+     * to resolve any relative IRI references.
      *
      * @param in      The InputStream from which to read the data.
-     * @param baseURI The URI associated with the data in the InputStream.
+     * @param baseIRI The IRI associated with the data in the InputStream.
      * @throws java.io.IOException If an I/O error occurred while data was read from the InputStream.
-     * @throws org.openrdf.rio.RDFParseException
+     * @throws org.eclipse.rdf4j.rio.RDFParseException
      *                             If the parser has found an unrecoverable parse error.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *                             If the configured statement handler has encountered an
      *                             unrecoverable error.
      */
     @Override
-    public void parse(InputStream in, String baseURI) throws IOException, RDFParseException, RDFHandlerException {
-        Preconditions.checkNotNull(baseURI);
+    public void parse(InputStream in, String baseIRI) throws IOException, RDFParseException, RDFHandlerException {
+        Preconditions.checkNotNull(baseIRI);
 
-        setBaseURI(baseURI);
+        setBaseURI(baseIRI);
         try {
             parseCalendar(new CalendarBuilder().build(in));
         } catch (ParserException e) {
@@ -128,23 +147,23 @@ public class ICalParser extends RDFParserBase {
     }
 
     /**
-     * Parses the data from the supplied Reader, using the supplied baseURI to
-     * resolve any relative URI references.
+     * Parses the data from the supplied Reader, using the supplied baseIRI to
+     * resolve any relative IRI references.
      *
      * @param reader  The Reader from which to read the data.
-     * @param baseURI The URI associated with the data in the InputStream.
+     * @param baseIRI The IRI associated with the data in the InputStream.
      * @throws java.io.IOException If an I/O error occurred while data was read from the InputStream.
-     * @throws org.openrdf.rio.RDFParseException
+     * @throws org.eclipse.rdf4j.rio.RDFParseException
      *                             If the parser has found an unrecoverable parse error.
-     * @throws org.openrdf.rio.RDFHandlerException
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException
      *                             If the configured statement handler has encountered an
      *                             unrecoverable error.
      */
     @Override
-    public void parse(Reader reader, String baseURI) throws IOException, RDFParseException, RDFHandlerException {
-        Preconditions.checkNotNull(baseURI);
+    public void parse(Reader reader, String baseIRI) throws IOException, RDFParseException, RDFHandlerException {
+        Preconditions.checkNotNull(baseIRI);
 
-        setBaseURI(baseURI);
+        setBaseURI(baseIRI);
         try {
             parseCalendar(new CalendarBuilder().build(reader));
         } catch (ParserException e) {
@@ -189,7 +208,7 @@ public class ICalParser extends RDFParserBase {
 
 
         Resource t_vevent = createURI(NS_ICAL + "Vevent");
-        URI p_type        = createURI(NS_RDF + "type");
+        IRI p_type        = createURI(NS_RDF + "type");
         rdfHandler.handleStatement(createStatement(r_event,p_type,t_vevent));
 
         parseCalendarComponent(event,r_event);
@@ -213,7 +232,7 @@ public class ICalParser extends RDFParserBase {
         r_event = resolveURI(uriBase);
 
         Resource t_vevent = createURI(NS_ICAL + "Vjournal");
-        URI p_type        = createURI(NS_RDF + "type");
+        IRI p_type        = createURI(NS_RDF + "type");
         rdfHandler.handleStatement(createStatement(r_event,p_type,t_vevent));
 
         parseCalendarComponent(journal,r_event);
@@ -225,7 +244,7 @@ public class ICalParser extends RDFParserBase {
 
 
         Resource t_vevent = createURI(NS_ICAL + "Valarm");
-        URI p_type        = createURI(NS_RDF + "type");
+        IRI p_type        = createURI(NS_RDF + "type");
         rdfHandler.handleStatement(createStatement(r_event,p_type,t_vevent));
 
         parseCalendarComponent(alarm,r_event);
@@ -241,7 +260,7 @@ public class ICalParser extends RDFParserBase {
         }
 
         Resource t_vevent = createURI(NS_ICAL + "Vfreebusy");
-        URI p_type        = createURI(NS_RDF + "type");
+        IRI p_type        = createURI(NS_RDF + "type");
         rdfHandler.handleStatement(createStatement(r_event,p_type,t_vevent));
 
         parseCalendarComponent(freeBusy,r_event);
@@ -257,7 +276,7 @@ public class ICalParser extends RDFParserBase {
         }
 
         Resource t_vevent = createURI(NS_ICAL + "Vtodo");
-        URI p_type        = createURI(NS_RDF + "type");
+        IRI p_type        = createURI(NS_RDF + "type");
         rdfHandler.handleStatement(createStatement(r_event,p_type,t_vevent));
 
         parseCalendarComponent(toDo,r_event);
@@ -268,8 +287,8 @@ public class ICalParser extends RDFParserBase {
         if(component.getProperty(Property.ATTACH) != null) {
             Attach attach = (Attach)component.getProperty(Property.ATTACH);
             if(attach.getUri() != null) {
-                URI r_attach = createURI(URLDecoder.decode(attach.getUri().toString(),"UTF-8"));
-                URI p_attach = createURI(NS_ICAL + "attach");
+                IRI r_attach = createURI(URLDecoder.decode(attach.getUri().toString(),"UTF-8"));
+                IRI p_attach = createURI(NS_ICAL + "attach");
                 rdfHandler.handleStatement(createStatement(resource,p_attach,r_attach));
             } else {
                 log.warn("calendar entry: binary attachments not supported!");
@@ -279,7 +298,7 @@ public class ICalParser extends RDFParserBase {
 
         if(component.getProperty(Property.CATEGORIES) != null) {
             Categories categories = (Categories)component.getProperty(Property.CATEGORIES);
-            URI p_categories = createURI(NS_ICAL + "categories");
+            IRI p_categories = createURI(NS_ICAL + "categories");
             for(Iterator<String> it = categories.getCategories().iterator(); it.hasNext(); ) {
                 String value = it.next();
                 Literal v_categories = createLiteral(value,null,null);
@@ -294,7 +313,7 @@ public class ICalParser extends RDFParserBase {
 
         if(component.getProperty(Property.GEO) != null) {
             Geo geo = (Geo)component.getProperty(Property.GEO);
-            URI p_geo = createURI(NS_ICAL + "geo");
+            IRI p_geo = createURI(NS_ICAL + "geo");
             createLocation(resource, p_geo, geo);
         }
 
@@ -304,7 +323,7 @@ public class ICalParser extends RDFParserBase {
 
         if(component.getProperty(Property.RESOURCES) != null) {
             Resources resources = (Resources)component.getProperty(Property.RESOURCES);
-            URI p_resources = createURI(NS_ICAL + "resources");
+            IRI p_resources = createURI(NS_ICAL + "resources");
             for(Iterator<String> it = resources.getResources().iterator(); it.hasNext(); ) {
                 String value = it.next();
                 Literal v_resources = createLiteral(value,null,null);
@@ -324,7 +343,7 @@ public class ICalParser extends RDFParserBase {
 
         if(component.getProperty(Property.DURATION) != null) {
             Duration duration = (Duration)component.getProperty(Property.DURATION);
-            URI p_duration = createURI(NS_ICAL + "duration");
+            IRI p_duration = createURI(NS_ICAL + "duration");
             try {
                 javax.xml.datatype.Duration dur = DatatypeFactory.newInstance().newDuration(duration.getDuration().getTime(new Date(0)).getTime());
                 Literal v_duration = createLiteral(dur.toString(),null, createURI(dur.getXMLSchemaType().toString()));
@@ -337,11 +356,11 @@ public class ICalParser extends RDFParserBase {
 
         createStringProperty(component,resource,Property.TRANSP, NS_ICAL + "transp");
 
-        URI p_attendee = createURI(NS_ICAL + "attendee");
+        IRI p_attendee = createURI(NS_ICAL + "attendee");
         for (Property property4 : (Iterable<Property>) component.getProperties(Property.ATTENDEE)) {
             Attendee attendee = (Attendee) property4;
             if (attendee.getCalAddress() != null) {
-                URI v_attendee = createURI(attendee.getCalAddress().toString());
+                IRI v_attendee = createURI(attendee.getCalAddress().toString());
                 rdfHandler.handleStatement(createStatement(resource, p_attendee, v_attendee));
             } else {
                 log.warn("attendee without calendar address: {}", attendee);
@@ -352,9 +371,9 @@ public class ICalParser extends RDFParserBase {
 
         if(component.getProperty(Property.ORGANIZER) != null) {
             Organizer organizer = (Organizer) component.getProperty(Property.ORGANIZER);
-            URI p_organizer = createURI(NS_ICAL + "organizer");
+            IRI p_organizer = createURI(NS_ICAL + "organizer");
             if(organizer.getCalAddress() != null) {
-                URI v_organizer = createURI(organizer.getCalAddress().toString());
+                IRI v_organizer = createURI(organizer.getCalAddress().toString());
                 rdfHandler.handleStatement(createStatement(resource,p_organizer,v_organizer));
             }
         }
@@ -378,7 +397,7 @@ public class ICalParser extends RDFParserBase {
 
         if(component.getProperty(Property.TRIGGER) != null) {
             Trigger duration = (Trigger)component.getProperty(Property.TRIGGER);
-            URI p_duration = createURI(NS_ICAL + "trigger");
+            IRI p_duration = createURI(NS_ICAL + "trigger");
             try {
                 javax.xml.datatype.Duration dur = DatatypeFactory.newInstance().newDuration(duration.getDuration().getTime(new Date(0)).getTime());
                 Literal v_duration = createLiteral(dur.toString(),null, createURI(dur.getXMLSchemaType().toString()));
@@ -404,15 +423,15 @@ public class ICalParser extends RDFParserBase {
     }
 
 
-    private void createLocation(Resource uri, URI prop, Geo geo) throws RDFHandlerException, RDFParseException {
+    private void createLocation(Resource uri, IRI prop, Geo geo) throws RDFHandlerException, RDFParseException {
         Resource r_location = createBNode();
         Resource t_adr = createURI(NS_GEO + "Point");
-        URI p_type     = createURI(NS_RDF + "type");
+        IRI p_type     = createURI(NS_RDF + "type");
         rdfHandler.handleStatement(createStatement(r_location,p_type,t_adr));
 
-        URI p_latitute = createURI(NS_GEO+"latitude");
-        URI p_longitude = createURI(NS_GEO+"longitude");
-        URI t_decimal   = createURI("http://www.w3.org/2001/XMLSchema#double");
+        IRI p_latitute = createURI(NS_GEO+"latitude");
+        IRI p_longitude = createURI(NS_GEO+"longitude");
+        IRI t_decimal   = createURI("http://www.w3.org/2001/XMLSchema#double");
 
         if(geo.getLatitude() != null) {
             Literal v_latitude = createLiteral(geo.getLatitude().toPlainString(),null,t_decimal);
@@ -431,7 +450,7 @@ public class ICalParser extends RDFParserBase {
     private void createStringProperty(CalendarComponent event, Resource r_event, String icalProperty, String rdfProperty) throws RDFParseException, RDFHandlerException {
         if(event.getProperty(icalProperty) != null) {
             Property description = event.getProperty(icalProperty);
-            URI p_description = createURI(rdfProperty);
+            IRI p_description = createURI(rdfProperty);
             Literal v_description = createLiteral(description.getValue(), null, null);
             rdfHandler.handleStatement(createStatement(r_event,p_description,v_description));
         }
@@ -439,7 +458,7 @@ public class ICalParser extends RDFParserBase {
 
     private void createStringProperty(Property property, Resource r_event, String rdfProperty) throws RDFParseException, RDFHandlerException {
         if(property != null) {
-            URI p_description = createURI(rdfProperty);
+            IRI p_description = createURI(rdfProperty);
             Literal v_description = createLiteral(property.getValue(), null, null);
             rdfHandler.handleStatement(createStatement(r_event,p_description,v_description));
         }
@@ -448,7 +467,7 @@ public class ICalParser extends RDFParserBase {
     private void createIntProperty(CalendarComponent event, Resource r_event, String icalProperty, String rdfProperty) throws RDFParseException, RDFHandlerException {
         if(event.getProperty(icalProperty) != null) {
             Property description = event.getProperty(icalProperty);
-            URI p_description = createURI(rdfProperty);
+            IRI p_description = createURI(rdfProperty);
             Literal v_description = createLiteral(description.getValue(), null, createURI("http://www.w3.org/2001/XMLSchema#int"));
             rdfHandler.handleStatement(createStatement(r_event,p_description,v_description));
         }
@@ -458,12 +477,12 @@ public class ICalParser extends RDFParserBase {
         if(property != null) {
             if(property instanceof DateProperty) {
                 DateProperty dateProperty = (DateProperty)property;
-                URI p_dateprop = createURI(rdfProperty);
+                IRI p_dateprop = createURI(rdfProperty);
                 Literal v_dateprop = valueFactory.createLiteral(getXMLCalendar(dateProperty.getDate(),dateProperty.getTimeZone()));
                 rdfHandler.handleStatement(createStatement(r_event,p_dateprop,v_dateprop));
             } else if(property instanceof DateListProperty) {
                 DateListProperty dateProperty = (DateListProperty)property;
-                URI p_dateprop = createURI(rdfProperty);
+                IRI p_dateprop = createURI(rdfProperty);
                 for (Date date : (Iterable<Date>) dateProperty.getDates()) {
                     Literal v_dateprop = valueFactory.createLiteral(getXMLCalendar(date, dateProperty.getTimeZone()));
                     rdfHandler.handleStatement(createStatement(r_event, p_dateprop, v_dateprop));
@@ -476,8 +495,8 @@ public class ICalParser extends RDFParserBase {
     private void createUrlProperty(CalendarComponent event, Resource r_event, String icalProperty, String rdfProperty) throws RDFParseException, RDFHandlerException {
         if(event.getProperty(icalProperty) != null) {
             Property description = event.getProperty(icalProperty);
-            URI p_description = createURI(rdfProperty);
-            URI v_description = createURI(description.getValue());
+            IRI p_description = createURI(rdfProperty);
+            IRI v_description = createURI(description.getValue());
             rdfHandler.handleStatement(createStatement(r_event,p_description,v_description));
         }
     }

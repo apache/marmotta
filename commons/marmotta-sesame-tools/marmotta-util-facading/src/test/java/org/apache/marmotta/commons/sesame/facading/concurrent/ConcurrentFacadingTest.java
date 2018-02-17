@@ -19,7 +19,6 @@ package org.apache.marmotta.commons.sesame.facading.concurrent;
 
 import java.util.ConcurrentModificationException;
 import java.util.UUID;
-
 import org.apache.marmotta.commons.sesame.facading.AbstractFacadingTest;
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
 import org.apache.marmotta.commons.sesame.facading.api.Facading;
@@ -27,26 +26,26 @@ import org.apache.marmotta.commons.sesame.facading.concurrent.model.FooFacade;
 import org.apache.marmotta.commons.sesame.facading.concurrent.model.TypeFacade;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.commons.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.URI;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
 
 public class ConcurrentFacadingTest extends AbstractFacadingTest {
 
-    private URI subject;
+    private IRI subject;
 
     @Before
     public void init() {
-        subject = repositoryRDF.getValueFactory().createURI("http://example.com/rdf/" + UUID.randomUUID().toString());
+        subject = repositoryRDF.getValueFactory().createIRI("http://example.com/rdf/" + UUID.randomUUID().toString());
     }
 
     @Test
     public void testParallelConnections() throws RepositoryException {
-        final URI type = repositoryRDF.getValueFactory().createURI(DCTERMS.Agent.stringValue()+"#", UUID.randomUUID().toString());
+        final IRI type = repositoryRDF.getValueFactory().createIRI(DCTERMS.Agent.stringValue()+"#", UUID.randomUUID().toString());
         final RepositoryConnection cX = repositoryRDF.getConnection(),
                 cO = repositoryRDF.getConnection();
         try {

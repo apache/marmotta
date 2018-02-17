@@ -31,9 +31,9 @@ package org.apache.marmotta.platform.ldp.patch.parser;
 
 import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
 import org.apache.marmotta.platform.ldp.patch.model.WildcardStatement;
-import org.openrdf.model.*;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.rio.turtle.TurtleUtil;
+import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.rio.turtle.TurtleUtil;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -43,7 +43,7 @@ import java.util.List;
 public class RdfPatchParserImpl implements RdfPatchParser {
 
     private HashMap<String, String> namespaces = new HashMap<String, String>();
-    private ValueFactory valueFactory = ValueFactoryImpl.getInstance();
+    private ValueFactory valueFactory = SimpleValueFactory.getInstance();
 
     public RdfPatchParserImpl(ValueFactory vf, InputStream is) {
         this(is);
@@ -67,24 +67,24 @@ public class RdfPatchParserImpl implements RdfPatchParser {
     }
 
 
-    private URI createURI(String uri) {
-        return this.valueFactory.createURI(unwrapUri(uri));
+    private IRI createIRI(String uri) {
+        return this.valueFactory.createIRI(unwrapIri(uri));
     }
 
-    private URI createURI(String prefix, String local) {
-        return this.valueFactory.createURI(namespaces.get(prefix)+local);
+    private IRI createIRI(String prefix, String local) {
+        return this.valueFactory.createIRI(namespaces.get(prefix)+local);
     }
 
-    private URI createURIfromQname(String qname) {
+    private IRI createIRIfromQname(String qname) {
         final String[] split = qname.split(":", 2);
-        return createURI(split[0], split[1]);
+        return createIRI(split[0], split[1]);
     }
 
     private BNode createBNode(String id) {
         return this.valueFactory.createBNode(id);
     }
 
-    private Literal createLiteral(String value, String lang, URI type) throws ParseException {
+    private Literal createLiteral(String value, String lang, IRI type) throws ParseException {
         try {
             value = TurtleUtil.decodeString(value.substring(1, value.length() - 1));
         } catch (IllegalArgumentException e) {
@@ -99,12 +99,12 @@ public class RdfPatchParserImpl implements RdfPatchParser {
         }
     }
 
-    private Literal createLongLiteral(String value, String lang, URI type) throws ParseException {
+    private Literal createLongLiteral(String value, String lang, IRI type) throws ParseException {
         value = value.substring(2, value.length() - 2);
         return createLiteral(value, lang, type);
     }
 
-    private String unwrapUri(String uri) {
+    private String unwrapIri(String uri) {
         if (uri.startsWith("<")) {
             uri = uri.substring(1);
         }
@@ -174,7 +174,7 @@ public List<PatchLine> parsePatch() : {
     namespaces.clear();
 }
 {
-    ( <PREFIX> id = <IDENT> <COLON> prefix = <URI> <DOT> { namespaces.put(id.image, unwrapUri(prefix.image));} )*
+    ( <PREFIX> id = <IDENT> <COLON> prefix = <URI> <DOT> { namespaces.put(id.image, unwrapIri(prefix.image));} )*
     (
       op = <OP> statement = parseStatement() <DOT> { diff.add(new PatchLine(PatchLine.Operator.fromCommand(op.image), statement)); }
     )*
@@ -188,23 +188,23 @@ private Statement parseStatement() : {
     Token t1 = null;
     Token lVal = null, lLang = null;
     Resource subject;
-    URI predicate, type = null;
+    IRI predicate, type = null;
     Value object;
 }
 {
-    ( subject = parseURI() |
+    ( subject = parseIRI() |
         t1 = <BNODE> { subject = createBNode(t1.image.substring(2)); } |
         <REPEAT> { subject = null; }
     )
-    ( predicate = parseURI() |
+    ( predicate = parseIRI() |
         <REPEAT> { predicate = null; }
     )
-    ( object = parseURI() |
+    ( object = parseIRI() |
         t1 = <BNODE> { object = createBNode(t1.image.substring(2)); } |
-        lVal = <STRLIT> (<LANG> lLang = <IDENT>)? (<TYPE> type = parseURI())? {
+        lVal = <STRLIT> (<LANG> lLang = <IDENT>)? (<TYPE> type = parseIRI())? {
             object = createLiteral(lVal.image, lLang!=null?lLang.image:null, type);
         } |
-        lVal = <STRLONGLIT> (<LANG> lLang = <IDENT>)? (<TYPE> type = parseURI())? {
+        lVal = <STRLONGLIT> (<LANG> lLang = <IDENT>)? (<TYPE> type = parseIRI())? {
             object = createLongLiteral(lVal.image, lLang!=null?lLang.image:null, type);
         } |
         <REPEAT> { object = null; }
@@ -212,10 +212,10 @@ private Statement parseStatement() : {
     { return new WildcardStatement(subject, predicate, object); }
 }
 
-private URI parseURI() : {
+private IRI parseIRI() : {
     Token u;
 }
 {
-    u = <URI> { return createURI(u.image); } |
-    u = <QNAME> { return createURIfromQname(u.image); }
+    u = <URI> { return createIRI(u.image); } |
+    u = <QNAME> { return createIRIfromQname(u.image); }
 }

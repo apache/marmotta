@@ -17,29 +17,32 @@
  */
 package org.apache.marmotta.platform.ldp.api;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.Link;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.ldp.exceptions.IncompatibleResourceTypeException;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidInteractionModelException;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidModificationException;
 import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.vocabulary.DCTERMS;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-
-import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.Link;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.*;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
 
 /**
  *  LDP Service
@@ -49,7 +52,7 @@ import java.util.*;
  */
 public interface LdpService {
 
-    Set<URI> SERVER_MANAGED_PROPERTIES = new HashSet<>(Arrays.asList(
+    Set<IRI> SERVER_MANAGED_PROPERTIES = new HashSet<>(Arrays.asList(
             LDP.contains, DCTERMS.CREATED, DCTERMS.MODIFIED
     ));
     List<RDFFormat> SERVER_PREFERED_RDF_FORMATS = Arrays.asList(
@@ -60,13 +63,13 @@ public interface LdpService {
         LDPR(LDP.Resource),
         LDPC(LDP.Container);
 
-        private final URI uri;
+        private final IRI uri;
 
-        InteractionModel(URI uri) {
+        InteractionModel(IRI uri) {
             this.uri = uri;
         }
 
-        public URI getUri() {
+        public IRI getUri() {
             return uri;
         }
 
@@ -83,7 +86,7 @@ public interface LdpService {
             throw new IllegalArgumentException("Invalid Interaction Model URI: " + uri);
         }
 
-        public static InteractionModel fromURI(URI uri){
+        public static InteractionModel fromURI(IRI uri){
             if (uri == null) {
                 throw new IllegalArgumentException("Invalid Interaction Model: null");
             } else {
@@ -100,7 +103,7 @@ public interface LdpService {
      * @param root root container
      * @throws RepositoryException
      */
-    void init(RepositoryConnection connection, URI root) throws RepositoryException;
+    void init(RepositoryConnection connection, IRI root) throws RepositoryException;
 
     String getResourceUri(UriInfo uriInfo);
 
@@ -122,7 +125,7 @@ public interface LdpService {
      * @return true if it exists
      * @throws RepositoryException
      */
-    boolean exists(RepositoryConnection connection, URI resource) throws RepositoryException;
+    boolean exists(RepositoryConnection connection, IRI resource) throws RepositoryException;
 
     /**
      * Check if the specified resource would be a re-used URI.
@@ -140,9 +143,9 @@ public interface LdpService {
      * @return true if it had existed
      * @throws RepositoryException
      */
-    boolean isReusedURI(RepositoryConnection connection, URI resource) throws RepositoryException;
+    boolean isReusedURI(RepositoryConnection connection, IRI resource) throws RepositoryException;
 
-    boolean hasType(RepositoryConnection connection, URI resource, URI type) throws RepositoryException;
+    boolean hasType(RepositoryConnection connection, IRI resource, IRI type) throws RepositoryException;
 
     /**
      * Add a LDP resource
@@ -172,7 +175,7 @@ public interface LdpService {
      * @throws IOException
      * @throws RDFParseException
      */
-    String addResource(RepositoryConnection connection, URI container, URI resource, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException;
+    String addResource(RepositoryConnection connection, IRI container, IRI resource, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException;
 
     /**
      * Add a LDP resource
@@ -204,7 +207,7 @@ public interface LdpService {
      * @throws IOException
      * @throws RDFParseException
      */
-    String addResource(RepositoryConnection connection, URI container, URI resource, InteractionModel interactionModel, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException;
+    String addResource(RepositoryConnection connection, IRI container, IRI resource, InteractionModel interactionModel, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException;
 
     /**
      * Update an existing resource
@@ -236,7 +239,7 @@ public interface LdpService {
      * @throws RDFParseException
      * @throws InvalidModificationException
      */
-    String updateResource(RepositoryConnection connection, URI resource, InputStream stream, String type) throws RepositoryException, IncompatibleResourceTypeException, IOException, RDFParseException, InvalidModificationException;
+    String updateResource(RepositoryConnection connection, IRI resource, InputStream stream, String type) throws RepositoryException, IncompatibleResourceTypeException, IOException, RDFParseException, InvalidModificationException;
 
     /**
      * Update an existing resource
@@ -270,64 +273,64 @@ public interface LdpService {
      * @throws RDFParseException
      * @throws InvalidModificationException
      */
-    String updateResource(RepositoryConnection connection, URI resource, InputStream stream, String type, boolean overwrite) throws RepositoryException, IncompatibleResourceTypeException, IOException, RDFParseException, InvalidModificationException;
+    String updateResource(RepositoryConnection connection, IRI resource, InputStream stream, String type, boolean overwrite) throws RepositoryException, IncompatibleResourceTypeException, IOException, RDFParseException, InvalidModificationException;
 
     List<Statement> getLdpTypes(RepositoryConnection connection, String resource) throws RepositoryException;
 
-    List<Statement> getLdpTypes(RepositoryConnection connection, URI resource) throws RepositoryException;
+    List<Statement> getLdpTypes(RepositoryConnection connection, IRI resource) throws RepositoryException;
 
     void exportResource(RepositoryConnection connection, String resource, OutputStream output, RDFFormat format) throws RepositoryException, RDFHandlerException;
 
-    void exportResource(RepositoryConnection connection, URI resource, OutputStream output, RDFFormat format) throws RepositoryException, RDFHandlerException;
+    void exportResource(RepositoryConnection connection, IRI resource, OutputStream output, RDFFormat format) throws RepositoryException, RDFHandlerException;
 
     void exportResource(RepositoryConnection outputConn, String resource, OutputStream output, RDFFormat format, Preference preference) throws RDFHandlerException, RepositoryException;
 
-    void exportResource(RepositoryConnection outputConn, URI resource, OutputStream output, RDFFormat format, Preference preference) throws RepositoryException, RDFHandlerException;
+    void exportResource(RepositoryConnection outputConn, IRI resource, OutputStream output, RDFFormat format, Preference preference) throws RepositoryException, RDFHandlerException;
 
     void exportBinaryResource(RepositoryConnection connection, String resource, OutputStream out) throws RepositoryException, IOException;
 
-    void exportBinaryResource(RepositoryConnection connection, URI resource, OutputStream out) throws RepositoryException, IOException;
+    void exportBinaryResource(RepositoryConnection connection, IRI resource, OutputStream out) throws RepositoryException, IOException;
 
     EntityTag generateETag(RepositoryConnection connection, String uri) throws RepositoryException;
 
-    EntityTag generateETag(RepositoryConnection connection, URI uri) throws RepositoryException;
+    EntityTag generateETag(RepositoryConnection connection, IRI uri) throws RepositoryException;
 
-    boolean deleteResource(RepositoryConnection connection, URI resource) throws RepositoryException;
+    boolean deleteResource(RepositoryConnection connection, IRI resource) throws RepositoryException;
 
-    void patchResource(RepositoryConnection connection, URI uri, InputStream patchData, boolean strict) throws RepositoryException, ParseException, InvalidModificationException, InvalidPatchDocumentException;
+    void patchResource(RepositoryConnection connection, IRI uri, InputStream patchData, boolean strict) throws RepositoryException, ParseException, InvalidModificationException, InvalidPatchDocumentException;
 
     boolean deleteResource(RepositoryConnection connection, String resource) throws RepositoryException;
 
     Date getLastModified(RepositoryConnection connection, String resource) throws RepositoryException;
 
-    Date getLastModified(RepositoryConnection connection, URI uri) throws RepositoryException;
+    Date getLastModified(RepositoryConnection connection, IRI uri) throws RepositoryException;
 
     void patchResource(RepositoryConnection connection, String resource, InputStream patchData, boolean strict) throws RepositoryException, ParseException, InvalidModificationException, InvalidPatchDocumentException;
 
     String getMimeType(RepositoryConnection connection, String resource) throws RepositoryException;
 
-    String getMimeType(RepositoryConnection connection, URI uri) throws RepositoryException;
+    String getMimeType(RepositoryConnection connection, IRI uri) throws RepositoryException;
 
     boolean isNonRdfSourceResource(RepositoryConnection connection, String resource) throws RepositoryException;
 
-    boolean isNonRdfSourceResource(RepositoryConnection connection, URI uri) throws RepositoryException;
+    boolean isNonRdfSourceResource(RepositoryConnection connection, IRI uri) throws RepositoryException;
 
-    URI getRdfSourceForNonRdfSource(RepositoryConnection connection, URI uri) throws RepositoryException;
+    IRI getRdfSourceForNonRdfSource(RepositoryConnection connection, IRI uri) throws RepositoryException;
 
-    URI getRdfSourceForNonRdfSource(RepositoryConnection connection, String resource) throws RepositoryException;
+    IRI getRdfSourceForNonRdfSource(RepositoryConnection connection, String resource) throws RepositoryException;
 
     boolean isRdfSourceResource(RepositoryConnection connection, String resource) throws RepositoryException;
 
-    boolean isRdfSourceResource(RepositoryConnection connection, URI uri) throws RepositoryException;
+    boolean isRdfSourceResource(RepositoryConnection connection, IRI uri) throws RepositoryException;
 
-    URI getNonRdfSourceForRdfSource(RepositoryConnection connection, String resource) throws RepositoryException;
+    IRI getNonRdfSourceForRdfSource(RepositoryConnection connection, String resource) throws RepositoryException;
 
-    URI getNonRdfSourceForRdfSource(RepositoryConnection connection, URI uri) throws RepositoryException;
+    IRI getNonRdfSourceForRdfSource(RepositoryConnection connection, IRI uri) throws RepositoryException;
 
     InteractionModel getInteractionModel(List<Link> linkHeaders) throws InvalidInteractionModelException;
 
     InteractionModel getInteractionModel(RepositoryConnection connection, String resource) throws RepositoryException;
 
-    InteractionModel getInteractionModel(RepositoryConnection connection, URI uri) throws RepositoryException;
+    InteractionModel getInteractionModel(RepositoryConnection connection, IRI uri) throws RepositoryException;
 
 }

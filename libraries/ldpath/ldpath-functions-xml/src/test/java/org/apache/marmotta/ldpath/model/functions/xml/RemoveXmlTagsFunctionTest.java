@@ -19,19 +19,18 @@ package org.apache.marmotta.ldpath.model.functions.xml;
 
 import java.io.IOException;
 import java.util.Collection;
-
 import org.apache.marmotta.ldpath.model.fields.FieldMapping;
-import org.apache.marmotta.ldpath.parser.ParseException;
 import org.apache.marmotta.ldpath.parser.LdPathParser;
+import org.apache.marmotta.ldpath.parser.ParseException;
 import org.apache.marmotta.ldpath.test.AbstractTestBase;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
 
 
 public class RemoveXmlTagsFunctionTest extends AbstractTestBase {
@@ -45,7 +44,7 @@ public class RemoveXmlTagsFunctionTest extends AbstractTestBase {
     public void testRemoveTags() throws ParseException {
         String result = "A quiz is a form of game or mind sport in which the players (as individuals or in teams) attempt to answer questions correctly.";
 
-        final URI context = repository.getValueFactory().createURI(NSS.get("ex") + "Text");
+        final IRI context = repository.getValueFactory().createIRI(NSS.get("ex") + "Text");
 
         final LdPathParser<Value> parser = createParserFromString("fn:removeTags(foo:formatted) :: xsd:string");
         final FieldMapping<Object, Value> rule = parser.parseRule(NSS);

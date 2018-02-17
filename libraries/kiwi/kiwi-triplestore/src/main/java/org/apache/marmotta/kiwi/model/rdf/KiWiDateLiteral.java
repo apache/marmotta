@@ -17,16 +17,15 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
-import org.apache.marmotta.commons.util.DateUtils;
-import org.apache.marmotta.commons.vocabulary.XSD;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
-import org.openrdf.model.Literal;
-
+import java.util.Date;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.util.Date;
+import org.apache.marmotta.commons.util.DateUtils;
+import org.apache.marmotta.commons.vocabulary.XSD;
+import org.eclipse.rdf4j.model.Literal;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 
 /**
  * Add file description here!
@@ -55,12 +54,12 @@ public class KiWiDateLiteral extends KiWiStringLiteral {
     }
 
 
-    public KiWiDateLiteral(DateTime dateContent, KiWiUriResource type) {
+    public KiWiDateLiteral(DateTime dateContent, KiWiIriResource type) {
         super(DateUtils.getXMLCalendar(dateContent.withMillisOfSecond(0)).toXMLFormat(),null,type);
         setDateContent(dateContent);
     }
 
-    public KiWiDateLiteral(DateTime dateContent, KiWiUriResource type, Date created) {
+    public KiWiDateLiteral(DateTime dateContent, KiWiIriResource type, Date created) {
         super(DateUtils.getXMLCalendar(dateContent.withMillisOfSecond(0)).toXMLFormat(),null,type, created);
         setDateContent(dateContent);
     }

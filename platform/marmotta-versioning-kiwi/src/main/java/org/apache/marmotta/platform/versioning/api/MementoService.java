@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.platform.versioning.api;
 
+import java.util.Date;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.platform.versioning.exception.MementoException;
 import org.apache.marmotta.platform.versioning.model.MementoVersionSet;
-import org.openrdf.model.Resource;
-
-import java.util.Date;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * ...

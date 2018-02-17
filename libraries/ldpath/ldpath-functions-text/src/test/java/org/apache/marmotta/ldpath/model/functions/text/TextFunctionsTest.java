@@ -23,9 +23,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.regex.Pattern;
-
 import org.apache.marmotta.ldpath.parser.ParseException;
 import org.apache.marmotta.ldpath.test.AbstractTestBase;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
@@ -36,10 +39,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepositoryConnection;
 
 
 @RunWith(Parameterized.class)
@@ -59,14 +58,14 @@ public class TextFunctionsTest extends AbstractTestBase {
     @Parameter
     public String text;
 
-    private URI subject, predicate;
+    private IRI subject, predicate;
     final private Random rnd = new Random();
 
     @Before
     public void setUp() throws RepositoryException {
 
-        subject = repository.getValueFactory().createURI(ns("foo", UUID.randomUUID().toString()));
-        predicate = repository.getValueFactory().createURI(ns("foo", UUID.randomUUID().toString()));
+        subject = repository.getValueFactory().createIRI(ns("foo", UUID.randomUUID().toString()));
+        predicate = repository.getValueFactory().createIRI(ns("foo", UUID.randomUUID().toString()));
 
         final SailRepositoryConnection con = repository.getConnection();
         try {

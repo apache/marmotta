@@ -16,7 +16,9 @@
  */
 package org.apache.marmotta.kiwi.loader;
 
-import info.aduna.iteration.Iterations;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.loader.generic.KiWiHandler;
 import org.apache.marmotta.kiwi.loader.mysql.KiWiMySQLHandler;
@@ -25,25 +27,30 @@ import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
-import org.junit.*;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.sail.SailException;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.*;
-import org.openrdf.sail.SailException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Add file description here!
@@ -104,9 +111,9 @@ public class KiWiHandlerTest {
         testImport(cfg, "demo-duplicates.ttl", RDFFormat.TURTLE);
 
         // check for duplicates
-        URI R1 = repository.getValueFactory().createURI("http://localhost:8080/R1");
-        URI R2 = repository.getValueFactory().createURI("http://localhost:8080/R2");
-        URI T1 = repository.getValueFactory().createURI("http://localhost:8080/T1");
+        IRI R1 = repository.getValueFactory().createIRI("http://localhost:8080/R1");
+        IRI R2 = repository.getValueFactory().createIRI("http://localhost:8080/R2");
+        IRI T1 = repository.getValueFactory().createIRI("http://localhost:8080/T1");
 
         try {
             RepositoryConnection con = repository.getConnection();

@@ -17,13 +17,12 @@
  */
 package org.apache.marmotta.ldclient.provider.xml.mapping;
 
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
 
 /**
  * Add file description here!
@@ -65,7 +64,7 @@ public class XPathLiteralMapper extends XPathValueMapper {
     @Override
     public List<Value> map(String resourceUri, String selectedValue, ValueFactory factory) {
         if(datatype != null) {
-            return Collections.singletonList((Value)factory.createLiteral(selectedValue.trim(), factory.createURI(Namespaces.NS_XSD + datatype)));
+            return Collections.singletonList((Value)factory.createLiteral(selectedValue.trim(), factory.createIRI(Namespaces.NS_XSD + datatype)));
         } else {
             return Collections.singletonList((Value)factory.createLiteral(selectedValue.trim()));
         }

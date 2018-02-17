@@ -17,43 +17,53 @@
  */
 package org.apache.marmotta.platform.ldpath.webservices;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+import static org.apache.marmotta.commons.sesame.repository.ResultUtils.iterable;
 import org.apache.marmotta.commons.util.JSONUtils;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 import org.apache.marmotta.ldpath.backend.sesame.SesameConnectionBackend;
 import org.apache.marmotta.ldpath.exception.LDPathParseException;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.ldpath.api.LDPathService;
-import org.openrdf.model.Namespace;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.impl.LiteralImpl;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.slf4j.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.Collator;
-import java.util.*;
-
-import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
-import static org.apache.marmotta.commons.sesame.repository.ResultUtils.iterable;
-
 /**
+ * <p>
  * Execute LDPath queries against the LMF backend. Depending on the LMF configuration, this might trigger retrieval
  * of external Linked Data resources before returning results.
- *
- * <p/>
+ * </p>
  * Author: Sebastian Schaffert
  */
 @ApplicationScoped
@@ -97,7 +107,7 @@ public class LDPathWebService {
             try {
                 con.begin();
                 if (ResourceUtils.isSubject(con, resourceUri)) {
-                    URI resource = con.getValueFactory().createURI(resourceUri);
+                    IRI resource = con.getValueFactory().createIRI(resourceUri);
                     // get list of configured namespaces; we make them available for the path language
                     Map<String,String> namespaces = new HashMap<String, String>();
                     for(Namespace ns : iterable(con.getNamespaces())) {
@@ -161,7 +171,7 @@ public class LDPathWebService {
             try {
                 con.begin();
                 if (ResourceUtils.isSubject(con, resourceUri)) {
-                    URI resource = con.getValueFactory().createURI(resourceUri);
+                    IRI resource = con.getValueFactory().createIRI(resourceUri);
 
                     Map<String,List<Map<String,String>>> result = new HashMap<String, List<Map<String, String>>>();
 
@@ -173,7 +183,7 @@ public class LDPathWebService {
                                     rowList.add(JSONUtils.serializeNodeAsJson((Value) o));
                                 } else {
                                     // we convert always to a literal
-                                    rowList.add(JSONUtils.serializeNodeAsJson(new LiteralImpl(o.toString())));
+                                    rowList.add(JSONUtils.serializeNodeAsJson(SimpleValueFactory.getInstance().createLiteral(o.toString())));
                                 }
                             }
                             result.put(row.getKey(),rowList);
@@ -217,7 +227,7 @@ public class LDPathWebService {
     @Produces("application/json")
     public Response evaluateProgramQuery(InputStream body, @QueryParam("uri") String resourceUri) {
         try {
-            String program = IOUtils.toString(body);
+            String program = IOUtils.toString(body,Charset.defaultCharset());
             return evaluateProgramQuery(program, resourceUri);
         } catch (IOException e) {
             return Response.serverError().entity("could not read ldpath program: "+e.getMessage()).build();
@@ -350,7 +360,7 @@ public class LDPathWebService {
                 HashMap<String, Object> combined = new HashMap<String, Object>();
                 for(String context : cs) {
                     if (ResourceUtils.isSubject(con, context)) {
-                        URI resource = con.getValueFactory().createURI(context);
+                        IRI resource = con.getValueFactory().createIRI(context);
 
                         Map<String,List<Map<String,String>>> result = new HashMap<String, List<Map<String, String>>>();
 
@@ -362,7 +372,7 @@ public class LDPathWebService {
                                         rowList.add(JSONUtils.serializeNodeAsJson((Value) o));
                                     } else {
                                         // we convert always to a literal
-                                        rowList.add(JSONUtils.serializeNodeAsJson(new LiteralImpl(o.toString())));
+                                        rowList.add(JSONUtils.serializeNodeAsJson(SimpleValueFactory.getInstance().createLiteral(o.toString())));
                                     }
                                 }
                                 result.put(row.getKey(),rowList);

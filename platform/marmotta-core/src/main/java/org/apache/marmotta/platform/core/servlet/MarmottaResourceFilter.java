@@ -17,30 +17,39 @@
  */
 package org.apache.marmotta.platform.core.servlet;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
 import org.apache.marmotta.platform.core.api.modules.ModuleService;
 import org.jboss.resteasy.spi.BadRequestException;
 import org.slf4j.Logger;
 
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URL;
-import java.util.*;
-
 /**
+ * <p>
  * This filter is used by KiWi for initialisation of the KiWi system on startup of the server. It does not perform
  * any actual filtering. For this purpose, a listener would have been better, but CDI in Jetty does not support
  * injection into listeners, so we "abuse" a filter for this purpose. Filters always get initialised before servlets,
  * so by adding the KiWiFilter as the first entry into web.xml, we can ensure that the KiWi initialisation is done
  * before everything else.
- * <p/>
+ * </p>
  * User: sschaffe
  */
 public class MarmottaResourceFilter implements Filter {
@@ -60,11 +69,12 @@ public class MarmottaResourceFilter implements Filter {
     private List<MarmottaHttpFilter> filterList;
 
     /**
+     * <p>
      * Called by the web container to indicate to a filter that it is being placed into
      * service. The servlet container calls the init method exactly once after instantiating the
      * filter. The init method must complete successfully before the filter is asked to do any
      * filtering work. <br><br>
-     * <p/>
+     * </p>
      * The web container cannot place the filter into service if the init method either<br>
      * 1.Throws a ServletException <br>
      * 2.Does not return within a time period defined by the web container

@@ -17,9 +17,9 @@
  */
 package org.apache.marmotta.commons.sesame.test.base;
 
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.hamcrest.Matcher;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
 
 /**
  * BaseMatcher for Sesame RepositoryConnections

@@ -23,12 +23,12 @@ import org.apache.marmotta.ldcache.backend.kiwi.LDCachingKiWiBackend;
 import org.apache.marmotta.ldcache.model.CacheConfiguration;
 import org.apache.marmotta.ldcache.services.LDCache;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
-import org.openrdf.model.Resource;
-import org.openrdf.sail.NotifyingSail;
-import org.openrdf.sail.NotifyingSailConnection;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.StackableSail;
-import org.openrdf.sail.helpers.NotifyingSailWrapper;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.sail.NotifyingSail;
+import org.eclipse.rdf4j.sail.NotifyingSailConnection;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.StackableSail;
+import org.eclipse.rdf4j.sail.helpers.NotifyingSailWrapper;
 
 /**
  * Add file description here!

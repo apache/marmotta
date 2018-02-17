@@ -17,22 +17,22 @@
 
 package org.apache.marmotta.ostrich.model.test;
 
-import org.apache.marmotta.ostrich.model.ProtoURI;
+import org.apache.marmotta.ostrich.model.ProtoIRI;
 import org.apache.marmotta.ostrich.model.proto.Model;
+import org.eclipse.rdf4j.model.URI;
 import org.junit.Assert;
 import org.junit.Test;
-import org.openrdf.model.URI;
 
 /**
  * Test constructing URIs.
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class URITest {
+public class IRITest {
 
     @Test
     public void testCreateFromString() {
-        URI uri = new ProtoURI("http://apache.org/example");
+        URI uri = new ProtoIRI("http://apache.org/example");
 
         Assert.assertEquals(uri.stringValue(), "http://apache.org/example");
     }
@@ -40,15 +40,15 @@ public class URITest {
     @Test
     public void testCreateFromMessage() {
         Model.URI msg = Model.URI.newBuilder().setUri("http://apache.org/example").build();
-        URI uri = new ProtoURI(msg);
+        URI uri = new ProtoIRI(msg);
 
         Assert.assertEquals(uri.stringValue(), "http://apache.org/example");
     }
 
     @Test
     public void testEquals() {
-        URI uri1 = new ProtoURI("http://apache.org/example");
-        URI uri2 = new ProtoURI("http://apache.org/example");
+        URI uri1 = new ProtoIRI("http://apache.org/example");
+        URI uri2 = new ProtoIRI("http://apache.org/example");
 
         Assert.assertEquals(uri1, uri2);
 

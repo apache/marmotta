@@ -17,9 +17,8 @@
  */
 package org.apache.marmotta.platform.core.api.io;
 
-import org.openrdf.rio.RDFFormat;
-
 import java.util.List;
+import org.eclipse.rdf4j.rio.RDFFormat;
 
 /**
  * Manages RDF parsers and serializers

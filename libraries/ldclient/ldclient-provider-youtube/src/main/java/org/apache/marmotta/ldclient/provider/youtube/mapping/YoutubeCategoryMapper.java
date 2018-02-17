@@ -17,13 +17,12 @@
  */
 package org.apache.marmotta.ldclient.provider.youtube.mapping;
 
-import org.apache.marmotta.ldclient.provider.xml.mapping.XPathValueMapper;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.marmotta.ldclient.provider.xml.mapping.XPathValueMapper;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
 
 /**
  * Maps youtube categories to their respective Schema URIs
@@ -54,6 +53,6 @@ public class YoutubeCategoryMapper extends XPathValueMapper {
      */
     @Override
     public List<Value> map(String resourceUri, String selectedValue, ValueFactory factory) {
-        return Collections.singletonList((Value)factory.createURI(YT_SCHEMA+selectedValue));
+        return Collections.singletonList((Value)factory.createIRI(YT_SCHEMA+selectedValue));
     }
 }

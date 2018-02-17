@@ -18,27 +18,42 @@
 package org.apache.marmotta.platform.core.webservices.resource;
 
 import com.google.common.net.HttpHeaders;
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.openrdf.model.*;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.inject.Inject;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
-import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.*;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.getAnonResource;
+import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.getLabel;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.getIriResource;
 
 @Path("/" + ConfigurationService.INSPECT_PATH)
 public class InspectionWebService {
@@ -63,7 +78,7 @@ public class InspectionWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                URI r = getUriResource(conn, uri);
+                IRI r = getIriResource(conn, uri);
                 if (r != null) return
                         buildResultList(conn, r, null, null, null, offset, batchSize);
                 else
@@ -87,7 +102,7 @@ public class InspectionWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                URI r = getUriResource(conn, uri);
+                IRI r = getIriResource(conn, uri);
                 if (r != null)
                     return buildResultList(conn, null, r, null, null, offset, batchSize);
                 else
@@ -113,7 +128,7 @@ public class InspectionWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                URI r = getUriResource(conn, uri);
+                IRI r = getIriResource(conn, uri);
                 if (r != null)
                     return buildResultList(conn, null, null, r, null, offset, batchSize);
                 else
@@ -138,7 +153,7 @@ public class InspectionWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                URI r = getUriResource(conn, uri);
+                IRI r = getIriResource(conn, uri);
                 if (r != null)
                     return buildResultList(conn, null, null, null, r, offset, batchSize);
                 else
@@ -153,7 +168,7 @@ public class InspectionWebService {
         }
     }
 
-    private List<TriplePoJo> buildResultList(RepositoryConnection conn, URI s, URI p, URI o, URI c, long start, int limit) throws RepositoryException {
+    private List<TriplePoJo> buildResultList(RepositoryConnection conn, IRI s, IRI p, IRI o, IRI c, long start, int limit) throws RepositoryException {
         List<TriplePoJo> result = new ArrayList<>();
         RepositoryResult<Statement> triples = c != null ? conn.getStatements(s,p,o,true,c) : conn.getStatements(s,p,o,true);
         // skip until start
@@ -208,12 +223,12 @@ public class InspectionWebService {
             @QueryParam("pOffset") @DefaultValue("0") long pOffset, @QueryParam("oOffset") @DefaultValue("0") long oOffset,
             @QueryParam("cOffset") @DefaultValue("0") long cOffset, @QueryParam("limit") @DefaultValue(DEFAULT_BATCH_SIZE) int batchSize)
                     throws UnsupportedEncodingException {
-        String uri = configurationService.getBaseUri() + ConfigurationService.RESOURCE_PATH + "/" + uuid;
+        String uri = configurationService.getBaseIri() + ConfigurationService.RESOURCE_PATH + "/" + uuid;
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                Resource rsc = getUriResource(conn, uri);
+                Resource rsc = getIriResource(conn, uri);
                 if (rsc == null) {
                     rsc = getAnonResource(conn, uuid);
                 }
@@ -242,7 +257,7 @@ public class InspectionWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                Resource rsc = getUriResource(conn, uri);
+                Resource rsc = getIriResource(conn, uri);
                 if (rsc == null)
                     return Response.status(Status.NOT_FOUND).entity("Not found: " + uri).build();
                 else
@@ -261,9 +276,9 @@ public class InspectionWebService {
             throws UnsupportedEncodingException, RepositoryException {
         if (rsc == null)
             return Response.status(Status.NOT_FOUND).entity("Not found").build();
-        URI uri = null;
-        if (rsc instanceof URI) {
-            uri = (URI) rsc;
+        IRI uri = null;
+        if (rsc instanceof IRI) {
+            uri = (IRI) rsc;
         }
         // Well, this is rather hacky...
         ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -322,7 +337,7 @@ public class InspectionWebService {
                 .entity(os.toString(CHARSET)).build();
     }
 
-    protected void printLinks(RepositoryConnection conn, URI rsc, PrintStream ps, long offset, int limit) throws UnsupportedEncodingException, RepositoryException {
+    protected void printLinks(RepositoryConnection conn, IRI rsc, PrintStream ps, long offset, int limit) throws UnsupportedEncodingException, RepositoryException {
         if (rsc == null) return;
         int i = 0;
         RepositoryResult<Statement> ts = conn.getStatements(null, rsc, null, true);
@@ -464,11 +479,11 @@ public class InspectionWebService {
             }
             StringBuilder sb = new StringBuilder("\"" + lit.getLabel().replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
                     + "\"");
-            if (lit.getLanguage() != null) {
-                sb.append("@").append(lit.getLanguage());
+            if (lit.getLanguage().orElse(null) != null) {
+                sb.append("@").append(lit.getLanguage().orElse(null));
             } else if (lit.getDatatype() != null) {
                 sb.append("^^").append(
-                        String.format("<a href='%s?uri=%s%s'>%s</a>", configurationService.getServerUri() + "inspect",
+                        String.format("<a href='%s?uri=%s%s'>%s</a>", configurationService.getServerIri() + "inspect",
                                 URLEncoder.encode(lit.getDatatype().stringValue(), CHARSET), extraQS, linkText));
             }
             return sb.toString();
@@ -478,22 +493,22 @@ public class InspectionWebService {
             if (linkText == null) {
                 linkText = rsc.toString();
             }
-            return String.format("<a href='%s/%s%s'>%s</a>", configurationService.getServerUri() + "inspect", rsc.getID(),
+            return String.format("<a href='%s/%s%s'>%s</a>", configurationService.getServerIri() + "inspect", rsc.getID(),
                     extraQS.replaceFirst("^&", "?"), linkText);
         }
-        if (node instanceof URI) {
-            URI rsc = (URI) node;
+        if (node instanceof IRI) {
+            IRI rsc = (IRI) node;
             if (linkText == null) {
                 linkText = rsc.toString();
             }
-            return String.format("<a href='%s?uri=%s%s'>%s</a>", configurationService.getServerUri() + "inspect",
+            return String.format("<a href='%s?uri=%s%s'>%s</a>", configurationService.getServerIri() + "inspect",
                     URLEncoder.encode(rsc.toString(), CHARSET), extraQS, linkText);
         }
         return "UNKNOWN";
     }
 
 //    private String buildResourceLink(RepositoryConnection conn, URI resource, String rel, String mime) {
-//        final String src = configurationService.getServerUri(), base = configurationService.getBaseUri();
+//        final String src = configurationService.getServerIri(), base = configurationService.getBaseIri();
 //
 //        if (src.equals(base) && resource.toString().startsWith(base + ConfigurationService.RESOURCE_PATH + "/")) {
 //            final String uuid;
@@ -512,7 +527,7 @@ public class InspectionWebService {
         StringBuilder b = new StringBuilder();
         String closer = "<button onclick='document.getElementById(\"info" + id + "\").style.display = \"none\"' class='close-button'>X</button>";
         String iframe = "<iframe id='iframe" + id + "' src='' style=''></iframe>";
-        b.append("<a href='#' title='justify this triple' onclick='document.getElementById(\"iframe").append(id).append("\").src=\"").append(configurationService.getServerUri()).append("core/public/html/reasoning.html#").append(id).append("\";document.getElementById(\"info").append(id).append("\").style.display = \"block\";'>i</a>");
+        b.append("<a href='#' title='justify this triple' onclick='document.getElementById(\"iframe").append(id).append("\").src=\"").append(configurationService.getServerIri()).append("core/public/html/reasoning.html#").append(id).append("\";document.getElementById(\"info").append(id).append("\").style.display = \"block\";'>i</a>");
         b.append("<div id='info").append(id).append("' class='info-dialog'>");
         b.append(iframe).append(closer);
         b.append("</div>");

@@ -18,7 +18,7 @@
 package org.apache.marmotta.kiwi.sparql.builder.model;
 
 import com.google.common.collect.Iterators;
-import org.openrdf.query.algebra.ValueExpr;
+import org.eclipse.rdf4j.query.algebra.ValueExpr;
 
 import java.util.ArrayList;
 import java.util.Iterator;

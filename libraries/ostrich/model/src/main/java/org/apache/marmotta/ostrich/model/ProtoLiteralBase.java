@@ -17,14 +17,13 @@
 
 package org.apache.marmotta.ostrich.model;
 
-import org.apache.marmotta.commons.util.DateUtils;
-import org.openrdf.model.Literal;
-import org.openrdf.model.datatypes.XMLDatatypeUtil;
-
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
+import javax.xml.datatype.XMLGregorianCalendar;
+import org.apache.marmotta.commons.util.DateUtils;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.datatypes.XMLDatatypeUtil;
 
 /**
  * Base functionality for both types of literals (type conversions, equals, etc).

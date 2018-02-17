@@ -22,7 +22,7 @@ import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
-import org.openrdf.query.algebra.evaluation.function.rdfterm.UUID;
+import org.eclipse.rdf4j.query.algebra.evaluation.function.rdfterm.UUID;
 
 /**
  * Add file description here!

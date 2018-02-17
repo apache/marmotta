@@ -17,6 +17,8 @@
  */
 package org.apache.marmotta.ldclient.test.rdf;
 
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
@@ -25,14 +27,12 @@ import org.apache.marmotta.ldclient.model.ClientConfiguration;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.apache.marmotta.ldclient.test.helper.TestLDClient;
+import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.repository.RepositoryConnection;
-
-import java.io.InputStream;
 
 /**
  * Add file description here!
@@ -66,7 +66,7 @@ public class TestStanbolProvider {
 
         // run a SPARQL test to see if the returned data is correct
         InputStream sparql = this.getClass().getResourceAsStream("dbpedia-berlin.sparql");
-        BooleanQuery testLabel = conBerlin.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
+        BooleanQuery testLabel = conBerlin.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql,Charset.defaultCharset()));
         Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
 
         conBerlin.commit();

@@ -17,13 +17,12 @@
  */
 package org.apache.marmotta.kiwi.reasoner.persistence;
 
+import java.sql.SQLException;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
-import org.openrdf.model.ValueFactory;
+import org.eclipse.rdf4j.model.ValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.SQLException;
 
 /**
  * This class handles all database access of the reasoning component of the KiWi triple store. It provides

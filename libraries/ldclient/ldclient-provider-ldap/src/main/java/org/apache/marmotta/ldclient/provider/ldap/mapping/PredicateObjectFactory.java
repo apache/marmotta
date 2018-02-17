@@ -17,22 +17,21 @@
  */
 package org.apache.marmotta.ldclient.provider.ldap.mapping;
 
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.util.Set;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
 
 public abstract class PredicateObjectFactory {
 
-    protected final URI predicateURI;
+    protected final IRI predicateIRI;
 
-    public PredicateObjectFactory(URI predicateURI) {
-        this.predicateURI = predicateURI;
+    public PredicateObjectFactory(IRI predicateURI) {
+        this.predicateIRI = predicateURI;
     }
 
-    public URI createPredicate(ValueFactory valueFactory) {
-        return predicateURI;
+    public IRI createPredicate(ValueFactory valueFactory) {
+        return predicateIRI;
     }
 
     public abstract Set<Value> createObjects(String value, ValueFactory valueFactory);

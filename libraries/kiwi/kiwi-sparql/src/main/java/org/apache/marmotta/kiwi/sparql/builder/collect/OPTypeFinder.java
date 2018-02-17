@@ -17,24 +17,31 @@
 
 package org.apache.marmotta.kiwi.sparql.builder.collect;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
-import org.openrdf.model.Literal;
-import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.query.algebra.FunctionCall;
+import org.eclipse.rdf4j.query.algebra.If;
+import org.eclipse.rdf4j.query.algebra.Label;
+import org.eclipse.rdf4j.query.algebra.Lang;
+import org.eclipse.rdf4j.query.algebra.LocalName;
+import org.eclipse.rdf4j.query.algebra.SameTerm;
+import org.eclipse.rdf4j.query.algebra.Str;
+import org.eclipse.rdf4j.query.algebra.ValueConstant;
+import org.eclipse.rdf4j.query.algebra.ValueExpr;
+import org.eclipse.rdf4j.query.algebra.helpers.AbstractQueryModelVisitor;
 
 /**
  * Determine the operand type of a value expression. Get the coerced value by calling coerce().
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class OPTypeFinder extends QueryModelVisitorBase<RuntimeException> {
+public class OPTypeFinder extends AbstractQueryModelVisitor<RuntimeException> {
 
     public List<ValueType> optypes = new ArrayList<>();
 
@@ -109,7 +116,7 @@ public class OPTypeFinder extends QueryModelVisitorBase<RuntimeException> {
 
     @Override
     public void meet(FunctionCall fc) throws RuntimeException {
-        NativeFunction nf = NativeFunctionRegistry.getInstance().get(fc.getURI());
+        NativeFunction nf = NativeFunctionRegistry.getInstance().get(fc.getURI()).get();
 
         if (nf != null) {
             optypes.add(nf.getReturnType());

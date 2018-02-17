@@ -17,10 +17,9 @@
  */
 package org.apache.marmotta.platform.ldp.util;
 
-import org.apache.marmotta.platform.ldp.api.LdpService;
-import org.openrdf.repository.RepositoryConnection;
-
 import java.util.UUID;
+import org.apache.marmotta.platform.ldp.api.LdpService;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 
 /**
  * UUID-based URI generator.

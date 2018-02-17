@@ -17,24 +17,37 @@
 
 package org.apache.marmotta.platform.backend.ostrich;
 
-import info.aduna.iteration.CloseableIteration;
-import org.apache.marmotta.ostrich.sail.OstrichSailConnection;
-import org.openrdf.model.Statement;
-import org.openrdf.query.*;
-import org.openrdf.query.impl.GraphQueryResultImpl;
-import org.openrdf.query.impl.TupleQueryResultImpl;
-import org.openrdf.query.parser.*;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.*;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.SailConnection;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.SailConnectionWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.apache.marmotta.ostrich.sail.OstrichSailConnection;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.GraphQueryResult;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.query.impl.IteratingGraphQueryResult;
+import org.eclipse.rdf4j.query.impl.IteratingTupleQueryResult;
+import org.eclipse.rdf4j.query.parser.ParsedBooleanQuery;
+import org.eclipse.rdf4j.query.parser.ParsedGraphQuery;
+import org.eclipse.rdf4j.query.parser.ParsedQuery;
+import org.eclipse.rdf4j.query.parser.ParsedTupleQuery;
+import org.eclipse.rdf4j.query.parser.QueryParserUtil;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailBooleanQuery;
+import org.eclipse.rdf4j.repository.sail.SailGraphQuery;
+import org.eclipse.rdf4j.repository.sail.SailQuery;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
+import org.eclipse.rdf4j.repository.sail.SailTupleQuery;
+import org.eclipse.rdf4j.sail.Sail;
+import org.eclipse.rdf4j.sail.SailConnection;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.SailConnectionWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A wrapper SailRepository for Ostrich allowing access to direct SPARQL support.
@@ -71,7 +84,7 @@ public class OstrichSailRepository extends SailRepository {
                                     bindingsIter = sailCon.directTupleQuery(queryString, baseURI);
                                     bindingsIter = enforceMaxQueryTime(bindingsIter);
 
-                                    return new TupleQueryResultImpl(new ArrayList<String>(parsedQuery.getTupleExpr().getBindingNames()), bindingsIter);
+                                    return new IteratingTupleQueryResult(new ArrayList<String>(parsedQuery.getTupleExpr().getBindingNames()), bindingsIter);
                                 } catch (SailException e) {
                                     throw new QueryEvaluationException(e.getMessage(), e);
                                 } catch (MalformedQueryException e) {
@@ -125,7 +138,7 @@ public class OstrichSailRepository extends SailRepository {
                                     OstrichSailConnection sailCon = findConnection(getConnection().getSailConnection());
                                     bindingsIter = sailCon.directGraphQuery(queryString, baseURI);
 
-                                    return new GraphQueryResultImpl(new HashMap<String, String>(), bindingsIter);
+                                    return new IteratingGraphQueryResult(new HashMap<String, String>(), bindingsIter);
                                 } catch (SailException e) {
                                     throw new QueryEvaluationException(e.getMessage(), e);
                                 } catch (MalformedQueryException e) {

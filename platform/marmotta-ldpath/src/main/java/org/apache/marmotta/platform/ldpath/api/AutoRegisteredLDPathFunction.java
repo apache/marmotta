@@ -18,7 +18,7 @@
 package org.apache.marmotta.platform.ldpath.api;
 
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.Value;
 
 /**
  * Superclass of all LMF LDPath functions, used for auto-registry of functions provided by modules using

@@ -16,11 +16,33 @@
  */
 package org.apache.marmotta.kiwi.loader.pgsql;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.marmotta.kiwi.loader.csv.*;
-import org.apache.marmotta.kiwi.model.rdf.*;
+import org.apache.marmotta.kiwi.loader.csv.LanguageProcessor;
+import org.apache.marmotta.kiwi.loader.csv.NodeIDProcessor;
+import org.apache.marmotta.kiwi.loader.csv.NodeTypeProcessor;
+import org.apache.marmotta.kiwi.loader.csv.SQLBooleanProcessor;
+import org.apache.marmotta.kiwi.loader.csv.SQLDateTimeProcessor;
+import org.apache.marmotta.kiwi.loader.csv.SQLTimestampProcessor;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
+import org.eclipse.rdf4j.model.IRI;
 import org.joda.time.DateTime;
-import org.openrdf.model.URI;
 import org.postgresql.PGConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,16 +53,6 @@ import org.supercsv.encoder.DefaultCsvEncoder;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CsvContext;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * Add file description here!
@@ -147,8 +159,8 @@ public class PGCopyUtil {
         List<Object> row = Arrays.asList(rowArray);
 
         for(KiWiNode n : nodeBacklog) {
-            if(n instanceof KiWiUriResource) {
-                KiWiUriResource u = (KiWiUriResource)n;
+            if(n instanceof KiWiIriResource) {
+                KiWiIriResource u = (KiWiIriResource)n;
                 createNodeList(rowArray, u.getId(), u.getClass(), u.stringValue(), null, null, null, null, null, null, null, u.getCreated());
             } else if(n instanceof KiWiAnonResource) {
                 KiWiAnonResource a = (KiWiAnonResource)n;
@@ -188,7 +200,7 @@ public class PGCopyUtil {
         writer.close();
     }
 
-    private static void createNodeList(Object[] a, Long id, Class type, String content, Double dbl, Long lng, DateTime date, Integer tzoffset, Boolean bool, URI dtype, Locale lang, Date created) {
+    private static void createNodeList(Object[] a, Long id, Class type, String content, Double dbl, Long lng, DateTime date, Integer tzoffset, Boolean bool, IRI dtype, Locale lang, Date created) {
         a[0] = id;
         a[1] = type;
         a[2] = content;

@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.ldclient.provider.xml.mapping;
 
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
 
 /**
  * Add file description here!
@@ -51,6 +50,6 @@ public class XPathURIMapper extends XPathValueMapper {
      */
     @Override
     public List<Value> map(String resourceUri, String selectedValue, ValueFactory factory) {
-        return Collections.singletonList((Value)factory.createURI(selectedValue));
+        return Collections.singletonList((Value)factory.createIRI(selectedValue));
     }
 }

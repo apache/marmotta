@@ -17,21 +17,31 @@
 
 package org.apache.marmotta.ostrich.sail;
 
-import org.apache.marmotta.commons.sesame.model.LiteralCommons;
-import org.apache.marmotta.commons.util.DateUtils;
-import org.apache.marmotta.ostrich.model.*;
-import org.openrdf.model.*;
-
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.Date;
 import java.util.Random;
+import javax.xml.datatype.XMLGregorianCalendar;
+import org.apache.marmotta.commons.sesame.model.LiteralCommons;
+import org.apache.marmotta.commons.util.DateUtils;
+import org.apache.marmotta.ostrich.model.ProtoBNode;
+import org.apache.marmotta.ostrich.model.ProtoDatatypeLiteral;
+import org.apache.marmotta.ostrich.model.ProtoIRI;
+import org.apache.marmotta.ostrich.model.ProtoStatement;
+import org.apache.marmotta.ostrich.model.ProtoStringLiteral;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.AbstractValueFactory;
+
 
 /**
  * Add file description here!
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class OstrichValueFactory implements ValueFactory {
+public class OstrichValueFactory extends AbstractValueFactory {
 
     private Random anonIdGenerator;
 
@@ -50,33 +60,34 @@ public class OstrichValueFactory implements ValueFactory {
     }
 
     /**
-     * Creates a new URI from the supplied string-representation.
+     * Creates a new IRI from the supplied string-representation.
      *
-     * @param uri A string-representation of a URI.
-     * @return An object representing the URI.
+     * @param iri A string-representation of a IRI.
+     * @return An object representing the IRI.
      */
     @Override
-    public URI createURI(String uri) {
-        return new ProtoURI(uri);
+    public IRI createIRI(String iri) {
+        return new ProtoIRI(iri);
     }
 
     /**
-     * Creates a new URI from the supplied namespace and local name. Calling this
-     * method is funtionally equivalent to calling {@link #createURI(String)
-     * createURI(namespace+localName)}, but allows the ValueFactory to reuse
+     * Creates a new IRI from the supplied namespace and local name. Calling this
+     * method is funtionally equivalent to calling {@link #createIRI(String)
+     * createIRI(namespace+localName)}, but allows the ValueFactory to reuse
      * supplied namespace and local name strings whenever possible. Note that the
-     * values returned by {@link URI#getNamespace()} and
-     * {@link URI#getLocalName()} are not necessarily the same as the values that
+     * values returned by {@link IRI#getNamespace()} and
+     * {@link IRI#getLocalName()} are not necessarily the same as the values that
      * are supplied to this method.
      *
-     * @param namespace The URI's namespace.
-     * @param localName The URI's local name.
+     * @param namespace The IRI's namespace.
+     * @param localName The IRI's local name.
+     * @return An object representing the IRI.
      * @throws IllegalArgumentException If the supplied namespace and localname do not resolve to a legal
-     *                                  (absolute) URI.
+     *                                  (absolute) IRI.
      */
     @Override
-    public URI createURI(String namespace, String localName) {
-        return new ProtoURI(namespace+localName);
+    public IRI createIRI(String namespace, String localName) {
+        return new ProtoIRI(namespace+localName);
     }
 
     /**
@@ -118,7 +129,7 @@ public class OstrichValueFactory implements ValueFactory {
      * @param datatype The literal's datatype, or <tt>null</tt> if the literal doesn't
      */
     @Override
-    public Literal createLiteral(String label, URI datatype) {
+    public Literal createLiteral(String label, IRI datatype) {
         return new ProtoDatatypeLiteral(label, datatype);
     }
 
@@ -239,7 +250,7 @@ public class OstrichValueFactory implements ValueFactory {
      * @return The created statement.
      */
     @Override
-    public Statement createStatement(Resource subject, URI predicate, Value object) {
+    public Statement createStatement(Resource subject, IRI predicate, Value object) {
         return new ProtoStatement(subject, predicate, object, null);
     }
 
@@ -254,7 +265,7 @@ public class OstrichValueFactory implements ValueFactory {
      * @return The created statement.
      */
     @Override
-    public Statement createStatement(Resource subject, URI predicate, Value object, Resource context) {
+    public Statement createStatement(Resource subject, IRI predicate, Value object, Resource context) {
         return new ProtoStatement(subject, predicate, object, context);
     }
 }

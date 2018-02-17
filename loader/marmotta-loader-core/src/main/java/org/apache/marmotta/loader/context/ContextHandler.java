@@ -19,10 +19,10 @@ package org.apache.marmotta.loader.context;
 
 import org.apache.marmotta.loader.api.LoaderHandler;
 import org.apache.marmotta.loader.wrapper.LoaderHandlerWrapper;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.impl.ContextStatementImpl;
-import org.openrdf.rio.RDFHandlerException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
 
 /**
  * A handler adding a pre-defined context to each statement
@@ -31,9 +31,9 @@ import org.openrdf.rio.RDFHandlerException;
  */
 public class ContextHandler extends LoaderHandlerWrapper {
 
-    private URI context;
+    private IRI context;
 
-    public ContextHandler(LoaderHandler handler, URI context) {
+    public ContextHandler(LoaderHandler handler, IRI context) {
         super(handler);
         this.context = context;
     }
@@ -43,11 +43,11 @@ public class ContextHandler extends LoaderHandlerWrapper {
      * Handles a statement.
      *
      * @param st The statement.
-     * @throws org.openrdf.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
+     * @throws org.eclipse.rdf4j.rio.RDFHandlerException If the RDF handler has encountered an unrecoverable error.
      */
     @Override
     public void handleStatement(Statement st) throws RDFHandlerException {
-        Statement wrapped = new ContextStatementImpl(st.getSubject(),st.getPredicate(),st.getObject(), context);
+        Statement wrapped = SimpleValueFactory.getInstance().createStatement(st.getSubject(),st.getPredicate(),st.getObject(), context);
 
         super.handleStatement(wrapped);
     }

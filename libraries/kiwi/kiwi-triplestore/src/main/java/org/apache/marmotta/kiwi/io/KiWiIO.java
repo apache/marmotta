@@ -17,17 +17,6 @@
 
 package org.apache.marmotta.kiwi.io;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.commons.io.DataIO;
-import org.apache.marmotta.commons.vocabulary.SCHEMA;
-import org.apache.marmotta.commons.vocabulary.XSD;
-import org.apache.marmotta.kiwi.model.rdf.*;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.openrdf.model.vocabulary.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -38,6 +27,30 @@ import java.util.Map;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.io.DataIO;
+import org.apache.marmotta.commons.vocabulary.SCHEMA;
+import org.apache.marmotta.commons.vocabulary.XSD;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIriResource;
+import org.eclipse.rdf4j.model.vocabulary.DC;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.vocabulary.OWL;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.model.vocabulary.SKOS;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Add file description here!
@@ -105,7 +118,7 @@ public class KiWiIO {
 
     private static Map<Class<? extends KiWiNode>, Integer> classTable = new HashMap<>();
     static {
-        classTable.put(KiWiUriResource.class,    TYPE_URI);
+        classTable.put(KiWiIriResource.class,    TYPE_URI);
         classTable.put(KiWiAnonResource.class,   TYPE_BNODE);
         classTable.put(KiWiBooleanLiteral.class, TYPE_BOOLEAN);
         classTable.put(KiWiDateLiteral.class,    TYPE_DATE);
@@ -148,7 +161,7 @@ public class KiWiIO {
             output.writeByte(type);
             switch (type) {
                 case TYPE_URI:
-                    writeURI(output, (KiWiUriResource) node);
+                    writeURI(output, (KiWiIriResource) node);
                     break;
                 case TYPE_BNODE:
                     writeBNode(output, (KiWiAnonResource) node);
@@ -209,14 +222,14 @@ public class KiWiIO {
     }
 
     /**
-     * Efficiently serialize a KiWiUriResource to a DataOutput destination, using prefix compression for commonly used
-     * prefixes.
+     * Efficiently serialize a KiWiIriResource to a DataOutput destination, using prefix compression for commonly used
+ prefixes.
      *
      * @param out  DataOutput destination
-     * @param uri  KiWiUriResource to serialize
+     * @param uri  KiWiIriResource to serialize
      * @throws IOException
      */
-    public static void writeURI(DataOutput out, KiWiUriResource uri) throws IOException {
+    public static void writeURI(DataOutput out, KiWiIriResource uri) throws IOException {
         if(uri == null) {
             out.writeLong(-1L);
         } else {
@@ -270,13 +283,13 @@ public class KiWiIO {
 
 
     /**
-     * Read a KiWiUriResource serialized with writeURI and return it.
+     * Read a KiWiIriResource serialized with writeURI and return it.
      *
      * @param input DataInput source
-     * @return a KiWiUriResource
+     * @return a KiWiIriResource
      * @throws IOException
      */
-    public static KiWiUriResource readURI(DataInput input) throws IOException {
+    public static KiWiIriResource readURI(DataInput input) throws IOException {
         long id = input.readLong();
 
         if(id == -1) {
@@ -332,7 +345,7 @@ public class KiWiIO {
 
             Date created = new Date(input.readLong());
 
-            KiWiUriResource r = new KiWiUriResource(uriPrefix + uriSuffix,created);
+            KiWiIriResource r = new KiWiIriResource(uriPrefix + uriSuffix,created);
             r.setId(id);
 
             return r;
@@ -416,7 +429,7 @@ public class KiWiIO {
         } else {
             boolean content = input.readBoolean();
 
-            KiWiUriResource dtype = readURI(input);
+            KiWiIriResource dtype = readURI(input);
 
             Date created = new Date(input.readLong());
 
@@ -463,7 +476,7 @@ public class KiWiIO {
         } else {
             DateTime content = new DateTime(input.readLong(), DateTimeZone.forOffsetMillis(input.readInt()));
 
-            KiWiUriResource dtype = readURI(input);
+            KiWiIriResource dtype = readURI(input);
 
             Date created = new Date(input.readLong());
 
@@ -510,7 +523,7 @@ public class KiWiIO {
 
         double content = input.readDouble();
 
-        KiWiUriResource dtype = readURI(input);
+        KiWiIriResource dtype = readURI(input);
 
         Date created = new Date(input.readLong());
 
@@ -556,7 +569,7 @@ public class KiWiIO {
 
         long content = input.readLong();
 
-        KiWiUriResource dtype = readURI(input);
+        KiWiIriResource dtype = readURI(input);
 
         Date created = new Date(input.readLong());
 
@@ -581,11 +594,11 @@ public class KiWiIO {
         } else {
             out.writeLong(literal.getId());
             writeContent(out, literal.getContent());
-            if(langTable.containsKey(literal.getLanguage())) {
-                out.writeByte(langTable.get(literal.getLanguage()));
+            if(langTable.containsKey(literal.getLanguage().orElse(null))) {
+                out.writeByte(langTable.get(literal.getLanguage().orElse(null)));
             } else {
                 out.writeByte(LANG_UNKNOWN);
-                DataIO.writeString(out, literal.getLanguage());
+                DataIO.writeString(out, literal.getLanguage().orElse(null));
             }
             writeURI(out, literal.getType());
             out.writeLong(literal.getCreated().getTime());
@@ -658,7 +671,7 @@ public class KiWiIO {
 
 
 
-        KiWiUriResource dtype = readURI(input);
+        KiWiIriResource dtype = readURI(input);
 
         Date created = new Date(input.readLong());
 
@@ -739,7 +752,7 @@ public class KiWiIO {
             long sId = input.readLong();
             String sUri = prefix + DataIO.readString(input);
             long sTime = input.readLong();
-            KiWiUriResource s = new KiWiUriResource(sUri);
+            KiWiIriResource s = new KiWiIriResource(sUri);
             s.setId(sId);
             s.setCreated(new Date(sTime));
             result.setSubject(s);
@@ -749,7 +762,7 @@ public class KiWiIO {
             long oId = input.readLong();
             String oUri = prefix + DataIO.readString(input);
             long oTime = input.readLong();
-            KiWiUriResource o = new KiWiUriResource(oUri);
+            KiWiIriResource o = new KiWiIriResource(oUri);
             o.setId(oId);
             o.setCreated(new Date(oTime));
             result.setObject(o);

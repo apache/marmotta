@@ -17,6 +17,15 @@
  */
 package org.apache.marmotta.ldclient.provider.ldap;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -37,19 +46,15 @@ import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.provider.ldap.mapping.LiteralPredicateFactory;
 import org.apache.marmotta.ldclient.provider.ldap.mapping.PredicateObjectFactory;
 import org.apache.marmotta.ldclient.provider.ldap.mapping.UriPredicateFactory;
-import org.openrdf.model.Model;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.TreeModel;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.impl.TreeModel;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.*;
 
 /**
  * LdapFoafProvider maps LDAP accounts to foaf:Person instances
@@ -151,19 +156,19 @@ public class LdapFoafProvider implements DataProvider {
             final LdapConnection ldap = openLdapConnection(endpoint);
 
             Model model = new TreeModel();
-            ValueFactory vf = ValueFactoryImpl.getInstance();
+            ValueFactory vf = SimpleValueFactory.getInstance();
             String userDN = buildDN(prefix, account, ldap);
 
             Map<String, java.util.List<String>> accountData = getAccountData(userDN, ldap);
 
-            final URI subject = vf.createURI(resource);
+            final IRI subject = vf.createIRI(resource);
             for (String attr : MAPPING.keySet()) {
                 if (!accountData.containsKey(attr)) {
                     continue;
                 }
 
                 final PredicateObjectFactory factory = MAPPING.get(attr);
-                final URI predicate = factory.createPredicate(vf);
+                final IRI predicate = factory.createPredicate(vf);
 
                 for (String val : accountData.get(attr)) {
                     for (Value object : factory.createObjects(val, vf)) {

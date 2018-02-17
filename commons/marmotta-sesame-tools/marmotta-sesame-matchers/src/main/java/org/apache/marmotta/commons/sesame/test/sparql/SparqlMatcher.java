@@ -18,10 +18,10 @@
 package org.apache.marmotta.commons.sesame.test.sparql;
 
 import org.apache.marmotta.commons.sesame.test.base.AbstractRepositoryConnectionMatcher;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 
 /**
  * SPARQL Matcher
