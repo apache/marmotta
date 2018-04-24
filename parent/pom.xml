@@ -54,6 +54,7 @@
         <jackson.version>2.3.3</jackson.version>
         <titan.version>0.4.2</titan.version>
         <accumulograph.version>0.2.1</accumulograph.version>
+        <blueprints.version>2.6.0</blueprints.version>
         <jax.doclets.version>0.10.1</jax.doclets.version>
     </properties>
 

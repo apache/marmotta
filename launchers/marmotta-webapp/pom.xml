@@ -263,8 +263,7 @@
                 <dependency>
                     <groupId>com.tinkerpop.blueprints</groupId>
                     <artifactId>blueprints-graph-sail</artifactId>
-                    <!-- TODO: create a shared blueprints version in marmotta-parent -->
-                    <version>2.6.0</version>
+                    <version>${blueprints.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.hadoop</groupId>
