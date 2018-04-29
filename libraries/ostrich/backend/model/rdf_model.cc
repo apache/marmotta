@@ -18,28 +18,29 @@
 #include <new>
 
 #include "rdf_model.h"
+#include "absl/strings/str_cat.h"
 
 namespace marmotta {
 namespace rdf {
 
 static std::string as_turtle_(const proto::URI& uri) {
-    return "<" + uri.uri() + ">";
+    return absl::StrCat("<", uri.uri(), ">");
 }
 
 static std::string as_turtle_(const proto::BNode& bnode) {
-    return "_:" + bnode.id();
+    return absl::StrCat("_:", bnode.id());
 }
 
 static std::string as_turtle_(const proto::StringLiteral& literal) {
     if (literal.language() == "") {
-        return "\"" + literal.content() + "\"";
+        return absl::StrCat("\"", literal.content(), "\"");
     } else {
-        return "\"" + literal.content() + "\"@" + literal.language();
+        return absl::StrCat("\"", literal.content(), "\"@", literal.language());
     }
 }
 
 static std::string as_turtle_(const proto::DatatypeLiteral& literal) {
-    return "\"" + literal.content() + "\"^^" + as_turtle_(literal.datatype());
+    return absl::StrCat("\"", literal.content(), "\"^^", as_turtle_(literal.datatype()));
 }
 
 static std::string as_turtle_(const proto::Resource& resource) {
@@ -178,14 +179,14 @@ std::string Value::as_turtle() const {
 
 std::string Statement::as_turtle() const {
     if (hasContext()) {
-        return as_turtle_(internal_.context()) + " { " +
-               as_turtle_(internal_.subject()) + " " +
-               as_turtle_(internal_.predicate()) + " " +
-               as_turtle_(internal_.object()) + ". }";
+        return absl::StrCat(as_turtle_(internal_.context()), " { ",
+                            as_turtle_(internal_.subject()), " ",
+                            as_turtle_(internal_.predicate()), " ",
+                            as_turtle_(internal_.object()), ". }");
     } else {
-        return as_turtle_(internal_.subject()) + " " +
-               as_turtle_(internal_.predicate()) + " " +
-               as_turtle_(internal_.object()) + ".";
+        return absl::StrCat(as_turtle_(internal_.subject()), " ",
+                            as_turtle_(internal_.predicate()), " ",
+                            as_turtle_(internal_.object()), ".");
     }
 }
 

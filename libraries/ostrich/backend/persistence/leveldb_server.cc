@@ -47,6 +47,7 @@ void stopServer(int signal) {
 int main(int argc, char** argv) {
     // Initialize Google's logging library.
     google::InitGoogleLogging(argv[0]);
+    google::SetUsageMessage("leveldb_persistence --port <port> --db <path to database>");
     google::ParseCommandLineFlags(&argc, &argv, true);
 
     mkdir(FLAGS_db.c_str(), 0700);
