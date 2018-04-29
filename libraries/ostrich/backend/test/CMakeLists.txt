@@ -7,16 +7,16 @@ include_directories(
         "${RAPTOR_INCLUDE_DIR}/raptor2"
 )
 
-add_executable(model_tests NamespaceTest.cc StatementTest.cc main.cc)
+add_executable(model_tests NamespaceTest.cc StatementTest.cc)
 target_link_libraries(model_tests gtest_main marmotta_model ${GLOG_LIBRARY})
 
-add_executable(sparql_tests SparqlTest.cc main.cc)
+add_executable(sparql_tests SparqlTest.cc)
 target_link_libraries(sparql_tests gtest_main marmotta_model marmotta_sparql ${GLOG_LIBRARY})
 
-add_executable(leveldb_tests main.cc LevelDBTest.cc)
+add_executable(leveldb_tests LevelDBTest.cc)
 target_link_libraries(leveldb_tests gtest_main marmotta_leveldb ${GLOG_LIBRARY} ${Boost_LIBRARIES})
 
-add_executable(persistence_tests main.cc PersistenceTest.cc)
+add_executable(persistence_tests PersistenceTest.cc)
 target_link_libraries(persistence_tests gtest_main marmotta_persistence ${GLOG_LIBRARY} ${Boost_LIBRARIES})
 
 add_test(NAME ModelTest COMMAND model_tests)
