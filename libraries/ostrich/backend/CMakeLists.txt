@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 project(Marmotta)
-
+cmake_policy(VERSION 3.0.2)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -g")
 set(PROTOBUF_IMPORT_DIRS "${CMAKE_SOURCE_DIR}/model")
@@ -37,6 +37,13 @@ if (Tcmalloc_FOUND)
 endif (Tcmalloc_FOUND)
 
 enable_testing()
+
+# 3rd party libraries
+add_subdirectory(3rdparty/gtest)
+
+set(BUILD_TESTING off)
+add_subdirectory(3rdparty/abseil)
+include_directories("3rdparty/abseil")
 
 add_subdirectory(util)
 add_subdirectory(model)

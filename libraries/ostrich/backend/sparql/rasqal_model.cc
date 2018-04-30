@@ -35,7 +35,7 @@ rdf::Resource ConvertResource(rasqal_literal *node) {
 
     switch (node->type) {
         case RASQAL_LITERAL_URI:
-            return rdf::URI(std::string((const char*)raptor_uri_as_string(node->value.uri)));
+            return rdf::URI((const char*)raptor_uri_as_string(node->value.uri));
         case RASQAL_LITERAL_BLANK:
             return rdf::BNode(std::string((const char*)node->string, node->string_len));
         default:

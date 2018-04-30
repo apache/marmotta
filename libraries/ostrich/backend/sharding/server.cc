@@ -19,8 +19,8 @@
 
 #include <gflags/gflags.h>
 #include <glog/logging.h>
+#include <absl/strings/str_split.h>
 
-#include "util/split.h"
 #include "sharding/sharding.h"
 
 using grpc::Status;
@@ -47,8 +47,8 @@ int main(int argc, char** argv) {
     google::InitGoogleLogging(argv[0]);
     google::ParseCommandLineFlags(&argc, &argv, true);
 
-    marmotta::sharding::ShardingService service(
-            marmotta::util::split(FLAGS_backends, ','));
+    std::vector<std::string> backends = absl::StrSplit(FLAGS_backends, absl::ByChar(','));
+    marmotta::sharding::ShardingService service(backends);
 
     ServerBuilder builder;
     builder.AddListeningPort(FLAGS_host + ":" + FLAGS_port, grpc::InsecureServerCredentials());

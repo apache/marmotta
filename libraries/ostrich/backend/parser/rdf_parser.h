@@ -51,11 +51,11 @@ class Parser {
 
     ~Parser();
 
-    void setStatementHandler(std::function<bool(const rdf::Statement&)> const &handler) {
+    void setStatementHandler(std::function<bool(const rdf::Statement&)> handler) {
         Parser::stmt_handler = handler;
     }
 
-    void setNamespaceHandler(std::function<bool(const rdf::Namespace&)> const &handler) {
+    void setNamespaceHandler(std::function<bool(const rdf::Namespace&)> handler) {
         Parser::ns_handler = handler;
     }
 

@@ -1,6 +1,6 @@
 include_directories(.. ${CMAKE_CURRENT_BINARY_DIR}/..)
 
-add_library(marmotta_util murmur3.cc murmur3.h split.cc split.h
+add_library(marmotta_util murmur3.cc murmur3.h
         iterator.h time_logger.cc time_logger.h threadpool.h)
 
 add_library(marmotta_raptor_util raptor_util.h raptor_util.cc)

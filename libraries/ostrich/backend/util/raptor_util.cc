@@ -37,7 +37,7 @@ rdf::Resource ConvertResource(raptor_term *node) {
 
     switch (node->type) {
         case RAPTOR_TERM_TYPE_URI:
-            return rdf::URI(std::string((const char*)raptor_uri_as_string(node->value.uri)));
+            return rdf::URI((const char*)raptor_uri_as_string(node->value.uri));
         case RAPTOR_TERM_TYPE_BLANK:
             return rdf::BNode(std::string((const char*)node->value.blank.string,
                                           node->value.blank.string_len));

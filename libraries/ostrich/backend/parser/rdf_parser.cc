@@ -20,6 +20,7 @@
 #include <util/raptor_util.h>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
+#include <absl/strings/str_cat.h>
 
 DEFINE_int64(parse_buffer_size, 8192, "Size of parse buffer in bytes.");
 
@@ -91,10 +92,8 @@ void Parser::raptor_ns_handler(void *user_data, raptor_namespace *nspace) {
 
 void Parser::raptor_error_handler(void *user_data, raptor_log_message* message) {
     Parser* p = static_cast<Parser*>(user_data);
-    p->error = std::string("parse error (")
-               + std::to_string(message->locator->line) + ":"
-               + std::to_string(message->locator->column) + "): "
-               + message->text;
+    p->error = absl::StrCat(
+            "parse error (", message->locator->line, ":", message->locator->column, "): ", message->text);
 
     LOG(ERROR) << p->error;
 }

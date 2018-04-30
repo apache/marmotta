@@ -43,11 +43,10 @@ inline bool computeKey(const std::string* s, char* result) {
 }
 
 inline bool computeKey(
-        const google::protobuf::Message& msg, bool enabled, char* result) {
+        const google::protobuf::Message& msg, std::string* buffer, bool enabled, char* result) {
     if (enabled) {
-        std::string s;
-        msg.SerializeToString(&s);
-        return computeKey(&s, result);
+        msg.SerializeToString(buffer);
+        return computeKey(buffer, result);
     }
     return false;
 }
@@ -66,11 +65,13 @@ Key::Key(const std::string* s, const std::string* p,
         , oEnabled(computeKey(o, oHash)), cEnabled(computeKey(c, cHash)) {
 }
 
-Key::Key(const rdf::proto::Statement& stmt)
-        : sEnabled(computeKey(stmt.subject(), stmt.has_subject(), sHash))
-        , pEnabled(computeKey(stmt.predicate(), stmt.has_predicate(), pHash))
-        , oEnabled(computeKey(stmt.object(), stmt.has_object(), oHash))
-        , cEnabled(computeKey(stmt.context(), stmt.has_context(), cHash)) {
+Key::Key(const rdf::proto::Statement& stmt) {
+    std::string s; // buffer, reused during computations
+
+    sEnabled = computeKey(stmt.subject(), &s, stmt.has_subject(), sHash);
+    pEnabled = computeKey(stmt.predicate(), &s, stmt.has_predicate(), pHash);
+    oEnabled = computeKey(stmt.object(), &s, stmt.has_object(), oHash);
+    cEnabled = computeKey(stmt.context(), &s, stmt.has_context(), cHash);
 }
 
 char* Key::Create(IndexTypes type, BoundTypes bound) const {
