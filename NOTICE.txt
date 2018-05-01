@@ -17,9 +17,17 @@ This product also includes some third-party source components:
    is licensed under BSD license. The original source code is available from
    http://javolution.org
 
- * The module kiwi/kiwi-triplestore contains a modified and customized version 
-   of the ScriptRunner.java script. ScriptRunner has copyright (c) 2004 Clinton 
+ * The module kiwi/kiwi-triplestore contains a modified and customized version
+   of the ScriptRunner.java script. ScriptRunner has copyright (c) 2004 Clinton
    Begin, with minor later contributions by several authors, and is licensed
-   under Apache License 2.0. The original source dode is available from
+   under Apache License 2.0. The original source code is available from
    https://gist.github.com/joe776/831762
 
+ * The module libraries/ostrich/backend contains unmodified versions of
+   Abseil - C++ Common Libraries and Google Test:
+   - Abseil - C++ Common Libraries (libraries/ostrich/backend/3rdparty/abseil)
+     is licensed under Apache License 2.0, the original source code is available
+     from https://github.com/abseil/abseil-cpp
+   - Google Test (libraries/ostrich/backend/3rdparty/gtest) is licensed under
+     BSD-3-Clause, the original source code is available from
+     https://github.com/google/googletest

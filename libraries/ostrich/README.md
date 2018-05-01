@@ -103,3 +103,14 @@ a large turtle file, run:
 
 The client connects by default to `localhost:10000` (change with `--host` and `--port` flags).
 
+## 3rd-Party Source Code
+
+The native backend implementation contains 3rd-party source code (located in `backend/3rdparty`).
+
+* **Abseil - C++ Common Libraries** (`backend/3rdparty/abseil`)
+     is licensed under *Apache License 2.0*, the original source code is available
+     from https://github.com/abseil/abseil-cpp
+* **Google Test** (`backend/3rdparty/gtest`) is licensed under
+     *BSD-3-Clause*, the original source code is available from
+     https://github.com/google/googletest
+
