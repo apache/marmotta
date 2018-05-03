@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -29,7 +29,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
@@ -56,7 +55,7 @@ public class ImportServiceImpl implements ImportService{
     @Inject
 	public void initImporters(@Any Instance<Importer> importers) {
         if(importerMap == null) {
-            importerMap = new HashMap<String,Importer>();
+            importerMap = new HashMap<>();
             for( Importer i : importers ) {
                 for( String s : i.getAcceptTypes() ) {
                     importerMap.put(s,i);

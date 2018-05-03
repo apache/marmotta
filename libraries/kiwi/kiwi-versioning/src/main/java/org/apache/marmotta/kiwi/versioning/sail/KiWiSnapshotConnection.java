@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -20,23 +20,14 @@ package org.apache.marmotta.kiwi.versioning.sail;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.DelayedIteration;
-import info.aduna.iteration.ExceptionConvertingIteration;
-import info.aduna.iteration.Iteration;
-import info.aduna.iteration.UnionIteration;
+import info.aduna.iteration.*;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNamespace;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.marmotta.kiwi.versioning.persistence.KiWiVersioningConnection;
-import org.openrdf.model.Namespace;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
+import org.openrdf.model.*;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.QueryEvaluationException;
@@ -49,11 +40,7 @@ import org.openrdf.query.algebra.evaluation.EvaluationStrategy;
 import org.openrdf.query.algebra.evaluation.TripleSource;
 import org.openrdf.query.algebra.evaluation.impl.*;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.sail.SailConnection;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.SailReadOnlyException;
-import org.openrdf.sail.UnknownSailTransactionStateException;
-import org.openrdf.sail.UpdateContext;
+import org.openrdf.sail.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,7 +160,7 @@ public class KiWiSnapshotConnection implements SailConnection {
         final KiWiUriResource rpred = valueFactory.convert(pred);
         final KiWiNode robj         = valueFactory.convert(obj);
 
-        Set<KiWiResource> contextSet = new HashSet<KiWiResource>();
+        Set<KiWiResource> contextSet = new HashSet<>();
         contextSet.addAll(Lists.transform(Arrays.asList(contexts), new Function<Resource, KiWiResource>() {
             @Override
             public KiWiResource apply(Resource input) {
@@ -181,7 +168,7 @@ public class KiWiSnapshotConnection implements SailConnection {
             }
         }));
 
-        Set<DelayedIteration<Statement,RepositoryException>> iterations = new HashSet<DelayedIteration<Statement, RepositoryException>>();
+        Set<DelayedIteration<Statement,RepositoryException>> iterations = new HashSet<>();
         if(contextSet.size() > 0) {
             for(final KiWiResource context : contextSet) {
                 iterations.add(new DelayedIteration<Statement, RepositoryException>() {
@@ -209,7 +196,7 @@ public class KiWiSnapshotConnection implements SailConnection {
         }
 
 
-        return new UnionIteration<Statement, SailException>(
+        return new UnionIteration<>(
                 Iterables.transform(iterations, new Function<DelayedIteration<Statement, RepositoryException>, Iteration<? extends Statement, SailException>>() {
                     @Override
                     public Iteration<? extends Statement, SailException> apply(DelayedIteration<Statement, RepositoryException> input) {

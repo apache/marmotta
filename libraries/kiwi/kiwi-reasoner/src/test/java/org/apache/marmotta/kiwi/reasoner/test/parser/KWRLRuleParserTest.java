@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,9 +18,9 @@
 package org.apache.marmotta.kiwi.reasoner.test.parser;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.marmotta.kiwi.reasoner.model.program.LiteralField;
 import org.apache.marmotta.kiwi.reasoner.model.program.Rule;
 import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParser;
-import org.apache.marmotta.kiwi.test.RepositoryTest;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,8 +35,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Test parsing of individual rules
- * <p/>
- * Author: Sebastian Schaffert (sschaffert@apache.org)
+ *
+ * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class KWRLRuleParserTest {
 
@@ -47,7 +47,6 @@ public class KWRLRuleParserTest {
         repository = new SailRepository(new MemoryStore());
         repository.initialize();
     }
-
 
     @After
     public void shutdown() throws Exception {
@@ -90,6 +89,40 @@ public class KWRLRuleParserTest {
         Assert.assertTrue(r.getHead().getSubject().isVariableField());
         Assert.assertTrue(r.getHead().getProperty().isResourceField());
         Assert.assertTrue(r.getHead().getObject().isVariableField());
+    }
+
+    @Test
+    public void testRule3() throws Exception {
+        String rule = "($1 $2 $3) -> ($1 $2 \"Hello\"@en)";
+        Rule r = KWRLProgramParser.parseRule(rule, ImmutableMap.of("rdfs", "http://www.w3.org/2000/01/rdf-schema#"), repository.getValueFactory());
+
+        Assert.assertNotNull(r);
+        Assert.assertEquals(1, r.getBody().size());
+        Assert.assertTrue(r.getBody().get(0).getSubject().isVariableField());
+        Assert.assertTrue(r.getBody().get(0).getObject().isVariableField());
+        Assert.assertTrue(r.getBody().get(0).getProperty().isVariableField());
+        Assert.assertTrue(r.getHead().getSubject().isVariableField());
+        Assert.assertTrue(r.getHead().getProperty().isVariableField());
+        Assert.assertTrue(r.getHead().getObject().isLiteralField());
+        Assert.assertEquals("Hello", ((LiteralField) r.getHead().getObject()).getLiteral().getLabel());
+        Assert.assertEquals("en", ((LiteralField) r.getHead().getObject()).getLiteral().getLanguage());
+    }
+
+    @Test
+    public void testRule4() throws Exception {
+        String rule = "($1 $2 $3) -> ($1 $2 \"Bonjour\"@fr)";
+        Rule r = KWRLProgramParser.parseRule(rule, ImmutableMap.of("rdfs", "http://www.w3.org/2000/01/rdf-schema#"), repository.getValueFactory());
+
+        Assert.assertNotNull(r);
+        Assert.assertEquals(1, r.getBody().size());
+        Assert.assertTrue(r.getBody().get(0).getSubject().isVariableField());
+        Assert.assertTrue(r.getBody().get(0).getObject().isVariableField());
+        Assert.assertTrue(r.getBody().get(0).getProperty().isVariableField());
+        Assert.assertTrue(r.getHead().getSubject().isVariableField());
+        Assert.assertTrue(r.getHead().getProperty().isVariableField());
+        Assert.assertTrue(r.getHead().getObject().isLiteralField());
+        Assert.assertEquals("Bonjour", ((LiteralField)r.getHead().getObject()).getLiteral().getLabel());
+        Assert.assertEquals("fr", ((LiteralField) r.getHead().getObject()).getLiteral().getLanguage());
     }
 
 }

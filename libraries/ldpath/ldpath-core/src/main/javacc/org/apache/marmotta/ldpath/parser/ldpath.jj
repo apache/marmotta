@@ -26,19 +26,19 @@ options
 //  DEBUG_PARSER=true;
 //  DEBUG_TOKEN_MANAGER=true;
 //  DEBUG_LOOKAHEAD=true;
+  SUPPORT_CLASS_VISIBILITY_PUBLIC=false;
 }
 
 PARSER_BEGIN(LdPathParser)
 package org.apache.marmotta.ldpath.parser;
 
-import org.apache.marmotta.ldpath.model.Constants;
+import static org.apache.marmotta.ldpath.model.Constants.NS_LMF_FUNCS;
 
 import org.apache.marmotta.ldpath.api.backend.*;
 import org.apache.marmotta.ldpath.api.functions.*;
 import org.apache.marmotta.ldpath.api.selectors.*;
 import org.apache.marmotta.ldpath.api.tests.*;
 import org.apache.marmotta.ldpath.api.transformers.*;
-
 
 import org.apache.marmotta.ldpath.model.fields.*;
 import org.apache.marmotta.ldpath.model.functions.*;
@@ -47,13 +47,13 @@ import org.apache.marmotta.ldpath.model.selectors.*;
 import org.apache.marmotta.ldpath.model.tests.*;
 import org.apache.marmotta.ldpath.model.transformers.*;
 
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Collections;
 
@@ -134,15 +134,15 @@ public class LdPathParser<Node> {
         }
 
         public Program<Node> parseProgram() throws ParseException {
-			namespaces.clear();
-			namespaces.putAll(config.getNamespaces());
+            namespaces.clear();
+            namespaces.putAll(config.getNamespaces());
 
             mode = Mode.PROGRAM;
             try {
-		        return Program();
-		    } catch(TokenMgrError error){
-		        throw new ParseException("Unable to parse Program: (Message: "+error.getMessage()+")");
-		    }
+                return Program();
+            } catch(TokenMgrError error){
+                throw new ParseException("Unable to parse Program: (Message: "+error.getMessage()+")");
+            }
         }
 
         public Entry<String, String> parsePrefix() throws ParseException {
@@ -169,16 +169,16 @@ public class LdPathParser<Node> {
 
 
         public NodeSelector<Node> parseSelector(Map<String,String> ctxNamespaces) throws ParseException {
-			namespaces.clear();
-			namespaces.putAll(config.getNamespaces());
-			if(ctxNamespaces != null) {
-			    namespaces.putAll(ctxNamespaces);
-			}
+            namespaces.clear();
+            namespaces.putAll(config.getNamespaces());
+            if(ctxNamespaces != null) {
+                namespaces.putAll(ctxNamespaces);
+            }
 
-			mode = Mode.SELECTOR;
+            mode = Mode.SELECTOR;
 
             try {
-    		    return Selector();
+                return Selector();
             } catch(TokenMgrError error){
                 throw new ParseException("Unable to parse Selector: (Message: "+error.getMessage()+")");
             }
@@ -199,16 +199,16 @@ public class LdPathParser<Node> {
         }
 
         public <T> FieldMapping<T,Node> parseRule(Map<String,String> ctxNamespaces) throws ParseException {
-			namespaces.clear();
-			namespaces.putAll(config.getNamespaces());
-			if(ctxNamespaces != null) {
-			    namespaces.putAll(ctxNamespaces);
-			}
+            namespaces.clear();
+            namespaces.putAll(config.getNamespaces());
+            if(ctxNamespaces != null) {
+                namespaces.putAll(ctxNamespaces);
+            }
 
-			mode = Mode.RULE;
+            mode = Mode.RULE;
 
             try {
-	            return Rule();
+                return Rule();
             } catch(TokenMgrError error){
                 throw new ParseException("Unable to parse Rule: (Message: "+error.getMessage()+")");
             }
@@ -321,11 +321,11 @@ public class LdPathParser<Node> {
         }
 
         private void registerFunction(Map<String, SelectorFunction<Node>> register, final SelectorFunction<Node> function) {
-            register.put(Constants.NS_LMF_FUNCS + function.getPathExpression(backend), function);
+            register.put(NS_LMF_FUNCS + function.getPathExpression(backend), function);
         }
         
         private void registerTest(Map<String, TestFunction<Node>> register, final TestFunction<Node> test) {
-            register.put(Constants.NS_LMF_FUNCS + test.getLocalName(), test);
+            register.put(NS_LMF_FUNCS + test.getLocalName(), test);
         }
 
         private class Namespace implements Entry<String, String> {
@@ -355,10 +355,10 @@ PARSER_END(LdPathParser)
 
 SKIP :
 {
- 	" "
-|	"\r"
-|	"\t"
-|	"\n"
+     " "
+|    "\r"
+|    "\t"
+|    "\n"
 }
 
 // When a /* is seen in the DEFAULT state, skip it and switch to the IN_COMMENT state
@@ -407,18 +407,18 @@ TOKEN : /* LDPATH */
 TOKEN : /* OPERATORS */
 {
     < SELF: "." >    |
-	< AND:  "&" >    |
-	< OR:   "|" >    |
+    < AND:  "&" >    |
+    < OR:   "|" >    |
     < P_SEP:"/" >    |
     < PLUS: "+" >    |
     < STAR: "*" >    |
-	< NOT:  "!" >    |
+    < NOT:  "!" >    |
     < INVERSE: "^" > |
-	< IS:   "is" >   |
-	< IS_A: "is-a" > |
+    < IS:   "is" >   |
+    < IS_A: "is-a" > |
     < FUNC: "fn:" >  |
-  	< TYPE: "^^" >   |
-  	< LANG: "@" >
+      < TYPE: "^^" >   |
+      < LANG: "@" >
 }
 
 TOKEN : /* BRACKETS */
@@ -441,7 +441,7 @@ TOKEN :
 
 Map<String, String> Namespaces() :
 {
-    Map<String, String> ns = new HashMap<String, String>();
+    Map<String, String> ns = new LinkedHashMap<String, String>();
     Entry<String, String> namespace = null;
 }
 {
@@ -500,9 +500,9 @@ Program Program() :
 
   (
     <K_BOOST> boostSelector = Selector() <SCOLON> {
-    	NodeTransformer transformer = getTransformer(Program.DOCUMENT_BOOST_TYPE);
-		FieldMapping booster = new FieldMapping("@boost", java.net.URI.create(Program.DOCUMENT_BOOST_TYPE), boostSelector, transformer, null);
-		program.setBooster(booster);  
+        NodeTransformer transformer = getTransformer(Program.DOCUMENT_BOOST_TYPE);
+        FieldMapping booster = new FieldMapping("@boost", java.net.URI.create(Program.DOCUMENT_BOOST_TYPE), boostSelector, transformer, null);
+        program.setBooster(booster);  
     }
   )?
 
@@ -593,28 +593,28 @@ FieldMapping Rule() :
 
 
 Map<String,String> FieldConfig() : {
-	Map<String, String> conf = new HashMap<String, String>();
-	Token key = null;
-	String val = null;
-	Map<String,String> more = null;
+    Map<String, String> conf = new LinkedHashMap<String, String>();
+    Token key = null;
+    String val = null;
+    Map<String,String> more = null;
 }
 {
-	( key = <IDENTIFIER> <ASSIGN> val = ConfVal() ( <COMMA> more = FieldConfig() )? )? {
-		if (key == null || val == null) return null;
-		conf.put(key.image, val);
-		if (more != null) {
-			conf.putAll(more);
-		}
-		return conf;
-	}
+    ( key = <IDENTIFIER> <ASSIGN> val = ConfVal() ( <COMMA> more = FieldConfig() )? )? {
+        if (key == null || val == null) return null;
+        conf.put(key.image, val);
+        if (more != null) {
+            conf.putAll(more);
+        }
+        return conf;
+    }
 }
 
 String ConfVal() : {
-	Token str, id;
+    Token str, id;
 }
 {
-	str = <STRLIT> { return str.image.substring(1, str.image.length() -1); }
-|	id = <IDENTIFIER> { return id.image; }
+    str = <STRLIT> { return str.image.substring(1, str.image.length() -1); }
+|    id = <IDENTIFIER> { return id.image; }
 }
 
 URI Uri() : {
@@ -712,9 +712,9 @@ NodeSelector AtomicSelector() :
 }
 {
     (
-    	/* Self Selector */
-    	result = SelfSelector() |
-    	    
+        /* Self Selector */
+        result = SelfSelector() |
+            
         /* Property Selector */
         result = PropertySelector() |
 
@@ -746,7 +746,7 @@ NodeSelector SelfSelector() :
 {
 }
 {
-	<SELF> { return new SelfSelector(); }
+    <SELF> { return new SelfSelector(); }
 }
 
 NodeSelector GroupedSelector() :
@@ -764,15 +764,15 @@ NodeSelector GroupedSelector() :
 
 RecursivePathSelector RecursivePathSelector() :
 {
-	RecursivePathSelector result = null;
-	NodeSelector delegate        = null;
+    RecursivePathSelector result = null;
+    NodeSelector delegate        = null;
 }
 {
-	<B_RO> delegate = Selector() <B_RC> <PLUS>	
-	{
-		result = RecursivePathSelector.getPathSelectorPlused(delegate);
-		return result;
-	} |
+    <B_RO> delegate = Selector() <B_RC> <PLUS>    
+    {
+        result = RecursivePathSelector.getPathSelectorPlused(delegate);
+        return result;
+    } |
     <B_RO> delegate = Selector() <B_RC> <STAR>
     {
         result = RecursivePathSelector.getPathSelectorStared(delegate);
@@ -837,14 +837,14 @@ TestingSelector TestingSelector() :
 
 ReversePropertySelector ReversePropertySelector() :
 {
-	ReversePropertySelector result = null;
-	URI uri;
+    ReversePropertySelector result = null;
+    URI uri;
 }
 {
-	<INVERSE> uri = Uri() {
+    <INVERSE> uri = Uri() {
         result   = new ReversePropertySelector(resolveURI(uri));
         return result;
-	}
+    }
 }
 
 PropertySelector PropertySelector() :

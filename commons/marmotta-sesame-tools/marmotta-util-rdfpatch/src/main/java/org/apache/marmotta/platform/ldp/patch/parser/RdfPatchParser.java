@@ -32,12 +32,12 @@ public interface RdfPatchParser {
     /**
      * Mime-Type: {@value}
      */
-    public static final String MIME_TYPE = "application/rdf-patch";
+    String MIME_TYPE = "application/rdf-patch";
 
     /**
      * Default File extension for rdf-patch: {@value}
      */
-    public static final String FILE_EXTENSION = "rdfp";
+    String FILE_EXTENSION = "rdfp";
 
     void setValueFactory(ValueFactory vf);
 
@@ -48,5 +48,5 @@ public interface RdfPatchParser {
      * @return a List of {@link org.apache.marmotta.platform.ldp.patch.model.PatchLine}s
      * @throws ParseException if the patch could not be parsed.
      */
-    public List<PatchLine> parsePatch() throws ParseException;
+    List<PatchLine> parsePatch() throws ParseException;
 }

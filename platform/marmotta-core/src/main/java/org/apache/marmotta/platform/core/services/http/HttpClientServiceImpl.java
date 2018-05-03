@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -182,10 +182,10 @@ public class HttpClientServiceImpl implements HttpClientService {
     private static String formatNanoDuration(long nano) {
         // convert to microseconds (1/1000s)
         final long micro = nano / 1000;
-        if (micro > 1000 * 1000l) {
+        if (micro > 1000 * 1000L) {
             // more than a second
-            long millis = micro / 1000l;
-            if (millis > 60000l)
+            long millis = micro / 1000L;
+            if (millis > 60000L)
                 // more than a minute
                 return String.format("%d min %.1f sec", millis / (1000 * 60), 0.001d * millis % 60);
             else
@@ -490,7 +490,7 @@ public class HttpClientServiceImpl implements HttpClientService {
         @Override
         public Map<String, String> getStatistics() {
             int i = 0;
-            final Map<String, String> data = new LinkedHashMap<String, String>();
+            final Map<String, String> data = new LinkedHashMap<>();
             data.put(KEYS[i++], String.valueOf(requestsExecuted.get()));
             data.put(KEYS[i++], humanReadableBytes(bytesSent.get(), false));
             data.put(KEYS[i++], humanReadableBytes(bytesReceived.get(), false));
@@ -649,9 +649,6 @@ public class HttpClientServiceImpl implements HttpClientService {
             lock.readLock().lock();
             try {
                 response = delegate.execute(request);
-            } catch (ClientProtocolException cpe) {
-                task.endTask();
-                throw cpe;
             } catch (IOException io) {
                 task.endTask();
                 throw io;
@@ -670,9 +667,6 @@ public class HttpClientServiceImpl implements HttpClientService {
             lock.readLock().lock();
             try {
                 response = delegate.execute(request, context);
-            } catch (ClientProtocolException cpe) {
-                task.endTask();
-                throw cpe;
             } catch (IOException io) {
                 task.endTask();
                 throw io;
@@ -731,9 +725,6 @@ public class HttpClientServiceImpl implements HttpClientService {
             lock.readLock().lock();
             try {
                 response = delegate.execute(target, request);
-            } catch (ClientProtocolException cpe) {
-                task.endTask();
-                throw cpe;
             } catch (IOException io) {
                 task.endTask();
                 throw io;
@@ -752,9 +743,6 @@ public class HttpClientServiceImpl implements HttpClientService {
             lock.readLock().lock();
             try {
                 response = delegate.execute(target, request, context);
-            } catch (ClientProtocolException cpe) {
-                task.endTask();
-                throw cpe;
             } catch (IOException io) {
                 task.endTask();
                 throw io;
@@ -894,14 +882,14 @@ public class HttpClientServiceImpl implements HttpClientService {
             if (existingEntry == null) {
                 putEntry(key, updatedEntry);
                 return;
-            } else {
-                // Attempt to do a CAS replace, if we fail then retry
-                // While this operation should work fine within this instance, multiple instances
-                //  could trample each others' data
-                final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                serializer.writeTo(updatedEntry, bos);
-                cache.replace(key, oldData, bos.toByteArray());
             }
+
+            // Attempt to do a CAS replace, if we fail then retry
+            // While this operation should work fine within this instance, multiple instances
+            //  could trample each others' data
+            final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            serializer.writeTo(updatedEntry, bos);
+            cache.replace(key, oldData, bos.toByteArray());
         }
     }
 }

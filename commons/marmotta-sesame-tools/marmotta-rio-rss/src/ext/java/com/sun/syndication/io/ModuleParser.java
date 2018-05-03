@@ -37,7 +37,7 @@ public interface ModuleParser {
      * @return the namespace URI.
      *
      */
-    public String getNamespaceUri();
+    String getNamespaceUri();
 
     /**
      * Parses the XML node (JDOM element) extracting module information.
@@ -46,5 +46,5 @@ public interface ModuleParser {
      * @return a module instance, <b>null</b> if the element did not have module information.
      *
      */
-    public Module parse(Element element);
+    Module parse(Element element);
 }

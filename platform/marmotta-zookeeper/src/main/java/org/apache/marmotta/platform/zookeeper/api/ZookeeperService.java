@@ -24,10 +24,10 @@ package org.apache.marmotta.platform.zookeeper.api;
  */
 public interface ZookeeperService {
 
-    public static final String ZK_SERVER   = "zookeeper.server";
-    public static final String ZK_TIMEOUT  = "zookeeper.timeout";
-    public static final String ZK_INSTANCE = "zookeeper.instance";
-    public static final String ZK_CLUSTER  = "zookeeper.cluster";
+    String ZK_SERVER   = "zookeeper.server";
+    String ZK_TIMEOUT  = "zookeeper.timeout";
+    String ZK_INSTANCE = "zookeeper.instance";
+    String ZK_CLUSTER  = "zookeeper.cluster";
 
 
 }

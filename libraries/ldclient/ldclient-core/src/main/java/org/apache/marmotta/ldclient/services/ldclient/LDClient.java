@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -54,9 +54,11 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Add file description here!
+ * A service offering Linked Data client functionality for retrieving Linked Data resources from the cloud.
+ * Implements retrieval of triples from the cloud depending on the Endpoint definitions available for a resource.
+ *
  * <p/>
- * User: sschaffe
+ * User: Sebastian Schaffert
  */
 public final class LDClient implements LDClientService {
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -122,8 +122,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      */
     @Override
     public void setUserPassword(String login, String password) {
-        final UserAccount a = accountService.getAccount(login);
-        authenticationProvider.updatePassword(a, password);
+        final UserAccount account = accountService.getAccount(login);
+        authenticationProvider.updatePassword(account, password);
     }
 
     /**

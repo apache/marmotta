@@ -16,30 +16,22 @@
  */
 package com.sun.syndication.io.impl;
 
-import java.io.StringReader;
-import java.util.Iterator;
-import java.util.List;
-
+import com.sun.syndication.feed.WireFeed;
+import com.sun.syndication.feed.atom.*;
+import com.sun.syndication.io.FeedException;
+import com.sun.syndication.io.WireFeedOutput;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.XMLOutputter;
 
-import com.sun.syndication.feed.WireFeed;
-import com.sun.syndication.feed.atom.Category;
-import com.sun.syndication.feed.atom.Content;
-import com.sun.syndication.feed.atom.Entry;
-import com.sun.syndication.feed.atom.Feed;
-import com.sun.syndication.feed.atom.Generator;
-import com.sun.syndication.feed.atom.Link;
-import com.sun.syndication.feed.atom.Person;
-import com.sun.syndication.io.FeedException;
-import com.sun.syndication.io.WireFeedOutput;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.Writer;
 import java.util.ArrayList;
-import org.jdom2.output.XMLOutputter;
+import java.util.List;
 
 /**
  * Feed Generator for Atom
@@ -103,17 +95,16 @@ public class Atom10Generator extends BaseWireFeedGenerator {
     }
 
     protected void addFeed(Feed feed,Element parent) throws FeedException {
-        Element eFeed = parent;
-        populateFeedHeader(feed,eFeed);
-        generateForeignMarkup(eFeed, (List)feed.getForeignMarkup());
-        checkFeedHeaderConstraints(eFeed);
-        generateFeedModules(feed.getModules(),eFeed);
+        populateFeedHeader(feed, parent);
+        generateForeignMarkup(parent, (List)feed.getForeignMarkup());
+        checkFeedHeaderConstraints(parent);
+        generateFeedModules(feed.getModules(), parent);
     }
 
     protected void addEntries(Feed feed,Element parent) throws FeedException {
         List items = feed.getEntries();
-        for (int i=0;i<items.size();i++) {
-            addEntry((Entry)items.get(i),parent);
+        for (Object item : items) {
+            addEntry((Entry) item, parent);
         }
         checkEntriesConstraints(parent);
     }
@@ -138,17 +129,17 @@ public class Atom10Generator extends BaseWireFeedGenerator {
         }
 
         List links = feed.getAlternateLinks();
-        if (links != null) for (int i = 0; i < links.size(); i++) {
-            eFeed.addContent(generateLinkElement((Link)links.get(i)));
+        if (links != null) for (Object link : links) {
+            eFeed.addContent(generateLinkElement((Link) link));
         }
         links = feed.getOtherLinks();
-        if (links != null) for (int j = 0; j < links.size(); j++) {
-            eFeed.addContent(generateLinkElement((Link)links.get(j)));
+        if (links != null) for (Object link : links) {
+            eFeed.addContent(generateLinkElement((Link) link));
         }
 
         List cats = feed.getCategories();
-        if (cats != null) for (Iterator iter=cats.iterator(); iter.hasNext();) {
-            eFeed.addContent(generateCategoryElement((Category)iter.next()));
+        if (cats != null) for (Object cat : cats) {
+            eFeed.addContent(generateCategoryElement((Category) cat));
         }
             
         List authors = feed.getAuthors();
@@ -162,9 +153,9 @@ public class Atom10Generator extends BaseWireFeedGenerator {
 
         List contributors = feed.getContributors();
         if (contributors != null && contributors.size() > 0) {
-            for (int i = 0; i < contributors.size(); i++) {
+            for (Object contributor : contributors) {
                 Element contributorElement = new Element("contributor", getFeedNamespace());
-                fillPersonElement(contributorElement, (Person)contributors.get(i));
+                fillPersonElement(contributorElement, (Person) contributor);
                 eFeed.addContent(contributorElement);
             }
         }
@@ -210,21 +201,21 @@ public class Atom10Generator extends BaseWireFeedGenerator {
         }
         List links = entry.getAlternateLinks();
         if (links != null) {
-            for (int i = 0; i < links.size(); i++) {
-                eEntry.addContent(generateLinkElement((Link)links.get(i)));
+            for (Object link : links) {
+                eEntry.addContent(generateLinkElement((Link) link));
             }
         }
         links = entry.getOtherLinks();
         if (links != null) {
-            for (int i = 0; i < links.size(); i++) {
-                eEntry.addContent(generateLinkElement((Link)links.get(i)));
+            for (Object link : links) {
+                eEntry.addContent(generateLinkElement((Link) link));
             }
         }
 
         List cats = entry.getCategories();
         if (cats != null) {
-            for (int i = 0; i < cats.size(); i++) {
-                eEntry.addContent(generateCategoryElement((Category)cats.get(i)));
+            for (Object cat : cats) {
+                eEntry.addContent(generateCategoryElement((Category) cat));
             }
         }
         
@@ -239,9 +230,9 @@ public class Atom10Generator extends BaseWireFeedGenerator {
 
         List contributors = entry.getContributors();
         if (contributors != null && contributors.size() > 0) {
-            for (int i = 0; i < contributors.size(); i++) {
+            for (Object contributor : contributors) {
                 Element contributorElement = new Element("contributor", getFeedNamespace());
-                fillPersonElement(contributorElement, (Person)contributors.get(i));
+                fillPersonElement(contributorElement, (Person) contributor);
                 eEntry.addContent(contributorElement);
             }
         }
@@ -397,7 +388,7 @@ public class Atom10Generator extends BaseWireFeedGenerator {
             if (atomType != null && (atomType.equals(Content.XHTML) || (atomType.indexOf("/xml")) != -1 ||
                 (atomType.indexOf("+xml")) != -1)) {
 
-                StringBuffer tmpDocString = new StringBuffer("<tmpdoc>");
+                StringBuilder tmpDocString = new StringBuilder("<tmpdoc>");
                 tmpDocString.append(content.getValue());
                 tmpDocString.append("</tmpdoc>");
                 StringReader tmpDocReader = new StringReader(tmpDocString.toString());

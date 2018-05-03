@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -19,23 +19,23 @@ package org.apache.marmotta.ldpath.model.functions.text;
 
 
 import com.google.common.base.Preconditions;
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 
 import java.net.URI;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
-import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
-
 public class StrLenFunction<Node> extends SelectorFunction<Node> {
 
     private static final URI dataType = URI.create("http://www.w3.org/2001/XMLSchema#integer");
 
+    @SafeVarargs
     @Override
-    public Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
+    public final Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
         Preconditions.checkArgument(args.length == 1, "Check usage: " + getSignature());
 
-        LinkedList<Node> result = new LinkedList<Node>();
+        LinkedList<Node> result = new LinkedList<>();
         for (Node node : args[0]) {
             final String stringValue = backend.stringValue(node);
             final int c = stringValue.length();

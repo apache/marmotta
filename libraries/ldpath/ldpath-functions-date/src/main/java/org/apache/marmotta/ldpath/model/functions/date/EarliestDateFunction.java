@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,20 +18,21 @@
 package org.apache.marmotta.ldpath.model.functions.date;
 
 
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.model.transformers.DateTransformer;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
-import org.apache.marmotta.ldpath.model.transformers.DateTransformer;
-
 public class EarliestDateFunction<Node> extends DateFunction<Node> {
 
-    private final DateTransformer<Node> transformer = new DateTransformer<Node>();
+    private final DateTransformer<Node> transformer = new DateTransformer<>();
 
+    @SafeVarargs
     @Override
-    public Collection<Node> apply(RDFBackend<Node> backend, Node context,
-            Collection<Node>... args) throws IllegalArgumentException {
+    public final Collection<Node> apply(RDFBackend<Node> backend, Node context,
+                                        Collection<Node>... args) throws IllegalArgumentException {
         if (args.length != 1) {
             throw new IllegalArgumentException("earliest requires exactly one argument");
         }

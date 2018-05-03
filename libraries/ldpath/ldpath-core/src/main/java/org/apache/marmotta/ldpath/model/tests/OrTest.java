@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -28,8 +28,8 @@ import org.apache.marmotta.ldpath.api.tests.NodeTest;
  */
 public class OrTest<Node> extends ComplexTest<Node> {
 
-    private NodeTest<Node> left;
-    private NodeTest<Node> right;
+    private final NodeTest<Node> left;
+    private final NodeTest<Node> right;
 
     public OrTest(NodeTest<Node> left, NodeTest<Node> right) {
         this.left = left;
@@ -83,6 +83,22 @@ public class OrTest<Node> extends ComplexTest<Node> {
         return "Tests the disjunction of two tests";
     }
 
+    /**
+     * Get the left test of this OR
+     * @return the left NodeTest
+     */
+    public NodeTest<Node> getLeft() {
+        return left;
+    }
+
+    /**
+     * Get the right test of this OR
+     * @return the right NodeTest
+     */
+    public NodeTest<Node> getRight() {
+        return right;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
@@ -92,9 +108,8 @@ public class OrTest<Node> extends ComplexTest<Node> {
         OrTest orTest = (OrTest) o;
 
         if (left != null ? !left.equals(orTest.left) : orTest.left != null) { return false; }
-        if (right != null ? !right.equals(orTest.right) : orTest.right != null) { return false; }
+        return right != null ? right.equals(orTest.right) : orTest.right == null;
 
-        return true;
     }
 
     @Override

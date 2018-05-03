@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -108,6 +108,6 @@ public class KiWiIntLiteral extends KiWiDoubleLiteral {
      */
     @Override
     public long longValue() {
-        return getIntContent().longValue();
+        return getIntContent();
     }
 }

@@ -16,29 +16,19 @@
  */
 package com.sun.syndication.io;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
-
+import com.sun.syndication.feed.WireFeed;
+import com.sun.syndication.io.impl.FeedParsers;
+import com.sun.syndication.io.impl.XmlFixerReader;
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.DOMBuilder;
 import org.jdom2.input.JDOMParseException;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
-import org.xml.sax.XMLReader;
+import org.xml.sax.*;
 
-import com.sun.syndication.feed.WireFeed;
-import com.sun.syndication.io.impl.FeedParsers;
-import com.sun.syndication.io.impl.XmlFixerReader;
+import java.io.*;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * Parses an XML document (File, InputStream, Reader, W3C SAX InputSource, W3C DOM Document or JDom DOcument)
@@ -300,31 +290,25 @@ public class WireFeedInput {
 			try {				
 				parser.setFeature("http://xml.org/sax/features/external-general-entities", false);
 				saxBuilder.setFeature("http://xml.org/sax/features/external-general-entities", false);
-			} catch (SAXNotRecognizedException e) {
-				// ignore
-			} catch (SAXNotSupportedException e) {
-				// ignore
-			}
-			
-			try {
-				parser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-				saxBuilder.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-			} catch (SAXNotRecognizedException e) {
-				// ignore
-			} catch (SAXNotSupportedException e) {
+			} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
 				// ignore
 			}
 
-			try {
-				parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-				saxBuilder.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-			} catch (SAXNotRecognizedException e) {
-				// ignore
-			} catch (SAXNotSupportedException e) {
+            try {
+				parser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+				saxBuilder.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
 				// ignore
 			}
-			
-		} catch (JDOMException e) {
+
+            try {
+				parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+				saxBuilder.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+			} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
+				// ignore
+			}
+
+        } catch (JDOMException e) {
 			throw new IllegalStateException("JDOM could not create a SAX parser");
 		}
 

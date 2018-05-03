@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -23,7 +23,6 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.reasoner.model.program.VariableField;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,7 +38,7 @@ public class QueryResult {
     private Set<KiWiTriple> justifications;
 
     public QueryResult() {
-        bindings       = new HashMap<VariableField, KiWiNode>();
+        bindings       = new HashMap<>();
         justifications = StatementCommons.newQuadrupleSet();
     }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -71,7 +71,7 @@ import java.util.regex.Pattern;
  */
 @ApplicationScoped
 public class LoggingServiceImpl implements LoggingService {
-    private static Logger log = LoggerFactory.getLogger(LoggingService.class);
+    private static Logger log = LoggerFactory.getLogger(LoggingServiceImpl.class);
 
     @Inject
     private ConfigurationService configurationService;

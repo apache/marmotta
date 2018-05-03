@@ -9,12 +9,11 @@
 package org.rometools.feed.module.sle.io;
 
 import com.sun.syndication.feed.module.Module;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.rometools.feed.module.sle.SimpleListExtension;
 import org.rometools.feed.module.sle.types.Group;
 import org.rometools.feed.module.sle.types.Sort;
-
-import org.jdom2.Element;
-import org.jdom2.Namespace;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -115,9 +114,7 @@ public class ModuleGenerator implements com.sun.syndication.io.ModuleGenerator {
     }
 
     protected void addNotNullAttribute(Element target, String name, Object value) {
-        if ((target == null) || (value == null)) {
-            return;
-        } else {
+        if (target != null && value != null) {
             target.setAttribute(name, value.toString());
         }
     }
@@ -125,12 +122,12 @@ public class ModuleGenerator implements com.sun.syndication.io.ModuleGenerator {
     protected Element addNotNullElement(Element target, String name, Object value) {
         if (value == null) {
             return null;
-        } else {
-            Element e = generateSimpleElement(name, value.toString());
-            target.addContent(e);
-
-            return e;
         }
+
+        Element e = generateSimpleElement(name, value.toString());
+        target.addContent(e);
+
+        return e;
     }
 
     protected Element generateSimpleElement(String name, String value) {

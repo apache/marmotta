@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -46,9 +46,8 @@ public class URI extends RDFNode {
 
         URI uri1 = (URI) o;
 
-        if (!uri.equals(uri1.uri)) return false;
+        return uri.equals(uri1.uri);
 
-        return true;
     }
 
     @Override

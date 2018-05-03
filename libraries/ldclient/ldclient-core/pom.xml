@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.0-SNAPSHOT</version>
         <relativePath>../../../parent</relativePath>
     </parent>
 
@@ -32,6 +32,7 @@
         Linked Data Client Core Library, provides the basic resource access functionality, including
         HTTP connection handing and content negotiation support.
     </description>
+    <packaging>bundle</packaging>
 
     <build>
         <plugins>
@@ -70,6 +71,19 @@
                         <exclude>src/test/resources/META-INF/services/*</exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.felix</groupId>
+              <artifactId>maven-bundle-plugin</artifactId>
+              <extensions>true</extensions>
+              <configuration>
+                <instructions>
+                  <Export-Packages>
+                    org.apache.marmotta.ldclient.services.ldclient;version=${project.version},
+                    org.apache.marmotta.ldclient.services.provider;version=${project.version}
+                  </Export-Packages>
+                </instructions>
+              </configuration>
             </plugin>
         </plugins>
     </build>

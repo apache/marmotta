@@ -1,7 +1,6 @@
 package org.rometools.feed.module.sse;
 
 import com.sun.syndication.feed.module.Module;
-import org.rometools.feed.module.sse.modules.*;
 import com.sun.syndication.feed.rss.Item;
 import com.sun.syndication.io.DelegatingModuleParser;
 import com.sun.syndication.io.WireFeedParser;
@@ -11,11 +10,10 @@ import org.jdom2.Attribute;
 import org.jdom2.DataConversionException;
 import org.jdom2.Element;
 import org.jdom2.filter.ElementFilter;
-import org.jdom2.filter.Filter;
+import org.rometools.feed.module.sse.modules.*;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -108,17 +106,13 @@ public class SSE091Parser implements DelegatingModuleParser {
         List conflicts = null;
 
         List conflictsContent = syncElement.getContent(new ContentFilter(Conflicts.NAME));
-        for (Iterator conflictsIter = conflictsContent.iterator();
-             conflictsIter.hasNext();)
-        {
-            Element conflictsElement = (Element) conflictsIter.next();
+        for (Object aConflictsContent : conflictsContent) {
+            Element conflictsElement = (Element) aConflictsContent;
 
             List conflictContent =
                     conflictsElement.getContent(new ContentFilter(Conflict.NAME));
-            for (Iterator conflictIter = conflictContent.iterator();
-                 conflictIter.hasNext();)
-            {
-                Element conflictElement = (Element) conflictIter.next();
+            for (Object aConflictContent : conflictContent) {
+                Element conflictElement = (Element) aConflictContent;
 
                 Conflict conflict = new Conflict();
                 conflict.setBy(parseStringAttribute(conflictElement, Conflict.BY_ATTRIBUTE));
@@ -127,10 +121,8 @@ public class SSE091Parser implements DelegatingModuleParser {
 
                 List conflictItemContent =
                         conflictElement.getContent(new ContentFilter("item"));
-                for (Iterator conflictItemIter = conflictItemContent.iterator();
-                     conflictItemIter.hasNext();)
-                {
-                    Element conflictItemElement = (Element) conflictItemIter.next();
+                for (Object aConflictItemContent : conflictItemContent) {
+                    Element conflictItemElement = (Element) aConflictItemContent;
                     Element root = getRoot(conflictItemElement);
                     Item conflictItem = rssParser.parseItem(root, conflictItemElement);
                     conflict.setItem(conflictItem);
@@ -180,8 +172,8 @@ public class SSE091Parser implements DelegatingModuleParser {
 
     private void parseUpdates(Element historyChild, History history) {
         List updatedChildren = historyChild.getContent(new ContentFilter(Update.NAME));
-        for (Iterator childIter = updatedChildren.iterator(); childIter.hasNext();) {
-            Element updateChild = (Element) childIter.next();
+        for (Object anUpdatedChildren : updatedChildren) {
+            Element updateChild = (Element) anUpdatedChildren;
             Update update = new Update();
             update.setBy(parseStringAttribute(updateChild, Update.BY_ATTRIBUTE));
             update.setWhen(parseDateAttribute(updateChild, Update.WHEN_ATTRIBUTE));
@@ -199,7 +191,7 @@ public class SSE091Parser implements DelegatingModuleParser {
         Integer integerAttr = null;
         if (integerAttribute != null) {
             try {
-                integerAttr = new Integer(integerAttribute.getIntValue());
+                integerAttr = integerAttribute.getIntValue();
             } catch (DataConversionException e) {
                 // dont use the data
             }
@@ -212,7 +204,7 @@ public class SSE091Parser implements DelegatingModuleParser {
         Boolean attrValue = null;
         if (attribute != null) {
             try {
-                attrValue = Boolean.valueOf(attribute.getBooleanValue());
+                attrValue = attribute.getBooleanValue();
             } catch (DataConversionException e) {
                 // dont use the data
             }

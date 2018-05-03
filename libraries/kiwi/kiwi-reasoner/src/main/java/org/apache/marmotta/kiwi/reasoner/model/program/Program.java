@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -41,8 +41,8 @@ public class Program {
 
 
     public Program() {
-        rules = new ArrayList<Rule>();
-        namespaces = new HashMap<String, String>();
+        rules = new ArrayList<>();
+        namespaces = new HashMap<>();
     }
 
     public long getId() {
@@ -129,9 +129,8 @@ public class Program {
         if (description != null ? !description.equals(program.description) : program.description != null) return false;
         if (!name.equals(program.name)) return false;
         if (!namespaces.equals(program.namespaces)) return false;
-        if (!rules.equals(program.rules)) return false;
+        return rules.equals(program.rules);
 
-        return true;
     }
 
     @Override

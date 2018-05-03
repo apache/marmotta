@@ -23,29 +23,23 @@ import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class JsonPathFunction<Node> extends SelectorFunction<Node> {
 
     private static final Logger log = LoggerFactory.getLogger(JsonPathFunction.class);
-    private final StringTransformer<Node> transformer = new StringTransformer<Node>();
+    private final StringTransformer<Node> transformer = new StringTransformer<>();
 
     @Override
     protected String getLocalName() {
         return "jsonpath";
     }
 
+    @SafeVarargs
     @Override
-    public Collection<Node> apply(RDFBackend<Node> rdfBackend, Node context, @SuppressWarnings("unchecked") Collection<Node>... args) throws IllegalArgumentException {
+    public final Collection<Node> apply(RDFBackend<Node> rdfBackend, Node context, @SuppressWarnings("unchecked") Collection<Node>... args) throws IllegalArgumentException {
 
-        Set<String> jsonpaths = new HashSet<String>();
+        Set<String> jsonpaths = new HashSet<>();
         for (Node jsonpath : args[0]) {
             try {
                 jsonpaths.add(transformer.transform(rdfBackend,jsonpath, null));
@@ -63,23 +57,19 @@ public class JsonPathFunction<Node> extends SelectorFunction<Node> {
             it = org.apache.marmotta.ldpath.util.Collections.iterator(1,args);
         }
 
-        List<Node> result = new ArrayList<Node>();
+        List<Node> result = new ArrayList<>();
         while (it.hasNext()) {
             Node n = it.next();
-            try {
-                for (String r : doFilter(transformer.transform(rdfBackend,n, null), jsonpaths)) {
-                    result.add(rdfBackend.createLiteral(r));
-                }
-            } catch (IOException e) {
-                // This should never happen, since validation is turned off.
+            for (String r : doFilter(transformer.transform(rdfBackend,n, null), jsonpaths)) {
+                result.add(rdfBackend.createLiteral(r));
             }
         }
 
         return result;
     }
 
-    private List<String> doFilter(String in, Set<String> jsonpaths) throws IOException {
-        List<String> result = new ArrayList<String>();
+    private List<String> doFilter(String in, Set<String> jsonpaths) {
+        List<String> result = new ArrayList<>();
 
         for (String jsonpath : jsonpaths) {
             result.add(String.valueOf(JsonPath.read(in, jsonpath)));

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -281,7 +281,7 @@ public class HTTPContentReader implements ContentReader {
                                 if (response.getStatusLine().getStatusCode() == 200)
                                     return Long.parseLong(response.getFirstHeader("Content-Length").getValue());
                                 else
-                                    return 0l;
+                                    return 0L;
                             }
                         });
                     } else

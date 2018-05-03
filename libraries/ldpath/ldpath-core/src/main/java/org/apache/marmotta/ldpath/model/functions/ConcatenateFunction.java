@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,13 +18,13 @@
 package org.apache.marmotta.ldpath.model.functions;
 
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 
 /**
  * A node function concatenating a list of nodes interpreted as strings.
@@ -35,7 +35,7 @@ import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
  */
 public class ConcatenateFunction<Node> extends SelectorFunction<Node> {
 
-    private final StringTransformer<Node> transformer = new StringTransformer<Node>();
+    private final StringTransformer<Node> transformer = new StringTransformer<>();
 
     /**
      * Apply the function to the list of nodes passed as arguments and return the result as type T.

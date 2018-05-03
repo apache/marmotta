@@ -17,9 +17,9 @@
 
 package org.rometools.feed.module.feedburner;
 
-import java.io.Serializable;
-
 import com.sun.syndication.feed.module.Module;
+
+import java.io.Serializable;
 
 /**
  * Interface for the FeedBurner RSS extension.
@@ -30,18 +30,18 @@ import com.sun.syndication.feed.module.Module;
  */
 public interface FeedBurner extends Module, Serializable, Cloneable {
 
-	public static final String URI = "http://rssnamespace.org/feedburner/ext/1.0";
+	String URI = "http://rssnamespace.org/feedburner/ext/1.0";
 
-	public String getAwareness();
+	String getAwareness();
 
-	public void setAwareness(String awareness);
+	void setAwareness(String awareness);
 
-	public String getOrigLink();
+	String getOrigLink();
 
-	public void setOrigLink(String origLink);
+	void setOrigLink(String origLink);
 
-	public String getOrigEnclosureLink();
+	String getOrigEnclosureLink();
 
-	public void setOrigEnclosureLink(String origEnclosureLink);
+	void setOrigEnclosureLink(String origEnclosureLink);
 
 }

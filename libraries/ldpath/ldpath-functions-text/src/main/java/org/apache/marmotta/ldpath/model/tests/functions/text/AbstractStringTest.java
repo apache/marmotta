@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,14 +17,13 @@
  */
 package org.apache.marmotta.ldpath.model.tests.functions.text;
 
-import java.util.Collection;
-
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.functions.TestFunction;
 import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
+import java.util.Collection;
 
 /**
  * Abstract base class for LDPath Test functions that work on the string representation of nodes.
@@ -33,11 +32,12 @@ import com.google.common.collect.Collections2;
  */
 public abstract class AbstractStringTest<Node> extends TestFunction<Node> {
 
-    protected final StringTransformer<Node> transformer = new StringTransformer<Node>();
+    protected final StringTransformer<Node> transformer = new StringTransformer<>();
 
+    @SafeVarargs
     @Override
-    public Boolean apply(RDFBackend<Node> backend, Node context,
-            Collection<Node>... args) throws IllegalArgumentException {
+    public final Boolean apply(RDFBackend<Node> backend, Node context,
+                               Collection<Node>... args) throws IllegalArgumentException {
 
         if (args.length != getArgCount()) { throw new IllegalArgumentException(getLocalName() + " requires exactly " + getArgCount() + " arguments"); }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -86,7 +86,7 @@ public class KiWiDoubleLiteral extends KiWiStringLiteral {
      */
     @Override
     public double doubleValue() {
-        return getDoubleContent().doubleValue();
+        return getDoubleContent();
     }
 
 
@@ -94,7 +94,7 @@ public class KiWiDoubleLiteral extends KiWiStringLiteral {
     {
         if(d == (long) d)
             return String.format("%d",(long)d);
-        else
-            return String.format("%s",d);
+
+        return String.format("%s",d);
     }
 }

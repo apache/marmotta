@@ -57,8 +57,8 @@ public class RSS20Generator extends RSS094Generator {
         }
 
         List categories = channel.getCategories();
-        for(int i = 0; i < categories.size(); i++) {
-            eChannel.addContent(generateCategoryElement((Category)categories.get(i)));
+        for (Object category : categories) {
+            eChannel.addContent(generateCategoryElement((Category) category));
         }
 
     }

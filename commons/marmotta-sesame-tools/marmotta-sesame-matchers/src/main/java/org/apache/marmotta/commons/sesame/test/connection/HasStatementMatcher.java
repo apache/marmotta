@@ -95,6 +95,6 @@ public class HasStatementMatcher<T extends RepositoryConnection> extends Abstrac
      * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
      */
     public static <T extends RepositoryConnection> Matcher<T> hasStatement(Resource subject, URI predicate, Value object, Resource... contexts) {
-        return new HasStatementMatcher<T>(subject, predicate, object, contexts);
+        return new HasStatementMatcher<>(subject, predicate, object, contexts);
     }
 }

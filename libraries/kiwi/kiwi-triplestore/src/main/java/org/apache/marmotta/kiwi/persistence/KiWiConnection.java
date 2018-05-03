@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -54,6 +54,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p/>
  * Author: Sebastian Schaffert
  */
+@SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
 public class KiWiConnection implements AutoCloseable {
 
     private static Logger log = LoggerFactory.getLogger(KiWiConnection.class);
@@ -107,33 +108,29 @@ public class KiWiConnection implements AutoCloseable {
     /**
      * Cache instances of locales for language tags
      */
-    private static Map<String,Locale> localeMap = new HashMap<String, Locale>();
+    private static Map<String,Locale> localeMap = new HashMap<>();
 
     private static Calendar calendarUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
 
-    private Map<String,PreparedStatement> statementCache;
+    private Map<String,PreparedStatement> statementCache = new HashMap<>();
 
     private boolean autoCommit = false;
-
     private boolean batchCommit = true;
 
     private boolean closed = false;
 
     private int batchSize = 1000;
 
-    private ReentrantLock commitLock;
-
-    private ReentrantLock literalLock;
-    private ReentrantLock uriLock;
-    private ReentrantLock bnodeLock;
+    private ReentrantLock commitLock  = new ReentrantLock();
+    private ReentrantLock literalLock = new ReentrantLock();
+    private ReentrantLock uriLock     = new ReentrantLock();
+    private ReentrantLock bnodeLock   = new ReentrantLock();
 
     // this set keeps track of all statements that have been deleted in the active transaction of this connection
     // this is needed to be able to determine if adding the triple again will merely undo a deletion or is a
     // completely new addition to the triple store
     private BloomFilter<Long> deletedStatementsLog;
-
-    private static long numberOfCommits = 0;
 
     private long transactionId;
 
@@ -143,16 +140,11 @@ public class KiWiConnection implements AutoCloseable {
         this.cacheManager = cacheManager;
         this.dialect      = dialect;
         this.persistence  = persistence;
-        this.commitLock   = new ReentrantLock();
-        this.literalLock   = new ReentrantLock();
-        this.uriLock   = new ReentrantLock();
-        this.bnodeLock   = new ReentrantLock();
         this.batchCommit  = dialect.isBatchSupported();
         this.deletedStatementsLog = BloomFilter.create(Funnels.longFunnel(), 100000);
         this.transactionId = getNextSequence();
 
         initCachePool();
-        initStatementCache();
     }
 
     private void initCachePool() {
@@ -167,37 +159,23 @@ public class KiWiConnection implements AutoCloseable {
     }
 
     /**
-     * Load all prepared statements of the dialect into the statement cache
-     * @throws SQLException
-     */
-    private void initStatementCache() throws SQLException {
-        statementCache = new HashMap<String, PreparedStatement>();
-
-        /*
-        for(String key : dialect.getStatementIdentifiers()) {
-            statementCache.put(key,connection.prepareStatement(dialect.getStatement(key)));
-        }
-        */
-    }
-
-    /**
      * This method must be called by all methods as soon as they actually require a JDBC connection. This allows
      * more efficient implementations in case the queries can be answered directly from the cache.
      */
     protected void requireJDBCConnection() throws SQLException {
-        if(connection == null) {
+        if (connection == null) {
             connection = persistence.getJDBCConnection();
             connection.setAutoCommit(autoCommit);
         }
-        if(tripleBatch == null) {
-            tripleBatch = new TripleTable<KiWiTriple>();
+        if (tripleBatch == null) {
+            tripleBatch = new TripleTable<>();
         }
     }
 
     /**
      * Get direct access to the JDBC connection used by this KiWiConnection.
      *
-     * @return
+     * @return the underlying raw JDBC connection
      */
     public Connection getJDBCConnection() throws SQLException {
         requireJDBCConnection();
@@ -207,7 +185,7 @@ public class KiWiConnection implements AutoCloseable {
 
     /**
      * Return the cache manager used by this connection
-     * @return
+     * @return the CacheManager
      */
     public CacheManager getCacheManager() {
         return cacheManager;
@@ -232,7 +210,7 @@ public class KiWiConnection implements AutoCloseable {
      */
     public KiWiNamespace loadNamespaceByPrefix(String prefix) throws SQLException {
         KiWiNamespace element = namespacePrefixCache.get(prefix);
-        if(element != null) {
+        if (element != null) {
             return element;
         }
 
@@ -245,16 +223,12 @@ public class KiWiConnection implements AutoCloseable {
 
         // run the database query and if it yields a result, construct a new node; the method call will take care of
         // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
-        try {
-            if(result.next()) {
+        try (ResultSet result = query.executeQuery()) {
+            if (result.next()) {
                 return constructNamespaceFromDatabase(result);
-            } else {
-                return null;
             }
-        } finally {
-            result.close();
         }
+        return null;
     }
 
     /**
@@ -268,7 +242,7 @@ public class KiWiConnection implements AutoCloseable {
      */
     public KiWiNamespace loadNamespaceByUri(String uri) throws SQLException {
         KiWiNamespace element = namespaceUriCache.get(uri);
-        if(element != null) {
+        if (element != null) {
             return element;
         }
 
@@ -281,16 +255,12 @@ public class KiWiConnection implements AutoCloseable {
 
         // run the database query and if it yields a result, construct a new node; the method call will take care of
         // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
-        try {
-            if(result.next()) {
+        try (ResultSet result = query.executeQuery()) {
+            if (result.next()) {
                 return constructNamespaceFromDatabase(result);
-            } else {
-                return null;
             }
-        } finally {
-            result.close();
         }
+        return null;
     }
 
     /**
@@ -302,7 +272,7 @@ public class KiWiConnection implements AutoCloseable {
      */
     public void storeNamespace(KiWiNamespace namespace) throws SQLException {
         // TODO: add unique constraints to table
-        if(namespace.getId() >= 0) {
+        if (namespace.getId() >= 0) {
             log.warn("trying to store namespace which is already persisted: {}",namespace);
             return;
         }
@@ -329,7 +299,7 @@ public class KiWiConnection implements AutoCloseable {
      * @throws SQLException in case a database error occurred
      */
     public void deleteNamespace(KiWiNamespace namespace) throws SQLException {
-        if(namespace.getId() < 0) {
+        if (namespace.getId() < 0) {
             log.warn("trying to remove namespace which is not persisted: {}",namespace);
             return;
         }
@@ -346,50 +316,43 @@ public class KiWiConnection implements AutoCloseable {
 
     /**
      * Count all non-deleted triples in the triple store
-     * @return
+     * @return number of non-deleted triples in the triple store
      * @throws SQLException
      */
     public long getSize() throws SQLException {
         requireJDBCConnection();
 
         PreparedStatement querySize = getPreparedStatement("query.size");
-        ResultSet result = querySize.executeQuery();
-        try {
-            if(result.next()) {
+        try (ResultSet result = querySize.executeQuery()) {
+            if (result.next()) {
                 return result.getLong(1) + (tripleBatch != null ? tripleBatch.size() : 0);
-            } else {
-                return 0  + (tripleBatch != null ? tripleBatch.size() : 0);
             }
-        } finally {
-            result.close();
         }
+        return tripleBatch != null ? tripleBatch.size() : 0;
     }
 
     /**
      * Count all non-deleted triples in the triple store
-     * @return
+     * @param context the context to count
+     * @return number of non-deleted triples in the provided context
      * @throws SQLException
      */
     public long getSize(KiWiResource context) throws SQLException {
-        if(context.getId() < 0) {
+        if (context.getId() < 0) {
             return 0;
-        };
+        }
 
         requireJDBCConnection();
 
         PreparedStatement querySize = getPreparedStatement("query.size_ctx");
         querySize.setLong(1,context.getId());
 
-        ResultSet result = querySize.executeQuery();
-        try {
-            if(result.next()) {
-                return result.getLong(1) + (tripleBatch != null ? tripleBatch.listTriples(null,null,null,context, false).size() : 0);
-            } else {
-                return 0 + (tripleBatch != null ? tripleBatch.listTriples(null,null,null,context, false).size() : 0);
+        try (ResultSet result = querySize.executeQuery()) {
+            if (result.next()) {
+                return result.getLong(1) + (tripleBatch != null ? tripleBatch.listTriples(null, null, null, context, false).size() : 0);
             }
-        } finally {
-            result.close();
         }
+        return tripleBatch != null ? tripleBatch.listTriples(null, null, null, context, false).size() : 0;
     }
 
     /**
@@ -422,32 +385,27 @@ public class KiWiConnection implements AutoCloseable {
 
         // look in cache
         KiWiNode element = nodeCache.get(id);
-        if(element != null) {
+        if (element != null) {
             return element;
         }
 
         requireJDBCConnection();
 
         // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
-        PreparedStatement query = getPreparedStatement("load.node_by_id");
+        final PreparedStatement query = getPreparedStatement("load.node_by_id");
         synchronized (query) {
             query.setLong(1,id);
             query.setMaxRows(1);
 
             // run the database query and if it yields a result, construct a new node; the method call will take care of
             // caching the constructed node for future calls
-            ResultSet result = query.executeQuery();
-            try {
-                if(result.next()) {
+            try (ResultSet result = query.executeQuery()) {
+                if (result.next()) {
                     return constructNodeFromDatabase(result);
-                } else {
-                    return null;
                 }
-            } finally {
-                result.close();
             }
         }
-
+        return null;
     }
 
     /**
@@ -493,18 +451,15 @@ public class KiWiConnection implements AutoCloseable {
 
                     // run the database query and if it yields a result, construct a new node; the method call will take care of
                     // caching the constructed node for future calls
-                    ResultSet rows = query.executeQuery();
-                    try {
-                        while(rows.next()) {
+                    try (ResultSet rows = query.executeQuery()) {
+                        while (rows.next()) {
                             node = constructNodeFromDatabase(rows);
-                            for(int i=0; i<ids.length; i++) {
-                                if(ids[i] == node.getId()) {
+                            for (int i = 0; i < ids.length; i++) {
+                                if (ids[i] == node.getId()) {
                                     result[i] = node;
                                 }
                             }
                         }
-                    } finally {
-                        rows.close();
                     }
 
                     position += nextBatchSize;
@@ -518,7 +473,7 @@ public class KiWiConnection implements AutoCloseable {
 
     private int computeBatchSize(int position, int length) {
         int batchSize = QUERY_BATCH_SIZE;
-        while(length - position < batchSize) {
+        while (length - position < batchSize) {
             batchSize = batchSize >> 1;
         }
         return batchSize;
@@ -528,7 +483,7 @@ public class KiWiConnection implements AutoCloseable {
 
         // look in cache
         KiWiTriple element = tripleCache.get(id);
-        if(element != null) {
+        if (element != null) {
             return element;
         }
 
@@ -541,17 +496,12 @@ public class KiWiConnection implements AutoCloseable {
 
         // run the database query and if it yields a result, construct a new node; the method call will take care of
         // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
-        try {
-            if(result.next()) {
+        try (ResultSet result = query.executeQuery()) {
+            if (result.next()) {
                 return constructTripleFromDatabase(result);
-            } else {
-                return null;
             }
-        } finally {
-            result.close();
         }
-
+        return null;
     }
 
     /**
@@ -570,7 +520,7 @@ public class KiWiConnection implements AutoCloseable {
 
         // look in cache
         KiWiUriResource element = uriCache.get(uri);
-        if(element != null) {
+        if (element != null) {
             return element;
         }
 
@@ -585,19 +535,15 @@ public class KiWiConnection implements AutoCloseable {
 
             // run the database query and if it yields a result, construct a new node; the method call will take care of
             // caching the constructed node for future calls
-            ResultSet result = query.executeQuery();
-            try {
-                if(result.next()) {
-                    return (KiWiUriResource)constructNodeFromDatabase(result);
-                } else {
-                    return null;
+            try (ResultSet result = query.executeQuery()) {
+                if (result.next()) {
+                    return (KiWiUriResource) constructNodeFromDatabase(result);
                 }
-            } finally {
-                result.close();
             }
         } finally {
             uriLock.unlock();
         }
+        return null;
     }
 
     /**
@@ -615,7 +561,7 @@ public class KiWiConnection implements AutoCloseable {
     public KiWiAnonResource loadAnonResource(String id) throws SQLException {
         // look in cache
         KiWiAnonResource element = bnodeCache.get(id);
-        if(element != null) {
+        if (element != null) {
             return element;
         }
 
@@ -631,19 +577,15 @@ public class KiWiConnection implements AutoCloseable {
 
             // run the database query and if it yields a result, construct a new node; the method call will take care of
             // caching the constructed node for future calls
-            ResultSet result = query.executeQuery();
-            try {
-                if(result.next()) {
-                    return (KiWiAnonResource)constructNodeFromDatabase(result);
-                } else {
-                    return null;
+            try (ResultSet result = query.executeQuery()) {
+                if (result.next()) {
+                    return (KiWiAnonResource) constructNodeFromDatabase(result);
                 }
-            } finally {
-                result.close();
             }
         } finally {
             bnodeLock.unlock();
         }
+        return null;
     }
 
     /**
@@ -664,7 +606,7 @@ public class KiWiConnection implements AutoCloseable {
     public KiWiLiteral loadLiteral(String value, String lang, KiWiUriResource ltype) throws SQLException {
         // look in cache
         final KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(value,getLocale(lang), ltype));
-        if(element != null) {
+        if (element != null) {
             return element;
         }
 
@@ -687,30 +629,23 @@ public class KiWiConnection implements AutoCloseable {
                 query = getPreparedStatement("load.literal_by_vl");
                 query.setString(1,value);
                 query.setString(2, lang);
-            } else if(ltype != null) {
+            } else {
                 query = getPreparedStatement("load.literal_by_vt");
                 query.setString(1,value);
                 query.setLong(2,ltype.getId());
-            } else {
-                // This cannot happen...
-                throw new IllegalArgumentException("Impossible combination of lang/type in loadLiteral!");
             }
 
             // run the database query and if it yields a result, construct a new node; the method call will take care of
             // caching the constructed node for future calls
-            ResultSet result = query.executeQuery();
-            try {
-                if(result.next()) {
-                    return (KiWiLiteral)constructNodeFromDatabase(result);
-                } else {
-                    return null;
+            try (ResultSet result = query.executeQuery()) {
+                if (result.next()) {
+                    return (KiWiLiteral) constructNodeFromDatabase(result);
                 }
-            } finally {
-                result.close();
             }
         } finally {
             literalLock.unlock();
         }
+        return null;
     }
 
     /**
@@ -729,7 +664,7 @@ public class KiWiConnection implements AutoCloseable {
     public KiWiDateLiteral loadLiteral(DateTime date) throws SQLException {
         // look in cache
         KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(date.withMillisOfSecond(0),Namespaces.NS_XSD + "dateTime"));
-        if(element != null && element instanceof KiWiDateLiteral) {
+        if (element != null && element instanceof KiWiDateLiteral) {
             return (KiWiDateLiteral)element;
         }
 
@@ -752,15 +687,11 @@ public class KiWiConnection implements AutoCloseable {
 
             // run the database query and if it yields a result, construct a new node; the method call will take care of
             // caching the constructed node for future calls
-            ResultSet result = query.executeQuery();
-            try {
-                if(result.next()) {
-                    return (KiWiDateLiteral)constructNodeFromDatabase(result);
-                } else {
-                    return null;
+            try (ResultSet result = query.executeQuery()) {
+                if (result.next()) {
+                    return (KiWiDateLiteral) constructNodeFromDatabase(result);
                 }
-            } finally {
-                result.close();
+                return null;
             }
         } finally {
             literalLock.unlock();
@@ -784,7 +715,7 @@ public class KiWiConnection implements AutoCloseable {
     public KiWiIntLiteral loadLiteral(long value) throws SQLException {
         // look in cache
         KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(Long.toString(value),(String)null,Namespaces.NS_XSD + "integer"));
-        if(element != null && element instanceof KiWiIntLiteral) {
+        if (element != null && element instanceof KiWiIntLiteral) {
             return (KiWiIntLiteral)element;
         }
 
@@ -793,7 +724,7 @@ public class KiWiConnection implements AutoCloseable {
         KiWiUriResource ltype = loadUriResource(Namespaces.NS_XSD + "integer");
 
         // ltype not persisted
-        if(ltype == null || ltype.getId() < 0) {
+        if (ltype == null || ltype.getId() < 0) {
             return null;
         }
 
@@ -808,19 +739,15 @@ public class KiWiConnection implements AutoCloseable {
 
             // run the database query and if it yields a result, construct a new node; the method call will take care of
             // caching the constructed node for future calls
-            ResultSet result = query.executeQuery();
-            try {
-                if(result.next()) {
-                    return (KiWiIntLiteral)constructNodeFromDatabase(result);
-                } else {
-                    return null;
+            try (ResultSet result = query.executeQuery()) {
+                if (result.next()) {
+                    return (KiWiIntLiteral) constructNodeFromDatabase(result);
                 }
-            } finally {
-                result.close();
             }
         } finally {
             literalLock.unlock();
         }
+        return null;
     }
 
     /**
@@ -839,7 +766,7 @@ public class KiWiConnection implements AutoCloseable {
     public KiWiDoubleLiteral loadLiteral(double value) throws SQLException {
         // look in cache
         KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(Double.toString(value), (String)null,Namespaces.NS_XSD + "double"));
-        if(element != null && element instanceof KiWiDoubleLiteral) {
+        if (element != null && element instanceof KiWiDoubleLiteral) {
             return (KiWiDoubleLiteral)element;
         }
 
@@ -862,23 +789,18 @@ public class KiWiConnection implements AutoCloseable {
 
             // run the database query and if it yields a result, construct a new node; the method call will take care of
             // caching the constructed node for future calls
-            ResultSet result = query.executeQuery();
-            KiWiNode kiWiNode = null;
-            try {
+            try (ResultSet result = query.executeQuery()) {
                 if (result.next()) {
                     return (KiWiDoubleLiteral) constructNodeFromDatabase(result);
-                } else {
-                    return null;
                 }
             } catch (RuntimeException e) {
-                log.error("Unable to create KiWiDoubleLiteral for node value '{}' (id={}): {}", value, kiWiNode.getId(), e.getMessage(), e);
+                log.error("Unable to create KiWiDoubleLiteral for node value '{}': {}", value, e.getMessage(), e);
                 throw e;
-            } finally {
-                result.close();
             }
         } finally {
             literalLock.unlock();
         }
+        return null;
     }
 
     /**
@@ -897,7 +819,7 @@ public class KiWiConnection implements AutoCloseable {
     public KiWiBooleanLiteral loadLiteral(boolean value) throws SQLException {
         // look in cache
         KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(Boolean.toString(value),(String)null,Namespaces.NS_XSD + "boolean"));
-        if(element != null && element instanceof KiWiBooleanLiteral) {
+        if (element != null && element instanceof KiWiBooleanLiteral) {
             return (KiWiBooleanLiteral)element;
         }
 
@@ -906,12 +828,11 @@ public class KiWiConnection implements AutoCloseable {
         KiWiUriResource ltype = loadUriResource(Namespaces.NS_XSD + "boolean");
 
         // ltype not persisted
-        if(ltype == null || ltype.getId() < 0) {
+        if (ltype == null || ltype.getId() < 0) {
             return null;
         }
 
         literalLock.lock();
-
         try {
 
             // otherwise prepare a query, depending on the parameters given
@@ -921,19 +842,15 @@ public class KiWiConnection implements AutoCloseable {
 
             // run the database query and if it yields a result, construct a new node; the method call will take care of
             // caching the constructed node for future calls
-            ResultSet result = query.executeQuery();
-            try {
-                if(result.next()) {
-                    return (KiWiBooleanLiteral)constructNodeFromDatabase(result);
-                } else {
-                    return null;
+            try (ResultSet result = query.executeQuery()) {
+                if (result.next()) {
+                    return (KiWiBooleanLiteral) constructNodeFromDatabase(result);
                 }
-            } finally {
-                result.close();
             }
         } finally {
             literalLock.unlock();
         }
+        return null;
     }
 
     /**
@@ -944,15 +861,15 @@ public class KiWiConnection implements AutoCloseable {
      * If the node already has an ID, the method will do nothing (assuming that it is already persistent)
      *
      *
-     * @param node
+     * @param node the KiWiNode to store
      * @throws SQLException
      */
     public synchronized void storeNode(KiWiNode node) throws SQLException {
 
         // ensure the data type of a literal is persisted first
-        if(node instanceof KiWiLiteral) {
+        if (node instanceof KiWiLiteral) {
             KiWiLiteral literal = (KiWiLiteral)node;
-            if(literal.getType() != null && literal.getType().getId() < 0) {
+            if (literal.getType() != null && literal.getType().getId() < 0) {
                 storeNode(literal.getType());
             }
         }
@@ -960,12 +877,12 @@ public class KiWiConnection implements AutoCloseable {
         requireJDBCConnection();
 
         // retrieve a new node id and set it in the node object
-        if(node.getId() < 0) {
+        if (node.getId() < 0) {
             node.setId(getNextSequence());
         }
 
         // distinguish the different node types and run the appropriate updates
-        if(node instanceof KiWiUriResource) {
+        if (node instanceof KiWiUriResource) {
             KiWiUriResource uriResource = (KiWiUriResource)node;
 
             PreparedStatement insertNode = getPreparedStatement("store.uri");
@@ -975,7 +892,7 @@ public class KiWiConnection implements AutoCloseable {
 
             insertNode.executeUpdate();
 
-        } else if(node instanceof KiWiAnonResource) {
+        } else if (node instanceof KiWiAnonResource) {
             KiWiAnonResource anonResource = (KiWiAnonResource)node;
 
             PreparedStatement insertNode = getPreparedStatement("store.bnode");
@@ -984,7 +901,7 @@ public class KiWiConnection implements AutoCloseable {
             insertNode.setTimestamp(3, new Timestamp(anonResource.getCreated().getTime()), calendarUTC);
 
             insertNode.executeUpdate();
-        } else if(node instanceof KiWiDateLiteral) {
+        } else if (node instanceof KiWiDateLiteral) {
             KiWiDateLiteral dateLiteral = (KiWiDateLiteral)node;
 
             PreparedStatement insertNode = getPreparedStatement("store.tliteral");
@@ -992,14 +909,14 @@ public class KiWiConnection implements AutoCloseable {
             insertNode.setString(2, dateLiteral.stringValue());
             insertNode.setTimestamp(3, new Timestamp(dateLiteral.getDateContent().getMillis()), calendarUTC);
             insertNode.setInt(4, dateLiteral.getDateContent().getZone().getOffset(dateLiteral.getDateContent())/1000);
-            if(dateLiteral.getType() != null)
+            if (dateLiteral.getType() != null)
                 insertNode.setLong(5,dateLiteral.getType().getId());
             else
                 throw new IllegalStateException("a date literal must have a datatype");
             insertNode.setTimestamp(6, new Timestamp(dateLiteral.getCreated().getTime()), calendarUTC);
 
             insertNode.executeUpdate();
-        } else if(node instanceof KiWiIntLiteral) {
+        } else if (node instanceof KiWiIntLiteral) {
             KiWiIntLiteral intLiteral = (KiWiIntLiteral)node;
 
             PreparedStatement insertNode = getPreparedStatement("store.iliteral");
@@ -1007,48 +924,48 @@ public class KiWiConnection implements AutoCloseable {
             insertNode.setString(2, intLiteral.getContent());
             insertNode.setDouble(3, intLiteral.getDoubleContent());
             insertNode.setLong(4, intLiteral.getIntContent());
-            if(intLiteral.getType() != null)
+            if (intLiteral.getType() != null)
                 insertNode.setLong(5,intLiteral.getType().getId());
             else
                 throw new IllegalStateException("an integer literal must have a datatype");
             insertNode.setTimestamp(6, new Timestamp(intLiteral.getCreated().getTime()), calendarUTC);
 
             insertNode.executeUpdate();
-        } else if(node instanceof KiWiDoubleLiteral) {
+        } else if (node instanceof KiWiDoubleLiteral) {
             KiWiDoubleLiteral doubleLiteral = (KiWiDoubleLiteral)node;
 
             PreparedStatement insertNode = getPreparedStatement("store.dliteral");
             insertNode.setLong(1, node.getId());
             insertNode.setString(2, doubleLiteral.getContent());
             insertNode.setDouble(3, doubleLiteral.getDoubleContent());
-            if(doubleLiteral.getType() != null)
+            if (doubleLiteral.getType() != null)
                 insertNode.setLong(4,doubleLiteral.getType().getId());
             else
                 throw new IllegalStateException("a double literal must have a datatype");
             insertNode.setTimestamp(5, new Timestamp(doubleLiteral.getCreated().getTime()), calendarUTC);
 
             insertNode.executeUpdate();
-        } else if(node instanceof KiWiBooleanLiteral) {
+        } else if (node instanceof KiWiBooleanLiteral) {
             KiWiBooleanLiteral booleanLiteral = (KiWiBooleanLiteral)node;
 
             PreparedStatement insertNode = getPreparedStatement("store.bliteral");
             insertNode.setLong(1,node.getId());
             insertNode.setString(2, booleanLiteral.getContent());
             insertNode.setBoolean(3, booleanLiteral.booleanValue());
-            if(booleanLiteral.getType() != null)
+            if (booleanLiteral.getType() != null)
                 insertNode.setLong(4,booleanLiteral.getType().getId());
             else
                 throw new IllegalStateException("a boolean literal must have a datatype");
             insertNode.setTimestamp(5, new Timestamp(booleanLiteral.getCreated().getTime()), calendarUTC);
 
             insertNode.executeUpdate();
-        } else if(node instanceof KiWiStringLiteral) {
+        } else if (node instanceof KiWiStringLiteral) {
             KiWiStringLiteral stringLiteral = (KiWiStringLiteral)node;
 
 
             Double dbl_value = null;
             Long   lng_value = null;
-            if(stringLiteral.getContent().length() < 64 && NumberUtils.isNumber(stringLiteral.getContent()))
+            if (stringLiteral.getContent().length() < 64 && NumberUtils.isNumber(stringLiteral.getContent()))
                 try {
                     dbl_value = Double.parseDouble(stringLiteral.getContent());
                     lng_value = Long.parseLong(stringLiteral.getContent());
@@ -1060,18 +977,18 @@ public class KiWiConnection implements AutoCloseable {
             PreparedStatement insertNode = getPreparedStatement("store.sliteral");
             insertNode.setLong(1,node.getId());
             insertNode.setString(2, stringLiteral.getContent());
-            if(dbl_value != null) {
+            if (dbl_value != null) {
                 insertNode.setDouble(3, dbl_value);
             } else {
                 insertNode.setObject(3, null);
             }
-            if(lng_value != null) {
+            if (lng_value != null) {
                 insertNode.setLong(4, lng_value);
             } else {
                 insertNode.setObject(4, null);
             }
 
-            if(stringLiteral.getLocale() != null) {
+            if (stringLiteral.getLocale() != null) {
                 insertNode.setString(5, stringLiteral.getLocale().getLanguage().toLowerCase());
             } else {
                 insertNode.setObject(5, null);
@@ -1097,7 +1014,6 @@ public class KiWiConnection implements AutoCloseable {
      * @param triple     the triple to store
      * @throws SQLException
      * @throws NullPointerException in case the subject, predicate, object or context have not been persisted
-     * @return true in case the update added a new triple to the database, false in case the triple already existed
      */
     public synchronized void storeTriple(final KiWiTriple triple) throws SQLException {
         // mutual exclusion: prevent parallel adding and removing of the same triple
@@ -1105,11 +1021,11 @@ public class KiWiConnection implements AutoCloseable {
 
             requireJDBCConnection();
 
-            if(triple.getId() < 0) {
+            if (triple.getId() < 0) {
                 triple.setId(getNextSequence());
             }
 
-            if(deletedStatementsLog.mightContain(triple.getId())) {
+            if (deletedStatementsLog.mightContain(triple.getId())) {
                 // this is a hack for a concurrency problem that may occur in case the triple is removed in the
                 // transaction and then added again; in these cases the createStatement method might return
                 // an expired state of the triple because it uses its own database connection
@@ -1124,9 +1040,7 @@ public class KiWiConnection implements AutoCloseable {
                     try {
                         cacheTriple(triple);
                         tripleBatch.add(triple);
-                        if(tripleBatch.size() >= batchSize) {
-                            flushBatch();
-                        }
+                        maybeFlushBatch();
                     } finally {
                         commitLock.unlock();
                     }
@@ -1134,7 +1048,6 @@ public class KiWiConnection implements AutoCloseable {
                     Preconditions.checkNotNull(triple.getSubject().getId());
                     Preconditions.checkNotNull(triple.getPredicate().getId());
                     Preconditions.checkNotNull(triple.getObject().getId());
-
 
                     try {
                         RetryExecution<Boolean> execution = new RetryExecution<>("STORE");
@@ -1147,7 +1060,7 @@ public class KiWiConnection implements AutoCloseable {
                                 insertTriple.setLong(2,triple.getSubject().getId());
                                 insertTriple.setLong(3,triple.getPredicate().getId());
                                 insertTriple.setLong(4,triple.getObject().getId());
-                                if(triple.getContext() != null) {
+                                if (triple.getContext() != null) {
                                     insertTriple.setLong(5,triple.getContext().getId());
                                 } else {
                                     insertTriple.setNull(5, Types.BIGINT);
@@ -1163,7 +1076,7 @@ public class KiWiConnection implements AutoCloseable {
                         });
 
                     } catch(SQLException ex) {
-                        if("HYT00".equals(ex.getSQLState())) { // H2 table locking timeout
+                        if ("HYT00".equals(ex.getSQLState())) { // H2 table locking timeout
                             throw new ConcurrentModificationException("the same triple was modified in concurrent transactions (triple="+triple+")");
                         } else {
                             throw ex;
@@ -1178,14 +1091,14 @@ public class KiWiConnection implements AutoCloseable {
      * Return the identifier of the triple with the given subject, predicate, object and context, or null if this
      * triple does not exist. Used for quick existance checks of triples.
      *
-     * @param subject
-     * @param predicate
-     * @param object
-     * @param context
-     * @return
+     * @param subject the subject of the triple
+     * @param predicate the predicate of the triple
+     * @param object the object of the triple
+     * @param context the context of the triple
+     * @return the database-id of the triple or {@code -1} if it does not exist.
      */
     public synchronized long getTripleId(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context) throws SQLException {
-        if(tripleBatch != null && tripleBatch.size() > 0) {
+        if (tripleBatch != null && tripleBatch.size() > 0) {
             Collection<KiWiTriple> batched = tripleBatch.listTriples(subject,predicate,object,context, false);
             if(batched.size() > 0) {
                 return batched.iterator().next().getId();
@@ -1197,23 +1110,18 @@ public class KiWiConnection implements AutoCloseable {
         loadTripleId.setLong(1, subject.getId());
         loadTripleId.setLong(2, predicate.getId());
         loadTripleId.setLong(3, object.getId());
-        if(context != null) {
+        if (context != null) {
             loadTripleId.setLong(4, context.getId());
         } else {
             loadTripleId.setNull(4, Types.BIGINT);
         }
 
-        ResultSet result = loadTripleId.executeQuery();
-        try {
-            if(result.next()) {
+        try (ResultSet result = loadTripleId.executeQuery()) {
+            if (result.next()) {
                 return result.getLong(1);
-            } else {
-                return -1L;
             }
-
-        } finally {
-            result.close();
         }
+        return -1L;
     }
 
     /**
@@ -1223,7 +1131,7 @@ public class KiWiConnection implements AutoCloseable {
      * The triple remains in the database, because other entities might still reference it (e.g. a version).
      * Use the method cleanupTriples() to fully remove all deleted triples without references.
      *
-     * @param triple
+     * @param triple the KiWiTriple to delete
      */
     public void deleteTriple(final KiWiTriple triple) throws SQLException {
         requireJDBCConnection();
@@ -1422,7 +1330,7 @@ public class KiWiConnection implements AutoCloseable {
      * Note that this operation should only be called if the triple was deleted before in the same
      * transaction!
      *
-     * @param triple
+     * @param triple the KiWiTriple to restore
      */
     public void undeleteTriple(KiWiTriple triple) throws SQLException {
         if(triple.getId() < 0) {
@@ -1454,7 +1362,7 @@ public class KiWiConnection implements AutoCloseable {
 
     /**
      * List all contexts used in this triple store. See query.contexts .
-     * @return
+     * @return ClosableIteration of contexts
      * @throws SQLException
      */
     public CloseableIteration<KiWiResource, SQLException> listContexts() throws SQLException {
@@ -1464,16 +1372,16 @@ public class KiWiConnection implements AutoCloseable {
 
         final ResultSet result = queryContexts.executeQuery();
 
-        if(tripleBatch != null && tripleBatch.size() > 0) {
-            return new DistinctIteration<KiWiResource, SQLException>(
-                    new UnionIteration<KiWiResource, SQLException>(
+        if (tripleBatch != null && tripleBatch.size() > 0) {
+            return new DistinctIteration<>(
+                    new UnionIteration<>(
                             new ConvertingIteration<Resource,KiWiResource,SQLException>(new IteratorIteration<Resource, SQLException>(tripleBatch.listContextIDs().iterator())) {
                                 @Override
                                 protected KiWiResource convert(Resource sourceObject) throws SQLException {
                                     return (KiWiResource)sourceObject;
                                 }
                             },
-                            new ResultSetIteration<KiWiResource>(result, new ResultTransformerFunction<KiWiResource>() {
+                            new ResultSetIteration<>(result, new ResultTransformerFunction<KiWiResource>() {
                                 @Override
                                 public KiWiResource apply(ResultSet row) throws SQLException {
                                     return (KiWiResource)loadNodeById(result.getLong("context"));
@@ -1484,7 +1392,7 @@ public class KiWiConnection implements AutoCloseable {
 
 
         } else {
-            return new ResultSetIteration<KiWiResource>(result, new ResultTransformerFunction<KiWiResource>() {
+            return new ResultSetIteration<>(result, new ResultTransformerFunction<KiWiResource>() {
                 @Override
                 public KiWiResource apply(ResultSet row) throws SQLException {
                     return (KiWiResource)loadNodeById(result.getLong("context"));
@@ -1506,7 +1414,7 @@ public class KiWiConnection implements AutoCloseable {
 
         final ResultSet result = queryContexts.executeQuery();
 
-        return new ResultSetIteration<KiWiResource>(result, new ResultTransformerFunction<KiWiResource>() {
+        return new ResultSetIteration<>(result, new ResultTransformerFunction<KiWiResource>() {
             @Override
             public KiWiResource apply(ResultSet row) throws SQLException {
                 return (KiWiResource)constructNodeFromDatabase(row);
@@ -1528,7 +1436,7 @@ public class KiWiConnection implements AutoCloseable {
 
         final ResultSet result = queryContexts.executeQuery();
 
-        return new ResultSetIteration<KiWiUriResource>(result, new ResultTransformerFunction<KiWiUriResource>() {
+        return new ResultSetIteration<>(result, new ResultTransformerFunction<KiWiUriResource>() {
             @Override
             public KiWiUriResource apply(ResultSet row) throws SQLException {
                 return (KiWiUriResource)constructNodeFromDatabase(row);
@@ -1545,7 +1453,7 @@ public class KiWiConnection implements AutoCloseable {
 
         final ResultSet result = queryContexts.executeQuery();
 
-        return new ResultSetIteration<KiWiNamespace>(result, new ResultTransformerFunction<KiWiNamespace>() {
+        return new ResultSetIteration<>(result, new ResultTransformerFunction<KiWiNamespace>() {
             @Override
             public KiWiNamespace apply(ResultSet input) throws SQLException {
                 return constructNamespaceFromDatabase(result);
@@ -1580,9 +1488,9 @@ public class KiWiConnection implements AutoCloseable {
 
         if(tripleBatch != null && tripleBatch.size() > 0) {
             synchronized (tripleBatch) {
-                return new RepositoryResult<Statement>(
+                return new RepositoryResult<>(
                         new ExceptionConvertingIteration<Statement, RepositoryException>(
-                                new UnionIteration<Statement, SQLException>(
+                                new UnionIteration<>(
                                         new IteratorIteration<Statement, SQLException>(tripleBatch.listTriples(subject,predicate,object,context, wildcardContext).iterator()),
                                         new DelayedIteration<Statement, SQLException>() {
                                             @Override
@@ -1601,17 +1509,16 @@ public class KiWiConnection implements AutoCloseable {
 
                 );
             }
-        }  else {
-            return new RepositoryResult<Statement>(
-                    new ExceptionConvertingIteration<Statement, RepositoryException>(listTriplesInternal(subject,predicate,object,context,inferred, wildcardContext)) {
-                        @Override
-                        protected RepositoryException convert(Exception e) {
-                            return new RepositoryException("database error while iterating over result set",e);
-                        }
-                    }
-
-            );
         }
+        return new RepositoryResult<>(
+                new ExceptionConvertingIteration<Statement, RepositoryException>(listTriplesInternal(subject,predicate,object,context,inferred, wildcardContext)) {
+                    @Override
+                    protected RepositoryException convert(Exception e) {
+                        return new RepositoryException("database error while iterating over result set",e);
+                    }
+                }
+
+        );
     }
 
     /**
@@ -1630,16 +1537,16 @@ public class KiWiConnection implements AutoCloseable {
     private CloseableIteration<Statement, SQLException> listTriplesInternal(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, final boolean wildcardContext) throws SQLException {
         // if one of the database ids is null, there will not be any database results, so we can return an empty result
         if(subject != null && subject.getId() < 0) {
-            return new EmptyIteration<Statement, SQLException>();
+            return new EmptyIteration<>();
         }
         if(predicate != null && predicate.getId() < 0) {
-            return new EmptyIteration<Statement, SQLException>();
+            return new EmptyIteration<>();
         }
         if(object != null && object.getId() < 0) {
-            return new EmptyIteration<Statement, SQLException>();
+            return new EmptyIteration<>();
         }
         if(context != null && context.getId() < 0) {
-            return new EmptyIteration<Statement, SQLException>();
+            return new EmptyIteration<>();
         }
 
         requireJDBCConnection();
@@ -1698,9 +1605,8 @@ public class KiWiConnection implements AutoCloseable {
 
                 if(batch.size() > batchPosition) {
                     return batch.get(batchPosition++);
-                }  else {
-                    return null;
                 }
+                return null;
             }
 
             private void fetchBatch() throws SQLException {
@@ -1769,8 +1675,8 @@ public class KiWiConnection implements AutoCloseable {
     /**
      * Construct an appropriate KiWiNode from the result of an SQL query. The method will not change the
      * ResultSet iterator, only read its values, so it needs to be executed for each row separately.
-     * @param row
-     * @return
+     * @param row the ResultSet to read from
+     * @return a KiWiNode
      */
     protected KiWiNode constructNodeFromDatabase(ResultSet row) throws SQLException {
         // column order; id,ntype,svalue,ivalue,dvalue,tvalue,tzoffset,bvalue,lang,ltype,createdAt
@@ -1792,13 +1698,15 @@ public class KiWiConnection implements AutoCloseable {
 
             cacheNode(result);
             return result;
-        } else if("bnode".equals(ntype)) {
+        }
+        if("bnode".equals(ntype)) {
             KiWiAnonResource result = new KiWiAnonResource(row.getString(3), new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
 
             cacheNode(result);
             return result;
-        } else if("string".equals(ntype)) {
+        }
+        if("string".equals(ntype)) {
             final KiWiStringLiteral result = new KiWiStringLiteral(row.getString(3), new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
 
@@ -1811,7 +1719,8 @@ public class KiWiConnection implements AutoCloseable {
 
             cacheNode(result);
             return result;
-        } else if("int".equals(ntype)) {
+        }
+        if("int".equals(ntype)) {
             KiWiIntLiteral result = new KiWiIntLiteral(row.getLong(4), null, new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
             if(row.getLong(10) != 0) {
@@ -1820,7 +1729,8 @@ public class KiWiConnection implements AutoCloseable {
 
             cacheNode(result);
             return result;
-        } else if("double".equals(ntype)) {
+        }
+        if("double".equals(ntype)) {
             KiWiDoubleLiteral result = new KiWiDoubleLiteral(row.getDouble(5), null, new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
             if(row.getLong(10) != 0) {
@@ -1829,7 +1739,8 @@ public class KiWiConnection implements AutoCloseable {
 
             cacheNode(result);
             return result;
-        } else if("boolean".equals(ntype)) {
+        }
+        if("boolean".equals(ntype)) {
             KiWiBooleanLiteral result = new KiWiBooleanLiteral(row.getBoolean(8),null,new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
 
@@ -1839,7 +1750,8 @@ public class KiWiConnection implements AutoCloseable {
 
             cacheNode(result);
             return result;
-        } else if("date".equals(ntype)) {
+        }
+        if("date".equals(ntype)) {
             KiWiDateLiteral result = new KiWiDateLiteral();
             result.setCreated(new Date(row.getTimestamp(11, calendarUTC).getTime()));
 
@@ -1852,9 +1764,8 @@ public class KiWiConnection implements AutoCloseable {
 
             cacheNode(result);
             return result;
-        } else {
-            throw new IllegalArgumentException("unknown node type in database result for node id " + id + ": " + ntype);
         }
+        throw new IllegalArgumentException("unknown node type in database result for node id " + id + ": " + ntype);
     }
 
     /**
@@ -1903,18 +1814,14 @@ public class KiWiConnection implements AutoCloseable {
         result.setObject(batch[2]);
         result.setContext((KiWiResource) batch[3]);
 
-//        result.setSubject((KiWiResource)loadNodeById(row.getLong(2)));
-//        result.setPredicate((KiWiUriResource) loadNodeById(row.getLong(3)));
-//        result.setObject(loadNodeById(row.getLong(4)));
-//        result.setContext((KiWiResource) loadNodeById(row.getLong(5)));
-        if(row.getLong(8) != 0) {
+        if (row.getLong(8) != 0) {
             result.setCreator((KiWiResource)loadNodeById(row.getLong(8)));
         }
         result.setDeleted(row.getBoolean(6));
         result.setInferred(row.getBoolean(7));
         result.setCreated(new Date(row.getTimestamp(9).getTime()));
         try {
-            if(row.getDate(10) != null) {
+            if (row.getDate(10) != null) {
                 result.setDeletedAt(new Date(row.getTimestamp(10).getTime()));
             }
         } catch (SQLException ex) {
@@ -1957,13 +1864,10 @@ public class KiWiConnection implements AutoCloseable {
 
             id = row.getLong(1);
 
+            // lookup element in cache first, so we can avoid reconstructing it if it is already there
             triple = tripleCache.get(id);
 
-            // lookup element in cache first, so we can avoid reconstructing it if it is already there
-            if(triple != null) {
-                result.add(triple);
-            } else {
-
+            if(triple == null) {
                 triple = new KiWiTriple();
                 triple.setId(id);
 
@@ -1972,41 +1876,40 @@ public class KiWiConnection implements AutoCloseable {
                 nodeIds.add(row.getLong(3));
                 nodeIds.add(row.getLong(4));
 
-                if(row.getLong(5) != 0) {
+                if (row.getLong(5) != 0) {
                     nodeIds.add(row.getLong(5));
                 }
 
-                if(row.getLong(8) != 0) {
+                if (row.getLong(8) != 0) {
                     nodeIds.add(row.getLong(8));
                 }
 
                 // remember which node ids where relevant for the triple
-                tripleIds.put(id,new Long[] { row.getLong(2),row.getLong(3),row.getLong(4),row.getLong(5),row.getLong(8) });
+                tripleIds.put(id, new Long[]{row.getLong(2), row.getLong(3), row.getLong(4), row.getLong(5), row.getLong(8)});
 
                 triple.setDeleted(row.getBoolean(6));
                 triple.setInferred(row.getBoolean(7));
                 triple.setCreated(new Date(row.getTimestamp(9).getTime()));
                 try {
-                    if(row.getDate(10) != null) {
+                    if (row.getDate(10) != null) {
                         triple.setDeletedAt(new Date(row.getTimestamp(10).getTime()));
                     }
                 } catch (SQLException ex) {
                     // work around a MySQL problem with null dates
                     // (see http://stackoverflow.com/questions/782823/handling-datetime-values-0000-00-00-000000-in-jdbc)
                 }
-
-                result.add(triple);
             }
+            result.add(triple);
         }
 
         KiWiNode[] nodes = loadNodesByIds(Longs.toArray(nodeIds));
-        Map<Long,KiWiNode> nodeMap = new HashMap<>();
-        for(int i=0; i<nodes.length; i++) {
-            nodeMap.put(nodes[i].getId(), nodes[i]);
+        Map<Long,KiWiNode> nodeMap = new HashMap<>(nodes.length << 1);
+        for (KiWiNode node : nodes) {
+            nodeMap.put(node.getId(), node);
         }
 
-        for(KiWiTriple t : result) {
-            if(tripleIds.containsKey(t.getId())) {
+        for (KiWiTriple t : result) {
+            if (tripleIds.containsKey(t.getId())) {
                 // need to set subject, predicate, object, context and creator
                 Long[] ids = tripleIds.get(t.getId());
                 t.setSubject((KiWiResource) nodeMap.get(ids[0]));
@@ -2020,7 +1923,6 @@ public class KiWiConnection implements AutoCloseable {
                 if(ids[4] != 0) {
                     t.setCreator((KiWiResource) nodeMap.get(ids[4]));
                 }
-
             }
 
             cacheTriple(t);
@@ -2034,7 +1936,7 @@ public class KiWiConnection implements AutoCloseable {
 
     protected static Locale getLocale(String language) {
         Locale locale = localeMap.get(language);
-        if(locale == null && language != null && !language.isEmpty()) {
+        if (locale == null && language != null && !language.isEmpty()) {
             try {
                 Locale.Builder builder = new Locale.Builder();
                 builder.setLanguageTag(language);
@@ -2052,19 +1954,19 @@ public class KiWiConnection implements AutoCloseable {
      * not exist there create a new statement.
      *
      * @param key the id of the statement in statements.properties
-     * @return
+     * @return the PreparedStatement
      * @throws SQLException
      */
     public PreparedStatement getPreparedStatement(String key) throws SQLException {
         requireJDBCConnection();
 
         PreparedStatement statement = statementCache.get(key);
-        if(statement == null || statement.isClosed()) {
+        if (statement == null || statement.isClosed()) {
             statement = connection.prepareStatement(dialect.getStatement(key), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             statementCache.put(key,statement);
         }
         statement.clearParameters();
-        if(persistence.getDialect().isCursorSupported()) {
+        if (persistence.getDialect().isCursorSupported()) {
             statement.setFetchSize(persistence.getConfiguration().getCursorSize());
         }
         return statement;
@@ -2076,14 +1978,15 @@ public class KiWiConnection implements AutoCloseable {
      * numbers (e.g. in an IN).
      *
      * @param key the id of the statement in statements.properties
-     * @return
+     * @param numberOfArguments the number of arguments for the prepared statement
+     * @return the PreparedStatement
      * @throws SQLException
      */
     public PreparedStatement getPreparedStatement(String key, int numberOfArguments) throws SQLException {
         requireJDBCConnection();
 
         PreparedStatement statement = statementCache.get(key+numberOfArguments);
-        if(statement == null || statement.isClosed()) {
+        if (statement == null || statement.isClosed()) {
             StringBuilder s = new StringBuilder();
             for(int i=0; i<numberOfArguments; i++) {
                 if(i != 0) {
@@ -2110,32 +2013,32 @@ public class KiWiConnection implements AutoCloseable {
      * @return a new sequence ID
      * @throws SQLException
      */
-    public long getNextSequence() throws SQLException {
+    public long getNextSequence() {
         return persistence.getIdGenerator().getId();
     }
 
 
     private void cacheNode(KiWiNode node) {
-        if(node.getId() >= 0) {
+        if (node.getId() >= 0) {
             nodeCache.put(node.getId(), node);
         }
-        if(node instanceof KiWiUriResource) {
+        if (node instanceof KiWiUriResource) {
             uriCache.put(node.stringValue(), (KiWiUriResource) node);
-        } else if(node instanceof KiWiAnonResource) {
+        } else if (node instanceof KiWiAnonResource) {
             bnodeCache.put(node.stringValue(), (KiWiAnonResource) node);
-        } else if(node instanceof KiWiLiteral) {
+        } else if (node instanceof KiWiLiteral) {
             literalCache.put(LiteralCommons.createCacheKey((Literal) node), (KiWiLiteral) node);
         }
     }
 
     private void cacheTriple(KiWiTriple triple) {
-        if(triple.getId() >= 0) {
+        if (triple.getId() >= 0) {
             tripleCache.put(triple.getId(), triple);
         }
     }
 
     private void removeCachedTriple(KiWiTriple triple) {
-        if(triple.getId() >= 0) {
+        if (triple.getId() >= 0) {
             tripleCache.remove(triple.getId());
         }
     }
@@ -2144,32 +2047,27 @@ public class KiWiConnection implements AutoCloseable {
      * Return a collection of database tables contained in the database. This query is used for checking whether
      * the database needs to be created when initialising the system.
      *
-     *
-     *
-     * @return
+     * @return a Set containing te database tables
      * @throws SQLException
      */
     public Set<String> getDatabaseTables() throws SQLException {
         requireJDBCConnection();
 
         PreparedStatement statement = getPreparedStatement("meta.tables");
-        ResultSet result = statement.executeQuery();
-        try {
-            Set<String> tables = new HashSet<String>();
-            while(result.next()) {
+        try (ResultSet result = statement.executeQuery()) {
+            Set<String> tables = new HashSet<>();
+            while (result.next()) {
                 tables.add(result.getString(1).toLowerCase());
             }
             return tables;
-        } finally {
-            result.close();
         }
     }
 
     /**
      * Return the metadata value with the given key; can be used by KiWi modules to retrieve module-specific metadata.
      *
-     * @param key
-     * @return
+     * @param key the key to query
+     * @return the value of the given key in the metadata table
      * @throws SQLException
      */
     public String getMetadata(String key) throws SQLException {
@@ -2177,33 +2075,28 @@ public class KiWiConnection implements AutoCloseable {
 
         PreparedStatement statement = getPreparedStatement("meta.get");
         statement.setString(1,key);
-        ResultSet result = statement.executeQuery();
-        try {
-            if(result.next()) {
+        try (ResultSet result = statement.executeQuery()) {
+            if (result.next()) {
                 return result.getString(1);
-            } else {
-                return null;
             }
-        } finally {
-            result.close();
         }
+        return null;
     }
 
 
     /**
      * Update the metadata value for the given key; can be used by KiWi modules to set module-specific metadata.
      *
-     * @param key
-     * @return
+     * @param key the key to update
+     * @param value the new value
      * @throws SQLException
      */
     public void setMetadata(String key, String value) throws SQLException {
         requireJDBCConnection();
 
         PreparedStatement statement = getPreparedStatement("meta.get");
-        ResultSet result = statement.executeQuery();
-        try {
-            if(result.next()) {
+        try (ResultSet result = statement.executeQuery()) {
+            if (result.next()) {
                 PreparedStatement update = getPreparedStatement("meta.update");
                 update.clearParameters();
                 update.setString(1, value);
@@ -2216,8 +2109,6 @@ public class KiWiConnection implements AutoCloseable {
                 insert.setString(2, value);
                 insert.executeUpdate();
             }
-        } finally {
-            result.close();
         }
     }
 
@@ -2226,21 +2117,17 @@ public class KiWiConnection implements AutoCloseable {
      * Return the KiWi version of the database this connection is operating on. This query is necessary for
      * checking proper state of a database when initialising the system.
      *
-     * @return
+     * @return the version of the database schema
      */
     public int getDatabaseVersion() throws SQLException {
         requireJDBCConnection();
 
         PreparedStatement statement = getPreparedStatement("meta.version");
-        ResultSet result = statement.executeQuery();
-        try {
-            if(result.next()) {
+        try (ResultSet result = statement.executeQuery()) {
+            if (result.next()) {
                 return Integer.parseInt(result.getString(1));
-            } else {
-                throw new SQLException("no version information available");
             }
-        } finally {
-            result.close();
+            throw new SQLException("no version information available");
         }
     }
 
@@ -2294,18 +2181,16 @@ public class KiWiConnection implements AutoCloseable {
      *
      * @return the current state of this <code>Connection</code> object's
      *         auto-commit mode
-     * @exception java.sql.SQLException if a database access error occurs
-     * or this method is called on a closed connection
      * @see #setAutoCommit
      */
-    public boolean getAutoCommit() throws SQLException {
+    public boolean getAutoCommit() {
         return autoCommit;
     }
 
     /**
      * Return true if batched commits are enabled. Batched commits will try to group database operations and
      * keep a memory log while storing triples. This can considerably improve the database performance.
-     * @return
+     * @return {@code true} if batch commits are enabled
      */
     public boolean isBatchCommit() {
         return batchCommit;
@@ -2314,7 +2199,6 @@ public class KiWiConnection implements AutoCloseable {
     /**
      * Enabled batched commits. Batched commits will try to group database operations and
      * keep a memory log while storing triples. This can considerably improve the database performance.
-     * @return
      */
     public void setBatchCommit(boolean batchCommit) {
         if(dialect.isBatchSupported()) {
@@ -2328,7 +2212,8 @@ public class KiWiConnection implements AutoCloseable {
     /**
      * Return the size of a batch for batched commits. Batched commits will try to group database operations and
      * keep a memory log while storing triples. This can considerably improve the database performance.
-     * @return
+     * @return the batch size used if batchCommits are enabled
+     * @see #isBatchCommit()
      */
     public int getBatchSize() {
         return batchSize;
@@ -2337,7 +2222,7 @@ public class KiWiConnection implements AutoCloseable {
     /**
      * Set the size of a batch for batched commits. Batched commits will try to group database operations and
      * keep a memory log while storing triples. This can considerably improve the database performance.
-     * @param batchSize
+     * @param batchSize the batch size
      */
     public void setBatchSize(int batchSize) {
         this.batchSize = batchSize;
@@ -2357,8 +2242,6 @@ public class KiWiConnection implements AutoCloseable {
      * @see #setAutoCommit
      */
     public synchronized void commit() throws SQLException {
-        numberOfCommits++;
-
         RetryExecution execution = new RetryExecution("COMMIT");
         execution.execute(connection, new RetryCommand<Void>() {
             @Override
@@ -2394,7 +2277,7 @@ public class KiWiConnection implements AutoCloseable {
      * @see #setAutoCommit
      */
     public void rollback() throws SQLException {
-        if(tripleBatch != null && tripleBatch.size() > 0) {
+        if (tripleBatch != null && tripleBatch.size() > 0) {
             synchronized (tripleBatch) {
                 for(KiWiTriple triple : tripleBatch) {
                     triple.setId(-1L);
@@ -2428,11 +2311,11 @@ public class KiWiConnection implements AutoCloseable {
      * @exception java.sql.SQLException if a database access error occurs
      */
     public boolean isClosed() throws SQLException {
-        if(connection != null) {
+        if (connection != null) {
             return connection.isClosed();
-        } else {
-            return false;
         }
+
+        return false;
     }
 
 
@@ -2454,13 +2337,13 @@ public class KiWiConnection implements AutoCloseable {
     public void close() throws SQLException {
         closed = true;
 
-        if(connection != null) {
+        if (connection != null) {
             // close all prepared statements
             try {
-                for(Map.Entry<String,PreparedStatement> entry : statementCache.entrySet()) {
+                for (Map.Entry<String,PreparedStatement> entry : statementCache.entrySet()) {
                     try {
                         entry.getValue().close();
-                    } catch (SQLException ex) {}
+                    } catch (SQLException ignore) {}
                 }
             } catch(AbstractMethodError ex) {
                 log.debug("database system does not allow closing statements");
@@ -2470,11 +2353,14 @@ public class KiWiConnection implements AutoCloseable {
         }
     }
 
-
-    int retry = 0;
+    public void maybeFlushBatch() throws SQLException {
+        if (tripleBatch.size() >= batchSize) {
+            flushBatch();
+        }
+    }
 
     public synchronized void flushBatch() throws SQLException {
-        if(batchCommit && tripleBatch != null) {
+        if (batchCommit && tripleBatch != null) {
             requireJDBCConnection();
 
             commitLock.lock();
@@ -2528,7 +2414,7 @@ public class KiWiConnection implements AutoCloseable {
 
     /**
      * Return the current transaction ID
-     * @return
+     * @return the current transaction id
      */
     public long getTransactionId() {
         return transactionId;
@@ -2536,7 +2422,7 @@ public class KiWiConnection implements AutoCloseable {
 
     protected interface RetryCommand<T> {
 
-        public T run() throws SQLException;
+        T run() throws SQLException;
     }
 
     /**
@@ -2606,47 +2492,46 @@ public class KiWiConnection implements AutoCloseable {
         }
 
         public T execute(Connection connection, RetryCommand<T> command) throws SQLException {
-            if(!closed) {
-                Savepoint savepoint = null;
-                if(useSavepoint) {
-                    savepoint = connection.setSavepoint();
-                }
-                try {
-                    T result = command.run();
-
-                    if(useSavepoint && savepoint != null) {
-                        connection.releaseSavepoint(savepoint);
-                    }
-
-                    return result;
-                } catch (SQLException ex) {
-                    if(retries < maxRetries && (sqlStates.size() == 0 || sqlStates.contains(ex.getSQLState()))) {
-                        if(useSavepoint && savepoint != null) {
-                            connection.rollback(savepoint);
-                        }
-                        Random rnd = new Random();
-                        long sleep = retryInterval - 250 + rnd.nextInt(500);
-                        log.warn("{}: temporary conflict, retrying in {} ms ... (thread={}, retry={})", name, sleep, Thread.currentThread().getName(), retries);
-                        try {
-                            Thread.sleep(sleep);
-                        } catch (InterruptedException e) {}
-                        retries++;
-                        T result = execute(connection, command);
-                        retries--;
-
-                        return result;
-                    } else {
-                        log.error("{}: temporary conflict could not be solved! (error: {})", name, ex.getMessage());
-
-                        log.debug("main exception:",ex);
-                        log.debug("next exception:",ex.getNextException());
-                        throw ex;
-                    }
-                }
-            } else {
+            if (closed) {
                 return null;
             }
 
+            Savepoint savepoint = null;
+            if (useSavepoint) {
+                savepoint = connection.setSavepoint();
+            }
+            try {
+                T result = command.run();
+
+                if (useSavepoint && savepoint != null) {
+                    connection.releaseSavepoint(savepoint);
+                }
+
+                return result;
+            } catch (SQLException ex) {
+                if (retries < maxRetries && (sqlStates.size() == 0 || sqlStates.contains(ex.getSQLState()))) {
+                    if(useSavepoint && savepoint != null) {
+                        connection.rollback(savepoint);
+                    }
+                    Random rnd = new Random();
+                    long sleep = retryInterval - 250 + rnd.nextInt(500);
+                    log.warn("{}: temporary conflict, retrying in {} ms ... (thread={}, retry={})", name, sleep, Thread.currentThread().getName(), retries);
+                    try {
+                        Thread.sleep(sleep);
+                    } catch (InterruptedException ignore) {}
+                    retries++;
+                    T result = execute(connection, command);
+                    retries--;
+
+                    return result;
+                }
+
+                log.error("{}: temporary conflict could not be solved! (error: {})", name, ex.getMessage());
+
+                log.debug("main exception:",ex);
+                log.debug("next exception:",ex.getNextException());
+                throw ex;
+            }
         }
 
     }

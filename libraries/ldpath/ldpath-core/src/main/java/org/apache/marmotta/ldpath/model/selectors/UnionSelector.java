@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,15 +18,11 @@
 package org.apache.marmotta.ldpath.model.selectors;
 
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
+
+import java.util.*;
 
 /**
  * Builds the union of two node selectors. Will eliminate duplicates.
@@ -37,8 +33,8 @@ import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
  */
 public class UnionSelector<Node> implements NodeSelector<Node> {
 
-    private NodeSelector<Node> left;
-    private NodeSelector<Node> right;
+    private final NodeSelector<Node> left;
+    private final NodeSelector<Node> right;
 
     public UnionSelector(NodeSelector<Node> left, NodeSelector<Node> right) {
         this.left = left;
@@ -59,7 +55,7 @@ public class UnionSelector<Node> implements NodeSelector<Node> {
      */
     @Override
     public Collection<Node> select(final RDFBackend<Node> rdfBackend, final Node context, final List<Node> path, final Map<Node, List<Node>> resultPaths) {
-        final Set<Node> result = new HashSet<Node>();
+        final Set<Node> result = new HashSet<>();
 
         result.addAll(left.select(rdfBackend,context,path,resultPaths));
         result.addAll(right.select(rdfBackend,context,path,resultPaths));
@@ -85,6 +81,22 @@ public class UnionSelector<Node> implements NodeSelector<Node> {
     @Override
     public String getName(NodeBackend<Node> nodeRDFBackend) {
         throw new UnsupportedOperationException("cannot use unions in unnamed field definitions because the name is ambiguous");
+    }
+
+    /**
+     * Getter for left child node of the union selection.
+     * @return left NodeSelector
+     */
+    public NodeSelector<Node> getLeft() {
+        return left;
+    }
+
+    /**
+     * Getter for right child node of the union selection.
+     * @return right NodeSelector
+     */
+    public NodeSelector<Node> getRight() {
+        return right;
     }
 
 

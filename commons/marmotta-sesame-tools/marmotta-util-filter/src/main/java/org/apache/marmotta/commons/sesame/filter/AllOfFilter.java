@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -33,8 +33,9 @@ public class AllOfFilter<T> implements SesameFilter<T> {
     private Set<SesameFilter<T>> children;
 
 
+    @SafeVarargs
     public AllOfFilter(SesameFilter<T>... children) {
-        this(new HashSet<SesameFilter<T>>(Arrays.asList(children)));
+        this(new HashSet<>(Arrays.asList(children)));
     }
 
     public AllOfFilter(Set<SesameFilter<T>> children) {

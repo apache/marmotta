@@ -80,9 +80,9 @@ $(function() {
             
             $("tr.toRemove", tBody).slideUp("slow", function() { $(this).remove(); });
             $("a.toRemove", jl).hide("slow", function() { $(this).remove(); });
-            $('#messages div.error').slideUp('slow', function() { $(this).remove(); });
+            $('#messages').find('div.error').slideUp('slow', function() { $(this).remove(); });
         }).error(function() {
-            var t = $('#messages div.error'); 
+            var t = $('#messages').find('div.error');
             if (t.size() == 0) {
                 $('#messages').append($("<div>", {'class':'error'}).text("Statistic update failed!"));
             } else {

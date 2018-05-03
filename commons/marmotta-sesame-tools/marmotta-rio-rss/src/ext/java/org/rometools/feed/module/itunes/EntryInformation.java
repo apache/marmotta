@@ -56,12 +56,12 @@ public interface EntryInformation extends ITunes{
      * Returns the Duration object for this Item
      * @return Returns the Duration object for this Item
      */
-    public Duration getDuration();
+    Duration getDuration();
 
     /**
      * Sets the Duration object for this Item
      * @param duration Sets the Duration object for this Item
      */
-    public void setDuration(Duration duration) ;
+    void setDuration(Duration duration) ;
 
 }

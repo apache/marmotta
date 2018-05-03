@@ -97,7 +97,7 @@ public interface SyndFeed extends Cloneable, CopyFrom, Extendable {
      * @return the charset encoding of the feed.
      *
      */
-    public String getEncoding();
+    String getEncoding();
 
     /**
      * Sets the charset encoding of a the feed. This is not set by Rome parsers.
@@ -105,7 +105,7 @@ public interface SyndFeed extends Cloneable, CopyFrom, Extendable {
      * @param encoding the charset encoding of the feed.
      *
      */
-    public void setEncoding(String encoding);
+    void setEncoding(String encoding);
 
     /**
      * Returns the feed URI.
@@ -354,7 +354,7 @@ public interface SyndFeed extends Cloneable, CopyFrom, Extendable {
      * @return the feed author, <b>null</b> if none.
      *
      */
-    public List<SyndPerson> getContributors();
+    List<SyndPerson> getContributors();
 
     /**
      * Sets the feed author.
@@ -468,7 +468,7 @@ public interface SyndFeed extends Cloneable, CopyFrom, Extendable {
      * @param uri the URI of the ModuleImpl.
      * @return The module with the given URI, <b>null</b> if none.
      */
-    public Module getModule(String uri);
+    Module getModule(String uri);
 
     /**
      * Returns the feed modules.
@@ -494,7 +494,7 @@ public interface SyndFeed extends Cloneable, CopyFrom, Extendable {
      * @return Opaque object to discourage use
      *
      */
-    public Object getForeignMarkup();
+    Object getForeignMarkup();
 
     /**
      * Sets foreign markup found at channel level.
@@ -502,7 +502,7 @@ public interface SyndFeed extends Cloneable, CopyFrom, Extendable {
      * @param foreignMarkup Opaque object to discourage use
      *
      */
-    public void setForeignMarkup(Object foreignMarkup);
+    void setForeignMarkup(Object foreignMarkup);
     
     /**
      * Creates a deep clone of the object.
@@ -511,6 +511,6 @@ public interface SyndFeed extends Cloneable, CopyFrom, Extendable {
      * @throws CloneNotSupportedException thrown if an element of the object cannot be cloned.
      *
      */
-    public Object clone() throws CloneNotSupportedException;
+    Object clone() throws CloneNotSupportedException;
 
 }

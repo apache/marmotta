@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,12 +18,14 @@
 package org.apache.marmotta.ldpath.model.selectors;
 
 import com.google.common.collect.ImmutableList;
-
-import java.util.*;
-
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class RecursivePathSelector<Node> implements NodeSelector<Node> {
 
@@ -114,12 +116,36 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
         return delegate.getName(nodeRDFBackend);
     }
 
-    /**
+	/**
+	 * Getter for child delegate NodeSelector
+	 * @return child delegate NodeSelector
+	 */
+	public NodeSelector<Node> getDelegate() {
+		return delegate;
+	}
+
+	/**
+	 * Getter for the number of minimum recursions
+	 * @return number of minimum recursions
+	 */
+	public int getMinRecursions() {
+		return minRecursions;
+	}
+
+	/**
+	 * Getter for the number of maximumg recursions
+	 * @return number of maximum recursions
+	 */
+	public int getMaxRecursions() {
+		return maxRecursions;
+	}
+
+	/**
      * <code>(delegate)*</code>
      * @param delegate the delegate
      */
     public static <N> RecursivePathSelector<N> getPathSelectorStared(NodeSelector<N> delegate) {
-    	return new RecursivePathSelector<N>(delegate, 0, Integer.MAX_VALUE);
+    	return new RecursivePathSelector<>(delegate, 0, Integer.MAX_VALUE);
     }
 
     /**
@@ -127,7 +153,7 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
      * @param delegate the delegate
      */
     public static <N> RecursivePathSelector<N> getPathSelectorPlused(NodeSelector<N> delegate) {
-    	return new RecursivePathSelector<N>(delegate, 1, Integer.MAX_VALUE);
+    	return new RecursivePathSelector<>(delegate, 1, Integer.MAX_VALUE);
     }
     
     /**
@@ -136,7 +162,7 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
      * @param minBound <code>m</code>
      */
     public static <N> RecursivePathSelector<N> getPathSelectorMinBound(NodeSelector<N> delegate, int minBound) {
-    	return new RecursivePathSelector<N>(delegate, minBound, Integer.MAX_VALUE);
+    	return new RecursivePathSelector<>(delegate, minBound, Integer.MAX_VALUE);
     }
 
     /**
@@ -145,7 +171,7 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
      * @param maxBound <code>n</code>
      */
     public static <N> RecursivePathSelector<N> getPathSelectorMaxBound(NodeSelector<N> delegate, int maxBound) {
-    	return new RecursivePathSelector<N>(delegate, 0, maxBound);
+    	return new RecursivePathSelector<>(delegate, 0, maxBound);
     }
 
     /**
@@ -155,7 +181,7 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
      * @param maxBound <code>n</code>
      */
     public static <N> RecursivePathSelector<N> getPathSelectorMinMaxBound(NodeSelector<N> delegate, int minBound, int maxBound) {
-    	return new RecursivePathSelector<N>(delegate, minBound, maxBound);
+    	return new RecursivePathSelector<>(delegate, minBound, maxBound);
     }
 
 
@@ -168,9 +194,8 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
 		RecursivePathSelector<Node> that = (RecursivePathSelector<Node>) o;
 
         if (delegate != null ? !delegate.equals(that.delegate) : that.delegate != null) return false;
-        if (minRecursions != that.minRecursions || maxRecursions != that.maxRecursions) return false;
+        return !(minRecursions != that.minRecursions || maxRecursions != that.maxRecursions);
 
-        return true;
     }
 
     @Override

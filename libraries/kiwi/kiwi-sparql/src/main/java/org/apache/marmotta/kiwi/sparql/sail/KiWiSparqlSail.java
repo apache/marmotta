@@ -88,9 +88,8 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
     private void prepareFulltext(KiWiConfiguration configuration) {
         try {
             if(configuration.isFulltextEnabled()) {
-                KiWiConnection connection = parent.getPersistence().getConnection();
-                try {
-                    if(configuration.getDialect() instanceof PostgreSQLDialect) {
+                try (KiWiConnection connection = parent.getPersistence().getConnection()) {
+                    if (configuration.getDialect() instanceof PostgreSQLDialect) {
 
                         // for postgres, we need to create
                         // - a stored procedure for mapping ISO language codes to PostgreSQL fulltext configuration names
@@ -98,11 +97,11 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
                         //   an index over nodes.svalue
 
                         ScriptRunner runner = new ScriptRunner(connection.getJDBCConnection(), false, false);
-                        if(connection.getMetadata("ft.lookup") == null) {
+                        if (connection.getMetadata("ft.lookup") == null) {
                             log.info("PostgreSQL: creating language configuration lookup function");
                             StringBuilder script = new StringBuilder();
-                            for(String line : IOUtils.readLines(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_langlookup.sql"))) {
-                                if(!line.startsWith("--")) {
+                            for (String line : IOUtils.readLines(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_langlookup.sql"))) {
+                                if (!line.startsWith("--")) {
                                     script.append(line);
                                     script.append(" ");
                                 }
@@ -112,20 +111,20 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
                         }
 
                         // language specific indexes
-                        if(configuration.getFulltextLanguages() != null) {
+                        if (configuration.getFulltextLanguages() != null) {
                             StringBuilder script = new StringBuilder();
-                            for(String line : IOUtils.readLines(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_index.sql"))) {
-                                if(!line.startsWith("--")) {
+                            for (String line : IOUtils.readLines(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_index.sql"))) {
+                                if (!line.startsWith("--")) {
                                     script.append(line);
                                     script.append(" ");
                                 }
                             }
-                            for(String lang : configuration.getFulltextLanguages()) {
-                                if(connection.getMetadata("ft.idx."+lang) == null) {
+                            for (String lang : configuration.getFulltextLanguages()) {
+                                if (connection.getMetadata("ft.idx." + lang) == null) {
                                     String pg_configuration = POSTGRES_LANG_MAPPINGS.get(lang);
-                                    if(pg_configuration != null) {
+                                    if (pg_configuration != null) {
                                         log.info("PostgreSQL: creating fulltext index for language {}", lang);
-                                        String script_lang = script.toString().replaceAll("@LANGUAGE@", lang).replaceAll("@CONFIGURATION@",pg_configuration);
+                                        String script_lang = script.toString().replaceAll("@LANGUAGE@", lang).replaceAll("@CONFIGURATION@", pg_configuration);
                                         log.debug("PostgreSQL: running SQL script '{}'", script_lang);
                                         runner.runScript(new StringReader(script_lang));
                                     }
@@ -134,11 +133,11 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
                         }
 
                         // generic index
-                        if(configuration.getFulltextLanguages() != null) {
-                            if(connection.getMetadata("ft.idx.generic") == null) {
+                        if (configuration.getFulltextLanguages() != null) {
+                            if (connection.getMetadata("ft.idx.generic") == null) {
                                 StringBuilder script = new StringBuilder();
-                                for(String line : IOUtils.readLines(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_index_generic.sql"))) {
-                                    if(!line.startsWith("--")) {
+                                for (String line : IOUtils.readLines(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_index_generic.sql"))) {
+                                    if (!line.startsWith("--")) {
                                         script.append(line);
                                         script.append(" ");
                                     }
@@ -171,8 +170,6 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
                         }
                         */
                     }
-                } finally {
-                    connection.close();
                 }
             }
         } catch (IOException | SQLException ex) {

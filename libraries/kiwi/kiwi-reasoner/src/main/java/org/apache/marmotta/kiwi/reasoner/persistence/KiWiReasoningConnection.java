@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -110,7 +110,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
 
             // load namespaces if they are not yet given
             if(namespaces == null) {
-                namespaces = new HashMap<String, String>();
+                namespaces = new HashMap<>();
                 PreparedStatement loadNamespaces = getPreparedStatement("namespaces.load_by_rule");
                 synchronized (loadNamespaces) {
                     loadNamespaces.setLong(1,ruleId);
@@ -126,17 +126,14 @@ public class KiWiReasoningConnection extends KiWiConnection {
             PreparedStatement loadRule = getPreparedStatement("rules.load_by_id");
             synchronized (loadRule) {
                 loadRule.setLong(1,ruleId);
-                ResultSet result = loadRule.executeQuery();
-                try {
-                    if(result.next()) {
-                        return constructRuleFromDatabase(result,namespaces);
+                try (ResultSet result = loadRule.executeQuery()) {
+                    if (result.next()) {
+                        return constructRuleFromDatabase(result, namespaces);
                     } else {
                         return null;
                     }
                 } catch (ParseException e) {
-                    throw new SQLException("error while parsing rule body",e);
-                } finally {
-                    result.close();
+                    throw new SQLException("error while parsing rule body", e);
                 }
             }
         }
@@ -156,13 +153,13 @@ public class KiWiReasoningConnection extends KiWiConnection {
             loadRule.setLong(1,programId);
             ResultSet result = loadRule.executeQuery();
 
-            return new ResultSetIteration<Rule>(result, new ResultTransformerFunction<Rule>() {
+            return new ResultSetIteration<>(result, new ResultTransformerFunction<Rule>() {
                 @Override
                 public Rule apply(ResultSet row) throws SQLException {
                     try {
-                        return constructRuleFromDatabase(row,namespaces);
+                        return constructRuleFromDatabase(row, namespaces);
                     } catch (ParseException e) {
-                        throw new SQLException("error while parsing rule body",e);
+                        throw new SQLException("error while parsing rule body", e);
                     }
                 }
             });
@@ -431,17 +428,14 @@ public class KiWiReasoningConnection extends KiWiConnection {
         PreparedStatement loadProgram = getPreparedStatement("programs.load_by_name");
         synchronized (loadProgram) {
             loadProgram.setString(1, name);
-            ResultSet result = loadProgram.executeQuery();
-            try {
-                if(result.next()) {
+            try (ResultSet result = loadProgram.executeQuery()) {
+                if (result.next()) {
                     return constructProgramFromDatabase(result);
                 } else {
                     return null;
                 }
             } catch (ParseException e) {
-                throw new SQLException("error while parsing program rules",e);
-            } finally {
-                result.close();
+                throw new SQLException("error while parsing program rules", e);
             }
         }
 
@@ -460,17 +454,14 @@ public class KiWiReasoningConnection extends KiWiConnection {
         PreparedStatement loadProgram = getPreparedStatement("programs.load_by_id");
         synchronized (loadProgram) {
             loadProgram.setLong(1, id);
-            ResultSet result = loadProgram.executeQuery();
-            try {
-                if(result.next()) {
+            try (ResultSet result = loadProgram.executeQuery()) {
+                if (result.next()) {
                     return constructProgramFromDatabase(result);
                 } else {
                     return null;
                 }
             } catch (ParseException e) {
-                throw new SQLException("error while parsing program rules",e);
-            } finally {
-                result.close();
+                throw new SQLException("error while parsing program rules", e);
             }
         }
 
@@ -520,13 +511,13 @@ public class KiWiReasoningConnection extends KiWiConnection {
         synchronized (listPrograms) {
             ResultSet result = listPrograms.executeQuery();
 
-            return new ResultSetIteration<Program>(result, new ResultTransformerFunction<Program>() {
+            return new ResultSetIteration<>(result, new ResultTransformerFunction<Program>() {
                 @Override
                 public Program apply(ResultSet row) throws SQLException {
                     try {
                         return constructProgramFromDatabase(row);
                     } catch (ParseException e) {
-                        throw new SQLException("error while parsing program rules",e);
+                        throw new SQLException("error while parsing program rules", e);
                     }
                 }
             });
@@ -760,7 +751,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
      */
     public CloseableIteration<Justification,SQLException> listJustificationsBySupporting(Rule rule) throws SQLException {
         if(rule.getId() <= 0) {
-            return new EmptyIteration<Justification, SQLException>();
+            return new EmptyIteration<>();
         } else {
             requireJDBCConnection();
 
@@ -770,7 +761,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
 
                 ResultSet result = listByRule.executeQuery();
 
-                return new ResultSetIteration<Justification>(result, new ResultTransformerFunction<Justification>() {
+                return new ResultSetIteration<>(result, new ResultTransformerFunction<Justification>() {
                     @Override
                     public Justification apply(ResultSet row) throws SQLException {
                         return constructJustificationFromDatabase(row);
@@ -788,7 +779,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
      */
     public CloseableIteration<Justification,SQLException> listJustificationsBySupporting(KiWiTriple triple) throws SQLException {
         if(triple.getId() < 0) {
-            return new EmptyIteration<Justification, SQLException>();
+            return new EmptyIteration<>();
         } else {
             requireJDBCConnection();
 
@@ -798,7 +789,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
 
                 ResultSet result = listByTriple.executeQuery();
 
-                return new ResultSetIteration<Justification>(result, new ResultTransformerFunction<Justification>() {
+                return new ResultSetIteration<>(result, new ResultTransformerFunction<Justification>() {
                     @Override
                     public Justification apply(ResultSet row) throws SQLException {
                         return constructJustificationFromDatabase(row);
@@ -816,7 +807,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
      */
     public CloseableIteration<Justification,SQLException> listJustificationsForTriple(KiWiTriple triple) throws SQLException {
         if(triple.getId() < 0) {
-            return new EmptyIteration<Justification, SQLException>();
+            return new EmptyIteration<>();
         } else {
             return listJustificationsForTriple(triple.getId());
         }
@@ -837,7 +828,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
 
             ResultSet result = listForTriple.executeQuery();
 
-            return new ResultSetIteration<Justification>(result, new ResultTransformerFunction<Justification>() {
+            return new ResultSetIteration<>(result, new ResultTransformerFunction<Justification>() {
                 @Override
                 public Justification apply(ResultSet row) throws SQLException {
                     return constructJustificationFromDatabase(row);
@@ -889,7 +880,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
         synchronized (listUnsupported) {
             ResultSet result = listUnsupported.executeQuery();
 
-            return new ResultSetIteration<KiWiTriple>(result, new ResultTransformerFunction<KiWiTriple>() {
+            return new ResultSetIteration<>(result, new ResultTransformerFunction<KiWiTriple>() {
                 @Override
                 public KiWiTriple apply(ResultSet row) throws SQLException {
                     return constructTripleFromDatabase(row);
@@ -937,7 +928,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
         // associate a name with each pattern; the names are used in the database query to refer to the triple
         // that matched this pattern and in the construction of variable names for the HQL query
         int patternCount = 0;
-        final Map<Pattern,String> patternNames = new HashMap<Pattern, String>();
+        final Map<Pattern,String> patternNames = new HashMap<>();
         for(Pattern p : patterns) {
             patternNames.put(p,"P"+ (++patternCount));
         }
@@ -949,12 +940,12 @@ public class KiWiReasoningConnection extends KiWiConnection {
         int variableCount = 0;
 
         // a map for the variable names; will look like { ?x -> "V1", ?y -> "V2", ... }
-        final Map<VariableField,String> variableNames = new HashMap<VariableField, String>();
+        final Map<VariableField,String> variableNames = new HashMap<>();
 
         // a map for mapping variables to field names; each variable might have one or more field names,
         // depending on the number of patterns it occurs in; will look like
         // { ?x -> ["P1_V1", "P2_V1"], ?y -> ["P2_V2"], ... }
-        Map<VariableField,List<String>> queryVariables = new HashMap<VariableField, List<String>>();
+        Map<VariableField,List<String>> queryVariables = new HashMap<>();
         for(Pattern p : patterns) {
             Field[] fields = new Field[] {
                     p.getSubject(),
@@ -978,7 +969,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
 
         // build the select clause by projecting for each query variable the first name
         StringBuilder selectClause = new StringBuilder();
-        final List<VariableField> selectVariables = new LinkedList<VariableField>();
+        final List<VariableField> selectVariables = new LinkedList<>();
         for(Iterator<VariableField> it = queryVariables.keySet().iterator(); it.hasNext(); ) {
             VariableField v = it.next();
             String projectedName = variableNames.get(v);
@@ -993,9 +984,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
         }
         if(justifications) {
             // project also the ids of triples that have matched; we use it for building justifications
-            for(Iterator<Pattern> it = patterns.iterator(); it.hasNext(); ) {
-                Pattern p = it.next();
-                if(selectClause.length() > 0) {
+            for (Pattern p : patterns) {
+                if (selectClause.length() > 0) {
                     selectClause.append(", ");
                 }
                 selectClause.append(patternNames.get(p));
@@ -1018,7 +1008,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
         for(Iterator<Pattern> it = patterns.iterator(); it.hasNext(); ) {
             Pattern p = it.next();
             String pName = patternNames.get(p);
-            fromClause.append("triples "+pName);
+            fromClause.append("triples ").append(pName);
 
             Field[] fields = new Field[] {
                     p.getSubject(),
@@ -1030,9 +1020,9 @@ public class KiWiReasoningConnection extends KiWiConnection {
                 if(fields[i] != null && fields[i].isVariableField()) {
                     String vName = variableNames.get(fields[i]);
                     fromClause.append(" INNER JOIN nodes AS ");
-                    fromClause.append(pName + "_"+positions[i]+"_" + vName);
-                    fromClause.append(" ON " + pName + "." + positions[i] + " = ");
-                    fromClause.append(pName + "_"+positions[i]+"_" + vName + ".id ");
+                    fromClause.append(pName).append("_").append(positions[i]).append("_").append(vName);
+                    fromClause.append(" ON ").append(pName).append(".").append(positions[i]).append(" = ");
+                    fromClause.append(pName).append("_").append(positions[i]).append("_").append(vName).append(".id ");
                 }
             }
 
@@ -1050,7 +1040,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
         // 3. for each variable in the initialBindings, add a condition to the where clause
 
         // list of where conditions that will later be connected by AND
-        List<String> whereConditions = new LinkedList<String>();
+        List<String> whereConditions = new LinkedList<>();
 
 
         // 1. iterate over all patterns and for each resource and literal field in subject,
@@ -1146,35 +1136,35 @@ public class KiWiReasoningConnection extends KiWiConnection {
         PreparedStatement queryStatement = getJDBCConnection().prepareStatement(queryString);
         ResultSet result = queryStatement.executeQuery();
 
-        return new ResultSetIteration<QueryResult>(result, true, new ResultTransformerFunction<QueryResult>() {
+        return new ResultSetIteration<>(result, true, new ResultTransformerFunction<QueryResult>() {
             @Override
             public QueryResult apply(ResultSet row) throws SQLException {
                 QueryResult resultRow = new QueryResult();
 
                 long[] nodeIds = new long[selectVariables.size()];
-                for(int i=0; i<selectVariables.size(); i++) {
+                for (int i = 0; i < selectVariables.size(); i++) {
                     nodeIds[i] = row.getLong(variableNames.get(selectVariables.get(i)));
                 }
                 KiWiNode[] nodes = loadNodesByIds(nodeIds);
 
-                for(int i=0; i<selectVariables.size(); i++) {
+                for (int i = 0; i < selectVariables.size(); i++) {
                     VariableField v = selectVariables.get(i);
                     resultRow.getBindings().put(v, nodes[i]);
                 }
 
-                if(justifications) {
-                    for(Pattern p : patterns) {
+                if (justifications) {
+                    for (Pattern p : patterns) {
                         resultRow.getJustifications().add(loadTripleById(row.getLong(patternNames.get(p))));
                     }
                 }
 
-                if(initialBindings != null && initialBindings.getBindings().size() > 0) {
-                    for(VariableField v : initialBindings.getBindings().keySet()) {
-                        if(!resultRow.getBindings().containsKey(v)) {
-                            resultRow.getBindings().put(v,initialBindings.getBindings().get(v));
+                if (initialBindings != null && initialBindings.getBindings().size() > 0) {
+                    for (VariableField v : initialBindings.getBindings().keySet()) {
+                        if (!resultRow.getBindings().containsKey(v)) {
+                            resultRow.getBindings().put(v, initialBindings.getBindings().get(v));
                         }
                     }
-                    if(justifications) {
+                    if (justifications) {
                         resultRow.getJustifications().addAll(initialBindings.getJustifications());
                     }
                 }

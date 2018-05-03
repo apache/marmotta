@@ -79,7 +79,7 @@ public interface Job extends GlobalInterface {
      *        </tbody></table>
      * @param education Level of education required for an employment position.
      */
-    public void setEducation(String education);
+    void setEducation(String education);
 
     /**
      * Level of education required for an employment position.
@@ -110,7 +110,7 @@ public interface Job extends GlobalInterface {
      *        </tbody></table>
      * @return Level of education required for an employment position.
      */
-    public String getEducation();
+    String getEducation();
 
     /**
      * Company providing employment.
@@ -140,7 +140,7 @@ public interface Job extends GlobalInterface {
      *        </tbody></table>
      * @param employer Company providing employment.
      */
-    public void setEmployer(String employer);
+    void setEmployer(String employer);
 
     /**
      * Company providing employment.
@@ -170,7 +170,7 @@ public interface Job extends GlobalInterface {
      *        </tbody></table>
      * @return Company providing employment.
      */
-    public String getEmployer();
+    String getEmployer();
 
     /**
      * Legal residency requirements for an employment position.
@@ -205,7 +205,7 @@ public interface Job extends GlobalInterface {
      *        </tbody></table>
      * @param immigrationStatus Legal residency requirements for an employment position.
      */
-    public void setImmigrationStatus(String immigrationStatus);
+    void setImmigrationStatus(String immigrationStatus);
 
     /**
      * Legal residency requirements for an employment position.
@@ -240,7 +240,7 @@ public interface Job extends GlobalInterface {
      *        </tbody></table>
      * @return Legal residency requirements for an employment position.
      */
-    public String getImmigrationStatus();
+    String getImmigrationStatus();
 
     /**
      * The functions of an employment position.
@@ -285,7 +285,7 @@ public interface Job extends GlobalInterface {
      * </tbody></table>
      * @param function The functions of an employment position.
      */
-    public void setJobFunctions(String[] function);
+    void setJobFunctions(String[] function);
 
     /**
      * The functions of an employment position.
@@ -330,7 +330,7 @@ public interface Job extends GlobalInterface {
      * </tbody></table>
      * @return The functions of an employment position.
      */
-    public String[] getJobFunctions();
+    String[] getJobFunctions();
 
     /**
      * The industry of an employment position.
@@ -371,7 +371,7 @@ public interface Job extends GlobalInterface {
      * </tbody></table>
      * @param jobIndustries The industry of an employment position.
      */
-    public void setJobIndustries(String[] jobIndustries);
+    void setJobIndustries(String[] jobIndustries);
 
     /**
      * The industry of an employment position.
@@ -412,7 +412,7 @@ public interface Job extends GlobalInterface {
      * </tbody></table>
      * @return The industry of an employment position.
      */
-    public String[] getJobIndustries();
+    String[] getJobIndustries();
 
     /**
      * Type of employment position. Example:  Full-time, part-time, contractor, etc.
@@ -454,7 +454,7 @@ public interface Job extends GlobalInterface {
      * </tbody></table>
      * @param jobTypes Type of employment position. Example:  Full-time, part-time, contractor, etc.
      */
-    public void setJobTypes(String[] jobTypes);
+    void setJobTypes(String[] jobTypes);
 
     /**
      * Type of employment position. Example:  Full-time, part-time, contractor, etc.
@@ -496,7 +496,7 @@ public interface Job extends GlobalInterface {
      * </tbody></table>
      * @return Type of employment position. Example:  Full-time, part-time, contractor, etc.
      */
-    public String[] getJobTypes();
+    String[] getJobTypes();
 
     /**
      * Location of the position.
@@ -546,7 +546,7 @@ public interface Job extends GlobalInterface {
      * </tbody></table>
      * @param location Location of the position.
      */
-    public void setLocation(String location);
+    void setLocation(String location);
 
     /**
      * Location of the position.
@@ -596,7 +596,7 @@ public interface Job extends GlobalInterface {
      * </tbody></table>
      * @return Location of the position.
      */
-    public String getLocation();
+    String getLocation();
 
     /**
      * Salary for this position. Non-numeric values such as "$" symbols are not acceptable.
@@ -640,7 +640,7 @@ public interface Job extends GlobalInterface {
      * </tbody></table>
      * @param salary Salary for this position. Non-numeric values such as "$" symbols are not acceptable.
      */
-    public void setSalary(Float salary);
+    void setSalary(Float salary);
 
     /**
      * Salary for this position. Non-numeric values such as "$" symbols are not acceptable.
@@ -684,7 +684,7 @@ public interface Job extends GlobalInterface {
      * </tbody></table>
      * @return Salary for this position. Non-numeric values such as "$" symbols are not acceptable.
      */
-    public Float getSalary();
+    Float getSalary();
 
     /**
      * The type of salary included.
@@ -728,7 +728,7 @@ public interface Job extends GlobalInterface {
      * </tbody></table>
      * @param salaryType The type of salary included.
      */
-    public void setSalaryType(PriceTypeEnumeration salaryType);
+    void setSalaryType(PriceTypeEnumeration salaryType);
 
     /**
      * The type of salary included.
@@ -772,7 +772,7 @@ public interface Job extends GlobalInterface {
      * </tbody></table>
      * @return The type of salary included.
      */
-    public PriceTypeEnumeration getSalaryType();
+    PriceTypeEnumeration getSalaryType();
     
     
     /**
@@ -814,7 +814,7 @@ public interface Job extends GlobalInterface {
      *        </tbody></table>
      * @param value Currency  of the price amount for an item.
      */
-    public void setCurrency(CurrencyEnumeration value);
+    void setCurrency(CurrencyEnumeration value);
 
     /**
      * Currency  of the price amount for an item.
@@ -855,6 +855,6 @@ public interface Job extends GlobalInterface {
      *        </tbody></table>
      * @return Currency  of the price amount for an item.
      */
-    public CurrencyEnumeration getCurrency();
+    CurrencyEnumeration getCurrency();
 
 }

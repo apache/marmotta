@@ -17,7 +17,6 @@
 package com.sun.syndication.feed.synd;
 
 import com.sun.syndication.feed.WireFeed;
-import com.sun.syndication.feed.synd.SyndFeed;
 
 /**
  * Interface that defines the functionality to convert a SyndFeedImpl
@@ -43,7 +42,7 @@ public interface Converter {
      * @return the real feed type.
      *
      */
-    public String getType();
+    String getType();
 
     /**
      * Makes a deep copy/conversion of the values of a real feed into a SyndFeedImpl.
@@ -54,7 +53,7 @@ public interface Converter {
      * @param syndFeed the SyndFeedImpl that will contain the copied/converted values of the real feed.
      *
      */
-    public void copyInto(WireFeed feed,SyndFeed syndFeed);
+    void copyInto(WireFeed feed, SyndFeed syndFeed);
 
     /**
      * Creates real feed with a deep copy/conversion of the values of a SyndFeedImpl.
@@ -63,6 +62,6 @@ public interface Converter {
      * @return a real feed with copied/converted values of the SyndFeedImpl.
      *
      */
-    public WireFeed createRealFeed(SyndFeed syndFeed);
+    WireFeed createRealFeed(SyndFeed syndFeed);
 
 }

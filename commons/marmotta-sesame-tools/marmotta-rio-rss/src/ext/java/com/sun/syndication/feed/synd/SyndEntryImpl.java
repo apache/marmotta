@@ -17,14 +17,14 @@
 package com.sun.syndication.feed.synd;
 
 import com.sun.syndication.feed.CopyFrom;
+import com.sun.syndication.feed.impl.CopyFromHelper;
 import com.sun.syndication.feed.impl.ObjectBean;
 import com.sun.syndication.feed.module.*;
 import com.sun.syndication.feed.module.impl.ModuleUtils;
 import com.sun.syndication.feed.synd.impl.URINormalizer;
-import com.sun.syndication.feed.impl.CopyFromHelper;
 
+import java.io.Serializable;
 import java.util.*;
-import java.io.Serializable; 
 
 /**
  * Bean for entries of SyndFeedImpl feeds.
@@ -272,7 +272,7 @@ public class SyndEntryImpl implements Serializable,SyndEntry {
      *
      */
     public List<SyndContent> getContents() {
-        return (_contents==null) ? (_contents=new ArrayList<SyndContent>()) : _contents;
+        return (_contents==null) ? (_contents= new ArrayList<>()) : _contents;
     }
 
     /**
@@ -294,7 +294,7 @@ public class SyndEntryImpl implements Serializable,SyndEntry {
      *
      */
     public List<SyndEnclosure> getEnclosures() {
-        return (_enclosures==null) ? (_enclosures=new ArrayList<SyndEnclosure>()) : _enclosures;
+        return (_enclosures==null) ? (_enclosures= new ArrayList<>()) : _enclosures;
     }
 
     /**
@@ -366,7 +366,7 @@ public class SyndEntryImpl implements Serializable,SyndEntry {
      */
     public List<Module> getModules() {
         if  (_modules==null) {
-            _modules=new ArrayList<Module>();
+            _modules= new ArrayList<>();
         }
         if (ModuleUtils.getModule(_modules,DCModule.URI)==null) {
             _modules.add(new DCModuleImpl());
@@ -440,7 +440,7 @@ public class SyndEntryImpl implements Serializable,SyndEntry {
      * @return Returns the links.
      */
     public List<SyndLink> getLinks() {
-        return (_links==null) ? (_links=new ArrayList<SyndLink>()) : _links;
+        return (_links==null) ? (_links= new ArrayList<>()) : _links;
     }
     
     /**

@@ -53,12 +53,12 @@ public class SparqlTupleQueryMatcher<T extends RepositoryConnection> extends Spa
     }
 
     public static <T extends RepositoryConnection> Matcher<T> sparqlQuery(String baseUri, String query, Matcher<Iterable<BindingSet>> matcher) {
-        return new SparqlTupleQueryMatcher<T>(baseUri, query, matcher);
+        return new SparqlTupleQueryMatcher<>(baseUri, query, matcher);
     }
 
     @SafeVarargs
     public static <T extends RepositoryConnection> Matcher<T> sparqlQuery(String baseUri, String query, Matcher<Iterable<BindingSet>>... matchers) {
-        return new SparqlTupleQueryMatcher<T>(baseUri, query, CoreMatchers.allOf(matchers));
+        return new SparqlTupleQueryMatcher<>(baseUri, query, CoreMatchers.allOf(matchers));
     }
 
 }

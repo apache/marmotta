@@ -17,7 +17,6 @@
 package com.sun.syndication.io;
 
 import com.sun.syndication.feed.WireFeed;
-import com.sun.syndication.io.FeedException;
 import org.jdom2.Document;
 
 /**
@@ -40,7 +39,7 @@ public interface WireFeedGenerator {
      * @return the type of feed the generator creates.
      *
      */
-    public String getType();
+    String getType();
 
     /**
      * Creates an XML document (JDOM) for the given feed bean.
@@ -52,6 +51,6 @@ public interface WireFeedGenerator {
      * @throws FeedException thrown if the XML Document could not be created.
      *
      */
-    public Document generate(WireFeed feed) throws IllegalArgumentException,FeedException;
+    Document generate(WireFeed feed) throws IllegalArgumentException,FeedException;
 
 }

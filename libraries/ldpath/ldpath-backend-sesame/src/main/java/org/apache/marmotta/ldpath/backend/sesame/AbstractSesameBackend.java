@@ -17,14 +17,6 @@
  */
 package org.apache.marmotta.ldpath.backend.sesame;
 
-import java.net.URI;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
-import java.util.concurrent.ThreadPoolExecutor;
-
-
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.openrdf.model.*;
 import org.openrdf.repository.RepositoryConnection;
@@ -32,6 +24,13 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.ThreadPoolExecutor;
 
 
 public abstract class AbstractSesameBackend extends SesameValueBackend implements RDFBackend<Value> {
@@ -49,7 +48,7 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
 
     protected Literal createLiteralInternal(final ValueFactory valueFactory, String content,
                                             Locale language, URI type) {
-        log.debug("creating literal with content \"{}\", language {}, datatype {}",new Object[]{content,language,type});
+        log.debug("creating literal with content \"{}\", language {}, datatype {}", content,language,type);
         if(language == null && type == null) {
             return valueFactory.createLiteral(content);
         } else if(type == null) {
@@ -63,7 +62,7 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
             throws RepositoryException {
         final ValueFactory valueFactory = connection.getValueFactory();
 
-        Set<Value> result = new HashSet<Value>();
+        Set<Value> result = new HashSet<>();
         RepositoryResult<Statement> qResult = connection.getStatements(merge(subject, valueFactory), merge(property, valueFactory), null, includeInferred, contexts);
         try {
             while(qResult.hasNext()) {
@@ -79,7 +78,7 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
             throws RepositoryException {
         final ValueFactory valueFactory = connection.getValueFactory();
 
-        Set<Value> result = new HashSet<Value>();
+        Set<Value> result = new HashSet<>();
         RepositoryResult<Statement> qResult = connection.getStatements(null, merge(property, valueFactory), merge(object, valueFactory), includeInferred, contexts);
         try {
             while(qResult.hasNext()) {

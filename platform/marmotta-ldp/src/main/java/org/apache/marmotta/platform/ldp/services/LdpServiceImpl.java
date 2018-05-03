@@ -439,9 +439,7 @@ public class LdpServiceImpl implements LdpService {
         final ValueFactory valueFactory = connection.getValueFactory();
         final Literal now = valueFactory.createLiteral(new Date());
 
-
-        // TODO: find a better way to ingest n-triples (text/plain) while still supporting regular text files
-        final RDFFormat rdfFormat = ("text/plain".equals(type) ? null : Rio.getParserFormatForMIMEType(type));
+        final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type);
         // Check submitted format vs. real resource type (RDF-S vs. Non-RDF)
         if (rdfFormat == null && isNonRdfSourceResource(connection, resource)) {
             log.debug("Updating <{}> as LDP-NR (binary) - {}", resource, type);

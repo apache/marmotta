@@ -44,7 +44,7 @@ public class Channel extends WireFeed {
     private static final Set<String> DAYS;
 
     static {
-        HashSet<String> days = new HashSet<String>();
+        HashSet<String> days = new HashSet<>();
         days.add(SUNDAY   );
         days.add(MONDAY   );
         days.add(TUESDAY  );
@@ -201,7 +201,7 @@ public class Channel extends WireFeed {
      *
      */
     public List<Item> getItems() {
-        return (_items==null) ? (_items=new ArrayList<Item>()) : _items;
+        return (_items==null) ? (_items= new ArrayList<>()) : _items;
     }
 
     /**
@@ -415,15 +415,14 @@ public class Channel extends WireFeed {
      */
     public void setSkipHours(List<Integer> skipHours) {
         if (skipHours!=null) {
-            for (int i=0;i<skipHours.size();i++) {
-                Integer iHour = (Integer) skipHours.get(i);
-                if (iHour!=null) {
-                    int hour = iHour.intValue();
-                    if (hour<0 || hour>24) {
-                        throw new IllegalArgumentException("Invalid hour ["+hour+"]");
+            for (Integer skipHour : skipHours) {
+                Integer iHour = (Integer) skipHour;
+                if (iHour != null) {
+                    int hour = iHour;
+                    if (hour < 0 || hour > 24) {
+                        throw new IllegalArgumentException("Invalid hour [" + hour + "]");
                     }
-                }
-                else {
+                } else {
                     throw new IllegalArgumentException("Invalid hour [null]");
                 }
             }
@@ -496,7 +495,7 @@ public class Channel extends WireFeed {
      *
      */
     public List<Category> getCategories() {
-        return (_categories==null) ? (_categories=new ArrayList<Category>()) : _categories;
+        return (_categories==null) ? (_categories= new ArrayList<>()) : _categories;
     }
 
     /**
@@ -559,7 +558,7 @@ public class Channel extends WireFeed {
      */
     @Override
     public List<Module> getModules() {
-        return (_modules==null) ? (_modules=new ArrayList<Module>()) : _modules;
+        return (_modules==null) ? (_modules= new ArrayList<>()) : _modules;
     }
 
     /**

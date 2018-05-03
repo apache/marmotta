@@ -16,34 +16,22 @@
  */
 package com.sun.syndication.io.impl;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.jdom2.Document; 
-import org.jdom2.Element;
-import org.jdom2.Namespace;
-import org.jdom2.output.XMLOutputter; 
-
 import com.sun.syndication.feed.WireFeed;
-import com.sun.syndication.feed.atom.Category;
+import com.sun.syndication.feed.atom.*;
 import com.sun.syndication.feed.atom.Content;
-import com.sun.syndication.feed.atom.Entry;
-import com.sun.syndication.feed.atom.Feed;
-import com.sun.syndication.feed.atom.Generator;
-import com.sun.syndication.feed.atom.Link;
-import com.sun.syndication.feed.atom.Person;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.WireFeedInput;
 import com.sun.syndication.io.WireFeedOutput;
+import org.jdom2.*;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.XMLOutputter;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
-import org.jdom2.Attribute;
-import org.jdom2.JDOMException;
-import org.jdom2.Parent;
-import org.jdom2.input.SAXBuilder;
 
 /**
  * Parser for Atom 1.0
@@ -239,7 +227,7 @@ public class Atom10Parser extends BaseWireFeedParser {
         if (att!=null) {
         	Long val = NumberParser.parseLong(att);
         	if (val != null) {
-        		link.setLength(val.longValue());
+        		link.setLength(val);
         	}            
         }
         return link;
@@ -248,8 +236,8 @@ public class Atom10Parser extends BaseWireFeedParser {
     // List(Elements) -> List(Link)
     private List parseAlternateLinks(Feed feed, Entry entry, String baseURI, List eLinks) {
         List links = new ArrayList();
-        for (int i=0;i<eLinks.size();i++) {
-            Element eLink = (Element) eLinks.get(i);
+        for (Object eLink1 : eLinks) {
+            Element eLink = (Element) eLink1;
             Link link = parseLink(feed, entry, baseURI, eLink);
             if (link.getRel() == null
                     || "".equals(link.getRel().trim())
@@ -262,8 +250,8 @@ public class Atom10Parser extends BaseWireFeedParser {
     
     private List parseOtherLinks(Feed feed, Entry entry, String baseURI, List eLinks) {
         List links = new ArrayList();
-        for (int i=0;i<eLinks.size();i++) {
-            Element eLink = (Element) eLinks.get(i);
+        for (Object eLink1 : eLinks) {
+            Element eLink = (Element) eLink1;
             Link link = parseLink(feed, entry, baseURI, eLink);
             if (!"alternate".equals(link.getRel())) {
                 links.add(link);
@@ -296,8 +284,8 @@ public class Atom10Parser extends BaseWireFeedParser {
     // List(Elements) -> List(Persons)
     private List parsePersons(String baseURI, List ePersons) {
         List persons = new ArrayList();
-        for (int i=0;i<ePersons.size();i++) {
-            persons.add(parsePerson(baseURI, (Element)ePersons.get(i)));
+        for (Object ePerson : ePersons) {
+            persons.add(parsePerson(baseURI, (Element) ePerson));
         }
         return (persons.size()>0) ? persons : null;
     }
@@ -321,13 +309,12 @@ public class Atom10Parser extends BaseWireFeedParser {
             // XHTML content needs special handling
             XMLOutputter outputter = new XMLOutputter();
             List eContent = e.getContent();
-            Iterator i = eContent.iterator();
-            while (i.hasNext()) {
-                org.jdom2.Content c = (org.jdom2.Content) i.next();
+            for (Object anEContent : eContent) {
+                org.jdom2.Content c = (org.jdom2.Content) anEContent;
                 if (c instanceof Element) {
                     Element eC = (Element) c;
                     if (eC.getNamespace().equals(getAtomNamespace())) {
-                        ((Element)c).setNamespace(Namespace.NO_NAMESPACE);
+                        ((Element) c).setNamespace(Namespace.NO_NAMESPACE);
                     }
                 }
             }
@@ -342,8 +329,8 @@ public class Atom10Parser extends BaseWireFeedParser {
     // List(Elements) -> List(Entries)
     protected List parseEntries(Feed feed, String baseURI, List eEntries) {
         List entries = new ArrayList();
-        for (int i=0;i<eEntries.size();i++) {
-            entries.add(parseEntry(feed, (Element)eEntries.get(i), baseURI));
+        for (Object eEntry : eEntries) {
+            entries.add(parseEntry(feed, (Element) eEntry, baseURI));
         }
         return (entries.size()>0) ? entries : null;
     }
@@ -431,8 +418,8 @@ public class Atom10Parser extends BaseWireFeedParser {
     
     private List parseCategories(String baseURI, List eCategories) {
         List cats = new ArrayList();
-        for (int i=0;i<eCategories.size();i++) {
-            Element eCategory = (Element) eCategories.get(i);
+        for (Object eCategory1 : eCategories) {
+            Element eCategory = (Element) eCategory1;
             cats.add(parseCategory(baseURI, eCategory));
         }
         return (cats.size()>0) ? cats : null;
@@ -547,7 +534,7 @@ public class Atom10Parser extends BaseWireFeedParser {
         if (findAtomLink(root, "self") != null) {
             ret = findAtomLink(root, "self");
             if (".".equals(ret) || "./".equals(ret)) ret = "";
-            if (ret.indexOf("/") != -1) ret = ret.substring(0, ret.lastIndexOf("/"));
+            if (ret.contains("/")) ret = ret.substring(0, ret.lastIndexOf("/"));
             ret = resolveURI(null, root, ret);
         }
         return ret;
@@ -563,12 +550,12 @@ public class Atom10Parser extends BaseWireFeedParser {
         String ret = null;
         List linksList = parent.getChildren("link", ATOM_10_NS);
         if (linksList != null) {
-            for (Iterator links = linksList.iterator(); links.hasNext(); ) {
-                Element link = (Element)links.next();
+            for (Object aLinksList : linksList) {
+                Element link = (Element) aLinksList;
                 Attribute relAtt = getAttribute(link, "rel");
                 Attribute hrefAtt = getAttribute(link, "href");
-                if (   (relAtt == null && "alternate".equals(rel)) 
-                    || (relAtt != null && relAtt.getValue().equals(rel))) {
+                if ((relAtt == null && "alternate".equals(rel))
+                        || (relAtt != null && relAtt.getValue().equals(rel))) {
                     ret = hrefAtt.getValue();
                     break;
                 }
@@ -589,14 +576,13 @@ public class Atom10Parser extends BaseWireFeedParser {
         if (append.startsWith("..")) {
             String ret = null;
             String[] parts = append.split("/");
-            for (int i=0; i<parts.length; i++) {
-                if ("..".equals(parts[i])) {
+            for (String part : parts) {
+                if ("..".equals(part)) {
                     int last = base.lastIndexOf("/");
                     if (last != -1) {
                         base = base.substring(0, last);
                         append = append.substring(3, append.length());
-                    }
-                    else break;
+                    } else break;
                 }
             }
         }

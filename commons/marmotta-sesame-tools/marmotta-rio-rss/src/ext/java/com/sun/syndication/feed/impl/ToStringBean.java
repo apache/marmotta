@@ -17,13 +17,13 @@
 package com.sun.syndication.feed.impl;
 
 import java.beans.PropertyDescriptor;
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
-import java.io.Serializable;
 
 /**
  * Provides deep <b>Bean</b> toString support.
@@ -128,20 +128,20 @@ public class ToStringBean implements Serializable {
         try {
             PropertyDescriptor[] pds = BeanIntrospector.getPropertyDescriptors(_beanClass);
             if (pds!=null) {
-                for (int i=0;i<pds.length;i++) {
-                    String pName = pds[i].getName();
-                    Method pReadMethod = pds[i].getReadMethod();
-                    if (pReadMethod!=null &&                             // ensure it has a getter method
-                        pReadMethod.getDeclaringClass()!=Object.class && // filter Object.class getter methods
-                        pReadMethod.getParameterTypes().length==0) {     // filter getter methods that take parameters
-                        Object value = pReadMethod.invoke(_obj,NO_PARAMS);
-                        printProperty(sb,prefix+"."+pName,value);
+                for (PropertyDescriptor pd : pds) {
+                    String pName = pd.getName();
+                    Method pReadMethod = pd.getReadMethod();
+                    if (pReadMethod != null &&                             // ensure it has a getter method
+                            pReadMethod.getDeclaringClass() != Object.class && // filter Object.class getter methods
+                            pReadMethod.getParameterTypes().length == 0) {     // filter getter methods that take parameters
+                        Object value = pReadMethod.invoke(_obj, NO_PARAMS);
+                        printProperty(sb, prefix + "." + pName, value);
                     }
                 }
             }
         }
         catch (Exception ex) {
-            sb.append("\n\nEXCEPTION: Could not complete "+_obj.getClass()+".toString(): "+ex.getMessage()+"\n");
+            sb.append("\n\nEXCEPTION: Could not complete ").append(_obj.getClass()).append(".toString(): ").append(ex.getMessage()).append("\n");
         }
         return sb.toString();
     }

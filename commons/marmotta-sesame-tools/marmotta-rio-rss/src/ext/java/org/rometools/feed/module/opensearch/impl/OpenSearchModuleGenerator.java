@@ -15,22 +15,20 @@
 
 package org.rometools.feed.module.opensearch.impl;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
+import com.sun.syndication.feed.atom.Link;
+import com.sun.syndication.feed.module.Module;
+import com.sun.syndication.io.ModuleGenerator;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
-
-import com.sun.syndication.feed.atom.Link;
-import com.sun.syndication.feed.module.Module;
 import org.rometools.feed.module.opensearch.OpenSearchModule;
 import org.rometools.feed.module.opensearch.RequiredAttributeMissingException;
 import org.rometools.feed.module.opensearch.entity.OSQuery;
-import com.sun.syndication.io.ModuleGenerator;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Michael W. Nassif (enrouteinc@gmail.com)
@@ -83,13 +81,13 @@ public class OpenSearchModuleGenerator  implements ModuleGenerator {
         if(osm.getQueries() != null){
         	
         	List queries = osm.getQueries();
-        	
-        	for (Iterator iter = queries.iterator(); iter.hasNext();) {
-				OSQuery query = (OSQuery) iter.next();
-				if(query != null){
-  				    element.addContent(generateQueryElement(query));
-				}
-			}
+
+            for (Object query1 : queries) {
+                OSQuery query = (OSQuery) query1;
+                if (query != null) {
+                    element.addContent(generateQueryElement(query));
+                }
+            }
         }        	
         
         if(osm.getLink() != null){

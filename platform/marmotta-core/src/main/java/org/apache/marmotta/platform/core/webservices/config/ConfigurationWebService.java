@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,36 +17,21 @@
  */
 package org.apache.marmotta.platform.core.webservices.config;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.slf4j.Logger;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.*;
 
 /**
  *  Manage the system configuration of the Apache Marmotta Server. Provides methods for displaying and updating the configuration
@@ -73,7 +58,7 @@ public class ConfigurationWebService {
     @Path("/list")
     @Produces("application/json")
     public Map<String,Map<String,Object>> listConfiguration(@QueryParam("prefix")String prefix) {
-        HashMap<String,Map<String,Object>> result = new HashMap<String,Map<String,Object>>();
+        HashMap<String,Map<String,Object>> result = new HashMap<>();
         if(prefix==null) {
             for(String key : configurationService.listConfigurationKeys()) {
                 result.put(key, buildConfigurationMap(key));
@@ -87,7 +72,7 @@ public class ConfigurationWebService {
     }
 
     public Map<String,Object> buildConfigurationMap(String key) {
-        Map<String,Object> config = new HashMap<String, Object>();
+        Map<String,Object> config = new HashMap<>();
         config.put("comment",configurationService.getComment(key));
         config.put("type",configurationService.getType(key));
         config.put("value",configurationService.getConfiguration(key));
@@ -145,7 +130,7 @@ public class ConfigurationWebService {
     public Response getConfiguration(@PathParam("key") String key) {
         Object value = configurationService.getConfiguration(key);
         if(value != null) {
-            HashMap<String,Object> result = new HashMap<String,Object>();
+            HashMap<String,Object> result = new HashMap<>();
             result.put(key, value);
             return Response.status(200).entity(result).build();
         } else
@@ -211,10 +196,6 @@ public class ConfigurationWebService {
             if(type!=null) configurationService.setType(key,type);
             if(comment!=null) configurationService.setComment(key,comment);
             return Response.status(200).build();
-        } catch (JsonMappingException e) {
-            log.error("cannot parse input into json",e);
-        } catch (JsonParseException e) {
-            log.error("cannot parse input into json",e);
         } catch (IOException e) {
             log.error("cannot parse input into json",e);
         }
@@ -244,7 +225,7 @@ public class ConfigurationWebService {
     }
 
     public String getContent(BufferedReader r) {
-        String s;StringBuffer b = new StringBuffer();
+        String s;StringBuilder b = new StringBuilder();
         try {
             while((s = r.readLine()) != null) {
                 b.append(s);

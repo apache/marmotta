@@ -28,7 +28,7 @@ public class ModuleUtils {
     public static List<Module> cloneModules(List<Module> modules) {
         List<Module> cModules = null;
         if (modules!=null) {
-            cModules = new ArrayList<Module>();
+            cModules = new ArrayList<>();
             for (Module module : modules) {
                 try {
                     Module c = (Module) module.clone();

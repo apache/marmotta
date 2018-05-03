@@ -43,7 +43,6 @@ import com.sun.syndication.feed.module.Module;
 import org.rometools.feed.module.photocast.types.Metadata;
 
 import java.net.URL;
-
 import java.util.Date;
 
 
@@ -58,65 +57,65 @@ public interface PhotocastModule extends Module {
     /**
      * The URI of the namespace. ("http://www.apple.com/ilife/wallpapers")
      */
-    public static final String URI = "http://www.apple.com/ilife/wallpapers";
+    String URI = "http://www.apple.com/ilife/wallpapers";
 
     /**
      * Returns the Item level photoDate value.
      * @return Returns the Item level photoDate value. 
      */
-    public Date getPhotoDate();
+    Date getPhotoDate();
 
     /**
      * Set the Item level photoDate value.
      * @param photoDate Item level photoDate value
      */
-    public void setPhotoDate(Date photoDate);
+    void setPhotoDate(Date photoDate);
 
     /**
      * Returns the cropDate value from the item level.
      * @return Item level cropDate value
      */
-    public Date getCropDate();
+    Date getCropDate();
 
     /**
      * Sets the cropDate value for the item level.
      * @param cropDate cropDate value for the item level
      */
-    public void setCropDate(Date cropDate);
+    void setCropDate(Date cropDate);
 
     /**
      * The URL of the image.
      * @return The URL of the image.
      */
-    public URL getImageUrl();
+    URL getImageUrl();
 
     /**
      * The URL of the image.
      * @param imageUrl The URL of the image.
      */
-    public void setImageUrl(URL imageUrl);
+    void setImageUrl(URL imageUrl);
 
     /**
      * The URL of the image thumbnail.
      * @return The URL of the image thumbnail.
      */
-    public URL getThumbnailUrl();
+    URL getThumbnailUrl();
 
     /**
      * The URL of the image thumbnail.
      * @param thumbnailUrl The URL of the image thumbnail.
      */
-    public void setThumbnailUrl(URL thumbnailUrl);
+    void setThumbnailUrl(URL thumbnailUrl);
 
     /**
      * The iPhoto metadata for the image.
      * @return The iPhoto metadata for the image.
      */
-    public Metadata getMetadata();
+    Metadata getMetadata();
 
     /**
      * The iPhoto metadata for the image.
      * @param metadata The iPhoto metadata for the image.
      */
-    public void setMetadata(Metadata metadata);
+    void setMetadata(Metadata metadata);
 }

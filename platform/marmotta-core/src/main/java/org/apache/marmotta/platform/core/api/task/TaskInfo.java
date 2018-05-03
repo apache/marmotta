@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,12 +17,12 @@
  */
 package org.apache.marmotta.platform.core.api.task;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public abstract class TaskInfo {
 
@@ -79,7 +79,7 @@ public abstract class TaskInfo {
 
     protected TaskInfo(String uuid) {
         this.uuid = uuid;
-        this.detailMessages = new LinkedHashMap<String, String>();
+        this.detailMessages = new LinkedHashMap<>();
         this.lastUpdate = this.started = System.currentTimeMillis();
     }
 

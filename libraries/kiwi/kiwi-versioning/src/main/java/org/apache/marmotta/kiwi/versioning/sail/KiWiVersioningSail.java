@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -34,7 +34,6 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
-import org.openrdf.repository.sail.SailRepositoryConnection;
 import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailException;
 import org.openrdf.sail.StackableSail;
@@ -70,7 +69,7 @@ public class KiWiVersioningSail extends TransactionalSailWrapper implements Tran
 
     private KiWiVersioningPersistence persistence;
 
-    private Set<KiWiSnapshotConnection> activeSnapshots;
+    private final Set<KiWiSnapshotConnection> activeSnapshots;
 
     private SesameFilter<Statement> filter;
 
@@ -104,7 +103,7 @@ public class KiWiVersioningSail extends TransactionalSailWrapper implements Tran
     public KiWiVersioningSail(TransactionalSail parent, SesameFilter<Statement> filter) {
         super(parent);
         this.persistence = new KiWiVersioningPersistence(getBaseStore().getPersistence());
-        this.activeSnapshots = new HashSet<KiWiSnapshotConnection>();
+        this.activeSnapshots = new HashSet<>();
         this.filter = filter;
 
         parent.addTransactionListener(this);
@@ -327,12 +326,9 @@ public class KiWiVersioningSail extends TransactionalSailWrapper implements Tran
      */
     public void removeVersion(Long id) throws SailException {
         try {
-            final KiWiVersioningConnection connection = persistence.getConnection();
-            try {
+            try (KiWiVersioningConnection connection = persistence.getConnection()) {
                 connection.removeVersion(id);
                 connection.commit();
-            } finally {
-                connection.close();
             }
 
         } catch(SQLException ex) {
@@ -349,12 +345,9 @@ public class KiWiVersioningSail extends TransactionalSailWrapper implements Tran
      */
     public void removeVersions(Date until) throws SailException {
         try {
-            final KiWiVersioningConnection connection = persistence.getConnection();
-            try {
+            try (KiWiVersioningConnection connection = persistence.getConnection()) {
                 connection.removeVersions(until);
                 connection.commit();
-            } finally {
-                connection.close();
             }
 
         } catch(SQLException ex) {
@@ -373,12 +366,9 @@ public class KiWiVersioningSail extends TransactionalSailWrapper implements Tran
      */
     public void removeVersions(Date from, Date to) throws SailException {
         try {
-            final KiWiVersioningConnection connection = persistence.getConnection();
-            try {
+            try (KiWiVersioningConnection connection = persistence.getConnection()) {
                 connection.removeVersions(from, to);
                 connection.commit();
-            } finally {
-                connection.close();
             }
 
         } catch(SQLException ex) {
@@ -516,7 +506,7 @@ public class KiWiVersioningSail extends TransactionalSailWrapper implements Tran
                 }
 
                 // create a copy of the set and rollback-close all active connections
-                HashSet<KiWiSnapshotConnection> connectionCopy = new HashSet<KiWiSnapshotConnection>(activeSnapshots);
+                HashSet<KiWiSnapshotConnection> connectionCopy = new HashSet<>(activeSnapshots);
                 for(KiWiSnapshotConnection con : connectionCopy) {
                     if(con.isActive()) {
                         con.rollback();

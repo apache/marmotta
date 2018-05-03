@@ -102,7 +102,7 @@ public class RdfStringMatcher<T extends String> extends SesameMatcher<T> impleme
      * @see org.apache.marmotta.commons.sesame.test.base.AbstractRepositoryConnectionMatcher
      */
     public static <T extends String> Matcher<T> wrap(RDFFormat format, String baseUri, Matcher<? extends RepositoryConnection> delegate) {
-        return new RdfStringMatcher<T>(format, baseUri, delegate);
+        return new RdfStringMatcher<>(format, baseUri, delegate);
     }
 
     /**
@@ -115,7 +115,7 @@ public class RdfStringMatcher<T extends String> extends SesameMatcher<T> impleme
      */
     @SafeVarargs
     public static <T extends String> Matcher<T> wrap(RDFFormat format, String baseUri, Matcher<? extends RepositoryConnection>... delegates) {
-        return new RdfStringMatcher<T>(format, baseUri, delegates);
+        return new RdfStringMatcher<>(format, baseUri, delegates);
     }
 
 

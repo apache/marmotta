@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.0-SNAPSHOT</version>
         <relativePath>../../../parent</relativePath>
     </parent>
 
@@ -32,6 +32,25 @@
         This package enables the Linked Data Client to access the metadata of Vimeo Videos as if they were published
         as Linked Data (RDF) by mapping the Vimeo API to the Ontology for Media Resources.
     </description>
+    <packaging>bundle</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            org.apache.marmotta.ldclient.endpoint.vimeo;version=${project.version},
+                            org.apache.marmotta.ldclient.provider.vimeo.*;version=${project.version}
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>

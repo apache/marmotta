@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -64,21 +64,21 @@ public abstract class KiWiDialect {
 
     /**
      * Return the name of the driver class (used for properly initialising JDBC connections)
-     * @return
+     * @return the fully-qualified class name of the JDBC driver.
      */
     public abstract String getDriverClass();
 
 
     /**
      * Return true if batched commits are supported by this dialect.
-     * @return
+     * @return {@code true} if batch commits are supported
      */
     public abstract boolean isBatchSupported();
 
 
     /**
      * Return true in case the database supports creating arrays with ARRAY[...]
-     * @return
+     * @return {@code true} if {@code ARRAY[]} is supported
      */
     public boolean isArraySupported() {
         return false;
@@ -86,7 +86,7 @@ public abstract class KiWiDialect {
 
     /**
      * Return the contents of the SQL create script used for initialising an empty database
-     * @return
+     * @return SQL Command String to create the KiWi Database Tables/Indexes/...
      */
     public String getCreateScript(String scriptName) {
         return getScript("create_"+scriptName+"_tables.sql");
@@ -95,7 +95,7 @@ public abstract class KiWiDialect {
 
     /**
      * Return the contents of the SQL drop script used for cleaning up all traces of the KiWi triple store
-     * @return
+     * @return SQL Command String to drop the KiWi Database Tables/Indexes/...
      */
     public String getDropScript(String scriptName) {
         return getScript("drop_"+scriptName+"_tables.sql");
@@ -104,7 +104,7 @@ public abstract class KiWiDialect {
 
     /**
      * Return the contents of the SQL script with the given file name (relative to the current class)
-     * @return
+     * @return SQL Command String loaded from the script in the classpath
      */
     protected String getScript(String scriptName) {
         try {
@@ -173,10 +173,10 @@ public abstract class KiWiDialect {
      * Return the database specific operator for matching a text against a regular expression.
      *
      *
-     * @param text
-     * @param pattern
-     * @param flags
-     * @return
+     * @param text the text to match against
+     * @param pattern the regex-pattern to look for
+     * @param flags regex flags, such as {@code i} of case-insensitiv
+     * @return SQL Operator String for a regex test.
      */
     public abstract String getRegexp(String text, String pattern, String flags);
 
@@ -184,24 +184,24 @@ public abstract class KiWiDialect {
     /**
      * Return true in case the SPARQL RE flags contained in the given string are supported.
      *
-     * @param flags
-     * @return
+     * @param flags the regex flags to test for
+     * @return {@code true} if the provided regex flags are supported
      */
     public abstract boolean isRegexpSupported(String flags);
 
     /**
      * Return the database specific case insensitive like comparison, e.g. ILIKE in Postgres.
      *
-     * @param text
-     * @param pattern
-     * @return
+     * @param text the text to match against
+     * @param pattern the LIKE pattern to match
+     * @return SQL Operator String for a case-insensitive LIKE
      */
     public abstract String getILike(String text, String pattern);
 
 
     /**
      * Return the name of the aggregate function for group concatenation (string_agg in postgres, GROUP_CONCAT in MySQL)
-     * @return
+     * @return SQL Operator String for group concatenation
      */
     public abstract String getGroupConcat(String value, String separator, boolean distinct);
 
@@ -209,22 +209,22 @@ public abstract class KiWiDialect {
     /**
      * Return the SQL timezone value for a KiWiDateLiteral, corrected by the timezone offset. In PostgreSQL, this is
      * e.g. computed by (ALIAS.tvalue + ALIAS.tzoffset * INTERVAL '1 second')
-     * @param alias
-     * @return
+     * @param alias the alias to reslove
+     * @return SQL Operator String to convert a DateLiteral to it's timezone specific value
      */
     public abstract String getDateTimeTZ(String alias);
 
     /**
      * Get the query string that can be used for validating that a JDBC connection to this database is still valid.
      * Typically, this should be an inexpensive operation like "SELECT 1",
-     * @return
+     * @return SQL Validation Query String
      */
     public abstract String getValidationQuery();
 
 
     /**
      * Return true in case the database system supports using cursors for queries over large data tables.
-     * @return
+     * @return {@code true} if cursors are supported
      */
     public boolean isCursorSupported() {
         return false;

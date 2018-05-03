@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -148,28 +148,25 @@ public class ReasoningEngine implements TransactionListener {
 
         loadPrograms();
 
-        this.reasoningQueue = new LinkedBlockingQueue<TransactionData>();
+        this.reasoningQueue = new LinkedBlockingQueue<>();
         this.reasonerThread = new SKWRLReasoner();
     }
 
     public void loadPrograms() {
         log.info("program configuration changed, reloading ...");
-        patternRuleMap = HashMultimap.<Pattern,Rule>create();
+        patternRuleMap = HashMultimap.create();
 
         try {
-            KiWiReasoningConnection connection = persistence.getConnection();
-            try {
-                programs       = Iterations.asList(connection.listPrograms());
+            try (KiWiReasoningConnection connection = persistence.getConnection()) {
+                programs = Iterations.asList(connection.listPrograms());
 
-                for(Program p : programs) {
-                    for(Rule rule : p.getRules()) {
-                        for(Pattern pattern : rule.getBody()) {
-                            patternRuleMap.put(pattern,rule);
+                for (Program p : programs) {
+                    for (Rule rule : p.getRules()) {
+                        for (Pattern pattern : rule.getBody()) {
+                            patternRuleMap.put(pattern, rule);
                         }
                     }
                 }
-            } finally {
-                connection.close();
             }
         } catch (SQLException ex) {
             programs = Collections.emptyList();
@@ -198,8 +195,6 @@ public class ReasoningEngine implements TransactionListener {
 
         } catch(Exception ex) {
             log.error("error while processing rule",ex);
-
-            return;
         } finally {
             endTask();
         }
@@ -275,7 +270,7 @@ public class ReasoningEngine implements TransactionListener {
                 } catch (InterruptedException e) {
                     log.error("interrupted while waiting for reasoning queue to become available ...");
                 }
-            };
+            }
 
 
         }
@@ -478,8 +473,6 @@ public class ReasoningEngine implements TransactionListener {
             //workers.invokeAll(tasks);
         } catch(Exception ex) {
             log.error("error while processing rules", ex);
-
-            return;
         }
 
     }
@@ -577,7 +570,7 @@ public class ReasoningEngine implements TransactionListener {
         log.debug("REASONER(rule '{}'): evaluating rule body {} ...", rule.getName() != null ? rule.getName() : rule.getId(), rule);
 
         // create a collection consisting of the body minus the pattern that already matched
-        Set<Pattern> body = new HashSet<Pattern>(rule.getBody());
+        Set<Pattern> body = new HashSet<>(rule.getBody());
 
         if(p != null) {
             body.remove(p);
@@ -595,16 +588,16 @@ public class ReasoningEngine implements TransactionListener {
             if(body.size() > 0) {
                 bodyResult = connection.query(body,match,null,null,true);
             } else if(match != null) {
-                bodyResult = new SingletonIteration<QueryResult, SQLException>(match);
+                bodyResult = new SingletonIteration<>(match);
             } else {
-                bodyResult = new EmptyIteration<QueryResult, SQLException>();
+                bodyResult = new EmptyIteration<>();
             }
 
             // construct triples out of the bindings and the rule heads
             long counter = 0;
 
             // initialise a new set of justifications
-            Set<Justification> justifications = new HashSet<Justification>();
+            Set<Justification> justifications = new HashSet<>();
 
             sail.begin();
             while(bodyResult.hasNext()) {
@@ -732,7 +725,7 @@ public class ReasoningEngine implements TransactionListener {
      * @return
      */
     protected Collection<Justification> getJustifications(KiWiReasoningConnection connection, KiWiTriple t, Set<Justification> transactionJustifications) throws SQLException {
-        HashSet<Justification> justifications = new HashSet<Justification>();
+        HashSet<Justification> justifications = new HashSet<>();
         Iterations.addAll(connection.listJustificationsForTriple(t), justifications);
         for(Justification j : transactionJustifications) {
             if(equivalence.equivalent(j.getTriple(), t)) {
@@ -750,7 +743,7 @@ public class ReasoningEngine implements TransactionListener {
      * @return
      */
     protected Set<Justification> getBaseJustifications(KiWiReasoningConnection connection, Set<Justification> justifications) throws SQLException, ReasoningException {
-        Set<Justification> baseJustifications = new HashSet<Justification>();
+        Set<Justification> baseJustifications = new HashSet<>();
         Map<KiWiTriple,Collection<Justification>> justificationCache = StatementCommons.newQuadrupleMap();
 
         for(Justification justification : justifications) {
@@ -778,7 +771,7 @@ public class ReasoningEngine implements TransactionListener {
 
                     // mix the two sets
                     Set<Justification> oldTripleJustifications = tripleJustifications;
-                    tripleJustifications = new HashSet<Justification>();
+                    tripleJustifications = new HashSet<>();
                     for(Justification j1 : oldTripleJustifications) {
                         for(Justification j2 : supportJustifications) {
                             Justification j3 = new Justification();
@@ -994,10 +987,8 @@ public class ReasoningEngine implements TransactionListener {
                     updateTaskMaxProgress(reasoningQueue.size());
 
                     executeReasoner(data);
-                } catch (InterruptedException ex) {
+                } catch (InterruptedException | RuntimeException ex) {
 
-                } catch (RuntimeException ex) {
-                    // can happen on forced shutdown
                 } catch (Exception ex) {
                     log.warn("reasoning task threw an exception",ex);
                 }

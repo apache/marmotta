@@ -72,15 +72,16 @@ public class SQLUnion extends SQLAbstractSubquery {
             }
         }
 
-        Map<String,SQLVariable> rightVars = new HashMap<>();
+        final Map<String,SQLVariable> rightVars = new HashMap<>();
         for(SQLVariable svr : right.getVariables().values()) {
             if(rightProjected.size() == 0 || rightProjected.contains(svr.getSparqlName())) {
                 rightVars.put(svr.getSparqlName(), svr);
             }
         }
 
-        // we have to homogenize variable names in both subqueries and make sure they have the same number of columns
-        Map<String,String> sparqlToSQL = new HashMap<>();
+        // we have to homogenize variable names in both subqueries and make sure they have the same number of columns;
+        // because MARMOTTA-640, this is also handled in SQLBuilder.buildSelectClause()
+        final Map<String,String> sparqlToSQL = new HashMap<>();
         for(SQLVariable svl : left.getVariables().values()) {
             if(leftProjected.size() == 0 || leftProjected.contains(svl.getSparqlName())) {
                 if (sparqlToSQL.containsKey(svl.getSparqlName())) {
@@ -102,13 +103,12 @@ public class SQLUnion extends SQLAbstractSubquery {
             }
         }
 
-
         for(SQLVariable svl : leftVars.values()) {
             if(!rightVars.containsKey(svl.getSparqlName())) {
                 SQLVariable svr = new SQLVariable(svl.getName(), svl.getSparqlName());
                 svr.getExpressions().add("NULL");
                 svr.setProjectionType(ValueType.NODE);
-                right.getVariables().put(svl.getSparqlName(),svr);
+                right.getVariables().put(svl.getSparqlName(), svr);
 
                 if(rightProjected.size() > 0) {
                     right.getProjectedVars().add(svl.getSparqlName());
@@ -164,9 +164,9 @@ public class SQLUnion extends SQLAbstractSubquery {
 
         for(VariableMapping var : getJoinFields()) {
             fromClause.append(" LEFT JOIN nodes AS "); // outer join because binding might be NULL
-            fromClause.append(alias + "_" + var.getParentName());
+            fromClause.append(alias).append("_").append(var.getParentName());
 
-            fromClause.append(" ON " + alias + "." + var.getSubqueryName() + " = " + alias + "_" + var.getParentName() + ".id ");
+            fromClause.append(" ON ").append(alias).append(".").append(var.getSubqueryName()).append(" = ").append(alias).append("_").append(var.getParentName()).append(".id ");
         }
 
         return fromClause.toString();

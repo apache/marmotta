@@ -77,4 +77,10 @@ public class EmbeddedRepositoryConnectionTest extends RepositoryConnectionTest {
     public void testReadOfAddedStatement2() throws Exception {
     }
 
+    @Ignore("KiWi supports transaction isolation")
+    @Test
+    @Override
+    public void testDefaultContext() throws Exception {
+    }
+
 }

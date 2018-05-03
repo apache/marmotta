@@ -31,13 +31,13 @@ public interface SyModule extends Module {
      * URI of the Syndication ModuleImpl (http://purl.org/rss/1.0/modules/syndication/).
      *
      */
-    static final String URI = "http://purl.org/rss/1.0/modules/syndication/";
+    String URI = "http://purl.org/rss/1.0/modules/syndication/";
 
-    static final String HOURLY  = "hourly";
-    static final String DAILY   = "daily";
-    static final String WEEKLY  = "weekly";
-    static final String MONTHLY = "monthly";
-    static final String YEARLY  = "yearly";
+    String HOURLY  = "hourly";
+    String DAILY   = "daily";
+    String WEEKLY  = "weekly";
+    String MONTHLY = "monthly";
+    String YEARLY  = "yearly";
 
     /**
      * Returns the Syndication module update period.

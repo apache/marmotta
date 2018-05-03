@@ -9,7 +9,9 @@
 
 package org.rometools.feed.module.georss.geometries;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Polygon, a surface object bounded by one external ring and zero or more internal rings 
@@ -30,9 +32,8 @@ public final class Polygon extends AbstractSurface implements Cloneable {
              retval.exterior = (AbstractRing)exterior.clone();
          if (interior != null) {
              retval.interior = new ArrayList();
-             Iterator it = interior.iterator();
-             while (it.hasNext()) {
-                 AbstractRing r = (AbstractRing)it.next();
+             for (Object anInterior : interior) {
+                 AbstractRing r = (AbstractRing) anInterior;
                  retval.interior.add(r.clone());
              }
          }

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -59,7 +59,7 @@ public class ContextAwareSailConnection extends SailConnectionWrapper {
 
     @Override
     public CloseableIteration<? extends Resource, SailException> getContextIDs() throws SailException {
-        return new SingletonIteration<Resource, SailException>(context);
+        return new SingletonIteration<>(context);
     }
 
     @Override

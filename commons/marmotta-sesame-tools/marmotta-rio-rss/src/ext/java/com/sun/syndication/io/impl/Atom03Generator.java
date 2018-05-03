@@ -86,17 +86,16 @@ public class Atom03Generator extends BaseWireFeedGenerator {
     }
 
     protected void addFeed(Feed feed, Element parent) throws FeedException {
-        Element eFeed = parent;
-        populateFeedHeader(feed,eFeed);
-        checkFeedHeaderConstraints(eFeed);
-        generateFeedModules(feed.getModules(),eFeed);
-        generateForeignMarkup(eFeed, (List)feed.getForeignMarkup()); 
+        populateFeedHeader(feed, parent);
+        checkFeedHeaderConstraints(parent);
+        generateFeedModules(feed.getModules(), parent);
+        generateForeignMarkup(parent, (List)feed.getForeignMarkup());
     }
 
     protected void addEntries(Feed feed,Element parent) throws FeedException {
         List items = feed.getEntries();
-        for (int i=0;i<items.size();i++) {
-            addEntry((Entry)items.get(i),parent);
+        for (Object item : items) {
+            addEntry((Entry) item, parent);
         }
         checkEntriesConstraints(parent);
     }
@@ -117,13 +116,13 @@ public class Atom03Generator extends BaseWireFeedGenerator {
         }
 
         List links = feed.getAlternateLinks();
-        for (int i = 0; i < links.size(); i++) {
-            eFeed.addContent(generateLinkElement((Link)links.get(i)));
+        for (Object link1 : links) {
+            eFeed.addContent(generateLinkElement((Link) link1));
         }
 
         links = feed.getOtherLinks();
-        for (int i = 0; i < links.size(); i++) {
-            eFeed.addContent(generateLinkElement((Link)links.get(i)));
+        for (Object link : links) {
+            eFeed.addContent(generateLinkElement((Link) link));
         }
         if (feed.getAuthors()!=null && feed.getAuthors().size() > 0) {
             Element authorElement = new Element("author", getFeedNamespace());
@@ -132,9 +131,9 @@ public class Atom03Generator extends BaseWireFeedGenerator {
         }
 
         List contributors = feed.getContributors();
-        for (int i = 0; i < contributors.size(); i++) {
+        for (Object contributor : contributors) {
             Element contributorElement = new Element("contributor", getFeedNamespace());
-            fillPersonElement(contributorElement, (Person)contributors.get(i));
+            fillPersonElement(contributorElement, (Person) contributor);
             eFeed.addContent(contributorElement);
         }
 
@@ -176,13 +175,13 @@ public class Atom03Generator extends BaseWireFeedGenerator {
             eEntry.addContent(titleElement);
         }
         List links = entry.getAlternateLinks();
-        for (int i = 0; i < links.size(); i++) {
-            eEntry.addContent(generateLinkElement((Link)links.get(i)));
+        for (Object link1 : links) {
+            eEntry.addContent(generateLinkElement((Link) link1));
         }
 
         links = entry.getOtherLinks();
-        for (int i = 0; i < links.size(); i++) {
-            eEntry.addContent(generateLinkElement((Link)links.get(i)));
+        for (Object link : links) {
+            eEntry.addContent(generateLinkElement((Link) link));
         }
 
         if (entry.getAuthors()!=null && entry.getAuthors().size() > 0) {
@@ -192,9 +191,9 @@ public class Atom03Generator extends BaseWireFeedGenerator {
         }
 
         List contributors = entry.getContributors();
-        for (int i = 0; i < contributors.size(); i++) {
+        for (Object contributor : contributors) {
             Element contributorElement = new Element("contributor", getFeedNamespace());
-            fillPersonElement(contributorElement, (Person)contributors.get(i));
+            fillPersonElement(contributorElement, (Person) contributor);
             eEntry.addContent(contributorElement);
         }
         if (entry.getId() != null) {
@@ -226,9 +225,9 @@ public class Atom03Generator extends BaseWireFeedGenerator {
         }
 
         List contents = entry.getContents();
-        for (int i = 0; i < contents.size(); i++) {
+        for (Object content : contents) {
             Element contentElement = new Element("content", getFeedNamespace());
-            fillContentElement(contentElement, (Content)contents.get(i));
+            fillContentElement(contentElement, (Content) content);
             eEntry.addContent(contentElement);
         }
         
@@ -249,7 +248,7 @@ public class Atom03Generator extends BaseWireFeedGenerator {
         Element linkElement = new Element("link", getFeedNamespace());
 
         if (link.getRel() != null) {
-            Attribute relAttribute = new Attribute("rel", link.getRel().toString());
+            Attribute relAttribute = new Attribute("rel", link.getRel());
             linkElement.setAttribute(relAttribute);
         }
 
@@ -303,7 +302,7 @@ public class Atom03Generator extends BaseWireFeedGenerator {
 
         String mode = content.getMode();
         if (mode != null) {
-            Attribute modeAttribute = new Attribute("mode", content.getMode().toString());
+            Attribute modeAttribute = new Attribute("mode", content.getMode());
             contentElement.setAttribute(modeAttribute);
         }
 
@@ -315,7 +314,7 @@ public class Atom03Generator extends BaseWireFeedGenerator {
                 contentElement.addContent(Base64.encode(content.getValue()));
             } else if (mode.equals(Content.XML)) {
 
-                StringBuffer tmpDocString = new StringBuffer("<tmpdoc>");
+                StringBuilder tmpDocString = new StringBuilder("<tmpdoc>");
                 tmpDocString.append(content.getValue());
                 tmpDocString.append("</tmpdoc>");
                 StringReader tmpDocReader = new StringReader(tmpDocString.toString());

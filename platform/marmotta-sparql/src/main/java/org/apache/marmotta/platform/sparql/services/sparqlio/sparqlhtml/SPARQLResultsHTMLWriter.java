@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,15 +17,6 @@
  */
 package org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml;
 
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryResultHandlerException;
@@ -38,6 +29,10 @@ import org.openrdf.rio.RioSetting;
 import org.openrdf.rio.WriterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.*;
 
 /**
  * SPARQL results to HTML writer using Freemarker
@@ -58,7 +53,7 @@ public class SPARQLResultsHTMLWriter extends TupleQueryResultHandlerBase impleme
 
 	static
 	{
-	    HashSet<RioSetting<?>> tempSettings = new HashSet<RioSetting<?>>();
+	    HashSet<RioSetting<?>> tempSettings = new HashSet<>();
 	    tempSettings.add(SPARQLHTMLSettings.TEMPLATING_SERVICE);
 	    SUPPORTED_SETTINGS = Collections.unmodifiableSet(tempSettings);
 	}
@@ -94,7 +89,7 @@ public class SPARQLResultsHTMLWriter extends TupleQueryResultHandlerBase impleme
 	            throw new IllegalStateException("Templating service was not setup");
 	        }
 	    }
-        Map<String, Object> data = new HashMap<String, Object>();
+        Map<String, Object> data = new HashMap<>();
         data.put("vars", vars);
         this.vars = vars;
         try {
@@ -107,9 +102,9 @@ public class SPARQLResultsHTMLWriter extends TupleQueryResultHandlerBase impleme
 	
 	@Override
 	public void handleSolution(BindingSet binding) throws TupleQueryResultHandlerException {
-        Map<String, Object> data = new HashMap<String, Object>();
+        Map<String, Object> data = new HashMap<>();
         data.put("vars", vars);
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         for (String var: vars) {
         	if (binding.hasBinding(var)) {
         		result.put(var, binding.getBinding(var).getValue().stringValue());
@@ -128,7 +123,7 @@ public class SPARQLResultsHTMLWriter extends TupleQueryResultHandlerBase impleme
 	
 	@Override
 	public void endQueryResult() throws TupleQueryResultHandlerException {
-		Map<String, Object> data = new HashMap<String, Object>();
+		Map<String, Object> data = new HashMap<>();
         try {            
             templatingService.process(SPARQLResultsHTMLWriter.class, END_TEMPLATE, data, new OutputStreamWriter(out));
         } catch (Exception e) {

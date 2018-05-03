@@ -21,6 +21,7 @@
 package org.rometools.feed.module.base;
 
 import com.sun.syndication.feed.module.Module;
+
 import java.util.List;
 
 /**
@@ -29,10 +30,10 @@ import java.util.List;
  */
 public interface CustomTags extends Module {
     
-    public static final String URI = "http://base.google.com/cns/1.0";
+    String URI = "http://base.google.com/cns/1.0";
     
-    public List getValues();
+    List getValues();
     
-    public void setValues(List values);
+    void setValues(List values);
     
 }

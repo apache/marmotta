@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -34,28 +34,28 @@ public interface LinkedDataEndpointService {
      *
      * @param endpoint
      */
-    public void addEndpoint(Endpoint endpoint);
+    void addEndpoint(Endpoint endpoint);
 
     /**`
      * Update the endpoint passed as argument in the database.
      *
      * @param endpoint
      */
-    public void updateEndpoint(Endpoint endpoint);
+    void updateEndpoint(Endpoint endpoint);
 
     /**
      * List all endpoints registered in the system.
      *
      * @return a list of endpoints in the order they were added to the database.
      */
-    public List<Endpoint> listEndpoints();
+    List<Endpoint> listEndpoints();
 
     /**
      * Remove the endpoint given as argument. The endpoint will be deleted in the database.
      *
      * @param endpoint
      */
-    public void removeEndpoint(Endpoint endpoint);
+    void removeEndpoint(Endpoint endpoint);
 
     /**
      * Return the endpoint with the given ID.
@@ -63,7 +63,7 @@ public interface LinkedDataEndpointService {
      * @param id ID of the endpoint to return.
      * @return
      */
-    public Endpoint getEndpoint(String id);
+    Endpoint getEndpoint(String id);
 
 
 
@@ -75,7 +75,7 @@ public interface LinkedDataEndpointService {
      *
      * @param resource the KiWiUriResource to check.
      */
-    public Endpoint getEndpoint(URI resource);
+    Endpoint getEndpoint(URI resource);
 
     /**
      * Test whether an endpoint definition for the given url pattern already exists.
@@ -83,5 +83,5 @@ public interface LinkedDataEndpointService {
      * @param urlPattern
      * @return
      */
-    public boolean hasEndpoint(String urlPattern);
+    boolean hasEndpoint(String urlPattern);
 }

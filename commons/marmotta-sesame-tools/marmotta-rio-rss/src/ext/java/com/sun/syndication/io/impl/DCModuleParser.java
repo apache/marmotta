@@ -16,19 +16,13 @@
  */
 package com.sun.syndication.io.impl;
 
-import com.sun.syndication.feed.module.DCModuleImpl;
-import com.sun.syndication.feed.module.DCSubjectImpl;
-import com.sun.syndication.feed.module.Module;
-import com.sun.syndication.feed.module.DCModule;
-import com.sun.syndication.feed.module.DCSubject;
+import com.sun.syndication.feed.module.*;
 import com.sun.syndication.io.ModuleParser;
-import com.sun.syndication.io.WireFeedParser;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -47,15 +41,15 @@ public class DCModuleParser implements ModuleParser {
         return DCModule.URI;
     }
 
-    private final Namespace getDCNamespace() {
+    private Namespace getDCNamespace() {
         return DC_NS;
     }
 
-    private final Namespace getRDFNamespace() {
+    private Namespace getRDFNamespace() {
         return RDF_NS;
     }
 
-    private final Namespace getTaxonomyNamespace() {
+    private Namespace getTaxonomyNamespace() {
         return TAXO_NS;
     }
 
@@ -174,14 +168,14 @@ public class DCModuleParser implements ModuleParser {
      */
     protected final List parseSubjects(List eList) {
         List subjects = new ArrayList();
-        for (Iterator i = eList.iterator(); i.hasNext();) {
-            Element eSubject = (Element) i.next();
+        for (Object anEList : eList) {
+            Element eSubject = (Element) anEList;
             Element eDesc = eSubject.getChild("Description", getRDFNamespace());
             if (eDesc != null) {
                 String taxonomy = getTaxonomy(eDesc);
                 List eValues = eDesc.getChildren("value", getRDFNamespace());
-                for (Iterator v = eValues.iterator(); v.hasNext();) {
-                    Element eValue = (Element) v.next();
+                for (Object eValue1 : eValues) {
+                    Element eValue = (Element) eValue1;
                     DCSubject subject = new DCSubjectImpl();
                     subject.setTaxonomyUri(taxonomy);
                     subject.setValue(eValue.getText());
@@ -205,8 +199,8 @@ public class DCModuleParser implements ModuleParser {
      */
     protected final List parseElementList(List eList) {
         List values= new ArrayList();
-        for (Iterator i = eList.iterator(); i.hasNext();) {
-            Element e = (Element) i.next();
+        for (Object anEList : eList) {
+            Element e = (Element) anEList;
             values.add(e.getText());
         }
 
@@ -221,8 +215,8 @@ public class DCModuleParser implements ModuleParser {
      */
     protected final List parseElementListDate(List eList) {
         List values = new ArrayList();
-        for (Iterator i = eList.iterator(); i.hasNext();) {
-            Element e = (Element) i.next();
+        for (Object anEList : eList) {
+            Element e = (Element) anEList;
             values.add(DateParser.parseDate(e.getText()));
         }
 

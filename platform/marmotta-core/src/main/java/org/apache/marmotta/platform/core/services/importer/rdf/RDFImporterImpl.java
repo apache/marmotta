@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -39,11 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * An io for importing RDF sources in RDF/XML or other RDF formats. Currently uses
@@ -83,7 +79,7 @@ public class RDFImporterImpl implements Importer {
      */
     @Override
     public Set<String> getAcceptTypes() {
-        return new HashSet<String>(acceptTypes);
+        return new HashSet<>(acceptTypes);
     }
 
     /**
@@ -280,7 +276,7 @@ public class RDFImporterImpl implements Importer {
 
         RDFParserRegistry parserRegistry = RDFParserRegistry.getInstance();
 
-        acceptTypes = new ArrayList<String>();
+        acceptTypes = new ArrayList<>();
         for(RDFFormat format : parserRegistry.getKeys()) {
             acceptTypes.addAll(format.getMIMETypes());
         }

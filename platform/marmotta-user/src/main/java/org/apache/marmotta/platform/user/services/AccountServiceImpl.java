@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -48,19 +48,19 @@ import java.util.concurrent.ConcurrentMap;
 public class AccountServiceImpl implements AccountService {
 
     @Inject
-    private Logger               log;
+    private Logger log;
 
     @Inject
     private ConfigurationService configurationService;
 
     @Inject
-    private UserService          userService;
+    private UserService userService;
 
     @Inject
     @MarmottaCache("user-cache")
     private ConcurrentMap userCache;
 
-    private PasswordHash         hashAlgo;
+    private PasswordHash hashAlgo;
 
 
     public AccountServiceImpl() {
@@ -104,7 +104,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<UserAccount> listAccounts() {
-        Set<String> logins = new HashSet<String>();
+        final Set<String> logins = new HashSet<>();
         for(String key : configurationService.listConfigurationKeys("user")) {
             String[] components = key.split("\\.");
             if(components.length > 2 && "webid".equals(components[2])) {
@@ -112,16 +112,16 @@ public class AccountServiceImpl implements AccountService {
             }
         }
 
-        final List<UserAccount> list = new ArrayList<UserAccount>();
+        final List<UserAccount> list = new ArrayList<>();
         for(String login : logins) {
             list.add(getAccount(login));
         }
-
 
         for (UserAccount userAccount : list) {
             userCache.put(userAccount.getLogin(), userAccount);
             userCache.put(userAccount.getWebId(), userAccount);
         }
+
         return list;
     }
 
@@ -190,9 +190,13 @@ public class AccountServiceImpl implements AccountService {
                 account = new UserAccount();
 
                 account.setLogin(login);
-                account.setPasswdHash(configurationService.getStringConfiguration("user."+login+".pwhash"));
-                account.setRoles(new HashSet<String>(configurationService.getListConfiguration("user."+login+".roles")));
+                account.setRoles(new HashSet<>(configurationService.getListConfiguration("user."+login+".roles")));
                 account.setWebId(configurationService.getStringConfiguration("user."+login+".webid"));
+                if (configurationService.isConfigurationSet(configurationService.getStringConfiguration("user."+login+".pwhash"))) {
+                    account.setPasswdHash(configurationService.getStringConfiguration("user." + login + ".pwhash"));
+                } else {
+                    account.setPasswd(configurationService.getStringConfiguration("user." + login + ".password"));
+                }
 
                 userCache.put(account.getLogin(), account);
                 userCache.put(account.getWebId(), account);

@@ -17,16 +17,18 @@
  */
 package org.apache.marmotta.splash.systray;
 
-import static org.apache.marmotta.splash.common.MarmottaStartupHelper.getServerName;
-import static org.apache.marmotta.splash.common.MarmottaStartupHelper.getServerPort;
+import org.apache.catalina.Lifecycle;
+import org.apache.catalina.LifecycleEvent;
+import org.apache.catalina.LifecycleListener;
+import org.apache.juli.logging.Log;
+import org.apache.juli.logging.LogFactory;
+import org.apache.marmotta.splash.common.MarmottaContext;
+import org.apache.marmotta.splash.common.ui.MessageDialog;
 
-import java.awt.AWTException;
-import java.awt.Desktop;
-import java.awt.Image;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
-import java.awt.SystemTray;
-import java.awt.TrayIcon;
+import javax.imageio.ImageIO;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -37,17 +39,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.imageio.ImageIO;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
-import org.apache.catalina.Lifecycle;
-import org.apache.catalina.LifecycleEvent;
-import org.apache.catalina.LifecycleListener;
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
-import org.apache.marmotta.splash.common.MarmottaContext;
-import org.apache.marmotta.splash.common.ui.MessageDialog;
+import static org.apache.marmotta.splash.common.MarmottaStartupHelper.getServerName;
+import static org.apache.marmotta.splash.common.MarmottaStartupHelper.getServerPort;
 
 /**
  * Add file description here!
@@ -189,7 +182,7 @@ public class SystrayListener implements LifecycleListener {
                 public void actionPerformed(ActionEvent e) {
                     MessageDialog.show("Apache Marmotta",
                             "About Apache Marmotta \n",
-                            "(c)2014 The Apache Software Foundation \n" +
+                            "(c) 2018 The Apache Software Foundation \n" +
                             "Visit http://marmotta.apache.org for further details");
                 }
             });

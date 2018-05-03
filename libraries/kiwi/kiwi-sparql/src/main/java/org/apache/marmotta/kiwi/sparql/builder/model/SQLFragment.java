@@ -38,9 +38,9 @@ public class SQLFragment extends SQLClause {
      * This distinction is necessary when OPTIONAL constructs are used, i.e. the created SQL uses LEFT JOINs. We cannot
      * always place it in JOIN conditions, because the first pattern will not have a JOIN.
      */
-    public static enum ConditionPosition {
+    public enum ConditionPosition {
         JOIN, WHERE, HAVING
-    };
+    }
 
     private static Random singletonSetGenerator = new Random();
 
@@ -112,8 +112,7 @@ public class SQLFragment extends SQLClause {
                 // in case the pattern is the last of the fragment, also add the filter conditions of the fragment (TODO: verify this does indeed the right thing)
                 if (conditionPosition == ConditionPosition.JOIN && !it.hasNext()) {
                     // if this is the last pattern of the fragment, add the filter conditions
-                    for (Iterator<String> cit = getConditions().iterator(); cit.hasNext(); ) {
-                        String next = cit.next();
+                    for (String next : getConditions()) {
                         if (conditionClause.length() > 0 && next.length() > 0) {
                             conditionClause.append("\n       AND ");
                         }
@@ -148,7 +147,7 @@ public class SQLFragment extends SQLClause {
                 }
             }
         } else {
-            fromClause.append("(SELECT true) AS _EMPTY"+singletonSetGenerator.nextInt(1000));
+            fromClause.append("(SELECT true) AS _EMPTY").append(singletonSetGenerator.nextInt(1000));
         }
 
         return fromClause.toString();
@@ -179,9 +178,8 @@ public class SQLFragment extends SQLClause {
         if(conditionPosition == ConditionPosition.WHERE) {
             // in case the pattern is the last of the fragment, also add the filter conditions of the fragment
             // if this is the last pattern of the fragment, add the filter conditions
-            for(Iterator<String> cit = getConditions().iterator(); cit.hasNext(); ) {
-                String next = cit.next();
-                if(conditionClause.length() > 0 && next.length() > 0) {
+            for (String next : getConditions()) {
+                if (conditionClause.length() > 0 && next.length() > 0) {
                     conditionClause.append("\n       AND ");
                 }
                 conditionClause.append(next);

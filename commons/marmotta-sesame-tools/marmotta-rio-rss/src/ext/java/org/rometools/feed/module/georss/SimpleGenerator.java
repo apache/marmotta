@@ -16,15 +16,14 @@
  */
 package org.rometools.feed.module.georss;
 
+import com.sun.syndication.feed.module.Module;
+import com.sun.syndication.io.ModuleGenerator;
+import org.jdom2.Element;
+import org.rometools.feed.module.georss.geometries.*;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.jdom2.Element;
-
-import com.sun.syndication.feed.module.Module;
-import com.sun.syndication.io.ModuleGenerator;
-import org.rometools.feed.module.georss.geometries.*;
 
 /**
  * SimpleGenerator produces georss elements in georss simple format.
@@ -43,7 +42,7 @@ public class SimpleGenerator implements ModuleGenerator {
     }
 
     private String posListToString(PositionList posList) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i=0; i<posList.size(); ++i) 
             sb.append(posList.getLatitude(i)).append(" ").append(posList.getLongitude(i)).append(" ");
         return sb.toString();

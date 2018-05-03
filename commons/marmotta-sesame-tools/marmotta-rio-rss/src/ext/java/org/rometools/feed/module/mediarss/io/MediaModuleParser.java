@@ -22,32 +22,16 @@
 package org.rometools.feed.module.mediarss.io;
 
 import com.sun.syndication.feed.module.Module;
+import com.sun.syndication.io.ModuleParser;
+import com.sun.syndication.io.impl.NumberParser;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.rometools.feed.module.mediarss.MediaEntryModuleImpl;
 import org.rometools.feed.module.mediarss.MediaModule;
 import org.rometools.feed.module.mediarss.MediaModuleImpl;
-import org.rometools.feed.module.mediarss.types.Category;
-import org.rometools.feed.module.mediarss.types.Credit;
-import org.rometools.feed.module.mediarss.types.Expression;
-import org.rometools.feed.module.mediarss.types.Hash;
-import org.rometools.feed.module.mediarss.types.MediaContent;
-import org.rometools.feed.module.mediarss.types.MediaGroup;
-import org.rometools.feed.module.mediarss.types.Metadata;
-import org.rometools.feed.module.mediarss.types.PlayerReference;
-import org.rometools.feed.module.mediarss.types.Rating;
-import org.rometools.feed.module.mediarss.types.Restriction;
-import org.rometools.feed.module.mediarss.types.Text;
-import org.rometools.feed.module.mediarss.types.Thumbnail;
-import org.rometools.feed.module.mediarss.types.Time;
-import org.rometools.feed.module.mediarss.types.UrlReference;
-import com.sun.syndication.io.ModuleParser;
-import com.sun.syndication.io.impl.NumberParser;
+import org.rometools.feed.module.mediarss.types.*;
 
 import java.net.URI;
-
-import org.jdom2.Element;
-import org.jdom2.Namespace;
-
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -191,9 +175,7 @@ public class MediaModuleParser implements ModuleParser {
                         LOG.log(Level.WARNING, "Exception parsing content tag.", ex);
                     }
                     
-                    mc.setDefaultContent((content.getAttributeValue("isDefault") == null)
-                    ? false
-                            : Boolean.getBoolean(content.getAttributeValue(
+                    mc.setDefaultContent(content.getAttributeValue("isDefault") != null && Boolean.getBoolean(content.getAttributeValue(
                             "isDefault")));                	
                 } else {
                 	LOG.log(Level.WARNING, "Could not find MediaContent.");
@@ -219,7 +201,7 @@ public class MediaModuleParser implements ModuleParser {
             
             for (int j = 0; j < g.getContents().length; j++) {
                 if (g.getContents()[j].isDefaultContent()) {
-                    g.setDefaultContentIndex(new Integer(j));
+                    g.setDefaultContentIndex(j);
                     
                     break;
                 }
@@ -402,25 +384,25 @@ public class MediaModuleParser implements ModuleParser {
         {
             List restrictions = e.getChildren("restriction", getNS());
             ArrayList values = new ArrayList();
-            
-            for (int i = 0; i < restrictions.size(); i++) {
-                Element r = (Element) restrictions.get(i);
+
+            for (Object restriction : restrictions) {
+                Element r = (Element) restriction;
                 Restriction.Type type = null;
-                
+
                 if (r.getAttributeValue("type").equalsIgnoreCase("uri")) {
                     type = Restriction.Type.URI;
                 } else if (r.getAttributeValue("type").equalsIgnoreCase("country")) {
                     type = Restriction.Type.COUNTRY;
                 }
-                
+
                 Restriction.Relationship relationship = null;
-                
+
                 if (r.getAttributeValue("relationship").equalsIgnoreCase("allow")) {
                     relationship = Restriction.Relationship.ALLOW;
                 } else if (r.getAttributeValue("relationship").equalsIgnoreCase("deny")) {
                     relationship = Restriction.Relationship.DENY;
                 }
-                
+
                 Restriction value = new Restriction(relationship, type,
                         r.getTextTrim());
                 values.add(value);

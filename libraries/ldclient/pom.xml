@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.0-SNAPSHOT</version>
         <relativePath>../../parent</relativePath>
     </parent>
 
@@ -105,7 +105,6 @@
         <module>ldclient-provider-html</module>
         <module>ldclient-provider-ldap</module>
         <module>ldclient-provider-mediawiki</module>
-        <module>ldclient-provider-freebase</module>
         <module>ldclient-provider-phpbb</module>
         <module>ldclient-provider-facebook</module>
         <module>ldclient-provider-youtube</module>

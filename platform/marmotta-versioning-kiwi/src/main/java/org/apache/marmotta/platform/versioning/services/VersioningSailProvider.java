@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -16,17 +16,6 @@
  * limitations under the License.
  */
 package org.apache.marmotta.platform.versioning.services;
-
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.apache.marmotta.commons.sesame.filter.AllOfFilter;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
@@ -46,6 +35,16 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.sail.SailException;
 import org.slf4j.Logger;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * A SAIL provider wrapping a versioning component around the repository
@@ -112,9 +111,7 @@ public class VersioningSailProvider implements TransactionalSailProvider {
         StatementFilter filterCached = new StatementFilter() {
             @Override
             public boolean accept(Statement object) {
-                if(object.getContext() != null && configurationService.getCacheContext().equals(object.getContext().stringValue())) return false;
-                else
-                    return true;
+                return !(object.getContext() != null && configurationService.getCacheContext().equals(object.getContext().stringValue()));
             }
         };
         sFilters.add(filterCached);
@@ -122,9 +119,7 @@ public class VersioningSailProvider implements TransactionalSailProvider {
         StatementFilter filterInferred = new StatementFilter() {
             @Override
             public boolean accept(Statement object) {
-                if(object.getContext() != null && configurationService.getInferredContext().equals(object.getContext().stringValue())) return false;
-                else
-                    return true;
+                return !(object.getContext() != null && configurationService.getInferredContext().equals(object.getContext().stringValue()));
             }
         };
         sFilters.add(filterInferred);
@@ -132,9 +127,7 @@ public class VersioningSailProvider implements TransactionalSailProvider {
         StatementFilter filterEnhancing = new StatementFilter() {
             @Override
             public boolean accept(Statement object) {
-                if(object.getContext() != null && configurationService.getEnhancerContex().equals(object.getContext().stringValue())) return false;
-                else
-                    return true;
+                return !(object.getContext() != null && configurationService.getEnhancerContex().equals(object.getContext().stringValue()));
             }
         };
         sFilters.add(filterEnhancing);

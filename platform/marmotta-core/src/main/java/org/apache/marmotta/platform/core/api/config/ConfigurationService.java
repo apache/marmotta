@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -35,41 +35,41 @@ import java.util.regex.Pattern;
  */
 public interface ConfigurationService {
 
-    static final String RESOURCE_PATH = "resource";
+    String RESOURCE_PATH = "resource";
 
-    static final String ANONYMOUS_PATH = "anon";
+    String ANONYMOUS_PATH = "anon";
 
-    static final String META_PATH = "meta";
+    String META_PATH = "meta";
 
-    static final String CONTENT_PATH = "content";
+    String CONTENT_PATH = "content";
 
-    static final String INSPECT_PATH = "inspect";
+    String INSPECT_PATH = "inspect";
     
-    static final String LDP_PATH = "ldp"; //to be removed
-    static final String CONTAINER_PATH = "container";
+    String LDP_PATH = "ldp"; //to be removed
+    String CONTAINER_PATH = "container";
     
     @Deprecated
-    static final String KNOWLEDGESPACE_PATH = "knowledgedspace";
+    String KNOWLEDGESPACE_PATH = "knowledgedspace";
 
-    static final String CONTEXT_PATH = "context";
+    String CONTEXT_PATH = "context";
 
-    static final String CONTEXT_DEFAULT = "default";
+    String CONTEXT_DEFAULT = "default";
 
-    static final String CONTEXT_CACHE = "cache";
+    String CONTEXT_CACHE = "cache";
 
-    static final String CONTEXT_ENHANCEMENT = "enhanced";
+    String CONTEXT_ENHANCEMENT = "enhanced";
 
-    static final String CONTEXT_INFERRED = "inferred";
+    String CONTEXT_INFERRED = "inferred";
 
-    static final String CONTEXT_SYSTEM = "system";
+    String CONTEXT_SYSTEM = "system";
     
-    static final String DIR_CONFIG = "config";
+    String DIR_CONFIG = "config";
 
-    static final String DIR_LOG = "log";
+    String DIR_LOG = "log";
 
-    static final String DIR_IMPORT = "import";
+    String DIR_IMPORT = "import";
 
-    static final String LOGGING_PATH = "logging";
+    String LOGGING_PATH = "logging";
 
     /**
      * Get the base URI of the system.
@@ -401,7 +401,7 @@ public interface ConfigurationService {
      * 
      * @param home
      */
-    public void setHome(String home);
+    void setHome(String home);
 
     /**
      * Return the value of the LMF_HOME setting. Used during the initialisation process.
@@ -415,7 +415,7 @@ public interface ConfigurationService {
      * 
      * @return
      */
-    public String getHome();
+    String getHome();
 
     /**
      * Get the base URI for contexts

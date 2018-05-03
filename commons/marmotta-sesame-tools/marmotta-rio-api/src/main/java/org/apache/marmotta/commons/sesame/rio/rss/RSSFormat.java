@@ -20,6 +20,7 @@ import org.openrdf.rio.RDFFormat;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Add file description here!
@@ -33,7 +34,7 @@ public class RSSFormat {
             "RSS",
             Arrays.asList("application/rss+xml", "application/x-georss+xml"),
             Charset.forName("UTF-8"),
-            Arrays.asList("rss"),
+            Collections.singletonList("rss"),
             false,
             false
     );

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -37,7 +37,7 @@ import java.util.Set;
  */
 public class SecurityConstraint implements Comparable<SecurityConstraint> {
 
-    public enum Type { PERMISSION, RESTRICTION };
+    public enum Type { PERMISSION, RESTRICTION }
 
 
     private static Logger log = LoggerFactory.getLogger(SecurityConstraint.class);

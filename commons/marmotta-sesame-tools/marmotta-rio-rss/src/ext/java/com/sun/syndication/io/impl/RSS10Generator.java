@@ -16,9 +16,9 @@
  */
 package com.sun.syndication.io.impl;
 
+import com.sun.syndication.feed.rss.Channel;
 import com.sun.syndication.feed.rss.Description;
 import com.sun.syndication.feed.rss.Item;
-import com.sun.syndication.feed.rss.Channel;
 import com.sun.syndication.io.FeedException;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
@@ -59,12 +59,12 @@ public class RSS10Generator extends RSS090Generator {
         if (items.size()>0) {
             Element eItems = new Element("items",getFeedNamespace());
             Element eSeq = new Element("Seq",getRDFNamespace());
-            for (int i=0;i<items.size();i++) {
-                Item item = (Item) items.get(i);
-                Element eLi = new Element("li",getRDFNamespace());
+            for (Object item1 : items) {
+                Item item = (Item) item1;
+                Element eLi = new Element("li", getRDFNamespace());
                 String uri = item.getUri();
-                if (uri!=null) {
-                    eLi.setAttribute("resource",uri,getRDFNamespace());
+                if (uri != null) {
+                    eLi.setAttribute("resource", uri, getRDFNamespace());
                 }
                 eSeq.addContent(eLi);
             }

@@ -78,8 +78,8 @@ public class GenericLinkedDataSailConnection extends NotifyingSailConnectionWrap
             final Model cached = ldcache.get((URI)subj);
 
             // join the results of the cache connection and the wrapped connection in a single result
-            return new UnionIteration<Statement, SailException>(
-                    new CloseableIteratorIteration<Statement,SailException>(cached.iterator()),
+            return new UnionIteration<>(
+                    new CloseableIteratorIteration<Statement, SailException>(cached.iterator()),
                     super.getStatements(subj, pred, obj, includeInferred, contexts)
             );
         } else {

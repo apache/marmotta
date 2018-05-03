@@ -38,14 +38,14 @@ public interface LoaderBackend {
      *
      * @return
      */
-    public String getIdentifier();
+    String getIdentifier();
 
     /**
      * Create the RDFHandler to be used for bulk-loading, optionally using the configuration passed as argument.
      *
      * @return a newly created RDFHandler instance
      */
-    public LoaderHandler createLoader(Configuration configuration);
+    LoaderHandler createLoader(Configuration configuration);
 
 
     /**
@@ -54,6 +54,6 @@ public interface LoaderBackend {
      *
      * @return
      */
-    public Collection<Option> getOptions();
+    Collection<Option> getOptions();
 
 }

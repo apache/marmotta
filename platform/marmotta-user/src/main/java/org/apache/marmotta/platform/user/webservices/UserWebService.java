@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -31,6 +31,7 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -60,18 +61,21 @@ public class UserWebService {
     private static final Pattern PROFILE_URI_PATTERN = Pattern.compile("^<([^>]+)>$");
 
     @Inject
+    private Logger log;
+
+    @Inject
     private ConfigurationService configurationService;
 
     @Inject
-    private UserService          userService;
+    private UserService userService;
 
     @Inject
-    private AccountService       accountService;
+    private AccountService accountService;
 
     @Inject
-    private SesameService        sesameService;
+    private SesameService sesameService;
 
-    private List<String>         acceptedFoafProperties;
+    private List<String> acceptedFoafProperties;
 
     @PostConstruct
     public void initialize() {
@@ -233,8 +237,9 @@ public class UserWebService {
      * @HTTP 400 if no valid resource uri could be built with the login
      * @HTTP 500 on other exceptions
      */
-    @GET
-    @Path("/{login:[^#?]+}")
+    //TODO: MARMOTTA-663
+    //@GET
+    //@Path("/{login:[^#?]+}")
     public Response getUser(@PathParam("login") String login, @HeaderParam("Accept") String types) {
         if(login.equals("me")) {
             return get();
@@ -263,8 +268,8 @@ public class UserWebService {
     }
 
     /**
-     * Throws a {@link AccessDeniedException} if currently no user is logged in (aka: current user
-     * is anonymous).
+     * Throws a {@link AccessDeniedException} if currently no user is logged in
+     * (aka: current user is anonymous).
      *
      * @param ref the referer to redirect to
      * @param logout set to true to log out (does currently nothing)
@@ -295,13 +300,37 @@ public class UserWebService {
     }
 
     /**
+     * Throws a {@link AccessDeniedException} if currently no user is logged in
+     * (aka: current user is anonymous).
+     *
+     * @param ref the referer to redirect to
+     * @param logout set to true to log out (does currently nothing)
+     * @return a redirect to the referer url
+     * @throws AccessDeniedException if currently no user is logged in.
+     * @HTTP 303 if the user is already logged in (or <code>logout == true</code>)
+     */
+    @GET
+    @Path("/logout")
+    public Response logout(@HeaderParam(REFERER) String ref) {
+        log.debug("Current user before logout was: {}", userService.getCurrentUser().getLocalName());
+        userService.setCurrentUser(userService.getAnonymousUser());
+        userService.clearCurrentUser();
+        log.debug("Current user after logout is now: {}", userService.getCurrentUser().getLocalName());
+
+        if (ref == null || "".equals(ref)) {
+            ref = configurationService.getServerUri() + configurationService.getStringConfiguration("kiwi.pages.startup");
+        }
+        return Response.seeOther(java.net.URI.create(ref)).build();
+    }
+
+    /**
      * Wrapped AccountInformation for serialisation.
      *
      * @author Jakob Frank <jakob.frank@salzburgresearch.at>
      *
      */
     static class AccountPoJo {
-        private String              login, uri, roles[];
+        private String login, uri, roles[];
         private Map<String, String> foaf;
 
         public AccountPoJo(String login, String uri) {
@@ -346,5 +375,7 @@ public class UserWebService {
         public Map<String, String> getFoaf() {
             return foaf;
         }
+
     }
+
 }

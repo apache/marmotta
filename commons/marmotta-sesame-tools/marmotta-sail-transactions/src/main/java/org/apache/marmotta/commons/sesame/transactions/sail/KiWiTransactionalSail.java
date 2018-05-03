@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -47,7 +47,7 @@ public class KiWiTransactionalSail extends NotifyingSailWrapper implements Trans
     public KiWiTransactionalSail(NotifyingSail base) {
         super(base);
 
-        this.listeners           = new ArrayList<TransactionListener>();
+        this.listeners           = new ArrayList<>();
         this.transactionsEnabled = true;
     }
 

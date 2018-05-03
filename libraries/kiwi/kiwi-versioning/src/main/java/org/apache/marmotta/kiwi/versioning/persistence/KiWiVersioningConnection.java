@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -653,7 +653,7 @@ public class KiWiVersioningConnection extends KiWiConnection {
     public long getSnapshotSize(KiWiResource context, Date snapshotDate) throws SQLException {
         if(context.getId() < 0) {
             return 0;
-        };
+        }
 
         requireJDBCConnection();
 

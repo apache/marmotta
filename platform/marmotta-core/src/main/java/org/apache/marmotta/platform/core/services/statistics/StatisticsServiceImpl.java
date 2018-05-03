@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -61,7 +61,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     protected void initModules(@Any Instance<StatisticsModule> modules) {
         log.info("Apache Marmotta StatisticsService starting up ...");
 
-        this.modules = new LinkedHashMap<String,StatisticsModule>();
+        this.modules = new LinkedHashMap<>();
 
         for(StatisticsModule module : modules) {
             registerModule(module.getName(),module);
@@ -180,7 +180,7 @@ public class StatisticsServiceImpl implements StatisticsService {
      */
     @Override
     public List<String> listModules() {
-        return new LinkedList<String>(modules.keySet());
+        return new LinkedList<>(modules.keySet());
     }
 
 

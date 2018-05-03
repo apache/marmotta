@@ -94,7 +94,7 @@ public class SparqlGraphQueryMatcher<T extends RepositoryConnection> extends Spa
      * @param matcher the AbstractRepositoryConnectionMatcher to match
      */
     public static <T extends RepositoryConnection> Matcher<T> sparqlGraphQuery(String baseUri, String query, Matcher<? extends RepositoryConnection> matcher) {
-        return new SparqlGraphQueryMatcher<T>(baseUri, query, matcher);
+        return new SparqlGraphQueryMatcher<>(baseUri, query, matcher);
     }
 
     /**
@@ -108,6 +108,6 @@ public class SparqlGraphQueryMatcher<T extends RepositoryConnection> extends Spa
      */
     @SafeVarargs
     public static <T extends RepositoryConnection> Matcher<T> sparqlGraphQuery(String baseUri, String query, Matcher<? extends RepositoryConnection>... matchers) {
-        return new SparqlGraphQueryMatcher<T>(baseUri, query, matchers);
+        return new SparqlGraphQueryMatcher<>(baseUri, query, matchers);
     }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -33,13 +33,13 @@ public interface RDFBackend<Node> extends NodeBackend<Node> {
 	 * @deprecated subject to be removed in the next release
 	 */
 	@Deprecated
-	public boolean supportsThreading();
+    boolean supportsThreading();
 	
 	/**
 	 * @deprecated subject to be removed in the next release
 	 */
 	@Deprecated
-    public ThreadPoolExecutor getThreadPool();
+    ThreadPoolExecutor getThreadPool();
 
 
     /**
@@ -50,7 +50,7 @@ public interface RDFBackend<Node> extends NodeBackend<Node> {
      * @param property the property of the triples to look for, <code>null</code> is interpreted as wildcard
      * @return all objects of triples with matching subject and property
      */
-    public Collection<Node> listObjects(Node subject, Node property);
+    Collection<Node> listObjects(Node subject, Node property);
 
 
     /**
@@ -62,6 +62,6 @@ public interface RDFBackend<Node> extends NodeBackend<Node> {
      * @return all subjects of triples with matching object and property
      * @throws UnsupportedOperationException in case reverse selection is not supported (e.g. when querying Linked Data)
      */
-    public Collection<Node> listSubjects(Node property, Node object);
+    Collection<Node> listSubjects(Node property, Node object);
 
 }

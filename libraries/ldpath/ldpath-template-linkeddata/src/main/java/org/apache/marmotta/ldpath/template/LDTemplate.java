@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -101,7 +101,7 @@ public class LDTemplate {
             }
 
             if(backend != null && context != null && template != null) {
-                TemplateEngine<Value> engine = new TemplateEngine<Value>(backend);
+                TemplateEngine<Value> engine = new TemplateEngine<>(backend);
 
                 engine.setDirectoryForTemplateLoading(template.getAbsoluteFile().getParentFile());
                 engine.processFileTemplate(context,template.getName(),out);

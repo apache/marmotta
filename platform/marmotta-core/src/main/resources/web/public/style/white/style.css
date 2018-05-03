@@ -41,7 +41,7 @@ a#logo {
 }
 
 a#logo img {
-    height: 70px;
+    width: 80%;
 }
 
 #header h1 {

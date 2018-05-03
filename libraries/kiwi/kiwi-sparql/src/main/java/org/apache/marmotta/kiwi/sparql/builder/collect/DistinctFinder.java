@@ -20,6 +20,8 @@ package org.apache.marmotta.kiwi.sparql.builder.collect;
 import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
+import java.util.List;
+
 /**
 * Find distinct/reduced in a tuple expression.
 *
@@ -27,10 +29,14 @@ import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 */
 public class DistinctFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    public boolean distinct = false;
+    private boolean distinct = false;
 
-    public DistinctFinder(TupleExpr expr) {
+    private DistinctFinder(TupleExpr expr) {
         expr.visit(this);
+    }
+
+    public static boolean find(TupleExpr expr) {
+        return new DistinctFinder(expr).distinct;
     }
 
     @Override

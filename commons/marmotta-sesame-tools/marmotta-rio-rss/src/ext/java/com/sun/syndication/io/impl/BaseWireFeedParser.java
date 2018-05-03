@@ -3,13 +3,12 @@ package com.sun.syndication.io.impl;
 import com.sun.syndication.feed.WireFeed;
 import com.sun.syndication.feed.module.Extendable;
 import com.sun.syndication.io.WireFeedParser;
-import java.util.ArrayList;
-import java.util.Iterator;
-import org.jdom2.Element;
-
-import java.util.List;
-import org.jdom2.Namespace;
 import org.jdom2.Attribute;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Alejandro Abdelnur
@@ -74,24 +73,21 @@ public abstract class BaseWireFeedParser implements WireFeedParser {
 
     protected List extractForeignMarkup(Element e, Extendable ext, Namespace basens) {
         ArrayList foreignMarkup = new ArrayList();
-        Iterator children = e.getChildren().iterator();
-        while (children.hasNext()) {
-            Element elem = (Element)children.next();
-            if  ( 
-               // if elemet not in the RSS namespace
-               !basens.equals(elem.getNamespace())
-               // and elem was not handled by a module
-               && null == ext.getModule(elem.getNamespaceURI())) {
+        for (Element elem : e.getChildren()) {
+            if (
+                // if elemet not in the RSS namespace
+                    !basens.equals(elem.getNamespace())
+                            // and elem was not handled by a module
+                            && null == ext.getModule(elem.getNamespaceURI())) {
 
-               // save it as foreign markup, 
-               // but we can't detach it while we're iterating
-               foreignMarkup.add(elem.clone()); 
+                // save it as foreign markup,
+                // but we can't detach it while we're iterating
+                foreignMarkup.add(elem.clone());
             }
         }
         // Now we can detach the foreign markup elements
-        Iterator fm = foreignMarkup.iterator();
-        while (fm.hasNext()) {
-            Element elem = (Element)fm.next();
+        for (Object aForeignMarkup : foreignMarkup) {
+            Element elem = (Element) aForeignMarkup;
             elem.detach();
         }
         return foreignMarkup;

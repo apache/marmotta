@@ -18,14 +18,14 @@
 package com.sun.syndication.feed.rss;
 
 import com.sun.syndication.feed.impl.ObjectBean;
+import com.sun.syndication.feed.module.Extendable;
 import com.sun.syndication.feed.module.Module;
 import com.sun.syndication.feed.module.impl.ModuleUtils;
-import com.sun.syndication.feed.module.Extendable;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.io.Serializable;
 
 /**
  * Bean for items of RSS feeds.
@@ -248,7 +248,7 @@ public class Item implements Cloneable, Serializable, Extendable {
      *
      */
     public List<Enclosure> getEnclosures() {
-        return (_enclosures==null) ? (_enclosures=new ArrayList<Enclosure>()) : _enclosures;
+        return (_enclosures==null) ? (_enclosures= new ArrayList<>()) : _enclosures;
     }
 
     /**
@@ -270,7 +270,7 @@ public class Item implements Cloneable, Serializable, Extendable {
      *
      */
     public List getCategories() {
-        return (_categories==null) ? (_categories=new ArrayList<Category>()) : _categories;
+        return (_categories==null) ? (_categories= new ArrayList<>()) : _categories;
     }
 
     /**
@@ -352,7 +352,7 @@ public class Item implements Cloneable, Serializable, Extendable {
      *
      */
     public List<Module> getModules() {
-        return (_modules==null) ? (_modules=new ArrayList<Module>()) : _modules;
+        return (_modules==null) ? (_modules= new ArrayList<>()) : _modules;
     }
 
     /**

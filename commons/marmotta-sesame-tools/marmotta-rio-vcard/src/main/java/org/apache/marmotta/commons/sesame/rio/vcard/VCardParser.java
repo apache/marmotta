@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -26,8 +26,6 @@ import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardBuilder;
 import net.fortuna.ical4j.vcard.parameter.Type;
 import net.fortuna.ical4j.vcard.property.*;
-
-import org.apache.marmotta.commons.sesame.rio.vcard.VCardFormat;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
@@ -61,7 +59,7 @@ public class VCardParser extends RDFParserBase {
     public static final String NS_RDF    = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     public static final String NS_VCARD  = "http://www.w3.org/2006/vcard/ns#";
 
-    private static Map<Property.Id, String> propertyMappings = new HashMap<Property.Id, String>();
+    private static Map<Property.Id, String> propertyMappings = new HashMap<>();
     static {
         propertyMappings.put(Property.Id.ADR,      "http://www.w3.org/2006/vcard/ns#adr");
         propertyMappings.put(Property.Id.AGENT,    "http://www.w3.org/2006/vcard/ns#agent");

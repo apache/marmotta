@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -26,22 +26,13 @@ import org.slf4j.Logger;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * This filter is used by KiWi for initialisation of the KiWi system on startup of the server. It does not perform
@@ -83,7 +74,7 @@ public class MarmottaResourceFilter implements Filter {
         log.info("Apache Marmotta Resource Filter {} starting up ... ", configurationService.getConfiguration("kiwi.version"));
 
         // initialise filter chain and sort it according to priority
-        this.filterList  = new ArrayList<MarmottaHttpFilter>();
+        this.filterList  = new ArrayList<>();
 
         for(MarmottaHttpFilter filter : filters) {
             try {
@@ -119,7 +110,7 @@ public class MarmottaResourceFilter implements Filter {
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        URL url = null;
+        URL url;
         String prefix, path = null;
         if (request instanceof HttpServletRequest) {
             url = new URL(((HttpServletRequest)request).getRequestURL().toString());

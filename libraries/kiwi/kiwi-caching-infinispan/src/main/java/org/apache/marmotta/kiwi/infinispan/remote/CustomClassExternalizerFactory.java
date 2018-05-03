@@ -30,9 +30,9 @@ import java.util.Set;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class CustomClassExternalizerFactory implements ClassExternalizerFactory {
+class CustomClassExternalizerFactory implements ClassExternalizerFactory {
 
-    Map<Class<?>,Externalizer> externalizers = new HashMap<>();
+    private Map<Class<?>,Externalizer> externalizers = new HashMap<>();
 
     public CustomClassExternalizerFactory() {
 

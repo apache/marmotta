@@ -16,11 +16,11 @@
  */
 package org.rometools.feed.module.georss;
 
-import org.jdom2.Element;
-
 import com.sun.syndication.feed.module.Module;
 import com.sun.syndication.io.ModuleParser;
-import org.rometools.feed.module.georss.geometries.*;
+import org.jdom2.Element;
+import org.rometools.feed.module.georss.geometries.Point;
+import org.rometools.feed.module.georss.geometries.Position;
 
 /**
  * W3CGeoParser is a parser for the W3C geo format.
@@ -72,8 +72,7 @@ public class W3CGeoParser implements ModuleParser {
          * @see com.sun.syndication.io.ModuleParser#parse(org.jdom2.Element)
          */
     public Module parse(Element element) {
-        Module geoRssModule = parseW3C(element);
-        return geoRssModule;
+        return parseW3C(element);
     }
     
 }

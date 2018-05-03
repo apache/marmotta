@@ -48,10 +48,10 @@ public class ModuleGenerators extends PluginManager {
 
     public void generateModules(List modules, Element element) {
         Map generators = getPluginMap();
-        for (int i = 0; i < modules.size(); i++) {
-            Module module = (Module) modules.get(i);
+        for (Object module1 : modules) {
+            Module module = (Module) module1;
             String namespaceUri = module.getUri();
-            ModuleGenerator generator = (ModuleGenerator)generators.get(namespaceUri);
+            ModuleGenerator generator = (ModuleGenerator) generators.get(namespaceUri);
             if (generator != null) {
                 generator.generate(module, element);
             }
@@ -62,8 +62,8 @@ public class ModuleGenerators extends PluginManager {
         if (_allNamespaces==null) {
             _allNamespaces = new HashSet();
             List mUris = getModuleNamespaces();
-            for (int i=0;i<mUris.size();i++) {
-                ModuleGenerator mGen = getGenerator((String)mUris.get(i));
+            for (Object mUri : mUris) {
+                ModuleGenerator mGen = getGenerator((String) mUri);
                 _allNamespaces.addAll(mGen.getNamespaces());
             }
         }

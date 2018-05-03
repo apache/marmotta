@@ -23,10 +23,10 @@
  */
 package org.rometools.feed.module.mediarss.types;
 
-import java.io.Serializable;
-
 import com.sun.syndication.feed.impl.EqualsBean;
 import com.sun.syndication.feed.impl.ToStringBean;
+
+import java.io.Serializable;
 
 
 /**
@@ -95,7 +95,7 @@ public class MediaGroup implements Cloneable, Serializable {
      */
     public void setDefaultContentIndex(Integer defaultContentIndex) {
         for (int i = 0; i < getContents().length; i++) {
-            if (i == defaultContentIndex.intValue()) {
+            if (i == defaultContentIndex) {
                 getContents()[i].setDefaultContent(true);
             } else {
                 getContents()[i].setDefaultContent(false);

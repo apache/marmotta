@@ -41,17 +41,15 @@
 package org.rometools.feed.module.itunes.io;
 
 import com.sun.syndication.feed.module.Module;
+import com.sun.syndication.io.ModuleGenerator;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.rometools.feed.module.itunes.AbstractITunesObject;
 import org.rometools.feed.module.itunes.EntryInformationImpl;
 import org.rometools.feed.module.itunes.FeedInformationImpl;
 import org.rometools.feed.module.itunes.types.Category;
-import com.sun.syndication.io.ModuleGenerator;
-
-import org.jdom2.Element;
-import org.jdom2.Namespace;
 
 import java.util.HashSet;
-import java.util.Iterator;
 
 /**
  * @version $Revision: 1.3 $
@@ -101,8 +99,8 @@ public class ITunesGenerator implements ModuleGenerator {
                 element.addContent(image);
             }
 
-            for (Iterator it = info.getCategories().iterator(); it.hasNext();) {
-        	Category cat = (Category) it.next();
+            for (Object o : info.getCategories()) {
+                Category cat = (Category) o;
                 Element category = this.generateSimpleElement("category", "");
                 category.setAttribute("text", cat.getName());
 
@@ -137,7 +135,7 @@ public class ITunesGenerator implements ModuleGenerator {
         }
 
         if (itunes.getKeywords() != null) {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             for (int i = 0; i < itunes.getKeywords().length; i++) {
                 if (i != 0) {
