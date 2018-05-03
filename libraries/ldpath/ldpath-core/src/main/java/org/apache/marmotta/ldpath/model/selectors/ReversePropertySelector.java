@@ -56,7 +56,7 @@ public class ReversePropertySelector<Node> implements NodeSelector<Node> {
     public Collection<Node> select(RDFBackend<Node> rdfBackend, Node context, List<Node> path, Map<Node, List<Node>> resultPaths) {
         if(rdfBackend.isURI(context) || rdfBackend.isBlank(context)) {
             if(path != null && resultPaths != null) {
-                Collection<Node> results = rdfBackend.listSubjects(context, property);
+                Collection<Node> results = rdfBackend.listSubjects(property, context);
                 for(Node n :results) {
                     resultPaths.put(n, new ImmutableList.Builder<Node>().addAll(path).add(context).add(n).build());
                 }
