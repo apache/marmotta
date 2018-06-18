@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>plugins-reactor</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.0</version>
         <relativePath>../</relativePath>
         <!-- <artifactId>maven-plugins</artifactId> <groupId>org.apache.maven.plugins</groupId> 
             <version>23</version> <relativePath /> -->
@@ -31,7 +31,9 @@
     <name>Repository Plugin</name>
     <description>Check which repository contains which dependencies </description>
 
-
+    <prerequisites>
+        <maven>${maven.version}</maven>
+    </prerequisites>
 
 
     <dependencies>
@@ -42,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
-            <artifactId>maven-project</artifactId>
+            <artifactId>maven-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.shared</groupId>

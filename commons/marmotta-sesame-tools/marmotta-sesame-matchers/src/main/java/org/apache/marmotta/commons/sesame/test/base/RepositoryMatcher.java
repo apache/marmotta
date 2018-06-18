@@ -32,6 +32,7 @@ public class RepositoryMatcher<T extends Repository> extends SesameMatcher<T> im
     /**
      * @param delegates the Matcher to wrap.
      */
+    @SafeVarargs
     public RepositoryMatcher(Matcher<? extends RepositoryConnection>... delegates) {
         this.delegates = delegates;
     }
@@ -92,7 +93,7 @@ public class RepositoryMatcher<T extends Repository> extends SesameMatcher<T> im
      * @param connectionMatcher the {@link AbstractRepositoryConnectionMatcher} to wrap
      */
     public static <T extends Repository> Matcher<T> wrap(Matcher<? extends RepositoryConnection> connectionMatcher) {
-        return new RepositoryMatcher<T>(connectionMatcher);
+        return new RepositoryMatcher<>(connectionMatcher);
     }
 
     /**
@@ -100,7 +101,8 @@ public class RepositoryMatcher<T extends Repository> extends SesameMatcher<T> im
      *
      * @param connectionMatchers the {@link AbstractRepositoryConnectionMatcher}s to wrap
      */
+    @SafeVarargs
     public static <T extends Repository> Matcher<T> wrap(Matcher<? extends RepositoryConnection>... connectionMatchers) {
-        return new RepositoryMatcher<T>(connectionMatchers);
+        return new RepositoryMatcher<>(connectionMatchers);
     }
 }

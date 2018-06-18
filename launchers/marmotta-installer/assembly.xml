@@ -33,23 +33,19 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/installer/LICENSE.txt</source>
-            <outputDirectory>/</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
         <file>
             <source>${project.basedir}/src/main/resources/installer/README.txt</source>
-            <outputDirectory>/</outputDirectory>
             <fileMode>0644</fileMode>
             <filtered>true</filtered>
         </file>
         <file>
             <source>${project.basedir}/src/main/resources/installer/NOTICE.txt</source>
-            <outputDirectory>/</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
         <file>
             <source>${project.build.directory}/marmotta-installer-${project.version}.jar</source>
-            <outputDirectory>/</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
     </files>

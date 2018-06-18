@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -30,6 +30,7 @@ import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.*;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
@@ -74,7 +75,7 @@ public class HTTPUtil {
         } else {
             final Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
                     .register("http", PlainConnectionSocketFactory.getSocketFactory())
-                    //.register("https", )
+                    .register("https", SSLConnectionSocketFactory.getSocketFactory())
                     .build();
 
             final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(registry);
@@ -95,7 +96,7 @@ public class HTTPUtil {
 
         final HttpPost post = new HttpPost(uriBuilder.build());
 
-        if (StringUtils.isNotBlank(config.getMarmottaUser()) && StringUtils.isNotBlank(config.getMarmottaUser())) {
+        if (StringUtils.isNotBlank(config.getMarmottaUser())) {
             final String credentials = String.format("%s:%s", config.getMarmottaUser(), config.getMarmottaPassword());
             try {
                 final String encoded = DatatypeConverter.printBase64Binary(credentials.getBytes("UTF-8"));

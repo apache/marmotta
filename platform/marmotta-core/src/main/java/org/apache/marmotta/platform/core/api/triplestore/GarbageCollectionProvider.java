@@ -33,5 +33,5 @@ public interface GarbageCollectionProvider {
      *
      * @param sail
      */
-    public void garbageCollect(Sail sail) throws SailException;
+    void garbageCollect(Sail sail) throws SailException;
 }

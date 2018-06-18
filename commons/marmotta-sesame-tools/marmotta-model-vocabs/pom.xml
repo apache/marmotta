@@ -21,16 +21,16 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.0</version>
         <relativePath>../../../parent/</relativePath>
     </parent>
 
     <artifactId>marmotta-model-vocabs</artifactId>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
 
     <name>Marmotta Sesame Tools: Common Vocabularies</name>
 
-    <description>Util-Methods to apply 'application/rdf-patch' changesets to Sesame</description>
+    <description>Common RDF vocabularies for Sesame</description>
 
     <build>
         <plugins>
@@ -40,6 +40,18 @@
                 <configuration>
                     <relativePath>../../../</relativePath>
                 </configuration>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.felix</groupId>
+              <artifactId>maven-bundle-plugin</artifactId>
+              <extensions>true</extensions>
+              <configuration>
+                <instructions>
+                  <Export-Package>
+                    org.apache.marmotta.commons.vocabulary;version=${project.version}
+                  </Export-Package>
+                </instructions>
+              </configuration>
             </plugin>
         </plugins>
     </build>

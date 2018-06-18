@@ -197,7 +197,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
             gen.getNodeIdExpr().visit(this);
             optypes.pop();
         } else {
-            builder.append("'").append(Long.toHexString(System.currentTimeMillis())+Integer.toHexString(anonIdGenerator.nextInt(1000))).append("'");
+            builder.append("'").append(Long.toHexString(System.currentTimeMillis())).append(Integer.toHexString(anonIdGenerator.nextInt(1000))).append("'");
         }
     }
 
@@ -205,15 +205,11 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
     public void meet(Bound node) throws RuntimeException {
         ValueExpr arg = node.getArg();
 
-        if(arg instanceof ValueConstant) {
-            builder.append(Boolean.toString(true));
-        } else if(arg instanceof Var) {
-            builder.append("(");
-            optypes.push(ValueType.NODE);
-            arg.visit(this);
-            optypes.pop();
-            builder.append(" IS NOT NULL)");
-        }
+        builder.append("(");
+        optypes.push(ValueType.NODE);
+        arg.visit(this);
+        optypes.pop();
+        builder.append(" IS NOT NULL)");
     }
 
     @Override
@@ -500,9 +496,13 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
             }
 
             optypes.push(ot);
+	    builder.append("(");
             expr.getLeftArg().visit(this);
+	    builder.append(")");
             builder.append(getSQLOperator(expr.getOperator()));
+	    builder.append("(");
             expr.getRightArg().visit(this);
+	    builder.append(")");
             optypes.pop();
         }
     }
@@ -733,7 +733,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
             case PLUS: return " + ";
             case MINUS: return " - ";
             case DIVIDE: return " / ";
-            case MULTIPLY: return " / ";
+            case MULTIPLY: return " * ";
         }
         throw new IllegalArgumentException("unsupported operator type for math expression: "+op);
     }

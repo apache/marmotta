@@ -40,24 +40,10 @@ package org.rometools.feed.module.base;
 
 import com.sun.syndication.feed.CopyFrom;
 import com.sun.syndication.feed.impl.EqualsBean;
-
-import org.rometools.feed.module.base.types.CloneableType;
-import org.rometools.feed.module.base.types.CurrencyEnumeration;
-import org.rometools.feed.module.base.types.DateTimeRange;
-import org.rometools.feed.module.base.types.FloatUnit;
-import org.rometools.feed.module.base.types.GenderEnumeration;
-import org.rometools.feed.module.base.types.IntUnit;
-import org.rometools.feed.module.base.types.PaymentTypeEnumeration;
-import org.rometools.feed.module.base.types.PriceTypeEnumeration;
-import org.rometools.feed.module.base.types.ShippingType;
-import org.rometools.feed.module.base.types.ShortDate;
-import org.rometools.feed.module.base.types.Size;
-import org.rometools.feed.module.base.types.YearType;
+import org.rometools.feed.module.base.types.*;
 
 import java.lang.reflect.Array;
-
 import java.net.URL;
-
 import java.util.Date;
 
 
@@ -1230,9 +1216,7 @@ public class GoogleBaseImpl implements GoogleBase {
 
         Object[] array = (Object[])Array.newInstance(source.getClass().getComponentType(),source.length);
 
-        for(int i = 0; i < source.length; i++) {
-            array[i] = source[i];
-        }
+        System.arraycopy(source, 0, array, 0, source.length);
 
         return array;
     }

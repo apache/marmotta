@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -24,6 +24,13 @@ package org.apache.marmotta.platform.core.api.prefix;
  * 
  */
 public interface PrefixProvider {
+
+    /**
+     * Ccheck the connectivity with the prefix provider
+     *
+     * @return connectivity state
+     */
+    boolean ping();
 
     /**
      * Get namespace identified by this prefix

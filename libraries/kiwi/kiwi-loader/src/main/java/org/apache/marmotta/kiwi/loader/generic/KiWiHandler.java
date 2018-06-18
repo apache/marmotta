@@ -311,9 +311,9 @@ public class KiWiHandler implements RDFHandler {
         } else if(value instanceof KiWiNode) {
             return (KiWiNode)value;
         } else if(value instanceof URI) {
-            return createURI(((URI)value).stringValue());
+            return createURI(value.stringValue());
         } else if(value instanceof BNode) {
-            return createBNode(((BNode)value).stringValue());
+            return createBNode(value.stringValue());
         } else if(value instanceof Literal) {
             return createLiteral((Literal)value);
         } else {

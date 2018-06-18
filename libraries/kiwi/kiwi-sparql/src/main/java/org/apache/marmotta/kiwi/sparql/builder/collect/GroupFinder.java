@@ -32,13 +32,16 @@ import java.util.Set;
 */
 public class GroupFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    public Set<String>     bindings = new HashSet<>();
-    public List<GroupElem> elements = new ArrayList<>();
+    private Set<String>     bindings = new HashSet<>();
+    private List<GroupElem> elements = new ArrayList<>();
 
-    public GroupFinder(TupleExpr expr) {
+    private GroupFinder(TupleExpr expr) {
         expr.visit(this);
     }
 
+    public static Set<String> find(TupleExpr expr) {
+        return new GroupFinder(expr).bindings;
+    }
     @Override
     public void meet(Group node) throws RuntimeException {
         bindings.addAll(node.getGroupBindingNames());

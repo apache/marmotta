@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -62,7 +62,7 @@ public class LDCachingKiWiPersistenceConnection implements Closeable {
     private Map<Long,KiWiCacheEntry> entryIdCache;
 
 
-    public LDCachingKiWiPersistenceConnection(KiWiConnection connection) throws SQLException {
+    public LDCachingKiWiPersistenceConnection(KiWiConnection connection) {
         this.connection    = connection;
 
         entryResourceCache = connection.getCacheManager().getCacheByName("ldcache-entry-uri");
@@ -116,15 +116,12 @@ public class LDCachingKiWiPersistenceConnection implements Closeable {
 
         // run the database query and if it yields a result, construct a new node; the method call will take care of
         // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
-        try {
-            if(result.next()) {
+        try (ResultSet result = query.executeQuery()) {
+            if (result.next()) {
                 return constructCacheEntry(result);
             } else {
                 return null;
             }
-        } finally {
-            result.close();
         }
     }
 
@@ -224,7 +221,7 @@ public class LDCachingKiWiPersistenceConnection implements Closeable {
         PreparedStatement queryExpired = connection.getPreparedStatement("query.entries_expired");
         final ResultSet result = queryExpired.executeQuery();
 
-        return new ResultSetIteration<KiWiCacheEntry>(result, new ResultTransformerFunction<KiWiCacheEntry>() {
+        return new ResultSetIteration<>(result, new ResultTransformerFunction<KiWiCacheEntry>() {
             @Override
             public KiWiCacheEntry apply(ResultSet input) throws SQLException {
                 return constructCacheEntry(result);
@@ -242,7 +239,7 @@ public class LDCachingKiWiPersistenceConnection implements Closeable {
         PreparedStatement queryExpired = connection.getPreparedStatement("query.entries_all");
         final ResultSet result = queryExpired.executeQuery();
 
-        return new ResultSetIteration<KiWiCacheEntry>(result, new ResultTransformerFunction<KiWiCacheEntry>() {
+        return new ResultSetIteration<>(result, new ResultTransformerFunction<KiWiCacheEntry>() {
             @Override
             public KiWiCacheEntry apply(ResultSet input) throws SQLException {
                 return constructCacheEntry(result);

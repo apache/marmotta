@@ -15,22 +15,20 @@
 
 package org.rometools.feed.module.opensearch.impl;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
+import com.sun.syndication.feed.atom.Link;
+import com.sun.syndication.feed.module.Module;
+import com.sun.syndication.io.ModuleParser;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.jdom2.Parent;
-
-import com.sun.syndication.feed.atom.Link;
-import com.sun.syndication.feed.module.Module;
 import org.rometools.feed.module.opensearch.OpenSearchModule;
 import org.rometools.feed.module.opensearch.entity.OSQuery;
-import com.sun.syndication.io.ModuleParser;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Michael W. Nassif (enrouteinc@gmail.com)
@@ -89,11 +87,11 @@ public class OpenSearchModuleParser implements ModuleParser{
         	
         	// Create the OSQuery list 
         	List osqList = new LinkedList();
-        	
-        	for (Iterator iter = queries.iterator(); iter.hasNext();) {
-				e = (Element) iter.next();
-				osqList.add(parseQuery(e));
-			}
+
+            for (Object query : queries) {
+                e = (Element) query;
+                osqList.add(parseQuery(e));
+            }
         
             osm.setQueries(osqList);
         }
@@ -183,12 +181,9 @@ public class OpenSearchModuleParser implements ModuleParser{
     }
 	
 	private static boolean isRelativeURI(String uri) {
-        if (  uri.startsWith("http://")
-           || uri.startsWith("https://")
-           || uri.startsWith("/")) {
-            return false;
-        }
-        return true;
+        return !(uri.startsWith("http://")
+                || uri.startsWith("https://")
+                || uri.startsWith("/"));
     }
 	
     /** Use xml:base attributes at feed and entry level to resolve relative links */
@@ -218,12 +213,12 @@ public class OpenSearchModuleParser implements ModuleParser{
         URL baseURI = null;
         List linksList = root.getChildren("link", OS_NS);
         if (linksList != null) {
-            for (Iterator links = linksList.iterator(); links.hasNext(); ) {
-                Element link = (Element)links.next();
+            for (Object aLinksList : linksList) {
+                Element link = (Element) aLinksList;
                 if (!root.equals(link.getParent())) break;
                 String href = link.getAttribute("href").getValue();
-                if (   link.getAttribute("rel", OS_NS) == null
-                    || link.getAttribute("rel", OS_NS).getValue().equals("alternate")) {
+                if (link.getAttribute("rel", OS_NS) == null
+                        || link.getAttribute("rel", OS_NS).getValue().equals("alternate")) {
                     href = resolveURI(null, link, href);
                     try {
                         baseURI = new URL(href);

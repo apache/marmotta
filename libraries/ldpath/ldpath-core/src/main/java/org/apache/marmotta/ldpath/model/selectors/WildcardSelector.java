@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -40,8 +40,7 @@ public class WildcardSelector<Node> extends PropertySelector<Node> implements No
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        return !(o == null || getClass() != o.getClass());
 
-        return true;
     }
 }

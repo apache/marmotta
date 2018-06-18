@@ -79,14 +79,12 @@ public class DistinctLimitOptimizer implements QueryOptimizer {
             allowed = false;
         }
 
-
         @Override
         public void meet(Union node) throws RuntimeException {
             super.meet(node);
 
             allowed = false;
         }
-
 
         @Override
         public void meet(Filter node) throws RuntimeException {
@@ -101,6 +99,7 @@ public class DistinctLimitOptimizer implements QueryOptimizer {
         public boolean isAllowed() {
             return allowed;
         }
+
     }
 
     /**
@@ -143,11 +142,7 @@ public class DistinctLimitOptimizer implements QueryOptimizer {
                 return true;
             } else if(expr instanceof Order) {
                 return true;
-            } else if(expr instanceof Group) {
-                return true;
-            } else {
-                return false;
-            }
+            } else return expr instanceof Group;
         }
     }
 
@@ -191,11 +186,7 @@ public class DistinctLimitOptimizer implements QueryOptimizer {
                 return true;
             } else if(expr instanceof Group) {
                 return true;
-            } else if(expr instanceof Slice) {
-                return true;
-            } else {
-                return false;
-            }
+            } else return expr instanceof Slice;
         }
     }
 
@@ -243,11 +234,7 @@ public class DistinctLimitOptimizer implements QueryOptimizer {
                 return true;
             } else if(expr instanceof Distinct) {
                 return true;
-            } else if(expr instanceof Reduced) {
-                return true;
-            } else {
-                return false;
-            }
+            } else return expr instanceof Reduced;
         }
     }
 

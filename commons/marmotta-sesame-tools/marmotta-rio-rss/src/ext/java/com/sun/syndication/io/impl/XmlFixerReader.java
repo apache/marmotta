@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Alejandro Abdelnur
@@ -621,7 +621,7 @@ public class XmlFixerReader extends Reader {
         if (s.indexOf('&')==-1) {
             return s;
         }
-        StringBuffer sb = new StringBuffer(s.length());
+        StringBuilder sb = new StringBuilder(s.length());
         int pos = 0;
         while (pos<s.length()) {
             String chunck = s.substring(pos);

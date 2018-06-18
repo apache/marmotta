@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -44,7 +44,8 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.*;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -55,7 +56,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.google.common.net.HttpHeaders.*;
-import static javax.ws.rs.core.Response.*;
+import static javax.ws.rs.core.Response.ok;
+import static javax.ws.rs.core.Response.status;
 import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebService.CHARSET;
 import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebServiceHelper.appendMetaTypes;
 
@@ -237,7 +239,7 @@ public class MetaWebService {
             try {
                 conn.begin();
 
-                Resource r = null;
+                Resource r;
                 if (UriUtil.validate(resource)) {
                     r = ResourceUtils.getUriResource(conn, resource);
                 } else {
@@ -305,7 +307,7 @@ public class MetaWebService {
                 }
 
                 // create the Link headers for the response
-                List<String> links = new LinkedList<String>();
+                List<String> links = new LinkedList<>();
 
                 // build the link to the human readable content of this resource (if it exists)
                 String contentLink = ResourceWebServiceHelper.buildContentLink(r, contentService.getContentType(r), configurationService);

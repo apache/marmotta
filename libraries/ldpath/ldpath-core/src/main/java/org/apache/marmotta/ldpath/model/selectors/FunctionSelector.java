@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,16 +18,12 @@
 package org.apache.marmotta.ldpath.model.selectors;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.functions.NodeFunction;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
+
+import java.util.*;
 
 /**
  * Apply a function to the collection of nodes passed as argument of the selector.
@@ -38,8 +34,8 @@ import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
  */
 public class FunctionSelector<Node> implements NodeSelector<Node> {
 
-    private List<NodeSelector<Node>> selectors;
-    private NodeFunction<Collection<Node>,Node> function;
+    private final List<NodeSelector<Node>> selectors;
+    private final NodeFunction<Collection<Node>,Node> function;
 
 
     public FunctionSelector(NodeFunction<Collection<Node>,Node> function, List<NodeSelector<Node>> selectors) {
@@ -60,12 +56,12 @@ public class FunctionSelector<Node> implements NodeSelector<Node> {
      */
     @Override
     public Collection<Node> select(RDFBackend<Node> nodeRDFBackend, Node context, List<Node> path, Map<Node, List<Node>> resultPaths) {
-        ArrayList<Collection<Node>> args = new ArrayList<Collection<Node>>();
+        ArrayList<Collection<Node>> args = new ArrayList<>();
 
         // for a function, we include in the result path all paths to all arguments, so we create a new map to collect the paths
         Map<Node, List<Node>> myResultPaths = null;
         if(resultPaths != null && path != null) {
-            myResultPaths = new HashMap<Node, List<Node>>();
+            myResultPaths = new HashMap<>();
         }
 
         for(NodeSelector<Node> selector : selectors) {
@@ -76,7 +72,7 @@ public class FunctionSelector<Node> implements NodeSelector<Node> {
         Collection<Node> result = function.apply(nodeRDFBackend, context, args.toArray(new Collection[selectors.size()]));
         if(myResultPaths != null && path != null) {
             // for a function, we include in the result path all paths to all arguments ...
-            List<Node> functionPath = new ArrayList<Node>();
+            List<Node> functionPath = new ArrayList<>();
             for(List<Node> subpath : myResultPaths.values()) {
                 for(Node n : subpath) {
                     if(!functionPath.contains(n)) {
@@ -92,12 +88,25 @@ public class FunctionSelector<Node> implements NodeSelector<Node> {
         return result;
     }
 
+    /**
+     * Getter for child NodeSelectors
+     * @return child NodeSelectors
+     */
+    public List<NodeSelector<Node>> getSelectors() {
+        return selectors;
+    }
 
+    /**
+     * Getter for child NodeFunction
+     * @return child NodeFunction
+     */
+    public NodeFunction<Collection<Node>, Node> getFunction() {
+        return function;
+    }
 
     /**
      * Return the name of the NodeSelector for registration in the selector registry
      *
-     * @return
      * @param backend
      */
     @Override
@@ -141,11 +150,8 @@ public class FunctionSelector<Node> implements NodeSelector<Node> {
         if (function != null ? !function.equals(that.function) : that.function != null) {
             return false;
         }
-        if (selectors != null ? !selectors.equals(that.selectors) : that.selectors != null) {
-            return false;
-        }
+        return selectors != null ? selectors.equals(that.selectors) : that.selectors == null;
 
-        return true;
     }
 
     @Override

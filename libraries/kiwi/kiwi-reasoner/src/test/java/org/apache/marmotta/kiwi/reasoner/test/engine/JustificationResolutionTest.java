@@ -51,9 +51,7 @@ public class JustificationResolutionTest {
 
     private Map<Statement,Set<Justification>> baseJustifications;
 
-
     protected static Random rnd = new Random();
-
 
     private KiWiTriple t1, t2, t3, t4, t5; // base
     private KiWiTriple i1, i2, i3, i4, i5, i6; // inferred
@@ -67,7 +65,6 @@ public class JustificationResolutionTest {
         engine = new MockReasoningEngine();
 
         baseJustifications = StatementCommons.newQuadrupleMap();
-
 
         KiWiUriResource s1 = randomURI();
         KiWiUriResource s2 = randomURI();
@@ -87,7 +84,6 @@ public class JustificationResolutionTest {
         t3 = new KiWiTriple(s2,p1,o3, null);
         t4 = new KiWiTriple(s1,p1,o1, randomURI());
         t5 = new KiWiTriple(s3,p1,o1, randomURI());
-
 
         i1 = new KiWiTriple(s1,p2,o1, ctx_inferred); i1.setInferred(true);
         i2 = new KiWiTriple(s1,p1,o2, ctx_inferred); i2.setInferred(true);
@@ -144,8 +140,7 @@ public class JustificationResolutionTest {
         tj2.setTriple(i4);
         tj2.getSupportingTriples().add(i1);
         tj2.getSupportingTriples().add(i2);
-
-
+        
         // i6 is justified by i2 and i5 (so multiplexing needed)
         tj3 = new Justification();
         tj3.setTriple(i6);
@@ -172,9 +167,6 @@ public class JustificationResolutionTest {
         Assert.assertTrue(tj1r.getSupportingTriples().contains(t1));
         Assert.assertTrue(tj1r.getSupportingTriples().contains(t2));
         Assert.assertTrue(tj1r.getSupportingTriples().contains(t3));
-
-
-
     }
 
     /**
@@ -228,7 +220,6 @@ public class JustificationResolutionTest {
         Assert.assertThat(r4,Matchers.<Justification>hasItem(hasProperty("supportingTriples", allOf(hasItems(t2, t4, t5), not(hasItem(t3))))));
     }
 
-
     // TODO: a test taking into account transaction justifications
 
     /**
@@ -239,7 +230,6 @@ public class JustificationResolutionTest {
     public void testTransactionJustifications() throws Exception {
 
     }
-
 
     /**
      * Return a random URI, with a 10% chance of returning a URI that has already been used.
@@ -276,12 +266,11 @@ public class JustificationResolutionTest {
         return object;
     }
 
-
-
     private class MockReasoningEngine extends ReasoningEngine {
-        private MockReasoningEngine() {
-        }
 
+        private MockReasoningEngine() {
+
+        }
 
         /**
          * Return the justifications for the triple passed as argument.
@@ -312,5 +301,7 @@ public class JustificationResolutionTest {
         public Set<Justification> getBaseJustifications(KiWiReasoningConnection connection, Set<Justification> justifications) throws SQLException, ReasoningException {
             return super.getBaseJustifications(connection, justifications);
         }
+
     }
+
 }

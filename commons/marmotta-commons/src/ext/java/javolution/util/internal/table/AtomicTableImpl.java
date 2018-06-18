@@ -30,26 +30,26 @@ public class AtomicTableImpl<E> extends AtomicCollectionImpl<E> implements
     @Override
     public synchronized void add(int index, E element) {
         target().add(index, element);
-        if (!updateInProgress()) immutable = cloneTarget();
+        if (noUpdateInProgress()) immutable = cloneTarget();
     }
 
     @Override
     public synchronized boolean addAll(int index, Collection<? extends E> c) {
         boolean changed = target().addAll(index, c);
-        if (changed && !updateInProgress()) immutable = cloneTarget();
+        if (changed && noUpdateInProgress()) immutable = cloneTarget();
         return changed;
     }
 
     @Override
     public synchronized void addFirst(E element) {
         target().addFirst(element);
-        if (!updateInProgress()) immutable = cloneTarget();
+        if (noUpdateInProgress()) immutable = cloneTarget();
     }
 
     @Override
     public synchronized void addLast(E element) {
         target().addLast(element);
-        if (!updateInProgress()) immutable = cloneTarget();
+        if (noUpdateInProgress()) immutable = cloneTarget();
     }
 
     @Override
@@ -110,14 +110,14 @@ public class AtomicTableImpl<E> extends AtomicCollectionImpl<E> implements
     @Override
     public synchronized boolean offerFirst(E e) {
         boolean changed = target().offerFirst(e);
-        if (changed && !updateInProgress()) immutable = cloneTarget();
+        if (changed && noUpdateInProgress()) immutable = cloneTarget();
         return changed;
     }
 
     @Override
     public synchronized boolean offerLast(E e) {
         boolean changed = target().offerLast(e);
-        if (changed && !updateInProgress()) immutable = cloneTarget();
+        if (changed && noUpdateInProgress()) immutable = cloneTarget();
         return changed;
     }
 
@@ -144,14 +144,14 @@ public class AtomicTableImpl<E> extends AtomicCollectionImpl<E> implements
     @Override
     public synchronized E pollFirst() {
         E e = target().pollFirst();
-        if ((e != null) && !updateInProgress()) immutable = cloneTarget();
+        if ((e != null) && noUpdateInProgress()) immutable = cloneTarget();
         return e;
     }
 
     @Override
     public synchronized E pollLast() {
         E e = target().pollLast();
-        if ((e != null) && !updateInProgress()) immutable = cloneTarget();
+        if ((e != null) && noUpdateInProgress()) immutable = cloneTarget();
         return e;
     }
 
@@ -173,42 +173,42 @@ public class AtomicTableImpl<E> extends AtomicCollectionImpl<E> implements
     @Override
     public synchronized E remove(int index) {
         E e = target().remove(index);
-        if (!updateInProgress()) immutable = cloneTarget();
+        if (noUpdateInProgress()) immutable = cloneTarget();
         return e;
     }
 
     @Override
     public synchronized E removeFirst() {
         E e = target().removeFirst();
-        if (!updateInProgress()) immutable = cloneTarget();
+        if (noUpdateInProgress()) immutable = cloneTarget();
         return e;
     }
 
     @Override
     public synchronized boolean removeFirstOccurrence(Object o) {
         boolean changed = target().removeFirstOccurrence(o);
-        if (changed && !updateInProgress()) immutable = cloneTarget();
+        if (changed && noUpdateInProgress()) immutable = cloneTarget();
         return changed;
     }
 
     @Override
     public synchronized E removeLast() {
         E e = target().removeLast();
-        if (!updateInProgress()) immutable = cloneTarget();
+        if (noUpdateInProgress()) immutable = cloneTarget();
         return e;
     }
 
     @Override
     public synchronized boolean removeLastOccurrence(Object o) {
         boolean changed = target().removeLastOccurrence(o);
-        if (changed && !updateInProgress()) immutable = cloneTarget();
+        if (changed && noUpdateInProgress()) immutable = cloneTarget();
         return changed;
     }
 
     @Override
     public synchronized E set(int index, E element) {
         E e = target().set(index, element);
-        if (!updateInProgress()) immutable = cloneTarget();
+        if (noUpdateInProgress()) immutable = cloneTarget();
         return e;
     }
  

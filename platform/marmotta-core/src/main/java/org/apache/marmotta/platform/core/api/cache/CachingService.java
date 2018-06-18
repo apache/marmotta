@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -36,18 +36,18 @@ public interface CachingService {
      * @param injectionPoint
      * @return
      */
-    public ConcurrentMap getCache(InjectionPoint injectionPoint);
+    ConcurrentMap getCache(InjectionPoint injectionPoint);
 
     /**
      * Return the names of all caches registered in the caching service
      * @return
      */
-    public Set<String> getCacheNames();
+    Set<String> getCacheNames();
 
     /**
      * Clear all caches registered in the caching service
      */
-    public void clearAll();
+    void clearAll();
 
     /**
      * Get the cache with the given name. Creates a new cache if needed.
@@ -55,6 +55,6 @@ public interface CachingService {
      * @param cacheName
      * @return
      */
-    public ConcurrentMap getCacheByName(String cacheName);
+    ConcurrentMap getCacheByName(String cacheName);
 
 }

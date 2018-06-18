@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -408,7 +408,7 @@ public class ResourceWebService {
         response.header(CONTENT_TYPE, "text/plain; charset=UTF-8");
 
         StringBuilder entity = new StringBuilder();
-        entity.append("Could not find matching type for " + acceptedTypes + "\n");
+        entity.append("Could not find matching type for ").append(acceptedTypes).append("\n");
         entity.append("choose one of the following:");
         for (ContentType contentType : offeredTypes) {
             entity.append("  ").append(contentType).append("\n");

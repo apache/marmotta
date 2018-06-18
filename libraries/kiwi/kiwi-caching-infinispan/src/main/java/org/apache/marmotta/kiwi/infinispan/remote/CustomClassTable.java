@@ -34,10 +34,10 @@ import java.util.Map;
  */
 public class CustomClassTable implements ClassTable {
 
-    Writer writer;
+    private Writer writer;
 
-    Map<Integer,Class> classLookup;
-    Map<Class,Integer> idLookup;
+    private Map<Integer,Class> classLookup;
+    private Map<Class,Integer> idLookup;
 
 
     public CustomClassTable() {

@@ -20,7 +20,6 @@ package org.apache.marmotta.kiwi.generator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -86,9 +85,7 @@ public class SnowflakeIDGenerator implements IDGenerator {
     }
 
     protected long getDatacenterId() throws SocketException, UnknownHostException {
-        InetAddress ip = InetAddress.getLocalHost();
         NetworkInterface network = null;
-
 
         Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
         while (en.hasMoreElements()) {
@@ -105,10 +102,7 @@ public class SnowflakeIDGenerator implements IDGenerator {
         byte rndByte = (byte)(rnd.nextInt() & 0x000000FF);
 
         // take the last byte of the MAC address and a random byte as datacenter ID
-        long id = ((0x000000FF & (long)mac[mac.length-1]) | (0x0000FF00 & (((long)rndByte)<<8)))>>6;
-
-
-        return id;
+        return ((0x000000FF & (long)mac[mac.length-1]) | (0x0000FF00 & (((long)rndByte)<<8)))>>6;
     }
 
 

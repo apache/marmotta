@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,13 +18,9 @@
 package org.apache.marmotta.platform.core.services.modules;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.configuration.*;
 import org.apache.marmotta.platform.core.api.modules.ModuleService;
 import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
-import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.MapConfiguration;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,12 +62,12 @@ public class ModuleServiceImpl implements ModuleService {
         //default_container_name = configurationService.getStringConfiguration("kiwi.pages.default_container.name",default_container_name);
         //default_container_number = configurationService.getIntConfiguration("kiwi.pages.default_container.number",default_container_number);
 
-        modules = new HashSet<String>();
-        containers = new HashMap<String,ArrayList<String>>();
-        container_weight = new HashMap<String, Integer>();
+        modules = new HashSet<>();
+        containers = new HashMap<>();
+        container_weight = new HashMap<>();
 
-        configurationMap = new HashMap<String, Configuration>();
-        jarURLs = new HashMap<String, Configuration>();
+        configurationMap = new HashMap<>();
+        jarURLs = new HashMap<>();
 
         try {
             Enumeration<URL> modulePropertiesEnum = this.getClass().getClassLoader().getResources("kiwi-module.properties");
@@ -79,9 +75,9 @@ public class ModuleServiceImpl implements ModuleService {
             while(modulePropertiesEnum.hasMoreElements()) {
                 URL moduleUrl = modulePropertiesEnum.nextElement();
 
-                Configuration moduleProperties = null;
+                Configuration moduleProperties;
                 try {
-                    Set<Configuration> configurations = new HashSet<Configuration>();
+                    Set<Configuration> configurations = new HashSet<>();
 
                     // get basic module configuration
                     moduleProperties = new PropertiesConfiguration(moduleUrl);
@@ -240,7 +236,7 @@ public class ModuleServiceImpl implements ModuleService {
      * @return
      */
     private List<String> sortModules(Collection<String> m) {
-        List<String> sorted = new ArrayList<String>(m);
+        List<String> sorted = new ArrayList<>(m);
         Collections.sort(sorted,new Comparator<String>() {
             @Override
             public int compare(String o, String o2) {
@@ -370,7 +366,7 @@ public class ModuleServiceImpl implements ModuleService {
         Configuration config = getModuleConfiguration(moduleName).getConfiguration();
         if(config != null) {
             if(!config.subset("adminpage.").isEmpty()) {
-                ArrayList<String> l = new ArrayList<String>();
+                ArrayList<String> l = new ArrayList<>();
                 while(config.getString("adminpage."+l.size()+".link") != null) {
                     l.add(config.getString("adminpage."+l.size()+".link"));
                 }
@@ -389,17 +385,17 @@ public class ModuleServiceImpl implements ModuleService {
     public List<HashMap<String,String>> getAdminPageObjects(String moduleName) {
         Configuration config = getModuleConfiguration(moduleName).getConfiguration();
         if(config != null) {
-            ArrayList<HashMap<String,String>> l = new ArrayList<HashMap<String,String>>();
+            ArrayList<HashMap<String,String>> l = new ArrayList<>();
             if(!config.subset("adminpage").isEmpty()) {
                 while(config.getString("adminpage."+l.size()+".link") != null) {
-                    HashMap<String,String> map = new HashMap<String, String>();
+                    HashMap<String,String> map = new HashMap<>();
                     map.put("link",config.getString("baseurl")+config.getString("adminpage."+l.size()+".link"));
                     map.put("title",config.getString("adminpage."+l.size()+".title"));
                     l.add(map);
                 }
             } else {
                 for(String path : config.getStringArray("adminpages")) {
-                    HashMap<String,String> map = new HashMap<String, String>();
+                    HashMap<String,String> map = new HashMap<>();
                     map.put("link",config.getString("baseurl")+path);
                     String title;
                     if(path.lastIndexOf(".") > path.lastIndexOf("/")+1)

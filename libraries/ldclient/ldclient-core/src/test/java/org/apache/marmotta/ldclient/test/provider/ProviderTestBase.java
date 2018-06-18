@@ -98,22 +98,26 @@ public class ProviderTestBase {
 
         ClientResponse response = ldclient.retrieveResource(uri);
 
-        RepositoryConnection connection = ModelCommons.asRepository(response.getData()).getConnection();
+        final RepositoryConnection connection = ModelCommons.asRepository(response.getData()).getConnection();
         try {
             connection.begin();
             Assert.assertTrue(connection.size() > 0);
 
             // run a SPARQL test to see if the returned data is correct
-            InputStream sparql = this.getClass().getResourceAsStream(sparqlFile);
-            BooleanQuery testLabel = connection.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql, "UTF-8"));
-            Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
+            final InputStream sparql = this.getClass().getResourceAsStream(sparqlFile);
+            final String query = IOUtils.toString(sparql, "utf8");
+            final BooleanQuery testLabel = connection.prepareBooleanQuery(QueryLanguage.SPARQL, query);
+            final boolean testSuccess = testLabel.evaluate();
 
-            if (log.isDebugEnabled()) {
-                StringWriter out = new StringWriter();
+            if (!testSuccess && log.isDebugEnabled()) {
+                log.debug("QUERY:\n{}", query);
+
+                final StringWriter out = new StringWriter();
                 connection.export(Rio.createWriter(RDFFormat.TURTLE, out));
-                log.debug("DATA:");
-                log.debug(out.toString());
+                log.debug("DATA:\n{}", out.toString());
             }
+
+            Assert.assertTrue("SPARQL test query failed", testSuccess);
         } finally {
             connection.commit();
             connection.close();

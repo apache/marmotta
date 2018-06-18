@@ -120,9 +120,7 @@ public class SlashImpl implements Slash {
         }
 
         Integer[] array = new Integer[ source.length ];
-        for(int i = 0; i < source.length; i++) {
-            array[i] = source[i];
-        }
+        System.arraycopy(source, 0, array, 0, source.length);
 
         return array;
     }

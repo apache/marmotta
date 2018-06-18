@@ -87,7 +87,7 @@ public interface Article extends GlobalInterface {
      * </tbody></table>
      * @param authors Array of Author Names. Limit 10.
      */
-    public void setAuthors(String[] authors);
+    void setAuthors(String[] authors);
 
     /**
      * Array of Author Names. Limit 10.
@@ -127,7 +127,7 @@ public interface Article extends GlobalInterface {
      * </tbody></table>
      * @return Array of author names.
      */
-    public String[] getAuthors();
+    String[] getAuthors();
 
     /**
      * Source for this article.
@@ -171,7 +171,7 @@ public interface Article extends GlobalInterface {
      * </tbody></table>
      * @param newsSource Source for this article
      */
-    public void setNewsSource(String newsSource);
+    void setNewsSource(String newsSource);
 
     /**
      * Source for this article.
@@ -214,7 +214,7 @@ public interface Article extends GlobalInterface {
      * </tbody></table>
      * @return source for this article.
      */
-    public String getNewsSource();
+    String getNewsSource();
 
     /**
      * Number of pages in the article.
@@ -258,7 +258,7 @@ public interface Article extends GlobalInterface {
      * </tbody></table>
      * @param pages Number of pages in the article
      */
-    public void setPages(Integer pages);
+    void setPages(Integer pages);
 
     /**
      * Number of pages in the article.
@@ -302,7 +302,7 @@ public interface Article extends GlobalInterface {
      * </tbody></table>
      * @return Number of pages in the article
      */
-    public Integer getPages();
+    Integer getPages();
 
     /**
      * Date article was published.
@@ -347,7 +347,7 @@ public interface Article extends GlobalInterface {
      * </tbody></table>
      * @param publishDate Date article was published
      */
-    public void setPublishDate(Date publishDate);
+    void setPublishDate(Date publishDate);
 
     /**
      *  Date article was published.
@@ -392,5 +392,5 @@ public interface Article extends GlobalInterface {
      * </tbody></table>
      * @return Date article was published
      */
-    public Date getPublishDate();
+    Date getPublishDate();
 }

@@ -17,8 +17,9 @@
  */
 package org.rometools.feed.module.sle.types;
 
-import java.io.Serializable;
 import org.jdom2.Namespace;
+
+import java.io.Serializable;
 
 
 /**
@@ -30,23 +31,23 @@ public interface EntryValue extends Serializable, Cloneable {
      * Returns the name of the element.
      * @return Returns the name of the element.
      */
-    public String getElement();
+    String getElement();
 
     /**
      * Returns a label for the element.
      * @return Returns a label for the element.
      */
-    public String getLabel();
+    String getLabel();
 
     /**
      * Returns the value of the element.
      * @return Returns the value of the element.
      */
-    public Comparable getValue();
+    Comparable getValue();
     
     /** 
      * Returns the namespace of the element.
      * @return Returns the namespace of the element.
      */
-    public Namespace getNamespace();
+    Namespace getNamespace();
 }

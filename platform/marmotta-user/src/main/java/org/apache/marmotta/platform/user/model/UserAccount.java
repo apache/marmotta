@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,13 +17,13 @@
  */
 package org.apache.marmotta.platform.user.model;
 
+import org.apache.marmotta.commons.util.HashUtils;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.marmotta.commons.util.HashUtils;
 
 /**
  * User: Stephanie Stroka
@@ -32,6 +32,7 @@ import org.apache.marmotta.commons.util.HashUtils;
  */
 
 public class UserAccount implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -40,7 +41,7 @@ public class UserAccount implements Serializable {
      * @author Jakob Frank <jakob.frank@salzburgresearch.at>
      *
      */
-    public static enum PasswordHash {
+    public enum PasswordHash {
         PLAIN {
             @Override
             protected String hash(String in) {
@@ -137,6 +138,9 @@ public class UserAccount implements Serializable {
         return PasswordHash.checkPasswd(getPasswdHash(), password);
     }
 
+    public void setPasswd(String passwd) {
+        this.setPasswd(PasswordHash.SHA1, passwd);
+    }
 
     public void setPasswd(PasswordHash alg, String passwd) {
         this.passwdHash = alg.encrypt(passwd);
@@ -182,4 +186,5 @@ public class UserAccount implements Serializable {
         result = 31 * result + (webId != null ? webId.hashCode() : 0);
         return result;
     }
+
 }

@@ -18,7 +18,6 @@
 package org.apache.marmotta.kiwi.sparql.builder.model;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -54,6 +53,15 @@ public abstract class SQLClause {
         return false;
     }
 
+
+    /**
+     * Add a SQL condition to the list of conditions.
+     * @param condition
+     */
+    public void addCondition(String condition) {
+        conditions.add(condition);
+    }
+
     /**
      * Build the condition clause for this statement to be used in the WHERE part or the ON part of a JOIN.
      * @return
@@ -63,9 +71,8 @@ public abstract class SQLClause {
         // previous statements
         StringBuilder onClause = new StringBuilder();
 
-        for(Iterator<String> cit = conditions.iterator(); cit.hasNext(); ) {
-            String next = cit.next();
-            if(onClause.length() > 0 && next.length() > 0) {
+        for (String next : conditions) {
+            if (onClause.length() > 0 && next.length() > 0) {
                 onClause.append("\n      AND ");
             }
             onClause.append(next);

@@ -73,7 +73,7 @@ public @interface Realtime {
     /**
      * Identifies the limit behavior for the worst case execution time.
      */
-    public enum Limit {
+    enum Limit {
 
         /**
          * The worst case execution time is constant.

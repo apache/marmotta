@@ -128,17 +128,17 @@ public class CloneableBean implements Serializable, Cloneable {
             clonedBean = _obj.getClass().newInstance();
             PropertyDescriptor[] pds = BeanIntrospector.getPropertyDescriptors(_obj.getClass());
             if (pds!=null) {
-                for (int i=0;i<pds.length;i++) {
-                    Method pReadMethod = pds[i].getReadMethod();
-                    Method pWriteMethod = pds[i].getWriteMethod();
-                    if (pReadMethod!=null && pWriteMethod!=null &&       // ensure it has getter and setter methods
-                        !_ignoreProperties.contains(pds[i].getName()) && // is not in the list of properties to ignore
-                        pReadMethod.getDeclaringClass()!=Object.class && // filter Object.class getter methods
-                        pReadMethod.getParameterTypes().length==0) {     // filter getter methods that take parameters
-                        Object value = pReadMethod.invoke(_obj,NO_PARAMS);
-                        if (value!=null) {
+                for (PropertyDescriptor pd : pds) {
+                    Method pReadMethod = pd.getReadMethod();
+                    Method pWriteMethod = pd.getWriteMethod();
+                    if (pReadMethod != null && pWriteMethod != null &&       // ensure it has getter and setter methods
+                            !_ignoreProperties.contains(pd.getName()) && // is not in the list of properties to ignore
+                            pReadMethod.getDeclaringClass() != Object.class && // filter Object.class getter methods
+                            pReadMethod.getParameterTypes().length == 0) {     // filter getter methods that take parameters
+                        Object value = pReadMethod.invoke(_obj, NO_PARAMS);
+                        if (value != null) {
                             value = doClone(value);
-                            pWriteMethod.invoke(clonedBean,new Object[]{value});
+                            pWriteMethod.invoke(clonedBean, new Object[]{value});
                         }
                     }
                 }
@@ -204,9 +204,8 @@ public class CloneableBean implements Serializable, Cloneable {
     private Object cloneCollection(Collection collection) throws Exception {
         Class mClass = collection.getClass();
         Collection newColl = (Collection) mClass.newInstance();
-        Iterator i = collection.iterator();
-        while (i.hasNext()) {
-            Object element = doClone(i.next());
+        for (Object aCollection : collection) {
+            Object element = doClone(aCollection);
             newColl.add(element);
         }
         return newColl;
@@ -215,12 +214,11 @@ public class CloneableBean implements Serializable, Cloneable {
     private Object cloneMap(Map map) throws Exception {
         Class mClass = map.getClass();
         Map newMap = (Map) mClass.newInstance();
-        Iterator entries = map.entrySet().iterator();
-        while (entries.hasNext()) {
-            Map.Entry entry = (Map.Entry) entries.next();
+        for (Object o : map.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
             Object key = doClone(entry.getKey());
             Object value = doClone(entry.getValue());
-            newMap.put(key,value);
+            newMap.put(key, value);
         }
         return newMap;
     }

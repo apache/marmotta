@@ -58,7 +58,7 @@ public class SQLBooleanProcessor extends CellProcessorAdaptor implements BoolCel
             throw new SuperCsvCellProcessorException(Boolean.class, value, context, this);
         }
 
-        if( ((Boolean)value).booleanValue()) {
+        if((Boolean) value) {
             return "t";
         } else {
             return "f";

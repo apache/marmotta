@@ -45,7 +45,7 @@ public interface LoggingModule {
      *
      * @return a unique identifier for the module, suitable for use in the configuration file
      */
-    public String getId();
+    String getId();
 
 
     /**
@@ -54,7 +54,7 @@ public interface LoggingModule {
      *
      * @return a human-readable name for the module, suitable for displaying in a user interface
      */
-    public String getName();
+    String getName();
 
 
     /**
@@ -63,7 +63,7 @@ public interface LoggingModule {
      *
      * @return a collection of package names
      */
-    public Collection<String> getPackages();
+    Collection<String> getPackages();
 
 
     /**
@@ -71,7 +71,7 @@ public interface LoggingModule {
      *
      * @return
      */
-    public Level getDefaultLevel();
+    Level getDefaultLevel();
 
 
     /**
@@ -80,7 +80,7 @@ public interface LoggingModule {
      *
      * @return
      */
-    public Level getCurrentLevel();
+    Level getCurrentLevel();
 
 
     /**
@@ -89,28 +89,28 @@ public interface LoggingModule {
      *
      * @param level
      */
-    public void setCurrentLevel(Level level);
+    void setCurrentLevel(Level level);
 
 
     /**
      * Return the identifiers of all logging outputs configured for this module
      * @return
      */
-    public List<String> getLoggingOutputIds();
+    List<String> getLoggingOutputIds();
 
 
     /**
      * Set the identifiers of all logging outputs for this module
      * @param ids
      */
-    public void setLoggingOutputIds(List<String> ids);
+    void setLoggingOutputIds(List<String> ids);
 
     /**
      * Return the logging outputs configured for this module (resolved using the LoggingService).
      *
      * @return
      */
-    public List<LoggingOutput> getLoggingOutputs();
+    List<LoggingOutput> getLoggingOutputs();
 
 
     /**
@@ -118,5 +118,5 @@ public interface LoggingModule {
      *
      * @param outputs
      */
-    public void setLoggingOutputs(List<LoggingOutput> outputs);
+    void setLoggingOutputs(List<LoggingOutput> outputs);
 }

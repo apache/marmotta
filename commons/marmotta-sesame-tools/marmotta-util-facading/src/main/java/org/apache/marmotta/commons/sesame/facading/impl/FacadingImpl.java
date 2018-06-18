@@ -16,10 +16,6 @@
  */
 package org.apache.marmotta.commons.sesame.facading.impl;
 
-import java.lang.reflect.Proxy;
-import java.util.Collection;
-import java.util.LinkedList;
-
 import org.apache.marmotta.commons.sesame.facading.annotations.RDF;
 import org.apache.marmotta.commons.sesame.facading.annotations.RDFContext;
 import org.apache.marmotta.commons.sesame.facading.annotations.RDFFilter;
@@ -33,6 +29,10 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Proxy;
+import java.util.Collection;
+import java.util.LinkedList;
 
 
 /**
@@ -171,14 +171,14 @@ public class FacadingImpl implements Facading {
     @Override
     public <C extends Facade> Collection<C> createFacade(Collection<? extends Resource> list, Class<C> type, URI context) {
         log.trace("createFacadeList: creating {} facade over {} content items",type.getName(),list.size());
-        LinkedList<C> result = new LinkedList<C>();
+        LinkedList<C> result = new LinkedList<>();
         if(type.isAnnotationPresent(RDFFilter.class)) {
             try {
                 if (!connection.isOpen()) { throw new IllegalStateException("the connection is already closed, cannot access triple-store."); }
                 if (!connection.isActive()) { throw new IllegalStateException("no active transaction, cannot access triple-store."); }
 
                 // if the RDFType annotation is present, filter out content items that are of the wrong type
-                LinkedList<URI> acceptable_types = new LinkedList<URI>();
+                LinkedList<URI> acceptable_types = new LinkedList<>();
                 if(FacadeUtils.isFacadeAnnotationPresent(type,RDFFilter.class)) {
                     String[]        a_type = FacadeUtils.getFacadeAnnotation(type,RDFFilter.class).value();
                     for(String s_type : a_type) {

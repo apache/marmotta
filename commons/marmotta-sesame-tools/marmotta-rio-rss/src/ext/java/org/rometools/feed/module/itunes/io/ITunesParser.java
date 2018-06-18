@@ -40,24 +40,20 @@
  */
 package org.rometools.feed.module.itunes.io;
 
+import com.sun.syndication.io.ModuleParser;
+import com.sun.syndication.io.WireFeedParser;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
+import org.jdom2.output.XMLOutputter;
 import org.rometools.feed.module.itunes.AbstractITunesObject;
 import org.rometools.feed.module.itunes.EntryInformationImpl;
 import org.rometools.feed.module.itunes.FeedInformationImpl;
-import com.sun.syndication.io.ModuleParser;
 import org.rometools.feed.module.itunes.types.Category;
 import org.rometools.feed.module.itunes.types.Duration;
 import org.rometools.feed.module.itunes.types.Subcategory;
-import com.sun.syndication.io.WireFeedParser;
-
-import org.jdom2.Element;
-import org.jdom2.Namespace;
-
-import org.jdom2.output.XMLOutputter;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
@@ -117,20 +113,20 @@ public class ITunesParser implements ModuleParser {
             }
             
             List categories = element.getChildren("category", ns);
-            for (Iterator it = categories.iterator(); it.hasNext();) {
-                Element category = (Element) it.next();
+            for (Object category1 : categories) {
+                Element category = (Element) category1;
                 if ((category != null) && (category.getAttribute("text") != null)) {
                     Category cat = new Category();
                     cat.setName(category.getAttribute("text").getValue().trim());
-                    
+
                     Element subcategory = category.getChild("category", ns);
-                    
+
                     if (subcategory != null && subcategory.getAttribute("text") != null) {
                         Subcategory subcat = new Subcategory();
                         subcat.setName(subcategory.getAttribute("text").getValue().trim());
                         cat.setSubcategory(subcat);
                     }
-                    
+
                     feedInfo.getCategories().add(cat);
                 }
             }
@@ -199,7 +195,7 @@ public class ITunesParser implements ModuleParser {
     }
     
     protected String getXmlInnerText(Element e) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         XMLOutputter xo = new XMLOutputter();
         List children = e.getContent();
         sb.append(xo.outputString(children));

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,24 +17,22 @@
  */
 package org.apache.marmotta.platform.core.services.prefix;
 
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.Map;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.prefix.PrefixService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.apache.marmotta.platform.core.events.SesameStartupEvent;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.commons.http.UriUtil;
 import org.slf4j.Logger;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Prefix Manager default implementation
@@ -97,7 +95,7 @@ public class PrefixServiceImpl implements PrefixService {
     @Override
     public synchronized void add(String prefix, String namespace) throws IllegalArgumentException, URISyntaxException {
         if (cache.containsKey(prefix)) {
-            log.error("prefix " + prefix + " already managed");
+            log.error("prefix {} already managed", prefix);
             throw new IllegalArgumentException("prefix " + prefix + " already managed, use forceAdd() if you'd like to force its rewrite");
         } else {
             String validatedNamespace = validateNamespace(namespace);
@@ -106,11 +104,11 @@ public class PrefixServiceImpl implements PrefixService {
                     cache.put(prefix, validatedNamespace);
                     configurationService.setConfiguration(CONFIGURATION_PREFIX + "." + prefix, validatedNamespace);
                 } catch (IllegalArgumentException e) {
-                    log.error("namespace " + validatedNamespace + " is already bound to '" + getPrefix(validatedNamespace) + "' prefix, use forceAdd() if you'd like to force its rewrite");
+                    log.error("namespace {} is already bound to '{}' prefix, use forceAdd() if you'd like to force its rewrite", validatedNamespace, getPrefix(validatedNamespace));
                     throw new IllegalArgumentException("namespace " + validatedNamespace + " is already bound to '" + getPrefix(validatedNamespace) + "' prefix");
                 }
             } else {
-                log.error("Namespace <" + namespace + "> is not valid");
+                log.error("Namespace <{}> is not valid", namespace);
                 throw new URISyntaxException(namespace, "Namespace <" + namespace + "> is not valid");
             }
         }
@@ -177,7 +175,7 @@ public class PrefixServiceImpl implements PrefixService {
 
     @Override
     public String serializePrefixMapping() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, String> mapping : cache.entrySet()) {
             sb.append(mapping.getKey()).append(": ").append(mapping.getValue()).append("\n");
         }
@@ -187,7 +185,7 @@ public class PrefixServiceImpl implements PrefixService {
 
     @Override
     public String serializePrefixesSparqlDeclaration() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, String> mapping : cache.entrySet()) {
             sb.append("PREFIX ").append(mapping.getKey()).append(": <").append(mapping.getValue()).append("> \n");
         }

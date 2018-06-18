@@ -124,8 +124,7 @@ public abstract class CollectionView<E> extends FastCollection<E> implements Col
                 if (!it2.hasNext()) return false;
                 if (!cmp.areEqual(it1.next(), it2.next())) return false;
             }
-            if (it2.hasNext()) return false;
-            return true;
+            return !it2.hasNext();
         } else {
             return false;
         }

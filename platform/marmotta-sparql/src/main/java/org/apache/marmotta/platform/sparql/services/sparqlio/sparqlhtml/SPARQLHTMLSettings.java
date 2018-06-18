@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -33,6 +33,6 @@ public final class SPARQLHTMLSettings
      * <p>
      * Defaults to null
      */
-    public static final RioSetting<TemplatingService> TEMPLATING_SERVICE = new RioSettingImpl<TemplatingService>(
-    "org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.templatingservice", "Templating service for SPARQL Results HTML Writer", null);
+    public static final RioSetting<TemplatingService> TEMPLATING_SERVICE = new RioSettingImpl<>(
+            "org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.templatingservice", "Templating service for SPARQL Results HTML Writer", null);
 }

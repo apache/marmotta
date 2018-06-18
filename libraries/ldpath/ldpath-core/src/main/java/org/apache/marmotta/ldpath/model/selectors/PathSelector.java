@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,16 +18,11 @@
 package org.apache.marmotta.ldpath.model.selectors;
 
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
+
+import java.util.*;
 
 /**
  * Traverse a path by following several edges in the RDF graph. Each step is separated by a "/".
@@ -36,8 +31,8 @@ import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
  */
 public class PathSelector<Node> implements NodeSelector<Node> {
 
-    private NodeSelector<Node> left;
-    private NodeSelector<Node> right;
+    private final NodeSelector<Node> left;
+    private final NodeSelector<Node> right;
 
     public PathSelector(NodeSelector<Node> left, NodeSelector<Node> right) {
         this.left = left;
@@ -60,11 +55,11 @@ public class PathSelector<Node> implements NodeSelector<Node> {
         // a new map for storing the result path for the left selector
         Map<Node,List<Node>> myResultPaths = null;
         if(resultPaths != null && path != null) {
-            myResultPaths = new HashMap<Node, List<Node>>();
+            myResultPaths = new HashMap<>();
         }
         
         Collection<Node> nodesLeft = left.select(rdfBackend,context,path,myResultPaths);
-        final Set<Node> result = new HashSet<Node>();
+        final Set<Node> result = new HashSet<>();
 
         
         
@@ -104,9 +99,24 @@ public class PathSelector<Node> implements NodeSelector<Node> {
 		PathSelector that = (PathSelector) o;
 
         if (left != null ? !left.equals(that.left) : that.left != null) return false;
-        if (right != null ? !right.equals(that.right) : that.right != null) return false;
+        return right != null ? right.equals(that.right) : that.right == null;
 
-        return true;
+    }
+
+    /**
+     * Getter for left child node of the path selection.
+     * @return left NodeSelector
+     */
+    public NodeSelector<Node> getLeft() {
+        return left;
+    }
+
+    /**
+     * Getter for right child node of the path selection.
+     * @return right NodeSelector
+     */
+    public NodeSelector<Node> getRight() {
+        return right;
     }
 
     @Override

@@ -88,7 +88,7 @@ public interface ScholarlyArticle extends GlobalInterface {
      * </tbody></table>
      * @param authors Array of Author Names. Limit 10.
      */
-    public void setAuthors(String[] authors);
+    void setAuthors(String[] authors);
 
     /**
      * Array of Author Names. Limit 10.
@@ -128,7 +128,7 @@ public interface ScholarlyArticle extends GlobalInterface {
      * </tbody></table>
      * @return Array of author names.
      */
-    public String[] getAuthors();
+    String[] getAuthors();
 
     /**
      * Number of pages in the article.
@@ -172,7 +172,7 @@ public interface ScholarlyArticle extends GlobalInterface {
      * </tbody></table>
      * @param pages Number of pages in the article
      */
-    public void setPages(Integer pages);
+    void setPages(Integer pages);
 
     /**
      * Number of pages in the article.
@@ -216,7 +216,7 @@ public interface ScholarlyArticle extends GlobalInterface {
      * </tbody></table>
      * @return Number of pages in the article
      */
-    public Integer getPages();
+    Integer getPages();
 
     /**
      * Name of the publication.
@@ -260,7 +260,7 @@ public interface ScholarlyArticle extends GlobalInterface {
      * </tbody></table>
      * @param publicationName Name of the publication.
      */
-    public void setPublicationName(String publicationName);
+    void setPublicationName(String publicationName);
 
     /**
      * Name of the publication.
@@ -304,7 +304,7 @@ public interface ScholarlyArticle extends GlobalInterface {
      * </tbody></table>
      * @return Name of the publication.
      */
-    public String getPublicationName();
+    String getPublicationName();
 
     /**
      * Volume of the publication.
@@ -346,7 +346,7 @@ public interface ScholarlyArticle extends GlobalInterface {
      * </tbody></table>
      * @param publicationVolume Volume of the publication.
      */
-    public void setPublicationVolume(String publicationVolume);
+    void setPublicationVolume(String publicationVolume);
 
     /**
      * Volume of the publication.
@@ -388,7 +388,7 @@ public interface ScholarlyArticle extends GlobalInterface {
      * </tbody></table>
      * @return Volume of the publication.
      */
-    public String getPublicationVolume();
+    String getPublicationVolume();
 
     /**
      * Date article was published.
@@ -433,7 +433,7 @@ public interface ScholarlyArticle extends GlobalInterface {
      * </tbody></table>
      * @param publishDate Date article was published
      */
-    public void setPublishDate(Date publishDate);
+    void setPublishDate(Date publishDate);
 
     /**
      *  Date article was published.
@@ -478,5 +478,5 @@ public interface ScholarlyArticle extends GlobalInterface {
      * </tbody></table>
      * @return Date article was published
      */
-    public Date getPublishDate();
+    Date getPublishDate();
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -45,11 +45,10 @@ import java.util.concurrent.ThreadPoolExecutor;
  * Author: Sebastian Schaffert
  */
 public class LDCacheBackend implements RDFBackend<Value> {
+
     private static final Logger log = LoggerFactory.getLogger(LDCacheBackend.class);
 
-
     private LDCache ldcache;
-
 
     public LDCacheBackend() {
         LDCachingBackend backend = new LDCachingInfinispanBackend();
@@ -130,7 +129,7 @@ public class LDCacheBackend implements RDFBackend<Value> {
                 try {
                     return new URI(((Literal)n).getDatatype().stringValue());
                 } catch (URISyntaxException e) {
-                    log.error("literal datatype was not a valid URI: {}",((Literal) n).getDatatype());
+                    log.error("literal datatype was not a valid URI: {}", ((Literal) n).getDatatype());
                     return null;
                 }
             } else {
@@ -274,7 +273,7 @@ public class LDCacheBackend implements RDFBackend<Value> {
 
     @Override
     public Literal createLiteral(String content, Locale language, URI type) {
-        log.debug("creating literal with content \"{}\", language {}, datatype {}",new Object[]{content,language,type});
+        log.debug("creating literal with content \"{}\", language {}, datatype {}",content,language,type);
         if(language == null && type == null) {
             return createLiteral(content);
         } else if(type == null) {
@@ -317,7 +316,7 @@ public class LDCacheBackend implements RDFBackend<Value> {
     @Override
     public Collection<Value> listObjects(Value subject, Value property) {
         log.info("retrieving resource {}", subject);
-        if(subject instanceof org.openrdf.model.URI && subject instanceof org.openrdf.model.URI) {
+        if (subject instanceof org.openrdf.model.URI) {
             org.openrdf.model.URI s = (org.openrdf.model.URI) subject;
             org.openrdf.model.URI p = (org.openrdf.model.URI) property;
             return ldcache.get(s).filter(s, p, null).objects();
@@ -339,4 +338,5 @@ public class LDCacheBackend implements RDFBackend<Value> {
     public Collection<Value> listSubjects(Value property, Value object) {
         throw new UnsupportedOperationException("reverse traversal not supported for Linked Data backend");
     }
+    
 }

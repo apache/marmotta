@@ -41,6 +41,7 @@
 package org.rometools.feed.module.content;
 
 import com.sun.syndication.feed.module.Module;
+
 import java.util.List;
 
 
@@ -49,46 +50,46 @@ import java.util.List;
  * @author  <a href="mailto:cooper@screaming-penguin.com">Robert "kebernet" Cooper</a>
  */
 public interface ContentModule extends Module {
-    public static final String URI = "http://purl.org/rss/1.0/modules/content/";
-    public static final String RDF_URI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+    String URI = "http://purl.org/rss/1.0/modules/content/";
+    String RDF_URI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 
     /** Returns a List of Strings containing the New Syntax Encoded values
      * are in the element.
      * @return List of content Strings
      */
-    public List getEncodeds();
+    List getEncodeds();
 
     /** Sets a List of Strings containing the New Syntax Encoded values
      * are in the element.
      * @return List of content Strings
      */
-    public void setEncodeds(List encodeds);
+    void setEncodeds(List encodeds);
 
-    public String getUri();
+    String getUri();
 
-    public String toString(String str);
+    String toString(String str);
 
     /** Contains a list of ContentItems that represent the "Original Syntax" set.
      * @see com.totsp.xml.syndication.content.ContentItem
      * @return List of ContentItems.
      */
-    public List getContentItems();
+    List getContentItems();
 
     /** Contains a list of ContentItems that represent the "Original Syntax" set.
      * @see com.totsp.xml.syndication.content.ContentItem
      * @param List of ContentItems.
      */
-    public void setContentItems(List list);
+    void setContentItems(List list);
 
     /** Returns a List of Strings containing whatever new or original syntax items
      * are in the element.
      * @return List of content Strings
      */
-    public List getContents();
+    List getContents();
 
     /** Sets a List of Strings containing whatever new or original syntax items
      * are in the element.
      * @return List of content Strings
      */
-    public void setContents(List contents);
+    void setContents(List contents);
 }

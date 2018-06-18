@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -24,8 +24,6 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.*;
 import net.fortuna.ical4j.model.property.*;
-
-import org.apache.marmotta.commons.sesame.rio.ical.ICalFormat;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
@@ -340,13 +338,13 @@ public class ICalParser extends RDFParserBase {
         createStringProperty(component,resource,Property.TRANSP, NS_ICAL + "transp");
 
         URI p_attendee = createURI(NS_ICAL + "attendee");
-        for(Iterator<Property> it = component.getProperties(Property.ATTENDEE).iterator(); it.hasNext(); ) {
-            Attendee attendee = (Attendee) it.next();
-            if(attendee.getCalAddress() != null) {
+        for (Property property4 : (Iterable<Property>) component.getProperties(Property.ATTENDEE)) {
+            Attendee attendee = (Attendee) property4;
+            if (attendee.getCalAddress() != null) {
                 URI v_attendee = createURI(attendee.getCalAddress().toString());
-                rdfHandler.handleStatement(createStatement(resource,p_attendee,v_attendee));
+                rdfHandler.handleStatement(createStatement(resource, p_attendee, v_attendee));
             } else {
-                log.warn("attendee without calendar address: {}",attendee);
+                log.warn("attendee without calendar address: {}", attendee);
             }
         }
 
@@ -365,17 +363,17 @@ public class ICalParser extends RDFParserBase {
         createUrlProperty(component,resource,Property.URL, NS_ICAL + "url");
         createStringProperty(component,resource,Property.UID, NS_ICAL + "uid");
 
-        for(Iterator<Property> it = component.getProperties(Property.EXDATE).iterator(); it.hasNext(); ) {
-            createDateProperty(it.next(),resource, NS_ICAL + "exdate");
+        for (Property property3 : (Iterable<Property>) component.getProperties(Property.EXDATE)) {
+            createDateProperty(property3, resource, NS_ICAL + "exdate");
         }
-        for(Iterator<Property> it = component.getProperties(Property.EXRULE).iterator(); it.hasNext(); ) {
-            createStringProperty(it.next(),resource, NS_ICAL + "exrule");
+        for (Property property2 : (Iterable<Property>) component.getProperties(Property.EXRULE)) {
+            createStringProperty(property2, resource, NS_ICAL + "exrule");
         }
-        for(Iterator<Property> it = component.getProperties(Property.RDATE).iterator(); it.hasNext(); ) {
-            createDateProperty((DateProperty)it.next(),resource, NS_ICAL + "rdate");
+        for (Property property1 : (Iterable<Property>) component.getProperties(Property.RDATE)) {
+            createDateProperty((DateProperty) property1, resource, NS_ICAL + "rdate");
         }
-        for(Iterator<Property> it = component.getProperties(Property.RRULE).iterator(); it.hasNext(); ) {
-            createStringProperty(it.next(),resource, NS_ICAL + "rrule");
+        for (Property property : (Iterable<Property>) component.getProperties(Property.RRULE)) {
+            createStringProperty(property, resource, NS_ICAL + "rrule");
         }
 
         if(component.getProperty(Property.TRIGGER) != null) {
@@ -466,9 +464,9 @@ public class ICalParser extends RDFParserBase {
             } else if(property instanceof DateListProperty) {
                 DateListProperty dateProperty = (DateListProperty)property;
                 URI p_dateprop = createURI(rdfProperty);
-                for(@SuppressWarnings("unchecked") Iterator<Date> it = dateProperty.getDates().iterator(); it.hasNext(); ) {
-                    Literal v_dateprop = valueFactory.createLiteral(getXMLCalendar(it.next(),dateProperty.getTimeZone()));
-                    rdfHandler.handleStatement(createStatement(r_event,p_dateprop,v_dateprop));
+                for (Date date : (Iterable<Date>) dateProperty.getDates()) {
+                    Literal v_dateprop = valueFactory.createLiteral(getXMLCalendar(date, dateProperty.getTimeZone()));
+                    rdfHandler.handleStatement(createStatement(r_event, p_dateprop, v_dateprop));
                 }
             }
         }

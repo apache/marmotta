@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.0</version>
         <relativePath>../../../parent</relativePath>
     </parent>
 
@@ -33,6 +33,25 @@
         the SIOC ontology to represent the information in RDF. This package is experimental, as PHPBB does not provide
         proper API access over web services. The providers try parsing the HTML content instead.
     </description>
+    <packaging>bundle</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            org.apache.marmotta.ldclient.endpoint.phpbb;version=${project.version},
+                            org.apache.marmotta.ldclient.provider.phpbb;version=${project.version}
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>

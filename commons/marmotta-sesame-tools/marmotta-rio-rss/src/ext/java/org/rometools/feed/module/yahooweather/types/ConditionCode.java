@@ -37,12 +37,11 @@
  */
 package org.rometools.feed.module.yahooweather.types;
 
-import java.io.Serializable;
+import com.sun.syndication.feed.impl.EqualsBean;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.sun.syndication.feed.impl.EqualsBean;
 
 
 /**
@@ -378,7 +377,7 @@ public class ConditionCode implements Serializable {
         this.code = code;
         this.description = description;
 
-        Object old = ConditionCode.LOOKUP.put(new Integer(code), this);
+        Object old = ConditionCode.LOOKUP.put(code, this);
 
         if(old != null) {
             throw new RuntimeException("Duplicate condition code!");
@@ -407,7 +406,7 @@ public class ConditionCode implements Serializable {
      * @return a ConditionCode instance or null
      */
     public static ConditionCode fromCode(int code) {
-        return (ConditionCode) ConditionCode.LOOKUP.get(new Integer(code));
+        return (ConditionCode) ConditionCode.LOOKUP.get(code);
     }
 
     public boolean equals(Object o) {

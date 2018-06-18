@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -29,12 +29,12 @@ public interface SailProvider {
      * Return the name of the provider. Used e.g. for displaying status information or logging.
      * @return
      */
-    public String getName();
+    String getName();
 
 
     /**
      * Return true if this sail provider is enabled in the configuration.
      * @return
      */
-    public boolean isEnabled();
+    boolean isEnabled();
 }

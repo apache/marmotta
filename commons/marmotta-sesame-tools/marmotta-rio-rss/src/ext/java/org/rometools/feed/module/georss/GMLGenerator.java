@@ -16,14 +16,15 @@
  */
 package org.rometools.feed.module.georss;
 
-import java.util.*;
-
-import org.jdom2.Element;
-
 import com.sun.syndication.feed.module.Module;
 import com.sun.syndication.io.ModuleGenerator;
-
+import org.jdom2.Element;
 import org.rometools.feed.module.georss.geometries.*;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * GMLGenerator produces georss elements in georss GML format.
@@ -44,7 +45,7 @@ public class GMLGenerator implements ModuleGenerator {
     
     private Element createPosListElement(PositionList posList) {
         Element posElement = new Element("posList", GeoRSSModule.GML_NS);
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i=0; i<posList.size(); ++i)
             sb.append(posList.getLatitude(i)).append(" ").append(posList.getLongitude(i)).append(" ");
         
@@ -126,16 +127,15 @@ public class GMLGenerator implements ModuleGenerator {
                 }
             }
             List interiorList = ((Polygon) geometry).getInterior();
-            Iterator it = interiorList.iterator();
-            while (it.hasNext()) {
-                AbstractRing ring = (AbstractRing)it.next();
+            for (Object anInteriorList : interiorList) {
+                AbstractRing ring = (AbstractRing) anInteriorList;
                 if (ring instanceof LinearRing) {
                     Element interiorElement = new Element("interior", GeoRSSModule.GML_NS);
                     polygonElement.addContent(interiorElement);
                     Element ringElement = new Element("LinearRing", GeoRSSModule.GML_NS);
                     interiorElement.addContent(ringElement);
                     ringElement.addContent(createPosListElement(((LinearRing) ring).getPositionList()));
-                    
+
                 } else {
                     System.err.println("GeoRSS GML format can't handle rings of type: " + ring.getClass().getName());
                 }

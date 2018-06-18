@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -90,11 +90,8 @@ public class FileSystemContentReader implements ContentReader {
      */
     @Override
     public byte[] getContentData(Resource resource, String mimetype) throws IOException {
-        InputStream in = getContentStream(resource,mimetype);
-        try {
+        try (InputStream in = getContentStream(resource, mimetype)) {
             return ByteStreams.toByteArray(in);
-        } finally {
-            in.close();
         }
     }
 

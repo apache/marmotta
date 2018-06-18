@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -30,7 +30,7 @@ import org.apache.marmotta.ldclient.provider.mediawiki.MediawikiProvider;
 public class WikipediaPageEndpoint extends Endpoint {
 
     public WikipediaPageEndpoint() {
-        super("Wikipedia Provider (Page)", MediawikiProvider.PROVIDER_NAME, "^http://([^.]+)\\.wikipedia\\.org/wiki/.*", "http://$1.wikipedia.org/w/api.php", 86400L);
+        super("Wikipedia Provider (Page)", MediawikiProvider.PROVIDER_NAME, "^https?://([^.]+)\\.wikipedia\\.org/wiki/.*", "https://$1.wikipedia.org/w/api.php", 86400L);
         setPriority(PRIORITY_HIGH);
         addContentType(new ContentType("text", "xml"));
     }

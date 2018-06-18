@@ -69,7 +69,7 @@ public class AsyncMap<K,V> implements Map<K,V> {
 
     @Override
     public V remove(Object o) {
-        delegate.removeAsync((K)o);
+        delegate.removeAsync(o);
         return null;
     }
 

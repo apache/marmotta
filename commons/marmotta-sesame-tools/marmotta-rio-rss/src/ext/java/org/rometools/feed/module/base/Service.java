@@ -39,11 +39,7 @@
  */
 package org.rometools.feed.module.base;
 
-import org.rometools.feed.module.base.types.CurrencyEnumeration;
-import org.rometools.feed.module.base.types.FloatUnit;
-import org.rometools.feed.module.base.types.PaymentTypeEnumeration;
-import org.rometools.feed.module.base.types.PriceTypeEnumeration;
-import org.rometools.feed.module.base.types.ShippingType;
+import org.rometools.feed.module.base.types.*;
 
 
 /**
@@ -93,7 +89,7 @@ public interface Service extends GlobalInterface {
      *        </tbody></table>
      * @param value Currency  of the price amount for an item.
      */
-    public void setCurrency(CurrencyEnumeration value);
+    void setCurrency(CurrencyEnumeration value);
 
     /**
      * Currency  of the price amount for an item.
@@ -134,7 +130,7 @@ public interface Service extends GlobalInterface {
      *        </tbody></table>
      * @return Currency  of the price amount for an item.
      */
-    public CurrencyEnumeration getCurrency();
+    CurrencyEnumeration getCurrency();
 
     /**
      * Additional instructions to explain the item’s delivery process.
@@ -172,7 +168,7 @@ public interface Service extends GlobalInterface {
      *        </tbody></table>
      * @param deliveryNotes Additional instructions to explain the item’s delivery process.
      */
-    public void setDeliveryNotes(String deliveryNotes);
+    void setDeliveryNotes(String deliveryNotes);
 
 
     /**
@@ -211,7 +207,7 @@ public interface Service extends GlobalInterface {
      *        </tbody></table>
      * @return Additional instructions to explain the item’s delivery process.
      */
-    public String getDeliveryNotes();
+    String getDeliveryNotes();
 
     /**
      * The maximum distance you will deliver an item in any direction.
@@ -250,7 +246,7 @@ public interface Service extends GlobalInterface {
      *        </tbody></table>
      * @param deliveryRadius The maximum distance you will deliver an item in any direction.
      */
-    public void setDeliveryRadius(FloatUnit deliveryRadius);
+    void setDeliveryRadius(FloatUnit deliveryRadius);
     /**
      * The maximum distance you will deliver an item in any direction.
      *        <table border="1" cellpadding="5" cellspacing="0" width="640">
@@ -288,7 +284,7 @@ public interface Service extends GlobalInterface {
      *        </tbody></table>
      * @return The maximum distance you will deliver an item in any direction.
      */
-    public FloatUnit getDeliveryRadius();
+    FloatUnit getDeliveryRadius();
 
     /**
      * Location of the where the service is offered.
@@ -338,7 +334,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @param location Location of the where the service is offered.
      */
-    public void setLocation(String location);
+    void setLocation(String location);
 
     /**
      * Location of the where the service is offered.
@@ -388,7 +384,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @return  Location of the where the service is offered.
      */
-    public String getLocation();
+    String getLocation();
 
     /**
      * Payment Methods acceptable for the service.
@@ -445,7 +441,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @param paymentAccepted Payment Methods acceptable for the service.
      */
-    public void setPaymentAccepted(PaymentTypeEnumeration[] paymentAccepted);
+    void setPaymentAccepted(PaymentTypeEnumeration[] paymentAccepted);
 
     /**
      * Payment Methods acceptable for the service.
@@ -502,7 +498,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @return Payment Methods acceptable for the service.
      */
-    public PaymentTypeEnumeration[] getPaymentAccepted();
+    PaymentTypeEnumeration[] getPaymentAccepted();
 
     /**
      * Additional payment information.
@@ -547,7 +543,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @param paymentNotes Additional payment information.
      */
-    public void setPaymentNotes(String paymentNotes);
+    void setPaymentNotes(String paymentNotes);
 
     /**
      * Additional payment information.
@@ -592,7 +588,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @return Additional payment information.
      */
-    public String getPaymentNotes();
+    String getPaymentNotes();
 
     /**
      * Price for the service.
@@ -646,7 +642,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @param price Price for the service.
      */
-    public void setPrice(FloatUnit price);
+    void setPrice(FloatUnit price);
 
     /**
      * Price for the service.
@@ -700,7 +696,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @return Price for the service.
      */
-    public FloatUnit getPrice();
+    FloatUnit getPrice();
 
     /**
      * Price type information.
@@ -746,7 +742,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @param priceType Price type information.
      */
-    public void setPriceType(PriceTypeEnumeration priceType);
+    void setPriceType(PriceTypeEnumeration priceType);
 
     /**
      * Price type information.
@@ -792,7 +788,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @return Price type information.
      */
-    public PriceTypeEnumeration getPriceType();
+    PriceTypeEnumeration getPriceType();
 
     /**
      * Quantity available.
@@ -846,7 +842,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @param quantity Quantity available.
      */
-    public void setQuantity(Integer quantity);
+    void setQuantity(Integer quantity);
 
     /**
      * Quantity available.
@@ -900,7 +896,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @return Quantity available.
      */
-    public Integer getQuantity();
+    Integer getQuantity();
 
     /**
      * The type of service being offered.
@@ -943,7 +939,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @param serviceType The type of service being offered.
      */
-    public void setServiceType(String serviceType);
+    void setServiceType(String serviceType);
 
     /**
      * The type of service being offered.
@@ -986,7 +982,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @return The type of service being offered.
      */
-    public String getServiceType();
+    String getServiceType();
 
     /**
      * Shipping options available for an item.
@@ -1043,7 +1039,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @param shipping Shipping options available for an item.
      */
-    public void setShipping(ShippingType[] shipping);
+    void setShipping(ShippingType[] shipping);
 
     /**
      * Shipping options available for an item.
@@ -1100,7 +1096,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @return Shipping options available for an item.
      */
-    public ShippingType[] getShipping();
+    ShippingType[] getShipping();
 
     /**
      * Tax rate associated with the item.
@@ -1144,7 +1140,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @param taxPercent Tax rate associated with the event.
      */
-    public void setTaxPercent(Float taxPercent);
+    void setTaxPercent(Float taxPercent);
 
     /**
     * Tax rate associated with the service.
@@ -1188,7 +1184,7 @@ public interface Service extends GlobalInterface {
     * </tbody></table>
     * @return Tax rate associated with the event.
     */
-    public Float getTaxPercent();
+    Float getTaxPercent();
 
     /**
      * Region where tax applies.
@@ -1235,7 +1231,7 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @param taxRegion Region where tax applies.
      */
-    public void setTaxRegion(String taxRegion);
+    void setTaxRegion(String taxRegion);
 
     /**
      * Region where tax applies.
@@ -1282,5 +1278,5 @@ public interface Service extends GlobalInterface {
      * </tbody></table>
      * @return Region where tax applies.
      */
-    public String getTaxRegion();
+    String getTaxRegion();
 }

@@ -50,7 +50,7 @@ public class LDCachingFileBackend implements LDCachingBackend {
 
     private Repository cacheRepository;
 
-    public LDCachingFileBackend(File storageDir) throws RepositoryException {
+    public LDCachingFileBackend(File storageDir) {
         if (storageDir == null) throw new NullPointerException();
         this.storageDir = storageDir;
 

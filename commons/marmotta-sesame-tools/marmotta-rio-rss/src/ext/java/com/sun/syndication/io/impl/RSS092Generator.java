@@ -95,8 +95,8 @@ public class RSS092Generator extends RSS091UserlandGenerator {
         }
 
         List categories = item.getCategories();
-        for(int i = 0; i < categories.size(); i++) {
-            eItem.addContent(generateCategoryElement((Category)categories.get(i)));
+        for (Object category : categories) {
+            eItem.addContent(generateCategoryElement((Category) category));
         }
     }
 

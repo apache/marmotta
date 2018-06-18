@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -40,7 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -474,10 +473,8 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
      */
     public void clear() {
         Set<String> set =  cacheManager.getCacheNames();
-        Iterator<String> iterator =  set.iterator();
-        while(iterator.hasNext()){
-            String cacheName = iterator.next();
-            Cache<String,Object> cache = cacheManager.getCache(cacheName);
+        for (String cacheName : set) {
+            Cache<String, Object> cache = cacheManager.getCache(cacheName);
             cache.clear();
         }
 

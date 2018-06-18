@@ -48,5 +48,5 @@ public interface YWeatherModule extends Module {
     /**
      * "http://xml.weather.yahoo.com/ns/rss/1.0"
      */
-    public static String URI = "http://xml.weather.yahoo.com/ns/rss/1.0";
+    String URI = "http://xml.weather.yahoo.com/ns/rss/1.0";
 }

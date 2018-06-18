@@ -32,12 +32,15 @@ import java.util.Set;
 */
 public class VariableFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    public Set<Var> variables = new HashSet<>();
+    private Set<Var> variables = new HashSet<>();
 
-    public VariableFinder(TupleExpr expr) {
+    private VariableFinder(TupleExpr expr) {
         expr.visit(this);
     }
 
+    public static Set<Var> find(TupleExpr expr) {
+        return new VariableFinder(expr).variables;
+    }
 
     @Override
     public void meet(Var node) throws RuntimeException {

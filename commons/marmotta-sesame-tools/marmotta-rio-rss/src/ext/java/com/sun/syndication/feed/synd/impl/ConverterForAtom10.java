@@ -16,33 +16,14 @@
  */
 package com.sun.syndication.feed.synd.impl;
 
+import com.sun.syndication.feed.WireFeed;
+import com.sun.syndication.feed.atom.*;
+import com.sun.syndication.feed.module.impl.ModuleUtils;
+import com.sun.syndication.feed.synd.*;
+
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-
-import com.sun.syndication.feed.WireFeed;
-import com.sun.syndication.feed.atom.Category;
-import com.sun.syndication.feed.atom.Content;
-import com.sun.syndication.feed.atom.Entry;
-import com.sun.syndication.feed.atom.Feed;
-import com.sun.syndication.feed.atom.Link;
-import com.sun.syndication.feed.atom.Person;
-import com.sun.syndication.feed.module.impl.ModuleUtils;
-import com.sun.syndication.feed.synd.Converter;
-import com.sun.syndication.feed.synd.SyndCategory;
-import com.sun.syndication.feed.synd.SyndCategoryImpl;
-import com.sun.syndication.feed.synd.SyndContent;
-import com.sun.syndication.feed.synd.SyndContentImpl;
-import com.sun.syndication.feed.synd.SyndEntry;
-import com.sun.syndication.feed.synd.SyndEntryImpl;
-import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.feed.synd.SyndFeedImpl;
-import com.sun.syndication.feed.synd.SyndLink;
-import com.sun.syndication.feed.synd.SyndLinkImpl;
-import com.sun.syndication.feed.synd.SyndPerson;
-import com.sun.syndication.feed.synd.SyndEnclosure;
-import com.sun.syndication.feed.synd.SyndEnclosureImpl;
 
 
 /**
@@ -141,8 +122,8 @@ public class ConverterForAtom10 implements Converter {
 
     protected List createSyndLinks(List aLinks) {
         ArrayList sLinks = new ArrayList();
-        for (Iterator iter = aLinks.iterator(); iter.hasNext();) {
-            Link link = (Link)iter.next();
+        for (Object aLink : aLinks) {
+            Link link = (Link) aLink;
             SyndLink sLink = createSyndLink(link);
             sLinks.add(sLink);
         }
@@ -151,8 +132,8 @@ public class ConverterForAtom10 implements Converter {
     
     protected List createSyndEntries(Feed feed, List atomEntries, boolean preserveWireItems) {
         List syndEntries = new ArrayList();
-        for (int i=0;i<atomEntries.size();i++) {
-            syndEntries.add(createSyndEntry(feed, (Entry) atomEntries.get(i), preserveWireItems));
+        for (Object atomEntry : atomEntries) {
+            syndEntries.add(createSyndEntry(feed, (Entry) atomEntry, preserveWireItems));
         }
         return syndEntries;
     }
@@ -181,8 +162,8 @@ public class ConverterForAtom10 implements Converter {
         List contents = entry.getContents();
         if (contents != null && contents.size() > 0) {
             List sContents = new ArrayList();
-            for (Iterator iter=contents.iterator(); iter.hasNext();) {
-                Content content = (Content)iter.next();
+            for (Object content1 : contents) {
+                Content content = (Content) content1;
                 sContents.add(createSyndContent(content));
             }
             syndEntry.setContents(sContents);
@@ -213,10 +194,10 @@ public class ConverterForAtom10 implements Converter {
         List categories = entry.getCategories();
         if (categories!=null) {
             List syndCategories = new ArrayList();
-            for (Iterator iter=categories.iterator(); iter.hasNext();) {
-                Category c = (Category)iter.next();
+            for (Object category : categories) {
+                Category c = (Category) category;
                 SyndCategory syndCategory = new SyndCategoryImpl();
-                syndCategory.setName(c.getTerm()); 
+                syndCategory.setName(c.getTerm());
                 syndCategory.setTaxonomyUri(c.getSchemeResolved());
                 // TODO: categories MAY have labels 
                 //       syndCategory.setLabel(c.getLabel());
@@ -236,8 +217,8 @@ public class ConverterForAtom10 implements Converter {
         List syndEnclosures = new ArrayList();
         if (entry.getOtherLinks() != null && entry.getOtherLinks().size() > 0) {
             List oLinks = entry.getOtherLinks();
-            for (Iterator iter = oLinks.iterator(); iter.hasNext(); ) {
-                Link thisLink = (Link)iter.next();
+            for (Object oLink : oLinks) {
+                Link thisLink = (Link) oLink;
                 if ("enclosure".equals(thisLink.getRel()))
                     syndEnclosures.add(
                             createSyndEnclosure(feed, entry, thisLink));
@@ -345,9 +326,9 @@ public class ConverterForAtom10 implements Converter {
         List otherLinks = new ArrayList();
         List slinks = syndFeed.getLinks();
         if (slinks != null) {
-            for (Iterator iter=slinks.iterator(); iter.hasNext();) {       
-                SyndLink syndLink = (SyndLink)iter.next();                
-                Link link = createAtomLink(syndLink);              
+            for (Object slink : slinks) {
+                SyndLink syndLink = (SyndLink) slink;
+                Link link = createAtomLink(syndLink);
                 if (link.getRel() == null ||
                         "".equals(link.getRel().trim()) ||
                         "alternate".equals(link.getRel())) {
@@ -370,8 +351,8 @@ public class ConverterForAtom10 implements Converter {
         List sCats = syndFeed.getCategories();
         List aCats = new ArrayList();
         if (sCats != null) {
-            for (Iterator iter=sCats.iterator(); iter.hasNext();) { 
-                SyndCategory sCat = (SyndCategory)iter.next();
+            for (Object sCat1 : sCats) {
+                SyndCategory sCat = (SyndCategory) sCat1;
                 Category aCat = new Category();
                 aCat.setTerm(sCat.getName());
                 // TODO: aCat.setLabel(sCat.getLabel());
@@ -415,8 +396,8 @@ public class ConverterForAtom10 implements Converter {
 
     protected List createAtomEntries(List syndEntries) {
         List atomEntries = new ArrayList();
-        for (int i=0;i<syndEntries.size();i++) {
-            atomEntries.add(createAtomEntry((SyndEntry)syndEntries.get(i)));
+        for (Object syndEntry : syndEntries) {
+            atomEntries.add(createAtomEntry((SyndEntry) syndEntry));
         }
         return atomEntries;
     }
@@ -430,8 +411,8 @@ public class ConverterForAtom10 implements Converter {
 
     protected List createAtomContents(List syndContents) {
         List atomContents = new ArrayList();
-        for (int i=0;i<syndContents.size();i++) {
-            atomContents.add(createAtomContent((SyndContent)syndContents.get(i)));
+        for (Object syndContent : syndContents) {
+            atomContents.add(createAtomContent((SyndContent) syndContent));
         }
         return atomContents;
     }
@@ -465,8 +446,8 @@ public class ConverterForAtom10 implements Converter {
         List enclosures = sEntry.getEnclosures();
         boolean linkRelEnclosureExists = false;
         if (slinks != null) {
-            for (Iterator iter=slinks.iterator(); iter.hasNext();) {       
-                SyndLink syndLink = (SyndLink)iter.next();                
+            for (Object slink : slinks) {
+                SyndLink syndLink = (SyndLink) slink;
                 Link link = createAtomLink(syndLink);
                 // Set this flag if there's a link of rel = enclosure so that
                 // enclosures won't be duplicated when pulled from
@@ -493,9 +474,9 @@ public class ConverterForAtom10 implements Converter {
         }
         // add SyndEnclosures as links with rel="enclosure" ONLY if
         // there are no SyndEntry.getLinks() with rel="enclosure"
-        if (enclosures != null && linkRelEnclosureExists == false) {
-            for (Iterator iter=enclosures.iterator(); iter.hasNext();) {
-                SyndEnclosure syndEncl = (SyndEnclosure)iter.next();
+        if (enclosures != null && !linkRelEnclosureExists) {
+            for (Object enclosure : enclosures) {
+                SyndEnclosure syndEncl = (SyndEnclosure) enclosure;
                 Link link = createAtomEnclosure(syndEncl);
                 otherLinks.add(link);
             }
@@ -506,8 +487,8 @@ public class ConverterForAtom10 implements Converter {
         List sCats = sEntry.getCategories();
         List aCats = new ArrayList();
         if (sCats != null) {
-            for (Iterator iter=sCats.iterator(); iter.hasNext();) { 
-                SyndCategory sCat = (SyndCategory)iter.next();
+            for (Object sCat1 : sCats) {
+                SyndCategory sCat = (SyndCategory) sCat1;
                 Category aCat = new Category();
                 aCat.setTerm(sCat.getName());
                 // TODO: aCat.setLabel(sCat.getLabel());

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -24,22 +24,22 @@ import java.util.Stack;
 
 public interface TaskManagerService {
 
-    public Task createTask(String name);
+    Task createTask(String name);
 
-    public Task createTask(String name, String group);
+    Task createTask(String name, String group);
 
-    public Task createSubTask(String name);
+    Task createSubTask(String name);
 
-    public Task createSubTask(String name, String group);
+    Task createSubTask(String name, String group);
 
-    public Task getTask();
+    Task getTask();
 
-    public void endTask(TaskInfo task);
+    void endTask(TaskInfo task);
 
-    public List<TaskInfo> getTasks();
+    List<TaskInfo> getTasks();
 
-    public Map<String, List<TaskInfo>> getTasksByGroup();
+    Map<String, List<TaskInfo>> getTasksByGroup();
 
-    public Map<WeakReference<Thread>, Stack<TaskInfo>> getTasksByThread();
+    Map<WeakReference<Thread>, Stack<TaskInfo>> getTasksByThread();
 
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -102,7 +102,7 @@ public class CDIContext {
 
         BeanManager beanManager = getBeanManager();
 
-        List<T> result = new ArrayList<T>();
+        List<T> result = new ArrayList<>();
         for(Bean<?> bean :  beanManager.getBeans(type)) {
             CreationalContext<T> context = beanManager.createCreationalContext((Bean<T>)bean);
             result.add((T) beanManager.getReference(bean, type, context));
@@ -148,9 +148,7 @@ public class CDIContext {
             }
         } catch (NoSuchFieldException e) {
             log.warn("list observers: event field {} not found for class {}", fieldName, type.getName());
-        } catch (InstantiationException e) {
-            log.warn("list observers: could not instantiate object of event field {} for class {}", fieldName, type.getName());
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             log.warn("list observers: could not instantiate object of event field {} for class {}", fieldName, type.getName());
         }
         return false;

@@ -16,12 +16,12 @@
  */
 package com.sun.syndication.feed.synd;
 
-import java.util.Date;
-import java.util.List;
-
 import com.sun.syndication.feed.CopyFrom;
 import com.sun.syndication.feed.module.Extendable;
 import com.sun.syndication.feed.module.Module;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Bean interface for entries of SyndFeedImpl feeds.
@@ -162,7 +162,7 @@ public interface SyndEntry extends Cloneable, CopyFrom, Extendable {
      *         an empty list if none.
      *
      */
-    public List<SyndEnclosure> getEnclosures();
+    List<SyndEnclosure> getEnclosures();
 
     /**
      * Sets the entry enclosures.
@@ -171,7 +171,7 @@ public interface SyndEntry extends Cloneable, CopyFrom, Extendable {
      *        an empty list or <b>null</b> if none.
      *
      */
-    public void setEnclosures(List<SyndEnclosure> enclosures);
+    void setEnclosures(List<SyndEnclosure> enclosures);
 
     /**
      * Returns the entry published date.
@@ -336,7 +336,7 @@ public interface SyndEntry extends Cloneable, CopyFrom, Extendable {
      * @param uri the URI of the ModuleImpl.
      * @return The module with the given URI, <b>null</b> if none.
      */
-    public Module getModule(String uri);
+    Module getModule(String uri);
 
     /**
      * Returns the entry modules.
@@ -362,7 +362,7 @@ public interface SyndEntry extends Cloneable, CopyFrom, Extendable {
      * @return Opaque object to discourage use
      *
      */
-    public Object getForeignMarkup();
+    Object getForeignMarkup();
 
     /**
      * Sets foreign markup found at channel level.
@@ -370,7 +370,7 @@ public interface SyndEntry extends Cloneable, CopyFrom, Extendable {
      * @param foreignMarkup Opaque object to discourage use
      *
      */
-    public void setForeignMarkup(Object foreignMarkup);
+    void setForeignMarkup(Object foreignMarkup);
     
     /**
      * Creates a deep clone of the object.
@@ -379,12 +379,12 @@ public interface SyndEntry extends Cloneable, CopyFrom, Extendable {
      * @throws CloneNotSupportedException thrown if an element of the object cannot be cloned.
      *
      */
-    public Object clone() throws CloneNotSupportedException;
+    Object clone() throws CloneNotSupportedException;
 
     /**
      * Returns the first instance of a SyndLink with the specified relation, or null
      *
      */
-    public SyndLink findRelatedLink(String relation);
+    SyndLink findRelatedLink(String relation);
 
 }

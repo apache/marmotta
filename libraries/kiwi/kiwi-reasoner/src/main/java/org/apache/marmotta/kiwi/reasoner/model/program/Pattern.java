@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -105,9 +105,8 @@ public class Pattern  {
         if(!Objects.equal(this.context, pattern.context)) return false;
         if(!Objects.equal(this.object, pattern.object)) return false;
         if(!Objects.equal(this.property, pattern.property)) return false;
-        if(!Objects.equal(this.subject, pattern.subject)) return false;
+        return Objects.equal(this.subject, pattern.subject);
 
-        return true;
     }
 
     @Override

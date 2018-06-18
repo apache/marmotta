@@ -42,10 +42,11 @@ package org.rometools.feed.module.slash.io;
 
 import com.sun.syndication.feed.module.Module;
 import com.sun.syndication.io.ModuleGenerator;
-import org.rometools.feed.module.slash.Slash;
-import java.util.HashSet;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
+import org.rometools.feed.module.slash.Slash;
+
+import java.util.HashSet;
 
 /** The ModuleGenerator implementation for the Slash plug in.
  * @version $Revision: 1.1 $
@@ -73,7 +74,7 @@ public class SlashModuleGenerator implements ModuleGenerator {
 	    element.addContent( this.generateSimpleElement("section", slash.getSection()));	    
 	}
 	if(slash.getHitParade() != null && slash.getHitParade().length > 0 ){
-	    StringBuffer buff = new StringBuffer();
+	    StringBuilder buff = new StringBuilder();
 	    Integer[] p = slash.getHitParade();
 	    for(int i=0; i < p.length; i++){
 		if(i!= 0)

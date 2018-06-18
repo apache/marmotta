@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -29,7 +29,7 @@ import org.apache.marmotta.ldpath.model.selectors.PropertySelector;
 public class IsATest<Node> extends PathEqualityTest<Node> {
 
     public IsATest(Node rdfType, Node node) {
-        super(new PropertySelector<Node>(rdfType), node);
+        super(new PropertySelector<>(rdfType), node);
     }
     
     @Override
@@ -51,7 +51,7 @@ public class IsATest<Node> extends PathEqualityTest<Node> {
     
     @Override
     public String getDescription() {
-        return "tests if a node has a certain type";
+        return "tests if a node has a certain rdf:type";
     }
     
 }

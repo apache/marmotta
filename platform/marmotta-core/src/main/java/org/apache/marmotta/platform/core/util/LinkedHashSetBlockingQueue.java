@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -55,11 +55,11 @@ public class LinkedHashSetBlockingQueue<E> extends AbstractQueue<E> implements B
     private final LinkedHashSet<E> delegate;
 
     public LinkedHashSetBlockingQueue() {
-        delegate = new LinkedHashSet<E>();
+        delegate = new LinkedHashSet<>();
     }
 
     public LinkedHashSetBlockingQueue(int capacity) {
-        this.delegate = new LinkedHashSet<E>(capacity);
+        this.delegate = new LinkedHashSet<>(capacity);
         this.capacity = capacity;
     }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -29,14 +29,7 @@ import org.apache.marmotta.ldpath.model.transformers.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.ServiceConfigurationError;
-import java.util.ServiceLoader;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Add file description here!
@@ -57,7 +50,7 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
 
     public static final Map<String, String> DEFAULT_NAMESPACES;
     static {
-        HashMap<String, String> defNS = new HashMap<String, String>();
+        HashMap<String, String> defNS = new HashMap<>();
         defNS.put("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         defNS.put("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
         defNS.put("owl", "http://www.w3.org/2002/07/owl#");
@@ -71,7 +64,7 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
         DEFAULT_NAMESPACES = Collections.unmodifiableMap(defNS);
     }
 
-    public static final Set<Class<?>> DEFAULT_FUNCTIONS = new HashSet<Class<?>>();
+    public static final Set<Class<?>> DEFAULT_FUNCTIONS = new HashSet<>();
     static {
         DEFAULT_FUNCTIONS.add(ConcatenateFunction.class);
         DEFAULT_FUNCTIONS.add(FirstFunction.class);
@@ -115,11 +108,10 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
     }
 
     private void addDefaultFunctions() {
-        Iterator<SelectorFunction> functions = functionLoader.iterator();
-        while (functions.hasNext()) {
+        for (SelectorFunction aFunctionLoader : functionLoader) {
             try {
-                SelectorFunction<Node> f = functions.next();
-                log.info("registering LDPath function: {}", f.getSignature());
+                SelectorFunction<Node> f = aFunctionLoader;
+                log.debug("registering LDPath function: {}", f.getSignature());
                 addFunction(f);
             } catch (ServiceConfigurationError e) {
                 log.warn("Unable to load function because of an "
@@ -133,18 +125,17 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
     }
 
     private void addDefaultTestFunctions() {
-    	Iterator<TestFunction> testFunctions = testLoader.iterator();
-    	while(testFunctions.hasNext()){
+        for (TestFunction aTestLoader : testLoader) {
             try {
-        		TestFunction testFunction = testFunctions.next();
-                log.info("registering LDPath test function: {}", 
+                TestFunction testFunction = aTestLoader;
+                log.debug("registering LDPath test function: {}",
                         testFunction.getSignature());
                 addTestFunction(testFunction);
             } catch (ServiceConfigurationError e) {
                 log.warn("Unable to load function because of an "
                         + e.getClass().getSimpleName(), e);
             }
-    	}
+        }
     }
 
     private void addTestFunction(TestFunction<Node> test) {

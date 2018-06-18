@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,16 +18,17 @@
 package org.apache.marmotta.ldpath.model.functions.coll;
 
 
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
-
 public class GetFunction<Node> extends AbstractCollFunction<Node> {
 
+    @SafeVarargs
     @Override
-    public Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
+    public final Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
         final Collection<Node> nodes;
         final int index;
         switch (args.length) {
@@ -43,7 +44,7 @@ public class GetFunction<Node> extends AbstractCollFunction<Node> {
             throw new IllegalArgumentException(getLocalName() + " must not have more than one or two parameters");
         }
 
-        Collection<Node> result = new HashSet<Node>();
+        Collection<Node> result = new HashSet<>();
         for (Node node : nodes) {
             if (hasType(backend, node, RDF + "Bag")) {
                 result.addAll(getFromContainer(backend, node, index));
@@ -64,7 +65,7 @@ public class GetFunction<Node> extends AbstractCollFunction<Node> {
         } else if (index == 0) {
             return backend.listObjects(node, backend.createURI(RDF + "first"));
         } else {
-            HashSet<Node> result = new HashSet<Node>();
+            HashSet<Node> result = new HashSet<>();
             for (Node n : backend.listObjects(node, backend.createURI(RDF + "rest"))) {
                 result.addAll(getFromCollection(backend, n, index - 1));
             }

@@ -38,7 +38,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 
 /**
- * Add file description here!
+ * Base LDCache test
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
@@ -53,7 +53,6 @@ public abstract class BaseLDCacheTest {
 
     protected LDCache ldcache;
 
-
     protected ValueFactory valueFactory = ValueFactoryImpl.getInstance();
 
     /**
@@ -62,8 +61,6 @@ public abstract class BaseLDCacheTest {
      * @return
      */
     protected abstract LDCachingBackend createBackend();
-
-
 
     @Before
     public void setup() {
@@ -94,7 +91,7 @@ public abstract class BaseLDCacheTest {
     }
 
     @Test
-    @Ignore("test failing for the moment because the data returned by the service is wrong")
+    @Ignore("test failing for the moment because the issues on the service")
     public void testOHLOH() throws Exception {
         Assume.assumeTrue(existsClass("org.apache.marmotta.ldclient.provider.rdf.LinkedDataProvider"));
 
@@ -141,15 +138,18 @@ public abstract class BaseLDCacheTest {
 
         // run a SPARQL test to see if the returned data is correct
         InputStream sparql = BaseLDCacheTest.class.getResourceAsStream(sparqlFile);
-        BooleanQuery testLabel = connection.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
-        Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
+        final String query = IOUtils.toString(sparql);
+        BooleanQuery testLabel = connection.prepareBooleanQuery(QueryLanguage.SPARQL, query);
+        final boolean testResult = testLabel.evaluate();
 
-        if(log.isDebugEnabled()) {
+        if(!testResult && log.isDebugEnabled()) {
+            log.debug("QUERY: {}", query);
+
             StringWriter out = new StringWriter();
             connection.export(Rio.createWriter(RDFFormat.TURTLE, out));
-            log.debug("DATA:");
-            log.debug(out.toString());
+            log.debug("DATA: {}", out.toString());
         }
+        Assert.assertTrue("SPARQL test query failed", testResult);
 
         connection.commit();
         connection.close();

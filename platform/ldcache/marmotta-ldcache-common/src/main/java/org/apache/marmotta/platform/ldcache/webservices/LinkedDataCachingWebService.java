@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -288,7 +288,7 @@ public class LinkedDataCachingWebService {
         resultMap.put("endpoint",endpoint.getEndpointUrl());
         resultMap.put("expiry", endpoint.getDefaultExpiry());
         resultMap.put("prefix",endpoint.getUriPattern());
-        resultMap.put("kind",endpoint.getType().toString());
+        resultMap.put("kind", endpoint.getType());
         resultMap.put("mimetype",endpoint.getContentTypes());
         resultMap.put("active", endpoint.isActive());
         resultMap.put("volatile", isVolatile);

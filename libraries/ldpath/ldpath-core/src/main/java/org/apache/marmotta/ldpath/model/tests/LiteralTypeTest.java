@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,11 +17,11 @@
  */
 package org.apache.marmotta.ldpath.model.tests;
 
-import java.net.URI;
-
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.tests.NodeTest;
+
+import java.net.URI;
 
 /**
  * Literal type tests allow to select only literals of a specified type, e.g. to ensure that only decimal values are
@@ -37,7 +37,7 @@ import org.apache.marmotta.ldpath.api.tests.NodeTest;
  */
 public class LiteralTypeTest<Node> extends NodeTest<Node> {
 
-    private URI typeUri;
+    private final URI typeUri;
 
     public LiteralTypeTest(String typeUri) {
         this.typeUri = URI.create(typeUri);
@@ -52,7 +52,6 @@ public class LiteralTypeTest<Node> extends NodeTest<Node> {
      * Throws IllegalArgumentException if the function cannot be applied to the nodes passed as argument
      * or the number of arguments is not correct.
      *
-     * @param args a nested list of KiWiNodes
      * @return
      */
     @Override
@@ -88,7 +87,7 @@ public class LiteralTypeTest<Node> extends NodeTest<Node> {
      * syntax for representing the signature can be chosen by the implementer. This method is for informational
      * purposes only.
      *
-     * @return
+     * @return the Signature (human readable)
      */
     @Override
     public String getSignature() {
@@ -98,11 +97,19 @@ public class LiteralTypeTest<Node> extends NodeTest<Node> {
     /**
      * A short human-readable description of what the node function does.
      *
-     * @return
+     * @return A short human-readable description of what the node function does.
      */
     @Override
     public String getDescription() {
         return "Tests the types of the nodes passed as argument";
+    }
+
+    /**
+     * Get the type (uri) to test for.
+     * @return the type to test for.
+     */
+    public URI getTypeUri() {
+        return typeUri;
     }
 
     @Override
@@ -117,11 +124,8 @@ public class LiteralTypeTest<Node> extends NodeTest<Node> {
         @SuppressWarnings("rawtypes")
         LiteralTypeTest that = (LiteralTypeTest) o;
 
-        if (typeUri != null ? !typeUri.equals(that.typeUri) : that.typeUri != null) {
-            return false;
-        }
+        return typeUri != null ? typeUri.equals(that.typeUri) : that.typeUri == null;
 
-        return true;
     }
 
     @Override

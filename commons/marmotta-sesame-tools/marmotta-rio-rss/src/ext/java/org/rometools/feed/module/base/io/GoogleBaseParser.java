@@ -40,38 +40,22 @@
 package org.rometools.feed.module.base.io;
 
 import com.sun.syndication.feed.module.Module;
-import org.rometools.feed.module.base.GoogleBase;
-import org.rometools.feed.module.base.GoogleBaseImpl;
 import com.sun.syndication.io.ModuleParser;
-import org.rometools.feed.module.base.types.CurrencyEnumeration;
-import org.rometools.feed.module.base.types.DateTimeRange;
-import org.rometools.feed.module.base.types.FloatUnit;
-import org.rometools.feed.module.base.types.GenderEnumeration;
-import org.rometools.feed.module.base.types.IntUnit;
-import org.rometools.feed.module.base.types.PaymentTypeEnumeration;
-import org.rometools.feed.module.base.types.PriceTypeEnumeration;
-import org.rometools.feed.module.base.types.ShippingType;
-import org.rometools.feed.module.base.types.Size;
-import org.rometools.feed.module.base.types.YearType;
-
 import org.jdom2.Element;
 import org.jdom2.Namespace;
+import org.rometools.feed.module.base.GoogleBase;
+import org.rometools.feed.module.base.GoogleBaseImpl;
+import org.rometools.feed.module.base.types.*;
 
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-
 import java.io.IOException;
-
 import java.lang.reflect.Array;
-
 import java.net.URL;
-
 import java.text.SimpleDateFormat;
-
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -119,14 +103,13 @@ public class GoogleBaseParser implements ModuleParser {
         GoogleBaseImpl module = new GoogleBaseImpl();
 
         try {
-            for(int i = 0; i < pds.length; i++) {
-                PropertyDescriptor pd = pds[i];
+            for (PropertyDescriptor pd : pds) {
                 String tagName = GoogleBaseParser.PROPS2TAGS.getProperty(pd.getName());
 
-                if(tagName == null) {
-                    log.log(Level.FINE,"Property: " + pd.getName() + " doesn't have a tag mapping. ");
+                if (tagName == null) {
+                    log.log(Level.FINE, "Property: " + pd.getName() + " doesn't have a tag mapping. ");
                 } else {
-                    tag2pd.put(tagName,pd);
+                    tag2pd.put(tagName, pd);
                 }
             }
         } catch(Exception e) {
@@ -134,19 +117,18 @@ public class GoogleBaseParser implements ModuleParser {
         }
 
         List children = element.getChildren();
-        Iterator it = children.iterator();
 
-        while(it.hasNext()) {
-            Element child = (Element)it.next();
+        for (Object aChildren : children) {
+            Element child = (Element) aChildren;
 
-            if(child.getNamespace().equals(GoogleBaseParser.NS)) {
-                PropertyDescriptor pd = (PropertyDescriptor)tag2pd.get(child.getName());
+            if (child.getNamespace().equals(GoogleBaseParser.NS)) {
+                PropertyDescriptor pd = (PropertyDescriptor) tag2pd.get(child.getName());
 
-                if(pd != null) {
+                if (pd != null) {
                     try {
-                        this.handleTag(child,pd,module);
-                    } catch(Exception e) {
-                        log.log(Level.WARNING,"Unable to handle tag: " + child.getName(),e);
+                        this.handleTag(child, pd, module);
+                    } catch (Exception e) {
+                        log.log(Level.WARNING, "Unable to handle tag: " + child.getName(), e);
                         e.printStackTrace();
                     }
                 }
@@ -157,12 +139,12 @@ public class GoogleBaseParser implements ModuleParser {
     }
 
     public static String stripNonValidCharacters(char[] validCharacters,String input) {
-        StringBuffer newString = new StringBuffer();
+        StringBuilder newString = new StringBuilder();
 
         for(int i = 0; i < input.length(); i++) {
-            for(int j = 0; j < validCharacters.length; j++) {
-                if(input.charAt(i) == validCharacters[j]) {
-                    newString.append(validCharacters[j]);
+            for (char validCharacter : validCharacters) {
+                if (input.charAt(i) == validCharacter) {
+                    newString.append(validCharacter);
                 }
             }
         }
@@ -186,7 +168,7 @@ public class GoogleBaseParser implements ModuleParser {
         } else if((pd.getPropertyType() == URL.class)||(pd.getPropertyType().getComponentType() == URL.class)) {
             tagValue = new URL(tag.getText().trim());
         } else if((pd.getPropertyType() == Boolean.class)||(pd.getPropertyType().getComponentType() == Boolean.class)) {
-            tagValue = new Boolean(tag.getText().trim());
+            tagValue = Boolean.valueOf(tag.getText().trim());
         } else if((pd.getPropertyType() == Date.class)||(pd.getPropertyType().getComponentType() == Date.class)) {
             String text = tag.getText().trim();
 

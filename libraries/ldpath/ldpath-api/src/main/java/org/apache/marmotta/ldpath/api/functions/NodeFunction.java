@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,11 +18,11 @@
 package org.apache.marmotta.ldpath.api.functions;
 
 
-import java.util.Collection;
-
 import org.apache.marmotta.ldpath.api.LDPathConstruct;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
+
+import java.util.Collection;
 
 /**
  * A function applied to nodes.
@@ -44,7 +44,7 @@ public interface NodeFunction<T,Node> extends LDPathConstruct<Node> {
      * @param args a nested list of KiWiNodes
      * @return
      */
-    public T apply(RDFBackend<Node> backend, Node context, @SuppressWarnings("unchecked") Collection<Node>... args) throws IllegalArgumentException;
+    T apply(RDFBackend<Node> backend, Node context, @SuppressWarnings("unchecked") Collection<Node>... args) throws IllegalArgumentException;
 
     /**
      * A string describing the signature of this node function, e.g. "fn:content(uris : Nodes) : Nodes". The
@@ -52,11 +52,11 @@ public interface NodeFunction<T,Node> extends LDPathConstruct<Node> {
      * purposes only.
      * @return
      */
-    public String getSignature();
+    String getSignature();
 
     /**
      * A short human-readable description of what the node function does.
      * @return
      */
-    public String getDescription();
+    String getDescription();
 }

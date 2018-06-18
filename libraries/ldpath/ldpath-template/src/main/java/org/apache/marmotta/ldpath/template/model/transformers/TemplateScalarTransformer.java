@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.ldpath.template.model.transformers;
 
+import freemarker.template.TemplateModelException;
+import freemarker.template.TemplateScalarModel;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
-
-import freemarker.template.TemplateModelException;
-import freemarker.template.TemplateScalarModel;
 
 import java.util.Map;
 
@@ -37,7 +36,7 @@ public class TemplateScalarTransformer<Node> implements NodeTransformer<Template
 
 
     public TemplateScalarTransformer() {
-        delegate = new StringTransformer<Node>();
+        delegate = new StringTransformer<>();
     }
 
     /**

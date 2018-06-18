@@ -40,7 +40,9 @@
  *
  */
 package org.rometools.feed.module.itunes;
+
 import com.sun.syndication.feed.CopyFrom;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -180,7 +182,7 @@ public class FeedInformationImpl extends AbstractITunesObject implements FeedInf
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer("[");
+        StringBuilder sb = new StringBuilder("[");
         sb.append(" email: ");
         sb.append(this.getOwnerEmailAddress());
         sb.append(" name: ");

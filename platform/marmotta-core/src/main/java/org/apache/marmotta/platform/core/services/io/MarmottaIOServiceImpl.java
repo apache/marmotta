@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -53,14 +53,14 @@ public class MarmottaIOServiceImpl implements MarmottaIOService {
 	 */
 	@Override
 	public List<String> getAcceptTypes() {
-        Set<String> acceptTypes = new LinkedHashSet<String>();
+        Set<String> acceptTypes = new LinkedHashSet<>();
         for(RDFFormat format : RDFParserRegistry.getInstance().getKeys()) {
             // Ignore binary formats
             if(format.hasCharset()) {
                 acceptTypes.addAll(format.getMIMETypes());
             }
         }
-        return new ArrayList<String>(acceptTypes);
+        return new ArrayList<>(acceptTypes);
 	}
 
 	/**
@@ -69,14 +69,14 @@ public class MarmottaIOServiceImpl implements MarmottaIOService {
 	 */
 	@Override
 	public List<String> getProducedTypes() {
-	    Set<String> producedTypes = new LinkedHashSet<String>();
+	    Set<String> producedTypes = new LinkedHashSet<>();
         for(RDFFormat format : RDFWriterRegistry.getInstance().getKeys()) {
             // Ignore binary formats
             if(format.hasCharset()) {
                 producedTypes.addAll(format.getMIMETypes());
             }
         }
-        return new ArrayList<String>(producedTypes);
+        return new ArrayList<>(producedTypes);
 	}
 
 	/**

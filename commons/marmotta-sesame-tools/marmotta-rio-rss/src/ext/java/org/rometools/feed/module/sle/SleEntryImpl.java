@@ -19,8 +19,8 @@ package org.rometools.feed.module.sle;
 
 import com.sun.syndication.feed.CopyFrom;
 import com.sun.syndication.feed.impl.ObjectBean;
-import org.rometools.feed.module.sle.io.*;
 import org.rometools.feed.module.sle.io.LabelNamespaceElement;
+import org.rometools.feed.module.sle.io.ModuleParser;
 import org.rometools.feed.module.sle.types.EntryValue;
 import org.rometools.feed.module.sle.types.Group;
 import org.rometools.feed.module.sle.types.Sort;
@@ -45,9 +45,9 @@ public class SleEntryImpl implements SleEntry {
     public EntryValue getGroupByElement(Group element) {
         EntryValue[] values = this.getGroupValues();
         LabelNamespaceElement compare = new LabelNamespaceElement( element.getLabel(), element.getNamespace(), element.getElement() );
-        for (int i = 0; i < values.length; i++) {
-            if( compare.equals( new LabelNamespaceElement( values[i].getLabel(), values[i].getNamespace(), values[i].getElement() )))
-                return values[i];
+        for (EntryValue value : values) {
+            if (compare.equals(new LabelNamespaceElement(value.getLabel(), value.getNamespace(), value.getElement())))
+                return value;
         }
         
         
@@ -79,11 +79,11 @@ public class SleEntryImpl implements SleEntry {
         System.out.println("Looking for value for "+element.getLabel() + " from "+this.sortValues.length);
         EntryValue[] values = this.getSortValues();
         LabelNamespaceElement compare = new LabelNamespaceElement( element.getLabel(), element.getNamespace(), element.getElement() );
-        for (int i = 0; i < values.length; i++) {
-            System.out.println("Compare to value "+values[i].getLabel());
-            if( compare.equals( new LabelNamespaceElement( values[i].getLabel(), values[i].getNamespace(), values[i].getElement() ) ) ){
+        for (EntryValue value : values) {
+            System.out.println("Compare to value " + value.getLabel());
+            if (compare.equals(new LabelNamespaceElement(value.getLabel(), value.getNamespace(), value.getElement()))) {
                 System.out.println("Match.");
-                return values[i];
+                return value;
             }
         }
         

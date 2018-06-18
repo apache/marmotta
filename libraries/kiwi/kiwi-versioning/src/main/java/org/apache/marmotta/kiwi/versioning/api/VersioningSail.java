@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -40,14 +40,14 @@ public interface VersioningSail extends TransactionalSail {
      *
      * @return
      */
-    public RepositoryResult<Version> listVersions() throws SailException;
+    RepositoryResult<Version> listVersions() throws SailException;
 
     /**
      * List all versions of this repository between a start and end date.
      *
      * @return
      */
-    public RepositoryResult<Version> listVersions(Date from, Date to) throws SailException;
+    RepositoryResult<Version> listVersions(Date from, Date to) throws SailException;
 
 
     /**
@@ -60,7 +60,7 @@ public interface VersioningSail extends TransactionalSail {
      *                     (or not deleted at all).
      * @return  a read-only sail connection to access the data of the triple store at the given date
      */
-    public SailConnection getSnapshot(Date snapshotDate) throws SailException;
+    SailConnection getSnapshot(Date snapshotDate) throws SailException;
 
     /**
      * List all versions of this repository affecting the given resource as subject.

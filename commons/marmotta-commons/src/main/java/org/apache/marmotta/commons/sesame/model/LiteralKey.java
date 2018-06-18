@@ -57,9 +57,8 @@ public class LiteralKey {
 
         if (lang != null ? !lang.equals(that.lang) : that.lang != null) return false;
         if (type != null ? !type.equals(that.type) : that.type != null) return false;
-        if (!value.equals(that.value)) return false;
+        return value.equals(that.value);
 
-        return true;
     }
 
     @Override

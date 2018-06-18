@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -23,12 +23,7 @@ import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.List;
@@ -90,7 +85,7 @@ public class StatisticsWebService {
     @Produces("application/json")
     @Path("/list")
     public Map<String,Map<String,String>> getStatistics() {
-        Map<String,Map<String,String>> result = new HashMap<String, Map<String, String>>();
+        Map<String,Map<String,String>> result = new HashMap<>();
 
         for(String module : statisticsService.listModules()) {
             result.put(module, statisticsService.getModule(module).getStatistics());
@@ -114,7 +109,7 @@ public class StatisticsWebService {
     @Path("/{module}")
     public Response getStatistics(@PathParam("module") String module) {
         if(statisticsService.getModule(module) != null) {
-            Map<String,Map<String,String>> result = new HashMap<String, Map<String, String>>();
+            Map<String,Map<String,String>> result = new HashMap<>();
 
             result.put(module, statisticsService.getModule(module).getStatistics());
 

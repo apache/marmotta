@@ -17,7 +17,6 @@
 package com.sun.syndication.io;
 
 import com.sun.syndication.feed.WireFeed;
-import com.sun.syndication.io.FeedException;
 import org.jdom2.Document;
 
 /**
@@ -40,7 +39,7 @@ public interface WireFeedParser {
      * @return the type of feed the parser handles.
      *
      */
-    public String getType();
+    String getType();
 
     /**
      * Inspects an XML Document (JDOM) to check if it can parse it.
@@ -51,7 +50,7 @@ public interface WireFeedParser {
      * @return <b>true</b> if the parser know how to parser this feed, <b>false</b> otherwise.
      *
      */
-    public boolean isMyType(Document document);
+    boolean isMyType(Document document);
 
     /**
      * Parses an XML document (JDOM Document) into a feed bean.
@@ -63,7 +62,7 @@ public interface WireFeedParser {
      * @throws FeedException thrown if a feed bean cannot be created out of the XML document (JDOM).
      *
      */
-    public WireFeed parse(Document document, boolean validate) throws IllegalArgumentException,FeedException;
+    WireFeed parse(Document document, boolean validate) throws IllegalArgumentException,FeedException;
 
 
 }

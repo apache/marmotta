@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -31,6 +31,6 @@ public interface SSLService {
      *
      * @param e the event fired by the ConfigurationService
      */
-    public void configurationServiceInitialised(ConfigurationServiceInitEvent e);
+    void configurationServiceInitialised(ConfigurationServiceInitEvent e);
 
 }

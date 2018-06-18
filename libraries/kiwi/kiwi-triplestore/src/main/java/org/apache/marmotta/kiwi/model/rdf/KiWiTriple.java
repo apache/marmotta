@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
+import com.google.common.base.Preconditions;
 import org.openrdf.model.Statement;
 
 import java.io.Serializable;
@@ -96,15 +97,17 @@ public class KiWiTriple  implements Statement, Serializable {
 
     public KiWiTriple(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, Date created) {
         this(created);
+
+        Preconditions.checkNotNull(subject);
+        Preconditions.checkNotNull(predicate);
+        Preconditions.checkNotNull(object);
+
         this.subject = subject;
         this.predicate = predicate;
         this.object   = object;
         this.context  = context;
         this.deletedAt = null;
 
-        assert(subject  != null);
-        assert(predicate != null);
-        assert(object   != null);
     }
 
     /**
@@ -285,9 +288,8 @@ public class KiWiTriple  implements Statement, Serializable {
     public String toString() {
     	if(context != null) {
     		return "{"+subject.toString()+" "+ predicate.toString()+" "+object.toString()+"}@"+context.toString();
-    	} else {
-    		return "{"+subject.toString()+" "+ predicate.toString()+" "+object.toString()+"}@GLOBAL";   		
     	}
+        return "{"+subject.toString()+" "+ predicate.toString()+" "+object.toString()+"}@GLOBAL";
     }
     
     /**

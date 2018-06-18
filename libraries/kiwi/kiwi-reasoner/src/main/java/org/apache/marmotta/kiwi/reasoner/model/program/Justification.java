@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -71,7 +71,7 @@ public class Justification  {
 
     public Justification() {
         supportingTriples = StatementCommons.newQuadrupleSet();
-        supportingRules   = new HashSet<Rule>();
+        supportingRules   = new HashSet<>();
     }
 
     public long getId() {
@@ -124,9 +124,8 @@ public class Justification  {
         //if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (!supportingRules.equals(that.supportingRules)) return false;
         if (!supportingTriples.equals(that.supportingTriples)) return false;
-        if (!equivalence.equivalent(this.triple, that.triple)) return false;
+        return equivalence.equivalent(this.triple, that.triple);
 
-        return true;
     }
 
     @Override
@@ -146,4 +145,5 @@ public class Justification  {
                 ", supportingRules=" + supportingRules +
                 '}';
     }
+
 }

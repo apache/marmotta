@@ -20,6 +20,7 @@ import org.openrdf.rio.RDFFormat;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * ICal Format is using ical4j for parsing.
@@ -61,7 +62,7 @@ public class ICalFormat {
      */
     public static final RDFFormat FORMAT = new RDFFormat(
             "ICal",
-            Arrays.asList("text/calendar"),
+            Collections.singletonList("text/calendar"),
             Charset.forName("UTF-8"),
             Arrays.asList("ics", "ifb", "iCal", "iFBf"),
             false,

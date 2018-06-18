@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -73,7 +73,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private String home;
 
-    private static Logger log = LoggerFactory.getLogger(ConfigurationService.class);
+    private static Logger log = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
 
     private String configFileName, metaFileName;
 
@@ -144,7 +144,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
 
     public ConfigurationServiceImpl() {
-        runtimeFlags = new HashMap<String, Boolean>();
+        runtimeFlags = new HashMap<>();
         lock = new ReentrantReadWriteLock();
 
         eventTimer = new Timer("Configuration Event Timer", true);
@@ -192,24 +192,24 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             if (getHome() != null) {
                 File f1 = new File(getHome());
                 if (!f1.exists()) {
-                    f1.mkdirs();
+                    Preconditions.checkState(f1.mkdirs(), "could not create directory "+f1);
                 }
                 // ensure directory for user configuration files
                 File f2 = new File(getHome() + File.separator + DIR_CONFIG);
                 if(!f2.exists()) {
-                    f2.mkdirs();
+                    Preconditions.checkState(f2.mkdirs(), "could not create directory "+f2);
                 }
 
                 // ensure directory for logging messages
                 File f3 = new File(getHome() + File.separator + DIR_LOG);
                 if(!f3.exists()) {
-                    f3.mkdirs();
+                    Preconditions.checkState(f3.mkdirs(), "could not create directory "+f3);
                 }
 
                 // ensure directory for importing data
                 File f4 = new File(getHome() + File.separator + DIR_IMPORT);
                 if(!f4.exists()) {
-                    f4.mkdirs();
+                    Preconditions.checkState(f4.mkdirs(), "could not create directory "+f4);
                 }
 
             }
@@ -379,7 +379,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 config.setProperty("database.url", "jdbc:h2:" + getHome() + "/db/marmotta;MVCC=true;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10");
                 config.setProperty("database.user", "sa");
                 config.setProperty("database.password", "sa");
-                config.setProperty("database.mode", "create");
             }
             config.setProperty("kiwi.setup.database", true);
         }
@@ -461,7 +460,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public List<String> listConfigurationKeys() {
         lock.readLock().lock();
         try {
-            List<String> keys = new LinkedList<String>();
+            List<String> keys = new LinkedList<>();
             for (Iterator<String> it = config.getKeys(); it.hasNext();) {
                 keys.add(it.next());
             }
@@ -481,7 +480,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public List<String> listConfigurationKeys(String prefix) {
         lock.readLock().lock();
         try {
-            List<String> keys = new LinkedList<String>();
+            List<String> keys = new LinkedList<>();
             for (Iterator<String> it = config.getKeys(prefix); it.hasNext();) {
                 keys.add(it.next());
             }
@@ -502,7 +501,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public List<Matcher> listConfigurationKeys(Pattern pattern) {
         lock.readLock().lock();
         try {
-            List<Matcher> keys = new LinkedList<Matcher>();
+            List<Matcher> keys = new LinkedList<>();
             for (Iterator<String> it = config.getKeys(); it.hasNext();) {
                 Matcher m = pattern.matcher(it.next());
                 if(m.matches()) {
@@ -668,13 +667,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         lock.readLock().lock();
         try {
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
-            }
+            config.setDelimiterParsingDisabled(true);
             String result = config.getString(key);
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
-            }
+            config.setDelimiterParsingDisabled(false);
             return result;
         } finally {
             lock.readLock().unlock();
@@ -688,13 +683,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         lock.readLock().lock();
         try {
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
-            }
+            config.setDelimiterParsingDisabled(true);
             String result = config.getString(key, defaultValue);
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
-            }
+            config.setDelimiterParsingDisabled(false);
             return result;
         } finally {
             lock.readLock().unlock();
@@ -1049,13 +1040,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
             lock.writeLock().lock();
             try {
-                if (config instanceof AbstractConfiguration) {
-                    ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
-                }
+                config.setDelimiterParsingDisabled(true);
                 config.setProperty(key, value);
-                if (config instanceof AbstractConfiguration) {
-                    ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
-                }
+                config.setDelimiterParsingDisabled(false);
                 save();
             } finally {
                 lock.writeLock().unlock();
@@ -1083,13 +1070,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         lock.writeLock().lock();
         try {
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
-            }
+            config.setDelimiterParsingDisabled(true);
             config.setProperty(key, value);
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
-            }
+            config.setDelimiterParsingDisabled(false);
             save();
         } finally {
             lock.writeLock().unlock();
@@ -1105,15 +1088,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         lock.writeLock().lock();
         try {
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
-            }
+            config.setDelimiterParsingDisabled(true);
             for (Map.Entry<String, ?> entry : values.entrySet()) {
                 config.setProperty(entry.getKey(), entry.getValue());
             }
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
-            }
+            config.setDelimiterParsingDisabled(false);
             save();
         } finally {
             lock.writeLock().unlock();

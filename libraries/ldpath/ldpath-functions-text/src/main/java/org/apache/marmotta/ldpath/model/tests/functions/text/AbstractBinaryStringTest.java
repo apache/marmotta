@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,9 +17,9 @@
  */
 package org.apache.marmotta.ldpath.model.tests.functions.text;
 
-import java.util.Collection;
-
 import com.google.common.collect.Collections2;
+
+import java.util.Collection;
 
 /**
  * Abstract base class for binary string tests.
@@ -28,8 +28,9 @@ import com.google.common.collect.Collections2;
  */
 public abstract class AbstractBinaryStringTest<Node> extends AbstractStringTest<Node> {
 
+    @SafeVarargs
     @Override
-    protected boolean test(AbstractStringTest<Node>.ToStringFunction toStringFunction, Collection<Node>... args) {
+    protected final boolean test(AbstractStringTest<Node>.ToStringFunction toStringFunction, Collection<Node>... args) {
         final Collection<Node> l = args[0], r = args[1];
         
         try {

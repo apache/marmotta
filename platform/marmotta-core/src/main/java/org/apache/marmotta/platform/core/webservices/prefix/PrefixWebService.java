@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,23 +17,16 @@
  */
 package org.apache.marmotta.platform.core.webservices.prefix;
 
-import org.apache.marmotta.platform.core.api.prefix.PrefixService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.platform.core.api.prefix.PrefixService;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
@@ -79,11 +72,11 @@ public class PrefixWebService {
     @Produces("application/json")
     public Response getMapping(@PathParam("prefix") String prefix) {
         if (prefixService.containsPrefix(prefix)) {
-            Map<String, String> result = new HashMap<String, String>();
+            Map<String, String> result = new HashMap<>();
             result.put(prefix, prefixService.getNamespace(prefix));
             return Response.ok().entity(result).build();
         } else {
-            log.error("prefix " + prefix + " mapping not found");
+            log.error("prefix {} mapping not found", prefix);
             return Response.status(Response.Status.NOT_FOUND).entity("prefix " + prefix + " mapping not found").build();
         }
     }
@@ -136,11 +129,11 @@ public class PrefixWebService {
     public Response getPrefix(@QueryParam("uri") @NotNull String uri) {
         if (StringUtils.isNotBlank(uri)) {
             if (prefixService.containsNamespace(uri)) {
-                Map<String, String> result = new HashMap<String, String>();
+                Map<String, String> result = new HashMap<>();
                 result.put(uri, prefixService.getPrefix(uri));
                 return Response.ok().entity(result).build();
             } else {
-                log.error("namespace " + uri + " mapping not found");
+                log.error("namespace {} mapping not found", uri);
                 return Response.status(Response.Status.NOT_FOUND).entity("namespace " + uri + " mapping not found").build();
             }
         } else {

@@ -64,8 +64,8 @@ public abstract class BaseWireFeedGenerator implements WireFeedGenerator {
     }
 
     protected void generateModuleNamespaceDefs(Element root) {
-        for (int i = 0; i < _allModuleNamespaces.length; i++) {
-            root.addNamespaceDeclaration(_allModuleNamespaces[i]);
+        for (Namespace _allModuleNamespace : _allModuleNamespaces) {
+            root.addNamespaceDeclaration(_allModuleNamespace);
         }
     }
 
@@ -113,8 +113,8 @@ public abstract class BaseWireFeedGenerator implements WireFeedGenerator {
         List additionalNamespaces = new java.util.ArrayList();
         additionalNamespaces.addAll(list); // the duplication will prevent a ConcurrentModificationException below
 
-        for (int i = 0; i < additionalNamespaces.size(); i++) {
-            Namespace ns = (Namespace) additionalNamespaces.get(i);
+        for (Object additionalNamespace : additionalNamespaces) {
+            Namespace ns = (Namespace) additionalNamespace;
             String prefix = ns.getPrefix();
             if (prefix != null && prefix.length() > 0 && !usedPrefixes.contains(prefix)) {
                 root.removeNamespaceDeclaration(ns);
@@ -128,8 +128,8 @@ public abstract class BaseWireFeedGenerator implements WireFeedGenerator {
             collector.add(prefix);
         }
         List kids = el.getChildren();
-        for (int i = 0; i < kids.size(); i++) {
-            collectUsedPrefixes((Element) kids.get(i), collector); // recursion - worth it
+        for (Object kid : kids) {
+            collectUsedPrefixes((Element) kid, collector); // recursion - worth it
         }
     }
 

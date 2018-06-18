@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -44,7 +44,7 @@ public interface ImportService {
 	 *
 	 * @return a set of strings representing the mime types accepted by this importer
 	 */
-	public Set<String> getAcceptTypes();
+    Set<String> getAcceptTypes();
 
 	/**
 	 * Import data from the input stream provided as argument into the KiWi database.
@@ -59,7 +59,7 @@ public interface ImportService {
      * @return the number of Content Items imported
 	 * @throws org.apache.marmotta.platform.core.exception.io.MarmottaImportException in case the import fails
 	 */
-	public int importData(URL url, String format, Resource user, URI context) throws MarmottaImportException;
+    int importData(URL url, String format, Resource user, URI context) throws MarmottaImportException;
 
 
 	/**
@@ -75,7 +75,7 @@ public interface ImportService {
      * @return the number of Content Items imported
 	 * @throws org.apache.marmotta.platform.core.exception.io.MarmottaImportException in case the import cannot execute
 	 */
-	public int importData(InputStream is, String format, Resource user, URI context) throws MarmottaImportException;
+    int importData(InputStream is, String format, Resource user, URI context) throws MarmottaImportException;
 
 	/**
 	 * Import data from the reader provided as argument into the KiWi database.
@@ -90,7 +90,7 @@ public interface ImportService {
      * @return the number of Content Items imported
 	 * @throws org.apache.marmotta.platform.core.exception.io.MarmottaImportException in case the import fails
 	 */
-	public int importData(Reader reader, String format, Resource user, URI context) throws MarmottaImportException;
+    int importData(Reader reader, String format, Resource user, URI context) throws MarmottaImportException;
 
 	
 	/**

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,11 +17,9 @@
  */
 package org.apache.marmotta.platform.core.services.ssl;
 
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+import org.apache.marmotta.platform.core.api.ssl.SSLService;
+import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
+import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -29,10 +27,11 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-
-import org.apache.marmotta.platform.core.api.ssl.SSLService;
-import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
-import org.slf4j.Logger;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 /**
  * A service managing the configuration of the SSL context needed for establishing SSL connections.
@@ -60,14 +59,12 @@ public class SSLServiceImpl implements SSLService {
     private void initSSLconfiguration() {
         log.info("SETUP: initialising SSL configuration ...");
         /* Nervige SSL configuration */
-        SSLContext ctx = null;
+        SSLContext ctx;
         try {
             ctx = SSLContext.getInstance("TLS");
             ctx.init(new KeyManager[0], new TrustManager[] { new DefaultTrustManager() }, new SecureRandom());
             SSLContext.setDefault(ctx);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
             e.printStackTrace();
         }
     }

@@ -40,10 +40,7 @@ public abstract class SSEModule implements Module {
         try {
             clone = (SSEModule) this.getClass().newInstance();
             clone.copyFrom(this);
-        } catch (InstantiationException e) {
-            // TODO: use logging
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             // TODO: use logging
             e.printStackTrace();
         }

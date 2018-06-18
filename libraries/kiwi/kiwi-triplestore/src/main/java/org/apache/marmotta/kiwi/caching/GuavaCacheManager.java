@@ -49,7 +49,7 @@ public class GuavaCacheManager implements CacheManager {
     private Cache<String,KiWiNamespace> namespaceUriCache, namespacePrefixCache;
     private ConcurrentHashMap<Long,Long> registryCache;
 
-    private Map<String,Cache> dynamicCaches;
+    private final Map<String,Cache> dynamicCaches;
 
 
     public GuavaCacheManager(KiWiConfiguration configuration) {

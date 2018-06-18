@@ -25,6 +25,7 @@ import org.apache.marmotta.kiwi.sparql.evaluation.KiWiEvaluationStrategy;
 import org.apache.marmotta.kiwi.sparql.evaluation.KiWiTripleSource;
 import org.apache.marmotta.kiwi.sparql.optimizer.DifferenceOptimizer;
 import org.apache.marmotta.kiwi.sparql.optimizer.DistinctLimitOptimizer;
+import org.apache.marmotta.kiwi.sparql.optimizer.NativeFilterOptimizer;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.QueryEvaluationException;
@@ -69,7 +70,7 @@ public class KiWiSparqlSailConnection extends NotifyingSailConnectionWrapper {
         }
 
         try {
-            KiWiTripleSource tripleSource = new KiWiTripleSource(this,valueFactory,includeInferred);
+            KiWiTripleSource tripleSource = new KiWiTripleSource(this, valueFactory, includeInferred);
             EvaluationStrategy strategy = new KiWiEvaluationStrategy(tripleSource, dataset, connection, valueFactory);
 
             new BindingAssigner().optimize(tupleExpr, dataset, bindings);
@@ -81,11 +82,11 @@ public class KiWiSparqlSailConnection extends NotifyingSailConnectionWrapper {
             //new DisjunctiveConstraintOptimizer().optimize(tupleExpr, dataset, bindings);
             //new SameTermFilterOptimizer().optimize(tupleExpr, dataset, bindings);
 
-
             new QueryModelNormalizer().optimize(tupleExpr, dataset, bindings);
             new QueryJoinOptimizer(new KiWiEvaluationStatistics()).optimize(tupleExpr, dataset, bindings);
             new IterativeEvaluationOptimizer().optimize(tupleExpr, dataset, bindings);
-            new FilterOptimizer().optimize(tupleExpr, dataset, bindings);
+
+            new NativeFilterOptimizer().optimize(tupleExpr, dataset, bindings);
             //new OrderLimitOptimizer().optimize(tupleExpr, dataset, bindings);
             new DistinctLimitOptimizer().optimize(tupleExpr, dataset, bindings);
 

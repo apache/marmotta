@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -51,7 +51,7 @@ public class KiWiValueFactory implements ValueFactory {
 
     private KiWiStore store;
 
-    private KiWiTripleRegistry registry;
+    private final KiWiTripleRegistry registry;
 
     private String defaultContext;
 
@@ -223,9 +223,8 @@ public class KiWiValueFactory implements ValueFactory {
     public Literal createLiteral(Object object) {
         if(object instanceof XMLGregorianCalendar) {
             return createLiteral((XMLGregorianCalendar)object);
-        } else {
-            return createLiteral(object,null,LiteralCommons.getXSDType(object.getClass()));
         }
+        return createLiteral(object,null,LiteralCommons.getXSDType(object.getClass()));
     }
 
     /**
@@ -304,12 +303,14 @@ public class KiWiValueFactory implements ValueFactory {
                 // differentiate between the different types of the value
                 if (type == null) {
                     // FIXME: MARMOTTA-39 (this is to avoid a NullPointerException in the following if-clauses)
-                    result = connection.loadLiteral(value.toString(), lang, rtype);
+                    result = connection.loadLiteral(value.toString(), lang, null);
 
                     if(result == null) {
-                        result = new KiWiStringLiteral(value.toString(), locale, rtype);
+                        result = new KiWiStringLiteral(value.toString(), locale, null);
                     }
-                } else if(value instanceof Date || value instanceof DateTime ||type.equals(Namespaces.NS_XSD+"dateTime") || type.equals(Namespaces.NS_XSD+"date") || type.equals(Namespaces.NS_XSD+"time")) {
+                } else if(value instanceof Date || value instanceof DateTime ||
+                        type.equals(Namespaces.NS_XSD+"dateTime") || type.equals(Namespaces.NS_XSD+"date") ||
+                        type.equals(Namespaces.NS_XSD+"time")) {
                     // parse if necessary
                     final DateTime dvalue;
                     if(value instanceof DateTime) {
@@ -565,6 +566,8 @@ public class KiWiValueFactory implements ValueFactory {
 
             KiWiTriple result = new KiWiTriple(ksubject,kpredicate,kobject,kcontext);
 
+            boolean needsDBLookup = false;
+
             synchronized (registry) {
                 long tripleId = registry.lookupKey(cacheKey);
 
@@ -575,13 +578,29 @@ public class KiWiValueFactory implements ValueFactory {
                     registry.registerKey(cacheKey, connection.getTransactionId(), result.getId());
                 } else {
                     // not found in registry, try loading from database
-                    result.setId(connection.getTripleId(ksubject,kpredicate,kobject,kcontext));
+                    needsDBLookup = true;
                 }
+            }
 
-                // triple has no id from registry or database, so we create one and flag it for reasoning
-                if(result.getId() < 0) {
-                    result.setId(connection.getNextSequence());
-                    result.setNewTriple(true);
+            if(needsDBLookup) {
+                result.setId(connection.getTripleId(ksubject,kpredicate,kobject,kcontext));
+            }
+
+            // triple has no id from registry or database, so we create one and flag it for reasoning
+            if(result.getId() < 0) {
+                synchronized (registry) {
+                    // It's possible a concurrent thread might have created this
+                    // triple while we were blocked.  Check the registry again.
+                    long tripleId = registry.lookupKey(cacheKey);
+
+                    if(tripleId >= 0) {
+                        // A concurrent thread got in first.  Take the one it created.
+                        result.setId(tripleId);
+                    } else {
+                        // Create the new triple
+                        result.setId(connection.getNextSequence());
+                        result.setNewTriple(true);
+                    }
 
                     registry.registerKey(cacheKey, connection.getTransactionId(), result.getId());
                 }
@@ -626,19 +645,22 @@ public class KiWiValueFactory implements ValueFactory {
     public KiWiNode convert(Value value) {
         if(value == null) {
             return null;
-        } else if(value instanceof KiWiNode) {
+        }
+        if(value instanceof KiWiNode) {
             return (KiWiNode)value;
-        } else if(value instanceof URI) {
+        }
+        if(value instanceof URI) {
             return (KiWiUriResource)createURI(value.stringValue());
-        } else if(value instanceof BNode) {
+        }
+        if(value instanceof BNode) {
             return (KiWiAnonResource)createBNode(value.stringValue());
-        } else if(value instanceof Literal) {
+        }
+        if(value instanceof Literal) {
             Literal l = (Literal)value;
             return createLiteral(l.getLabel(),l.getLanguage(), l.getDatatype() != null ? l.getDatatype().stringValue(): null);
-        } else {
-            throw new IllegalArgumentException("the value passed as argument does not have the correct type");
         }
 
+        throw new IllegalArgumentException("the value passed as argument does not have the correct type");
     }
 
 

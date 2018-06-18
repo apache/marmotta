@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -61,7 +61,7 @@ public class CoreApplication extends Application {
 
 
         if(classes == null) {
-            classes = new HashSet<Class<?>>();
+            classes = new HashSet<>();
 
             try {
                 Enumeration<URL> modulePropertiesEnum = this.getClass().getClassLoader().getResources("kiwi-module.properties");
@@ -69,7 +69,7 @@ public class CoreApplication extends Application {
                 while(modulePropertiesEnum.hasMoreElements()) {
                     URL moduleUrl = modulePropertiesEnum.nextElement();
 
-                    Configuration moduleProperties = null;
+                    Configuration moduleProperties;
                     try {
                         moduleProperties = new PropertiesConfiguration(moduleUrl);
 

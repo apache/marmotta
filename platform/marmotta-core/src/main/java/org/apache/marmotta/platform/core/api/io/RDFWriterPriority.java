@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -24,6 +24,6 @@ package org.apache.marmotta.platform.core.api.io;
  */
 public enum RDFWriterPriority {
 
-	VERY_LOW,LOW,MEDIUM,HIGH,VERY_HIGH;
+	VERY_LOW,LOW,MEDIUM,HIGH,VERY_HIGH
 
 }

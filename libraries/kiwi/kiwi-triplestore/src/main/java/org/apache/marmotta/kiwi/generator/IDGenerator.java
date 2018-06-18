@@ -28,11 +28,11 @@ public interface IDGenerator {
      * Return the next unique id for the type with the given name using the generator's id generation strategy.
      * @return
      */
-    public long getId();
+    long getId();
 
     /**
      * Shut down this id generator, performing any cleanups that might be necessary.
      *
      */
-    public void shutdown();
+    void shutdown();
 }

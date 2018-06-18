@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -31,6 +31,6 @@ public interface SesameFilter<T> {
      * @param object the object to check
      * @return true in case the object is accepted, false otherwise
      */
-    public boolean accept(T object);
+    boolean accept(T object);
 
 }

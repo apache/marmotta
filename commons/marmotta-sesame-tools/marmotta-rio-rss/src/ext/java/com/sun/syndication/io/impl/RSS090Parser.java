@@ -258,9 +258,9 @@ public class RSS090Parser extends BaseWireFeedParser {
         Collection eItems = getItems(rssRoot);
 
         List items = new ArrayList();
-        for (Iterator i=eItems.iterator();i.hasNext();) {
-            Element eItem = (Element) i.next();
-            items.add(parseItem(rssRoot,eItem));
+        for (Object eItem1 : eItems) {
+            Element eItem = (Element) eItem1;
+            items.add(parseItem(rssRoot, eItem));
         }
         return items;
     }

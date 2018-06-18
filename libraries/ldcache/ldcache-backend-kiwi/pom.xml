@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.0</version>
         <relativePath>../../../parent</relativePath>
     </parent>
 
@@ -32,6 +32,7 @@
         Linked Data Caching Backend based on the JDBC database used by the KiWi triple store. Caches resources and
         caching information in the database and triples in the central triple store (using a dedicated context graph).
     </description>
+    <packaging>bundle</packaging>
 
     <build>
         <pluginManagement>
@@ -80,6 +81,18 @@
                         -->
 
                     </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            org.apache.marmotta.ldcache.backend.kiwi.*;version=${project.version}
+                        </Export-Package>
+                    </instructions>
                 </configuration>
             </plugin>
         </plugins>

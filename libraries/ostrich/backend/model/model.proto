@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package marmotta.rdf.proto;
+
+option java_package = "org.apache.marmotta.ostrich.model.proto";
+
+// Namespaces consist of a prefix (short string used as replacement of a
+// URI prefix) and a uri (the URI to replace by a prefix)
+message Namespace {
+    string prefix = 1;
+    string uri = 2;
+}
+
+// URI resources have a single required field, the uri they are pointing to.
+message URI {
+    string uri = 1;
+}
+
+// BNodes/anonymous nodes have a single required field, the node ID.
+message BNode {
+    string id = 1;
+}
+
+// Resources are either URIs or BNodes.
+message Resource {
+    oneof Resources {
+        URI uri = 1;
+        BNode bnode = 2;
+    }
+}
+
+// A string literal has string content and an optional language specification.
+// At least content is required.
+message StringLiteral {
+    string content = 1;
+    string language = 2;
+}
+
+// A datatype literal has string content of a specific datatype and a URI
+// identifying that datatype (typically in XSD namespace). Both fields are
+// required.
+message DatatypeLiteral {
+    string content = 1;
+    URI datatype = 2;
+}
+
+// A literal is either a string literal with optional language or a
+// datatype literal with required content and datatype.
+message Literal {
+    oneof Literals {
+        StringLiteral stringliteral = 1;
+        DatatypeLiteral dataliteral = 2;
+    }
+}
+
+// Values can be resources or literals
+message Value {
+    oneof Values {
+        Resource resource = 1;
+        Literal literal = 2;
+    }
+}
+
+// A statement has subject, predicate and object, and an optional context.
+// The Statement message is also used for pattern queries, in which case
+// non-existing fields are interpreted as wildcards.
+message Statement {
+    Resource subject = 1;
+    URI predicate = 2;
+    Value object = 3;
+    Resource context = 4;
+}
+
+// A collection of statements.
+message Statements {
+    repeated Statement statement = 1;
+}

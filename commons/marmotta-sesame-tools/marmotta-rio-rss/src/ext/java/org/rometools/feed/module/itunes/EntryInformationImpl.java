@@ -109,7 +109,7 @@ public class EntryInformationImpl extends AbstractITunesObject implements EntryI
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer("[");
+        StringBuilder sb = new StringBuilder("[");
         sb.append(" Duration: ");
         sb.append(this.getDuration());
         sb.append("]");

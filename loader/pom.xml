@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.0</version>
         <relativePath>../parent</relativePath>
     </parent>
 
@@ -91,5 +91,15 @@
         <module>marmotta-loader-hbase</module>
         <module>marmotta-loader-berkeley</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>ostrich</id>
+            <modules>
+                <module>marmotta-loader-ostrich</module>
+            </modules>
+        </profile>
+    </profiles>
+
 
 </project>

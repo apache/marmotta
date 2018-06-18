@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
 * Find the offset and limit values in a tuple expression
@@ -34,10 +35,14 @@ public class ExtensionFinder extends QueryModelVisitorBase<RuntimeException> {
 
     private static Logger log = LoggerFactory.getLogger(ExtensionFinder.class);
 
-    public List<ExtensionElem> elements = new ArrayList<>();
+    private List<ExtensionElem> elements = new ArrayList<>();
 
-    public ExtensionFinder(TupleExpr expr) {
+    private ExtensionFinder(TupleExpr expr) {
         expr.visit(this);
+    }
+
+    public static List<ExtensionElem> find(TupleExpr expr) {
+        return new ExtensionFinder(expr).elements;
     }
 
     @Override

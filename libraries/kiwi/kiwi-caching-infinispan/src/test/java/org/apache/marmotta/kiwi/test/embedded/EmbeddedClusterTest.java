@@ -20,18 +20,21 @@ package org.apache.marmotta.kiwi.test.embedded;
 import org.apache.marmotta.kiwi.config.CachingBackends;
 import org.apache.marmotta.kiwi.test.cluster.BaseClusterTest;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.openrdf.repository.RepositoryException;
 
 /**
- * Add file description here!
+ * Embedded cluster tests
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class EmbeddedClusterTest extends BaseClusterTest {
-
 
     @BeforeClass
     public static void setup() {
         ClusterTestSupport s = new ClusterTestSupport(CachingBackends.INFINISPAN_CLUSTERED);
         s.setup();
     }
+
 }

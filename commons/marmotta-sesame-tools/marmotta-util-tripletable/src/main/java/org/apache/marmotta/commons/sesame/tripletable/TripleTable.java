@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -56,15 +56,15 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
 
     public TripleTable() {
         data = StatementCommons.newQuadrupleSet();
-        indexSPOC = new TreeMap<IntArray, Triple>();
-        indexCSPO = new TreeMap<IntArray, Triple>();
+        indexSPOC = new TreeMap<>();
+        indexCSPO = new TreeMap<>();
     }
 
 
     public TripleTable(Collection<Triple> triples) {
         data = StatementCommons.newQuadrupleSet();
-        indexSPOC = new TreeMap<IntArray, Triple>();
-        indexCSPO = new TreeMap<IntArray, Triple>();
+        indexSPOC = new TreeMap<>();
+        indexCSPO = new TreeMap<>();
         addAll(triples);
     }
 
@@ -463,9 +463,8 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
 		@SuppressWarnings("rawtypes")
 		TripleTable that = (TripleTable) o;
 
-        if (!data.equals(that.data)) return false;
+        return data.equals(that.data);
 
-        return true;
     }
 
     @Override

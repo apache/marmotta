@@ -21,7 +21,6 @@ import com.sun.syndication.feed.rss.Description;
 import com.sun.syndication.feed.rss.Image;
 import com.sun.syndication.feed.rss.Item;
 import com.sun.syndication.io.FeedException;
-
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -96,8 +95,8 @@ public class RSS091UserlandGenerator extends RSS090Generator {
         if (skipHours != null) {
             List hours = skipHours.getChildren();
 
-            for (int i = 0; i < hours.size(); i++) {
-                Element hour = (Element) hours.get(i);
+            for (Object hour1 : hours) {
+                Element hour = (Element) hour1;
                 int value = Integer.parseInt(hour.getText().trim());
 
                 if (isHourFormat24()) {
@@ -157,8 +156,8 @@ public class RSS091UserlandGenerator extends RSS090Generator {
     protected Element generateSkipDaysElement(List days) {
         Element skipDaysElement = new Element("skipDays");
 
-        for (int i = 0; i < days.size(); i++) {
-            skipDaysElement.addContent(generateSimpleElement("day", days.get(i).toString()));
+        for (Object day : days) {
+            skipDaysElement.addContent(generateSimpleElement("day", day.toString()));
         }
 
         return skipDaysElement;
@@ -167,8 +166,8 @@ public class RSS091UserlandGenerator extends RSS090Generator {
     protected Element generateSkipHoursElement(List hours) {
         Element skipHoursElement = new Element("skipHours", getFeedNamespace());
 
-        for (int i = 0; i < hours.size(); i++) {
-            skipHoursElement.addContent(generateSimpleElement("hour", hours.get(i).toString()));
+        for (Object hour : hours) {
+            skipHoursElement.addContent(generateSimpleElement("hour", hour.toString()));
         }
 
         return skipHoursElement;

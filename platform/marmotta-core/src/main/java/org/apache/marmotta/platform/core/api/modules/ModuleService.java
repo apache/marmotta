@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,7 +17,6 @@
  */
 package org.apache.marmotta.platform.core.api.modules;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
 
 import javax.enterprise.inject.spi.InjectionPoint;
@@ -37,7 +36,7 @@ public interface ModuleService {
      * List the names of all currently active modules
      * @return
      */
-    public Collection<String> listModules();
+    Collection<String> listModules();
 
     /**
      * Return the configuration for the module identified by the name given as argument. Returns an
@@ -46,7 +45,7 @@ public interface ModuleService {
      * @param moduleName
      * @return
      */
-    public ModuleConfiguration getModuleConfiguration(String moduleName);
+    ModuleConfiguration getModuleConfiguration(String moduleName);
 
 
     /**
@@ -54,14 +53,14 @@ public interface ModuleService {
      * of the module containing the service.
      *
      */
-    public ModuleConfiguration getModuleConfiguration(InjectionPoint injectionPoint);
+    ModuleConfiguration getModuleConfiguration(InjectionPoint injectionPoint);
 
     /**
      * Provide the current module configuration for the given class, i.e. the configuration of the
      * module containing the class.
      *
      */
-    public ModuleConfiguration getModuleConfiguration(Class<?> cls);
+    ModuleConfiguration getModuleConfiguration(Class<?> cls);
 
     /**
      * Get the URL of the JAR file of the module whose name is given as argument.
@@ -69,7 +68,7 @@ public interface ModuleService {
      * @param moduleName
      * @return
      */
-    public URL getModuleJar(String moduleName);
+    URL getModuleJar(String moduleName);
 
     /**
      * Get the path relative to the LMF base URL where the web contents of this URL can be found
@@ -77,7 +76,7 @@ public interface ModuleService {
      * @param moduleName
      * @return
      */
-    public String getModuleWeb(String moduleName);
+    String getModuleWeb(String moduleName);
 
 
     /**
@@ -87,7 +86,7 @@ public interface ModuleService {
      * @param moduleName
      * @return
      */
-    public Collection<String> getEntities(String moduleName);
+    Collection<String> getEntities(String moduleName);
 
     /**
      * Return a list of webservices used by this module. Each entry is a fully-qualified classname
@@ -96,7 +95,7 @@ public interface ModuleService {
      * @param moduleName
      * @return
      */
-    public Collection<String> getWebservices(String moduleName);
+    Collection<String> getWebservices(String moduleName);
 
 
     /**
@@ -106,14 +105,14 @@ public interface ModuleService {
      * @param moduleName
      * @return
      */
-    public Collection<String> getFilters(String moduleName);
+    Collection<String> getFilters(String moduleName);
 
     /**
      * Return a list of admin pages (paths)
      * @param moduleName
      * @return
      */
-    public List<String> getAdminPages(String moduleName);
+    List<String> getAdminPages(String moduleName);
 
     /**
      * Weight is used to sort modules in UI.
@@ -129,33 +128,33 @@ public interface ModuleService {
      * @param moduleName
      * @return the weight (default == 50)
      */
-    public int getWeight(String moduleName);
+    int getWeight(String moduleName);
 
     /**
      * returns  more complex admin page description
      * @param moduleName
      * @return
      */
-    public List<HashMap<String,String>> getAdminPageObjects(String moduleName);
+    List<HashMap<String,String>> getAdminPageObjects(String moduleName);
 
     /**
      * returns the icon (if set), null otherwise
      * @param moduleName
      * @return
      */
-    public String getIcon(String moduleName);
+    String getIcon(String moduleName);
 
     /**
      * list modules for container sorted on weight
      * @param container
      * @return
      */
-    public List<String> listSortedModules(String container);
+    List<String> listSortedModules(String container);
 
     /**
      * list containers sorted on weight
      * @return
      */
-    public List<String> listSortedContainers();
+    List<String> listSortedContainers();
 
 }

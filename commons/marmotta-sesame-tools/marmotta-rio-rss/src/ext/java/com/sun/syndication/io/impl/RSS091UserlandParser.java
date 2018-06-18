@@ -17,17 +17,15 @@
 package com.sun.syndication.io.impl;
 
 import com.sun.syndication.feed.WireFeed;
-import com.sun.syndication.feed.rss.Channel;
-import com.sun.syndication.feed.rss.Content;
-import com.sun.syndication.feed.rss.Description;
-import com.sun.syndication.feed.rss.Image;
-import com.sun.syndication.feed.rss.Item;
+import com.sun.syndication.feed.rss.*;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  */
@@ -125,8 +123,8 @@ public class RSS091UserlandParser extends RSS090Parser {
         if (e!=null) {
             List skipHours = new ArrayList();
             List eHours = e.getChildren("hour",getRSSNamespace());
-            for (int i=0;i<eHours.size();i++) {
-                Element eHour = (Element) eHours.get(i);
+            for (Object eHour1 : eHours) {
+                Element eHour = (Element) eHour1;
                 skipHours.add(new Integer(eHour.getText().trim()));
             }
             channel.setSkipHours(skipHours);
@@ -136,8 +134,8 @@ public class RSS091UserlandParser extends RSS090Parser {
         if (e!=null) {
             List skipDays = new ArrayList();
             List eDays = e.getChildren("day",getRSSNamespace());
-            for (int i=0;i<eDays.size();i++) {
-                Element eDay = (Element) eDays.get(i);
+            for (Object eDay1 : eDays) {
+                Element eDay = (Element) eDay1;
                 skipDays.add(eDay.getText().trim());
             }
             channel.setSkipDays(skipDays);
@@ -163,14 +161,14 @@ public class RSS091UserlandParser extends RSS090Parser {
             if (e!=null) {
             	Integer val = NumberParser.parseInt(e.getText());
             	if (val != null) {
-            		image.setWidth(val.intValue());
+            		image.setWidth(val);
             	}                
             }
             e = eImage.getChild("height",getRSSNamespace());
             if (e!=null) {
             	Integer val = NumberParser.parseInt(e.getText());
             	if (val != null) {
-            		image.setHeight(val.intValue());
+            		image.setHeight(val);
             	}
             }
             e = eImage.getChild("description",getRSSNamespace());

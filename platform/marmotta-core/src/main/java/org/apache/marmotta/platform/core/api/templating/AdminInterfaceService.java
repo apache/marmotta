@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -28,20 +28,20 @@ import javax.servlet.ServletContext;
  */
 public interface AdminInterfaceService {
     
-    public final static String PATH = "/templates/";
+    String PATH = "/templates/";
 
     /**
      * inits a freebase template service with a servlet context
      * @param context
      */
-    public void init(ServletContext context) throws TemplatingException;
+    void init(ServletContext context) throws TemplatingException;
     
     /**
      * this method wraps a file with a default template
      * @param bytes
      * @return
      */
-    public byte[] process(byte[] bytes, String path) throws TemplatingException;
+    byte[] process(byte[] bytes, String path) throws TemplatingException;
 
     /**
      * Check whether the templating service considers the resource passed in the path as a menu entry it is

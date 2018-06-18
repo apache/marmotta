@@ -144,9 +144,9 @@ public class Base64 {
         }
         byte[] cleanEData = (byte[]) eData.clone();
         int cleanELength = 0;
-        for (int i=0;i<eData.length;i++) {
-            if (eData[i]<256 && CODES[eData[i]]<64) {
-                cleanEData[cleanELength++] = eData[i];
+        for (byte anEData : eData) {
+            if (anEData < 256 && CODES[anEData] < 64) {
+                cleanEData[cleanELength++] = anEData;
             }
         }
 

@@ -58,7 +58,7 @@ public class PGCopyUtil {
             new NotNull(),                            // svalue
             new Optional(),                           // dvalue
             new Optional(),                           // ivalue
-            new SQLDateTimeProcessor(),              // tvalue
+            new SQLDateTimeProcessor(),               // tvalue
             new Optional(),                           // tzoffset
             new Optional(new SQLBooleanProcessor()),  // bvalue
             new Optional(new NodeIDProcessor()),      // ltype
@@ -82,7 +82,9 @@ public class PGCopyUtil {
 
 
     // PostgreSQL expects the empty string to be quoted to distinguish between null and empty
-    final static CsvPreference nodesPreference = new CsvPreference.Builder('"', ',', "\r\n").useEncoder(new DefaultCsvEncoder() {
+    final static CsvPreference nodesPreference = new CsvPreference
+            .Builder('"', ',', "\r\n")
+            .useEncoder(new DefaultCsvEncoder() {
         /**
          * {@inheritDoc}
          */

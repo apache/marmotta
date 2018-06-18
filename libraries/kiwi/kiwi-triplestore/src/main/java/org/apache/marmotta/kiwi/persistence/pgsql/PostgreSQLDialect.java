@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -78,11 +78,8 @@ public class PostgreSQLDialect extends KiWiDialect {
         if(StringUtils.containsIgnoreCase(flags,"m")) {
             return false;
         }
-        if(StringUtils.containsIgnoreCase(flags,"x")) {
-            return false;
-        }
+        return !StringUtils.containsIgnoreCase(flags, "x");
 
-        return true;
     }
 
     @Override
@@ -142,7 +139,6 @@ public class PostgreSQLDialect extends KiWiDialect {
         return true;
     }
 
-
     /**
      * Return true in case the database supports creating arrays with ARRAY[...]
      *
@@ -152,6 +148,5 @@ public class PostgreSQLDialect extends KiWiDialect {
     public boolean isArraySupported() {
         return true;
     }
-
 
 }

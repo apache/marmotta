@@ -28,16 +28,13 @@ import org.openrdf.query.parser.sparql.ComplexSPARQLQueryTest;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.sail.SailRepository;
 
-
 /**
  * Run the Sesame Complex SPARQL Query Test Suite.
 
  * @author Jakob Frank <jakob@apache.org>
- *
  */
 @RunWith(KiWiDatabaseRunner.class)
 public class ComplexKiWiSparqlQueryTest extends ComplexSPARQLQueryTest {
-
 
     private final KiWiConfiguration config;
 
@@ -57,6 +54,20 @@ public class ComplexKiWiSparqlQueryTest extends ComplexSPARQLQueryTest {
     @Ignore("SPARQL semantics is ridiculous here")
     public void testSES1898LeftJoinSemantics1() throws Exception {
         super.testSES1898LeftJoinSemantics1();
+    }
+
+    @Test
+    @Override
+    @Ignore("Ignored because of http://git-wip-us.apache.org/repos/asf/marmotta/commit/35b98edc")
+    public void testSES1991UUIDEvaluation() throws Exception {
+        super.testSES1991UUIDEvaluation();
+    }
+
+    @Test
+    @Override
+    @Ignore("Ignored because of http://git-wip-us.apache.org/repos/asf/marmotta/commit/35b98edc")
+    public void testSES1991STRUUIDEvaluation() throws Exception {
+        super.testSES1991STRUUIDEvaluation();
     }
 
 }

@@ -504,20 +504,20 @@ public class KiWiIO {
     public static KiWiDoubleLiteral readDoubleLiteral(DataInput input) throws IOException {
         long id = input.readLong();
 
-        if(id == -1) {
+        if (id == -1) {
             return null;
-        } else {
-            double content = input.readDouble();
-
-            KiWiUriResource dtype = readURI(input);
-
-            Date created = new Date(input.readLong());
-
-            KiWiDoubleLiteral r = new KiWiDoubleLiteral(content, dtype, created);
-            r.setId(id);
-
-            return r;
         }
+
+        double content = input.readDouble();
+
+        KiWiUriResource dtype = readURI(input);
+
+        Date created = new Date(input.readLong());
+
+        KiWiDoubleLiteral r = new KiWiDoubleLiteral(content, dtype, created);
+        r.setId(id);
+
+        return r;
     }
 
 
@@ -550,20 +550,20 @@ public class KiWiIO {
     public static KiWiIntLiteral readIntLiteral(DataInput input) throws IOException {
         long id = input.readLong();
 
-        if(id == -1) {
+        if (id == -1) {
             return null;
-        } else {
-            long content = input.readLong();
-
-            KiWiUriResource dtype = readURI(input);
-
-            Date created = new Date(input.readLong());
-
-            KiWiIntLiteral r = new KiWiIntLiteral(content, dtype, created);
-            r.setId(id);
-
-            return r;
         }
+
+        long content = input.readLong();
+
+        KiWiUriResource dtype = readURI(input);
+
+        Date created = new Date(input.readLong());
+
+        KiWiIntLiteral r = new KiWiIntLiteral(content, dtype, created);
+        r.setId(id);
+
+        return r;
     }
 
 
@@ -606,66 +606,66 @@ public class KiWiIO {
 
         if(id == -1) {
             return null;
-        } else {
-            String content = readContent(input);
-            byte   langB   = input.readByte();
-            String lang;
-
-            switch (langB) {
-                case LANG_EN:
-                    lang = "en";
-                    break;
-                case LANG_DE:
-                    lang = "de";
-                    break;
-                case LANG_FR:
-                    lang = "fr";
-                    break;
-                case LANG_ES:
-                    lang = "es";
-                    break;
-                case LANG_IT:
-                    lang = "it";
-                    break;
-                case LANG_PT:
-                    lang = "pt";
-                    break;
-                case LANG_NL:
-                    lang = "nl";
-                    break;
-                case LANG_SV:
-                    lang = "sv";
-                    break;
-                case LANG_NO:
-                    lang = "no";
-                    break;
-                case LANG_FI:
-                    lang = "fi";
-                    break;
-                case LANG_RU:
-                    lang = "ru";
-                    break;
-                case LANG_DK:
-                    lang = "dk";
-                    break;
-                case LANG_PL:
-                    lang = "pl";
-                    break;
-                default:
-                    lang = DataIO.readString(input);
-            }
-
-
-
-            KiWiUriResource dtype = readURI(input);
-
-            Date created = new Date(input.readLong());
-
-            KiWiStringLiteral r = new KiWiStringLiteral(content, lang != null ? Locale.forLanguageTag(lang) : null, dtype, created);
-            r.setId(id);
-
-            return r;
         }
+
+        String content = readContent(input);
+        byte   langB   = input.readByte();
+        String lang;
+
+        switch (langB) {
+            case LANG_EN:
+                lang = "en";
+                break;
+            case LANG_DE:
+                lang = "de";
+                break;
+            case LANG_FR:
+                lang = "fr";
+                break;
+            case LANG_ES:
+                lang = "es";
+                break;
+            case LANG_IT:
+                lang = "it";
+                break;
+            case LANG_PT:
+                lang = "pt";
+                break;
+            case LANG_NL:
+                lang = "nl";
+                break;
+            case LANG_SV:
+                lang = "sv";
+                break;
+            case LANG_NO:
+                lang = "no";
+                break;
+            case LANG_FI:
+                lang = "fi";
+                break;
+            case LANG_RU:
+                lang = "ru";
+                break;
+            case LANG_DK:
+                lang = "dk";
+                break;
+            case LANG_PL:
+                lang = "pl";
+                break;
+            default:
+                lang = DataIO.readString(input);
+        }
+
+
+
+        KiWiUriResource dtype = readURI(input);
+
+        Date created = new Date(input.readLong());
+
+        KiWiStringLiteral r = new KiWiStringLiteral(content, lang != null ? Locale.forLanguageTag(lang) : null, dtype, created);
+        r.setId(id);
+
+        return r;
     }
 
 
@@ -787,27 +787,27 @@ public class KiWiIO {
     private static String readContent(DataInput in) throws IOException {
         int mode = in.readByte();
 
-        if(mode == MODE_COMPRESSED) {
-            try {
-                int strlen = in.readInt();
-                int buflen = in.readInt();
-
-                byte[] buffer = new byte[buflen];
-                in.readFully(buffer);
-
-                Inflater decompressor = new Inflater(true);
-                decompressor.setInput(buffer);
-
-                byte[] data = new byte[strlen];
-                decompressor.inflate(data);
-                decompressor.end();
-
-                return new String(data,"UTF-8");
-            } catch(DataFormatException ex) {
-                throw new IllegalStateException("input data is not valid",ex);
-            }
-        } else {
+        if (mode != MODE_COMPRESSED) {
             return DataIO.readString(in);
+        }
+
+        try {
+            int strlen = in.readInt();
+            int buflen = in.readInt();
+
+            byte[] buffer = new byte[buflen];
+            in.readFully(buffer);
+
+            Inflater decompressor = new Inflater(true);
+            decompressor.setInput(buffer);
+
+            byte[] data = new byte[strlen];
+            decompressor.inflate(data);
+            decompressor.end();
+
+            return new String(data,"UTF-8");
+        } catch(DataFormatException ex) {
+            throw new IllegalStateException("input data is not valid",ex);
         }
     }
 
