@@ -1,0 +1,2 @@
+<http://example.org/resource1> <http://test.org/p1> "v1".
+<http://example.org/resource2> <http://test.org/p1> "v1".

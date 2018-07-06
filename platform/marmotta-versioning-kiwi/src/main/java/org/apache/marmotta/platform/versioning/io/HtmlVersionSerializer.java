@@ -94,7 +94,7 @@ public class HtmlVersionSerializer implements VersionSerializer {
             //write data to map
             Map<String, Object> data = new HashMap<String, Object>();
 
-            data.put("original",original.toString());
+            data.put("original", MementoUtils.originalURI(original.toString(),configurationService.getBaseUri()));
 
             List<Map<String,String>> vs = new ArrayList<Map<String,String>>();
 
@@ -102,6 +102,7 @@ public class HtmlVersionSerializer implements VersionSerializer {
                 Version v = versions.next();
                 Map<String,String> m = new HashMap<String,String>();
                 m.put("date",v.getCommitTime().toString());
+                m.put("formatedDate", MementoUtils.MEMENTO_DATE_FORMAT.format(v.getCommitTime()));
                 m.put("uri",MementoUtils.resourceURI(original.toString(), v.getCommitTime(), configurationService.getBaseUri()).toString());
                 m.put("tstamp", TSTAMP.format(v.getCommitTime()));
                 vs.add(m);

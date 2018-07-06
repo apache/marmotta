@@ -106,11 +106,18 @@ public class MementoWebService {
         try {
             //check preconditions
             Preconditions.checkNotNull(resource_string,"Resource URI may not null");
-            Preconditions.checkNotNull(date_string, "Accept-Datetime Header may not be null");
 
             final RepositoryConnection conn = sesameService.getConnection();
             try {
-                Date date = DateUtils.parseDate(date_string);
+
+                //if date_string is not set, get NOW, else parse date_string
+                Date date = null;
+
+                if(date_string == null) {
+                    date = new Date();
+                } else {
+                    date = DateUtils.parseDate(date_string);
+                }
 
                 URI resource = conn.getValueFactory().createURI(resource_string);
 
@@ -125,10 +132,9 @@ public class MementoWebService {
 
                 //return permalink
                 return Response
-                        .status(301)
+                        .status(302)
                         .location(MementoUtils.resourceURI(resource_string, versions.getCurrent().getCommitTime(), configurationService.getBaseUri()))
                         .header(VARY, "negotiate, accept-datetime, accept")
-                        .header("Memento-Datetime", versions.getCurrent().getCommitTime().toString())
                         .header(LINK, Joiner.on(", ").join(links))
                         .build();
 
@@ -173,7 +179,7 @@ public class MementoWebService {
             RepositoryConnection conn = sesameService.getConnection();
 
             try {
-                final Date date = MementoUtils.MEMENTO_DATE_FORMAT.parse(date_string);
+                final Date date = MementoUtils.MEMENTO_DATE_FORMAT_FOR_URIS.parse(date_string);
 
                 final URI resource = conn.getValueFactory().createURI(resource_string);
 
@@ -282,7 +288,7 @@ public class MementoWebService {
                 Set<String> links = new HashSet<String>();
                 links.add("<" + MementoUtils.timegateURI(resource_string, configurationService.getBaseUri()) + ">;rel=timegate");
 
-                links.add("<" + resource_string + ">;rel=original");
+                links.add("<" + MementoUtils.originalURI(resource_string, configurationService.getBaseUri()) + ">;rel=original");
 
                 //create response
                 return Response
