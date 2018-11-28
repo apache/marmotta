@@ -21,18 +21,15 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.4.0-SNAPSHOT</version>
+        <version>3.3.0-SNAPSHOT</version>
         <relativePath>../../parent</relativePath>
     </parent>
 
-    <artifactId>marmotta-ldp</artifactId>
+    <artifactId>marmotta-ldf</artifactId>
     <packaging>jar</packaging>
 
-    <name>Apache Marmotta Platform: Linked Data Platform 1.0</name>
-    <description>
-        Provides support for the current working draft of the
-        Linked Data Platform 1.0 specification.
-    </description>
+    <name>Apache Marmotta Platform: Linked Data Fragments</name>
+    <description>Provides support for the Linked Data Fragments.</description>
 
     <build>
         <pluginManagement>
@@ -153,14 +150,8 @@
             </plugin>
 
             <plugin>
-                <!-- these are "extras", so they come from 3rd parties, no RAT check! -->
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>src/test/resources/testsuite/LDP-Test-Cases-WD-*.ttl</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
 
         </plugins>
@@ -174,8 +165,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-util-rdfpatch</artifactId>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
@@ -263,36 +254,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.code.tempus-fugit</groupId>
-            <artifactId>tempus-fugit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.jatl</groupId>
-            <artifactId>jatl</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-sail-memory</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.w3</groupId>
-            <artifactId>ldp-testsuite</artifactId>
-            <version>0.1.1</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
     </dependencies>

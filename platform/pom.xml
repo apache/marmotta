@@ -70,20 +70,20 @@
         <module>backends</module>
         <module>ldcache</module>
 
-        <!-- LDP -->
-        <module>marmotta-ldp</module>
-
         <!-- generic modules -->
-        <module>marmotta-ldpath</module>
-        <module>marmotta-security</module>
         <module>marmotta-sparql</module>
-        <module>marmotta-user</module>
+        <module>marmotta-ldp</module>
+        <module>marmotta-ldpath</module>
+        <module>marmotta-ldf</module>
 
-        <module>marmotta-versioning-common</module>
+        <!-- security modules -->
+        <module>marmotta-security</module>
+        <module>marmotta-user</module>
 
         <!-- KiWi backend specific modules -->
         <module>marmotta-reasoner-kiwi</module>
         <module>marmotta-versioning-kiwi</module>
+        <module>marmotta-versioning-common</module>
 
         <!-- Cloud Integration -->
         <module>marmotta-zookeeper</module>

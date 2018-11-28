@@ -28,7 +28,7 @@
     <artifactId>marmotta-sparql</artifactId>
     <packaging>jar</packaging>
 
-    <name>Apache Marmotta Platform: SPARQL Endpoint</name>
+    <name>Apache Marmotta Platform: SPARQL 1.1</name>
     <description>
         Provides support for SPARQL 1.1 Queries and Updates and offers different 
         UIs for exploring SPARQL results.
