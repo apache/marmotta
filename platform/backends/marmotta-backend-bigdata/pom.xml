@@ -41,7 +41,7 @@
     <repositories>
         <repository>
             <id>bigdata.releases</id>
-            <url>http://www.systap.com/maven/releases/</url>
+            <url>https://www.systap.com/maven/releases/</url>
         </repository>
     </repositories>
 
