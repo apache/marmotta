@@ -69,7 +69,7 @@ public class SSLServiceImpl implements SSLService {
         }
     }
 
-
+    /** it is not secure */
     private static class DefaultTrustManager implements X509TrustManager {
         @Override
         public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
